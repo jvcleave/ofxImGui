@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0320E88F1B77EAB4005AAF15 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0320E88D1B77EAB4005AAF15 /* imgui_draw.cpp */; };
-		0320E8911B793AF9005AAF15 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0320E8901B793977005AAF15 /* imgui_demo.cpp */; };
+		0320E8931B793FEB005AAF15 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0320E8921B793FEB005AAF15 /* imgui_demo.cpp */; };
 		0364F8011B77E65B0048259D /* imgui_impl_glfw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0364F7FD1B77E65B0048259D /* imgui_impl_glfw.cpp */; };
 		0364F8021B77E65B0048259D /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0364F7FF1B77E65B0048259D /* imgui.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -65,7 +65,7 @@
 /* Begin PBXFileReference section */
 		0320E88B1B77E968005AAF15 /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
 		0320E88D1B77EAB4005AAF15 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
-		0320E8901B793977005AAF15 /* imgui_demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_demo.cpp; path = ../../imgui_demo.cpp; sourceTree = "<group>"; };
+		0320E8921B793FEB005AAF15 /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
 		0364F7FD1B77E65B0048259D /* imgui_impl_glfw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_glfw.cpp; sourceTree = "<group>"; };
 		0364F7FE1B77E65B0048259D /* imgui_impl_glfw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_glfw.h; sourceTree = "<group>"; };
 		0364F7FF1B77E65B0048259D /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
@@ -195,7 +195,7 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				0320E8901B793977005AAF15 /* imgui_demo.cpp */,
+				0320E8921B793FEB005AAF15 /* imgui_demo.cpp */,
 				0320E88D1B77EAB4005AAF15 /* imgui_draw.cpp */,
 				0320E88B1B77E968005AAF15 /* imconfig.h */,
 				0364F8041B77E7390048259D /* stb_rect_pack.h */,
@@ -311,7 +311,7 @@
 			files = (
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				0364F8021B77E65B0048259D /* imgui.cpp in Sources */,
-				0320E8911B793AF9005AAF15 /* imgui_demo.cpp in Sources */,
+				0320E8931B793FEB005AAF15 /* imgui_demo.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				0320E88F1B77EAB4005AAF15 /* imgui_draw.cpp in Sources */,
 				0364F8011B77E65B0048259D /* imgui_impl_glfw.cpp in Sources */,
