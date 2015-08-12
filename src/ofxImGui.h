@@ -1,9 +1,13 @@
 // ImGui GLFW binding with OpenGL
 // https://github.com/ocornut/imgui
 
-struct GLFWwindow;
+#include "ofMain.h"
+#include "imgui.h"
+#include "ofAppGLFWWindow.h"
 
-bool        ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks);
+
+
+bool        ImGui_ImplGlfw_Init(bool install_callbacks);
 void        ImGui_ImplGlfw_Shutdown();
 void        ImGui_ImplGlfw_NewFrame();
 

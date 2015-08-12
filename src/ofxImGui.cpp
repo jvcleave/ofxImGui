@@ -1,8 +1,8 @@
 // ImGui GLFW binding with OpenGL
 // https://github.com/ocornut/imgui
 
-#include <imgui.h>
-#include "imgui_impl_glfw.h"
+
+#include "ofxImGui.h"
 
 // GLFW
 #include <GLFW/glfw3.h>
@@ -51,6 +51,9 @@ static void ImGui_ImplGlfw_RenderDrawLists(ImDrawData* draw_data)
     glPushMatrix();
     glLoadIdentity();
 
+    
+    ofMesh mesh;
+    
     // Render command lists
     #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
     for (int n = 0; n < draw_data->CmdListsCount; n++)
@@ -94,7 +97,9 @@ static void ImGui_ImplGlfw_RenderDrawLists(ImDrawData* draw_data)
 
 static const char* ImGui_ImplGlfw_GetClipboardText()
 {
-    return glfwGetClipboardString(g_Window);
+    ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
+    
+    return baseWindow->getClipboardString().c_str();
 }
 
 static void ImGui_ImplGlfw_SetClipboardText(const char* text)
@@ -122,9 +127,9 @@ void ImGui_ImplGlFw_KeyCallback(GLFWwindow*, int key, int, int action, int mods)
         io.KeysDown[key] = false;
 
     (void)mods; // Modifiers are not reliable across systems
-    io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-    io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-    io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+    io.KeyCtrl = io.KeysDown[OF_KEY_LEFT_CONTROL] || io.KeysDown[OF_KEY_RIGHT_CONTROL];
+    io.KeyShift = io.KeysDown[OF_KEY_LEFT_SHIFT] || io.KeysDown[OF_KEY_RIGHT_SHIFT];
+    io.KeyAlt = io.KeysDown[OF_KEY_LEFT_ALT] || io.KeysDown[OF_KEY_RIGHT_ALT];
 }
 
 void ImGui_ImplGlfw_CharCallback(GLFWwindow*, unsigned int c)
@@ -170,31 +175,26 @@ void    ImGui_ImplGlfw_InvalidateDeviceObjects()
     }
 }
 
-bool    ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks)
+bool    ImGui_ImplGlfw_Init(bool install_callbacks)
 {
-    g_Window = window;
+    ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
+    
+    g_Window = baseWindow->getGLFWWindow();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
-    io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-    io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-    io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-    io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-    io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-    io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-    io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-    io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-    io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-    io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-    io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-    io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-    io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-    io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-    io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-    io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-    io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-
+    io.KeyMap[ImGuiKey_Tab] = OF_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+    io.KeyMap[ImGuiKey_LeftArrow] = OF_KEY_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow] = OF_KEY_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = OF_KEY_DOWN;
+    io.KeyMap[ImGuiKey_PageUp] = OF_KEY_PAGE_UP;
+    io.KeyMap[ImGuiKey_PageDown] = OF_KEY_PAGE_DOWN;
+    io.KeyMap[ImGuiKey_Home] = OF_KEY_HOME;
+    io.KeyMap[ImGuiKey_End] = OF_KEY_END;
+    io.KeyMap[ImGuiKey_Delete] = OF_KEY_DEL;
+    io.KeyMap[ImGuiKey_Backspace] = OF_KEY_BACKSPACE;
+    io.KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
+    io.KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
     io.RenderDrawListsFn = ImGui_ImplGlfw_RenderDrawLists;
     io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
@@ -204,10 +204,10 @@ bool    ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks)
 
     if (install_callbacks)
     {
-        glfwSetMouseButtonCallback(window, ImGui_ImplGlfw_MouseButtonCallback);
-        glfwSetScrollCallback(window, ImGui_ImplGlfw_ScrollCallback);
-        glfwSetKeyCallback(window, (GLFWkeyfun)ImGui_ImplGlFw_KeyCallback);
-        glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
+        glfwSetMouseButtonCallback(g_Window, ImGui_ImplGlfw_MouseButtonCallback);
+        glfwSetScrollCallback(g_Window, ImGui_ImplGlfw_ScrollCallback);
+        glfwSetKeyCallback(g_Window, (GLFWkeyfun)ImGui_ImplGlFw_KeyCallback);
+        glfwSetCharCallback(g_Window, ImGui_ImplGlfw_CharCallback);
     }
 
     return true;
@@ -227,12 +227,13 @@ void ImGui_ImplGlfw_NewFrame()
     ImGuiIO& io = ImGui::GetIO();
 
     // Setup display size (every frame to accommodate for window resizing)
-    int w, h;
-    int display_w, display_h;
-    glfwGetWindowSize(g_Window, &w, &h);
-    glfwGetFramebufferSize(g_Window, &display_w, &display_h);
-    io.DisplaySize = ImVec2((float)display_w, (float)display_h);
-
+    //int w, h;
+    int w = ofGetWindowWidth();
+    int h = ofGetWindowHeight();
+    io.DisplaySize = ImVec2((float)w, (float)h);
+    
+    
+    
     // Setup time step
     double current_time =  glfwGetTime();
     io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
@@ -243,9 +244,10 @@ void ImGui_ImplGlfw_NewFrame()
     if (glfwGetWindowAttrib(g_Window, GLFW_FOCUSED))
     {
     	double mouse_x, mouse_y;
-    	glfwGetCursorPos(g_Window, &mouse_x, &mouse_y);
-    	mouse_x *= (float)display_w / w;                        // Convert mouse coordinates to pixels
-    	mouse_y *= (float)display_h / h;
+        mouse_x = (double)ofGetMouseX();
+        mouse_y = (double)ofGetMouseY();
+    	mouse_x *= (float)ofGetScreenWidth() / w;                        // Convert mouse coordinates to pixels
+    	mouse_y *= (float)ofGetScreenHeight() / h;
     	io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
     }
     else
@@ -261,10 +263,11 @@ void ImGui_ImplGlfw_NewFrame()
 
     io.MouseWheel = g_MouseWheel;
     g_MouseWheel = 0.0f;
-
+    
+    
     // Hide OS mouse cursor if ImGui is drawing it
-    glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
-
+    if(io.MouseDrawCursor) ofHideCursor();
+    
     // Start the frame
     ImGui::NewFrame();
 }
