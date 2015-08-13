@@ -1,9 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-//#include "imgui.h"
 #include "ofxImGui.h"
-#include "ofAppGLFWWindow.h"
 
 class ofApp : public ofBaseApp{
 	public:
@@ -21,6 +19,8 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
+    
+    ofxImGui gui;
     ImVec4 clear_color;
     bool show_test_window;
     bool show_another_window;

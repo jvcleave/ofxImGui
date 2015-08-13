@@ -5,7 +5,7 @@ void ofApp::setup()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    ImGui_ImplGlfw_Init(true);
+    gui.setup(true);
     ImGui::GetIO().MouseDrawCursor = true;
     clear_color = ImColor(114, 144, 154);
     show_test_window = true;
@@ -24,7 +24,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     
-    ImGui_ImplGlfw_NewFrame();
+    gui.NewFrame();
 
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
