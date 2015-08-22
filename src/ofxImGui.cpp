@@ -155,15 +155,9 @@ bool ofxImGui::CreateDeviceObjects()
     io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
     ofLogVerbose() << "width: " << width << " height: " << height;
     
-    textureData.textureTarget = GL_TEXTURE_2D;
-    textureData.glTypeInternal = GL_ALPHA;
-    textureData.width = width;
-    textureData.height= height;
-    
-    g_FontTexture.allocate(textureData, GL_ALPHA, GL_UNSIGNED_BYTE);
-  #if 0 
-    glGenTextures(1, &g_FontTexture);
-    glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+    GLuint externalTexture;
+    glGenTextures(1, &externalTexture);
+    glBindTexture(GL_TEXTURE_2D, externalTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 
@@ -175,7 +169,7 @@ bool ofxImGui::CreateDeviceObjects()
                  GL_ALPHA, 
                  GL_UNSIGNED_BYTE, 
                  pixels);
- #endif
+    g_FontTexture.setUseExternalTextureID(externalTexture);
     /*
      glTexImage2D(texData.textureTarget, 
      0,
@@ -188,8 +182,10 @@ bool ofxImGui::CreateDeviceObjects()
      0);
      */
 
-    // Store our identifier
+    // Store our identifie
+    
     io.Fonts->TexID = (void *)(intptr_t)g_FontTexture.getTextureData().textureID;
+
 
     // Cleanup (don't clear the input data if you want to append new fonts later)
     io.Fonts->ClearInputData();
@@ -246,7 +242,9 @@ void ofxImGui::Shutdown()
 void ofxImGui::NewFrame()
 {
     if (!g_FontTexture.isAllocated())
-        CreateDeviceObjects();
+    {
+         CreateDeviceObjects();
+    }
 
     ImGuiIO& io = ImGui::GetIO();
 

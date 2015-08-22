@@ -37,8 +37,6 @@ public:
     double g_Time;
     static bool g_MousePressed[3];
     static float g_MouseWheel;
-   // GLuint g_FontTexture;
-    
-    ofTextureData textureData;
+
     ofTexture g_FontTexture;
 };
