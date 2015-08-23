@@ -5,8 +5,8 @@
 
 #include "ofMain.h"
 #include "imgui.h"
-#include "GLFW_WindowListener.h"
 
+#define USING_GLFW 0
 
 class ofxImGui
 {
@@ -14,20 +14,41 @@ public:
     
     ofxImGui();
     ~ofxImGui();
+#if USING_GLFW
+    GLFWwindow*  glfwWindow;
+#endif
+    ofTexture fontTexture;
+    
+    
     void        setup();
     void        begin();
     void        end();
-        
-    // Use if you want to reset your rendering device without losing ImGui state.
-    void        InvalidateDeviceObjects();
-    bool        CreateDeviceObjects();
-
-    static const char* GetClipboardText();
-    static void  SetClipboardText(const char* text);
-    static void  RenderDrawLists(ImDrawData* draw_data);
     
-    ofTexture fontTexture;
-
-    GLFW_WindowListener* windowListener;
+    
+    void onKeyPressed(ofKeyEventArgs& event);
+    void onKeyReleased(ofKeyEventArgs& event);
+    void onMousePressed(ofMouseEventArgs& event);
+    void onMouseScrolled(ofMouseEventArgs& event);
+    
+    
+    float mouseWheel;
+    
+    void updateFrame();
+    double time;
+    bool mousePressed[3];
+    
     ImGuiIO* io;
+    
+    
+    // Use if you want to reset your rendering device without losing ImGui state.
+    bool createDeviceObjects();
+
+    static const char* getClipboardString();
+    static void  setClipboardString(const char* text);
+    static void  renderDrawLists(ImDrawData* draw_data);
+    
+   
+
+    
+    
 };

@@ -11,7 +11,6 @@
 		0320E8931B793FEB005AAF15 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0320E8921B793FEB005AAF15 /* imgui_demo.cpp */; };
 		0364F8011B77E65B0048259D /* ofxImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0364F7FD1B77E65B0048259D /* ofxImGui.cpp */; };
 		0364F8021B77E65B0048259D /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0364F7FF1B77E65B0048259D /* imgui.cpp */; };
-		039EE5BC1B892474008039D1 /* GLFW_WindowListener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 039EE5BA1B892474008039D1 /* GLFW_WindowListener.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -75,8 +74,6 @@
 		0364F8041B77E7390048259D /* stb_rect_pack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_rect_pack.h; sourceTree = "<group>"; };
 		0364F8051B77E7390048259D /* stb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_textedit.h; sourceTree = "<group>"; };
 		0364F8061B77E7390048259D /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_truetype.h; sourceTree = "<group>"; };
-		039EE5BA1B892474008039D1 /* GLFW_WindowListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLFW_WindowListener.cpp; sourceTree = "<group>"; };
-		039EE5BB1B892474008039D1 /* GLFW_WindowListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLFW_WindowListener.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
@@ -202,8 +199,6 @@
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				0364F7FE1B77E65B0048259D /* ofxImGui.h */,
 				0364F7FD1B77E65B0048259D /* ofxImGui.cpp */,
-				039EE5BB1B892474008039D1 /* GLFW_WindowListener.h */,
-				039EE5BA1B892474008039D1 /* GLFW_WindowListener.cpp */,
 				0320E8921B793FEB005AAF15 /* imgui_demo.cpp */,
 				0320E88D1B77EAB4005AAF15 /* imgui_draw.cpp */,
 				0320E88B1B77E968005AAF15 /* imconfig.h */,
@@ -315,7 +310,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
-				039EE5BC1B892474008039D1 /* GLFW_WindowListener.cpp in Sources */,
 				0364F8021B77E65B0048259D /* imgui.cpp in Sources */,
 				0320E8931B793FEB005AAF15 /* imgui_demo.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
