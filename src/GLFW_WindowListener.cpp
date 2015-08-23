@@ -1,124 +1,113 @@
 #include "GLFW_WindowListener.h"
 
-bool        GLFW_WindowListener::g_MousePressed[3] = { false, false, false };
-float       GLFW_WindowListener::g_MouseWheel = 0.0f;
-GLFWwindow* GLFW_WindowListener::glfwWindow = NULL;
 
 
 GLFW_WindowListener::GLFW_WindowListener()
 {
     g_Time = 0.0f;
-
-    ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
-    GLFW_WindowListener::glfwWindow = baseWindow->getGLFWWindow();
+    mouseWheel = 0.0f;
     
+    ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
+    glfwWindow = baseWindow->getGLFWWindow();
+    
+    io = &ImGui::GetIO();
+    
+    ofAddListener(ofEvents().keyPressed, this, &GLFW_WindowListener::onKeyPressed);
+    ofAddListener(ofEvents().keyReleased, this, &GLFW_WindowListener::onKeyReleased);
+    ofAddListener(ofEvents().mousePressed, this, &GLFW_WindowListener::onMousePressed);
+    ofAddListener(ofEvents().mouseScrolled, this, &GLFW_WindowListener::onMouseScrolled);
+
     
 #ifdef _WIN32
-    io->ImeWindowHandle = glfwGetWin32Window(GLFW_WindowListener::glfwWindow);
+    io->ImeWindowHandle = glfwGetWin32Window(glfwWindow);
 #endif
     
-    //glfwSetMouseButtonCallback(GLFW_WindowListener::glfwWindow, MouseButtonCallback);
-   // glfwSetScrollCallback(GLFW_WindowListener::glfwWindow, ScrollCallback);
-    //glfwSetKeyCallback(GLFW_WindowListener::glfwWindow, KeyCallback);
-   // glfwSetCharCallback(GLFW_WindowListener::glfwWindow, CharCallback);
-    
+}
+
+
+void GLFW_WindowListener::onKeyPressed(ofKeyEventArgs& event)
+{
+    io->KeysDown[event.key] = true;
     
 }
 
-void GLFW_WindowListener::MouseButtonCallback(GLFWwindow*, int button, int action, int /*mods*/)
+void GLFW_WindowListener::onKeyReleased(ofKeyEventArgs& event)
 {
-    if (action == GLFW_PRESS && button >= 0 && button < 3)
-    {
-         GLFW_WindowListener::g_MousePressed[button] = true;
-    }
-      
-}
-
-void GLFW_WindowListener::ScrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
-{
-    GLFW_WindowListener::g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
-}
-
-//void GLFW_WindowListener::KeyCallback(GLFWwindow*, int key, int, int action, int mods)
-
-void GLFW_WindowListener::KeyCallback(GLFWwindow* windowP_, 
-                                      int key, 
-                                      int scancode, 
-                                      unsigned int codepoint, 
-                                      int action, 
-                                      int mods)
-{
-    ImGuiIO& io = ImGui::GetIO();    
-    if (action == GLFW_PRESS)
-    {
-        //ofLogVerbose(__FUNCTION__) << "GLFW_PRESS key: " << key;
-        io.KeysDown[key] = true; 
-        ofGetWindowPtr()->events().notifyKeyPressed(key);
-    }
     
-    if (action == GLFW_RELEASE)
-    {
-        //ofLogVerbose(__FUNCTION__) << "GLFW_RELEASE key: " << key;
-        io.KeysDown[key] = false;
-        ofGetWindowPtr()->events().notifyKeyReleased(key);
-    }
-    
-    (void)mods; // Modifiers are not reliable across systems
-   // io.KeyCtrl = io.KeysDown[OF_KEY_LEFT_CONTROL] || io.KeysDown[OF_KEY_RIGHT_CONTROL];
-   // io.KeyShift = io.KeysDown[OF_KEY_LEFT_SHIFT] || io.KeysDown[OF_KEY_RIGHT_SHIFT];
-   // io.KeyAlt = io.KeysDown[OF_KEY_LEFT_ALT] || io.KeysDown[OF_KEY_RIGHT_ALT];
-    
+    io->KeysDown[event.key] = false;
+    io->AddInputCharacter((unsigned short)event.codepoint);
     
 }
 
-void GLFW_WindowListener::CharCallback(GLFWwindow*, unsigned int c)
+void GLFW_WindowListener::onMousePressed(ofMouseEventArgs& event)
 {
-    ImGuiIO& io = ImGui::GetIO();
-    if (c > 0 && c < 0x10000)
+    if (event.button >= 0 && event.button < 3)
     {
-        io.AddInputCharacter((unsigned short)c);
+        g_MousePressed[event.button] = true;
     }
+}
+
+void GLFW_WindowListener::onMouseScrolled(ofMouseEventArgs& event)
+{    
+    GLFW_WindowListener::mouseWheel += (float)event.y;
 }
 
 void GLFW_WindowListener::updateFrame()
 {
-    
-    ImGuiIO& io = ImGui::GetIO();
-    
+        
     // Setup time step
     float current_time =  ofGetElapsedTimef();
-    io.DeltaTime = g_Time > 0.0 ? (current_time - g_Time) : (1.0f/60.0f);
+    
+    if(g_Time > 0.0 )
+    {
+        io->DeltaTime =  current_time - g_Time;
+    }else
+    {
+        io->DeltaTime =1.0f/60.0f;
+    }
+
     g_Time =  current_time;
     
     // Setup display size (every frame to accommodate for window resizing)
     //int w, h;
     int w = ofGetWindowWidth();
     int h = ofGetWindowHeight();
-    io.DisplaySize = ImVec2((float)w, (float)h);
+    io->DisplaySize = ImVec2((float)w, (float)h);
     
-    if (glfwGetWindowAttrib(GLFW_WindowListener::glfwWindow, GLFW_FOCUSED))
+    if (glfwGetWindowAttrib(glfwWindow, GLFW_FOCUSED))
     {
         double mouse_x, mouse_y;
         mouse_x = (double)ofGetMouseX();
         mouse_y = (double)ofGetMouseY();
-        mouse_x *= (float)ofGetScreenWidth() / w;                        // Convert mouse coordinates to pixels
+        mouse_x *= (float)ofGetScreenWidth() / w; // Convert mouse coordinates to pixels
         mouse_y *= (float)ofGetScreenHeight() / h;
-        io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+        
+        // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+        io->MousePos = ImVec2((float)mouse_x, (float)mouse_y);   
     }
     else
     {
-        io.MousePos = ImVec2(-1,-1);
+        io->MousePos = ImVec2(-1,-1);
     }
+    
     for (int i = 0; i < 3; i++)
     {
-        io.MouseDown[i] = g_MousePressed[i] || glfwGetMouseButton(GLFW_WindowListener::glfwWindow, i) != 0;    // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+        /*
+         If a mouse press event came, always pass it as "mouse held this frame", 
+         so we don't miss click-release events that are shorter than 1 frame.
+         */
+        
+        io->MouseDown[i] = g_MousePressed[i] || ofGetMousePressed(i);  
         g_MousePressed[i] = false;
     }
     
-    io.MouseWheel = g_MouseWheel;
-    g_MouseWheel = 0.0f;
+    io->MouseWheel = mouseWheel;
+    mouseWheel = 0.0f;
     
     // Hide OS mouse cursor if ImGui is drawing it
-    if(io.MouseDrawCursor) ofHideCursor();
+    if(io->MouseDrawCursor)
+    {
+        ofHideCursor();
+    }
     
 }

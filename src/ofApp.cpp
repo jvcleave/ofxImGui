@@ -76,6 +76,11 @@ void ofApp::keyReleased(int key){
 
 }
 
+
+void ofApp::mouseScrolled(float x, float y)
+{
+    ofLogVerbose(__FUNCTION__) << "x: " << x << " y: " << y;
+}
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y){
 

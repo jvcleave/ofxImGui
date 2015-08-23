@@ -18,7 +18,7 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-    
+        void mouseScrolled(float x, float y);
     
     ofxImGui gui;
     ImVec4 clear_color;
