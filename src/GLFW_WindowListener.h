@@ -31,6 +31,6 @@ public:
     static float g_MouseWheel;
     
     void updateFrame();
-    
-    void updateCurrentTime(double& g_Time);
+    double g_Time;
+
 };

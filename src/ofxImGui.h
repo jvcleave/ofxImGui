@@ -27,7 +27,6 @@ public:
     
     // Data
     
-    double g_Time;
 
 
     ofTexture g_FontTexture;

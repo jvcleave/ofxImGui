@@ -7,6 +7,8 @@ GLFWwindow* GLFW_WindowListener::glfwWindow = NULL;
 
 GLFW_WindowListener::GLFW_WindowListener()
 {
+    g_Time = 0.0f;
+
     ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
     GLFW_WindowListener::glfwWindow = baseWindow->getGLFWWindow();
     
@@ -60,19 +62,15 @@ void GLFW_WindowListener::CharCallback(GLFWwindow*, unsigned int c)
     }
 }
 
-void GLFW_WindowListener::updateCurrentTime(double& g_Time)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    // Setup time step
-    float current_time =  ofGetElapsedTimef();
-    io.DeltaTime = g_Time > 0.0 ? (current_time - g_Time) : (1.0f/60.0f);
-    g_Time =  current_time;
-}
-
 void GLFW_WindowListener::updateFrame()
 {
     
     ImGuiIO& io = ImGui::GetIO();
+    
+    // Setup time step
+    float current_time =  ofGetElapsedTimef();
+    io.DeltaTime = g_Time > 0.0 ? (current_time - g_Time) : (1.0f/60.0f);
+    g_Time =  current_time;
     
     // Setup display size (every frame to accommodate for window resizing)
     //int w, h;

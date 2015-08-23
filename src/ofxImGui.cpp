@@ -4,7 +4,6 @@ ofxImGui::ofxImGui()
 {
 
     // Data
-    g_Time = 0.0f;
     windowListener = NULL;
     io = &ImGui::GetIO();
 }
@@ -182,7 +181,6 @@ void ofxImGui::NewFrame()
     // (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
     if(windowListener)
     {
-        windowListener->updateCurrentTime(g_Time);
         windowListener->updateFrame();
     }
     
