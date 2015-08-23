@@ -4,10 +4,8 @@
 void ofApp::setup()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
-
-    ofAppGLFWWindow * baseWindow =  (ofAppGLFWWindow*)ofGetWindowPtr();
     
-    ImGui_ImplGlfw_Init(baseWindow->getGLFWWindow(), true);
+    gui.setup();
     ImGui::GetIO().MouseDrawCursor = true;
     clear_color = ImColor(114, 144, 154);
     show_test_window = true;
@@ -26,12 +24,11 @@ void ofApp::update(){
 void ofApp::draw(){
     
     
-    ImGui_ImplGlfw_NewFrame();
+    gui.begin();
 
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
     {
-        static float f = 0.0f;
         ImGui::Text("Hello, world!");
         ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
@@ -55,26 +52,35 @@ void ofApp::draw(){
        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
         ImGui::ShowTestWindow(&show_test_window);
     }
-
+#if 0
+    ImGui::Begin("Keys");
+    for (int i = 0; i < ImGuiKey_COUNT; i++)
+        ofLog(OF_LOG_VERBOSE, "Key %d: %d", i, ImGui::IsKeyDown(ImGui::GetKeyIndex(i)));
+    ImGui::End();
+#endif
+    gui.end();
     
-    ImGui::Render();
-
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-    ofLogVerbose() << key;
-    ofLogVerbose() << "OF_KEY_BACKSPACE: " << OF_KEY_BACKSPACE;
+    ofLogVerbose(__FUNCTION__) << key;
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    ofLogVerbose(__FUNCTION__) << key;
 
 }
 
+
+void ofApp::mouseScrolled(float x, float y)
+{
+    ofLogVerbose(__FUNCTION__) << "x: " << x << " y: " << y;
+}
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y){
 

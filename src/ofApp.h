@@ -1,10 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_glfw.h"
-#include "ofAppGLFWWindow.h"
+#include "ofxImGui.h"
 
 class ofApp : public ofBaseApp{
 	public:
@@ -21,7 +18,9 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+        void mouseScrolled(float x, float y);
     
+    ofxImGui gui;
     ImVec4 clear_color;
     bool show_test_window;
     bool show_another_window;
