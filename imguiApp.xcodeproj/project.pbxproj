@@ -198,6 +198,12 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
+				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
+				0364F7FE1B77E65B0048259D /* ofxImGui.h */,
+				0364F7FD1B77E65B0048259D /* ofxImGui.cpp */,
+				039EE5BB1B892474008039D1 /* GLFW_WindowListener.h */,
+				039EE5BA1B892474008039D1 /* GLFW_WindowListener.cpp */,
 				0320E8921B793FEB005AAF15 /* imgui_demo.cpp */,
 				0320E88D1B77EAB4005AAF15 /* imgui_draw.cpp */,
 				0320E88B1B77E968005AAF15 /* imconfig.h */,
@@ -205,15 +211,9 @@
 				0364F8051B77E7390048259D /* stb_textedit.h */,
 				0364F8061B77E7390048259D /* stb_truetype.h */,
 				0364F8031B77E70D0048259D /* imgui_internal.h */,
-				0364F7FD1B77E65B0048259D /* ofxImGui.cpp */,
-				0364F7FE1B77E65B0048259D /* ofxImGui.h */,
 				0364F7FF1B77E65B0048259D /* imgui.cpp */,
 				0364F8001B77E65B0048259D /* imgui.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
-				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
-				039EE5BA1B892474008039D1 /* GLFW_WindowListener.cpp */,
-				039EE5BB1B892474008039D1 /* GLFW_WindowListener.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

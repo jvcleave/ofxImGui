@@ -2,14 +2,12 @@
 
 ofxImGui::ofxImGui()
 {
-
-    // Data
     windowListener = NULL;
     io = &ImGui::GetIO();
 }
 
 
-void ofxImGui::setup(bool install_callbacks)
+void ofxImGui::setup()
 {
     windowListener = new GLFW_WindowListener();
     
@@ -29,13 +27,7 @@ void ofxImGui::setup(bool install_callbacks)
     io->RenderDrawListsFn =  &ofxImGui::RenderDrawLists;
     io->SetClipboardTextFn = ofxImGui::SetClipboardText;
     io->GetClipboardTextFn = &ofxImGui::GetClipboardText;
-
     
-    if (install_callbacks)
-    {
-        //windowListener = new GLFW_WindowListener(); //TODO pass this
-        
-    }
 }
 
 
@@ -144,10 +136,10 @@ bool ofxImGui::CreateDeviceObjects()
                  GL_ALPHA, 
                  GL_UNSIGNED_BYTE, 
                  pixels);
-    g_FontTexture.setUseExternalTextureID(externalTexture);
+    fontTexture.setUseExternalTextureID(externalTexture);
     
     // Store our identifier
-    io->Fonts->TexID = (void *)(intptr_t)g_FontTexture.getTextureData().textureID;
+    io->Fonts->TexID = (void *)(intptr_t)fontTexture.getTextureData().textureID;
 
 
     // Cleanup (don't clear the input data if you want to append new fonts later)
@@ -157,22 +149,9 @@ bool ofxImGui::CreateDeviceObjects()
     return true;
 }
 
-void ofxImGui::InvalidateDeviceObjects()
+void ofxImGui::begin()
 {
-    ImGui::GetIO().Fonts->TexID = 0;
-}
-
-
-
-void ofxImGui::Shutdown()
-{
-    InvalidateDeviceObjects();
-    ImGui::Shutdown();
-}
-
-void ofxImGui::NewFrame()
-{
-    if (!g_FontTexture.isAllocated())
+    if (!fontTexture.isAllocated())
     {
          CreateDeviceObjects();
     }
@@ -188,6 +167,21 @@ void ofxImGui::NewFrame()
     ImGui::NewFrame();
 }
 
+void ofxImGui::end()
+{
+    ImGui::Render();
+}
+
+void ofxImGui::InvalidateDeviceObjects()
+{
+    ImGui::GetIO().Fonts->TexID = 0;
+}
+
+ofxImGui::~ofxImGui()
+{
+    InvalidateDeviceObjects();
+    ImGui::Shutdown();
+}
 
 
 

@@ -23,7 +23,8 @@ public:
     // You can also handle inputs yourself and use those as a reference.
     static void        MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void        ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-    static void        KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    //static void        KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void        KeyCallback(GLFWwindow*, int, int, unsigned int, int, int);
     static void        CharCallback(GLFWwindow* window, unsigned int c);
     
     

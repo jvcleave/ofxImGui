@@ -5,7 +5,7 @@ void ofApp::setup()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    gui.setup(true);
+    gui.setup();
     ImGui::GetIO().MouseDrawCursor = true;
     clear_color = ImColor(114, 144, 154);
     show_test_window = true;
@@ -24,7 +24,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     
-    gui.NewFrame();
+    gui.begin();
 
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
@@ -58,20 +58,21 @@ void ofApp::draw(){
         ofLog(OF_LOG_VERBOSE, "Key %d: %d", i, ImGui::IsKeyDown(ImGui::GetKeyIndex(i)));
     ImGui::End();
 #endif
-    ImGui::Render();
+    gui.end();
+    
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-    ofLogVerbose() << key;
-    ofLogVerbose() << "OF_KEY_BACKSPACE: " << OF_KEY_BACKSPACE;
+    ofLogVerbose(__FUNCTION__) << key;
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    ofLogVerbose(__FUNCTION__) << key;
 
 }
 

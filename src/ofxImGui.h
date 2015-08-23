@@ -13,10 +13,11 @@ class ofxImGui
 public:
     
     ofxImGui();
-    void        setup(bool install_callbacks);
-    void        Shutdown();
-    void        NewFrame();
-    
+    ~ofxImGui();
+    void        setup();
+    void        begin();
+    void        end();
+        
     // Use if you want to reset your rendering device without losing ImGui state.
     void        InvalidateDeviceObjects();
     bool        CreateDeviceObjects();
@@ -25,11 +26,7 @@ public:
     static void  SetClipboardText(const char* text);
     static void  RenderDrawLists(ImDrawData* draw_data);
     
-    // Data
-    
-
-
-    ofTexture g_FontTexture;
+    ofTexture fontTexture;
 
     GLFW_WindowListener* windowListener;
     ImGuiIO* io;

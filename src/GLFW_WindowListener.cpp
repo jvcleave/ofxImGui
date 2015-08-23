@@ -17,10 +17,10 @@ GLFW_WindowListener::GLFW_WindowListener()
     io->ImeWindowHandle = glfwGetWin32Window(GLFW_WindowListener::glfwWindow);
 #endif
     
-    glfwSetMouseButtonCallback(GLFW_WindowListener::glfwWindow, MouseButtonCallback);
-    glfwSetScrollCallback(GLFW_WindowListener::glfwWindow, ScrollCallback);
-    glfwSetKeyCallback(GLFW_WindowListener::glfwWindow, (GLFWkeyfun)KeyCallback);
-    glfwSetCharCallback(GLFW_WindowListener::glfwWindow, CharCallback);
+    //glfwSetMouseButtonCallback(GLFW_WindowListener::glfwWindow, MouseButtonCallback);
+   // glfwSetScrollCallback(GLFW_WindowListener::glfwWindow, ScrollCallback);
+    //glfwSetKeyCallback(GLFW_WindowListener::glfwWindow, KeyCallback);
+   // glfwSetCharCallback(GLFW_WindowListener::glfwWindow, CharCallback);
     
     
 }
@@ -31,7 +31,7 @@ void GLFW_WindowListener::MouseButtonCallback(GLFWwindow*, int button, int actio
     {
          GLFW_WindowListener::g_MousePressed[button] = true;
     }
-       
+      
 }
 
 void GLFW_WindowListener::ScrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
@@ -39,18 +39,36 @@ void GLFW_WindowListener::ScrollCallback(GLFWwindow*, double /*xoffset*/, double
     GLFW_WindowListener::g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
 }
 
-void GLFW_WindowListener::KeyCallback(GLFWwindow*, int key, int, int action, int mods)
+//void GLFW_WindowListener::KeyCallback(GLFWwindow*, int key, int, int action, int mods)
+
+void GLFW_WindowListener::KeyCallback(GLFWwindow* windowP_, 
+                                      int key, 
+                                      int scancode, 
+                                      unsigned int codepoint, 
+                                      int action, 
+                                      int mods)
 {
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();    
     if (action == GLFW_PRESS)
-        io.KeysDown[key] = true;
+    {
+        //ofLogVerbose(__FUNCTION__) << "GLFW_PRESS key: " << key;
+        io.KeysDown[key] = true; 
+        ofGetWindowPtr()->events().notifyKeyPressed(key);
+    }
+    
     if (action == GLFW_RELEASE)
+    {
+        //ofLogVerbose(__FUNCTION__) << "GLFW_RELEASE key: " << key;
         io.KeysDown[key] = false;
+        ofGetWindowPtr()->events().notifyKeyReleased(key);
+    }
     
     (void)mods; // Modifiers are not reliable across systems
-    io.KeyCtrl = io.KeysDown[OF_KEY_LEFT_CONTROL] || io.KeysDown[OF_KEY_RIGHT_CONTROL];
-    io.KeyShift = io.KeysDown[OF_KEY_LEFT_SHIFT] || io.KeysDown[OF_KEY_RIGHT_SHIFT];
-    io.KeyAlt = io.KeysDown[OF_KEY_LEFT_ALT] || io.KeysDown[OF_KEY_RIGHT_ALT];
+   // io.KeyCtrl = io.KeysDown[OF_KEY_LEFT_CONTROL] || io.KeysDown[OF_KEY_RIGHT_CONTROL];
+   // io.KeyShift = io.KeysDown[OF_KEY_LEFT_SHIFT] || io.KeysDown[OF_KEY_RIGHT_SHIFT];
+   // io.KeyAlt = io.KeysDown[OF_KEY_LEFT_ALT] || io.KeysDown[OF_KEY_RIGHT_ALT];
+    
+    
 }
 
 void GLFW_WindowListener::CharCallback(GLFWwindow*, unsigned int c)
