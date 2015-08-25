@@ -45,14 +45,22 @@ public:
     static const char* getClipboardString();
     static void  setClipboardString(const char* text);
 #ifndef TARGET_OPENGLES
+
     static void  renderDrawLists(ImDrawData* draw_data);
 #else
+	static int g_ShaderHandle;
+   	static int g_AttribLocationTex;
+   	static int g_AttribLocationProjMtx;
+   	static unsigned int g_VaoHandle;
+   	static unsigned int g_VboHandle;
+	static unsigned int g_ElementsHandle;
+
+   	
     static void  renderDrawLists_GLES(ImDrawData* draw_data);
 #endif
 
     
    
     //static vector<ofMesh>* meshes;
-    
-    
+
 };
