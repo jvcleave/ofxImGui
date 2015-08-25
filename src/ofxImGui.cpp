@@ -1,6 +1,6 @@
 #include "ofxImGui.h"
 
-#ifndef TARGET_OPENGLES
+#ifdef TARGET_OPENGLES
 int ofxImGui::g_ShaderHandle = 0;
 int ofxImGui::g_AttribLocationTex =0;
 int ofxImGui::g_AttribLocationProjMtx=0;
