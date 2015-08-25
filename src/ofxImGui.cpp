@@ -1,10 +1,8 @@
 #include "ofxImGui.h"
 
 
-vector<ofMesh>* ofxImGui::meshes  = NULL;
 ofxImGui::ofxImGui()
 {
-    ofxImGui::meshes = new vector<ofMesh>;
     time = 0.0f;
     mouseWheel = 0.0f;
 
@@ -37,7 +35,11 @@ void ofxImGui::setup()
     io->KeyMap[ImGuiKey_Backspace] = OF_KEY_BACKSPACE;
     io->KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
     io->KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
+#ifndef TARGET_OPENGLES
     io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
+#else
+    io->RenderDrawListsFn =  &ofxImGui::renderDrawLists_GLES;
+#endif
     io->SetClipboardTextFn = ofxImGui::setClipboardString;
     io->GetClipboardTextFn = &ofxImGui::getClipboardString;
     
@@ -69,23 +71,9 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 {    
     mouseWheel += (float)event.y;
 }
-
-
-
-/*  This is the main rendering function that you have to implement and provide to
-    ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-    If text or lines are blurry when integrating ImGui in your engine:
-    in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-*/
-void ofxImGui::renderDrawLists(ImDrawData* draw_data)
-{
-    /*
-     We are using the OpenGL fixed pipeline to make the example code simpler to read!
-     A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
-     Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
-     */
-    
 #ifdef TARGET_OPENGLES
+void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
+{
     GLint last_program, last_texture;
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -146,53 +134,24 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     glUseProgram(last_program);
     glDisable(GL_SCISSOR_TEST);
     glBindTexture(GL_TEXTURE_2D, last_texture);
+}
 #endif
-#ifdef 0
 
-    ofxImGui::meshes->clear();
+
+/*  This is the main rendering function that you have to implement and provide to
+    ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
+    If text or lines are blurry when integrating ImGui in your engine:
+    in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
+*/
+#ifndef TARGET_OPENGLES
+void ofxImGui::renderDrawLists(ImDrawData* draw_data)
+{
+    /*
+     We are using the OpenGL fixed pipeline to make the example code simpler to read!
+     A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
+     Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
+     */
     
-    ofLogVerbose() << "draw_data->CmdListsCount: " << draw_data->CmdListsCount;
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
-    {
-        ofMesh mesh;
-        mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-        
-        ofLogVerbose() << "cmd_list->VtxBuffer.size(): " << cmd_list->VtxBuffer.size();
-        
-        for(size_t i=0;i<cmd_list->VtxBuffer.size(); i++)
-        {
-            ofVec3f point;
-            mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
-            mesh.addTexCoord(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
-            mesh.addColor(ofFloatColor(ofRandom(0,255), ofRandom(0,255), ofRandom(0,255), ofRandom(0,255) ));
-            mesh.addIndex(cmd_list->IdxBuffer[i]);
-            
-            ofxImGui::meshes->push_back(mesh);
-            /*ofVec2f uv(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y);
-            struct ImDrawVert
-            {
-                ImVec2  pos;
-                ImVec2  uv;
-                ImU32   col;
-            };
-            
-            point = cmd_list->VtxBuffer[i];*/
-            //ofLogVerbose() << i << "==" << "pos: " << pos;
-        }
-        ofLogVerbose() << "getNumVertices: " << mesh.getNumVertices();
-        ofLogVerbose() << "getNumNormals: " << mesh.getNumNormals();
-        ofLogVerbose() << "getNumColors: " << mesh.getNumColors();
-        ofLogVerbose() << "getNumIndices: " << mesh.getNumIndices();
-        
-        ofLogVerbose() << "vtx_buffer()";
-       // mesh.addVertices((const vector<ofVec3f>&)cmd_list->VtxBuffer.front());
-        
-       // glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
-    }
-    return;
-#endif
     glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
 
     glEnable(GL_BLEND);
@@ -257,6 +216,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     glPopMatrix();
     glPopAttrib();
 }
+#endif
 
 const char* ofxImGui::getClipboardString()
 {    
@@ -384,17 +344,7 @@ void ofxImGui::updateFrame()
 
 void ofxImGui::end()
 {
-    ImGui::Render();
-    if(ofxImGui::meshes)
-    {
-        for(size_t i=0;i<ofxImGui::meshes->size(); i++)
-        {
-            fontTexture.bind();
-            ofxImGui::meshes->at(i).draw();
-            fontTexture.unbind();
-        } 
-    }
-    
+    ImGui::Render();    
 }
 
 ofxImGui::~ofxImGui()

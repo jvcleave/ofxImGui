@@ -6,7 +6,6 @@
 #include "ofMain.h"
 #include "imgui.h"
 
-#define USING_GLFW 0
 
 class ofxImGui
 {
@@ -14,7 +13,7 @@ public:
     
     ofxImGui();
     ~ofxImGui();
-#if USING_GLFW
+#ifndef TARGET_OPENGLES
     GLFWwindow*  glfwWindow;
 #endif
     ofTexture fontTexture;
@@ -45,7 +44,12 @@ public:
 
     static const char* getClipboardString();
     static void  setClipboardString(const char* text);
+#ifndef TARGET_OPENGLES
     static void  renderDrawLists(ImDrawData* draw_data);
+#else
+    static void  renderDrawLists_GLES(ImDrawData* draw_data);
+#endif
+
     
    
     //static vector<ofMesh>* meshes;
