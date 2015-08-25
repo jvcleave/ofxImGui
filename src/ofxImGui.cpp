@@ -1,7 +1,10 @@
 #include "ofxImGui.h"
 
+
+vector<ofMesh>* ofxImGui::meshes  = NULL;
 ofxImGui::ofxImGui()
 {
+    ofxImGui::meshes = new vector<ofMesh>;
     time = 0.0f;
     mouseWheel = 0.0f;
 
@@ -81,7 +84,117 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
      A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
      Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
      */
+    
+#ifdef TARGET_OPENGLES
+    GLint last_program, last_texture;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+    glActiveTexture(GL_TEXTURE0);
+    
+    // Setup orthographic projection matrix
+    const float width = ImGui::GetIO().DisplaySize.x;
+    const float height = ImGui::GetIO().DisplaySize.y;
+    const float ortho_projection[4][4] =
+    {
+        { 2.0f/width,	0.0f,			0.0f,		0.0f },
+        { 0.0f,			2.0f/-height,	0.0f,		0.0f },
+        { 0.0f,			0.0f,			-1.0f,		0.0f },
+        { -1.0f,		1.0f,			0.0f,		1.0f },
+    };
+    glUseProgram(g_ShaderHandle);
+    glUniform1i(g_AttribLocationTex, 0);
+    glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+    glBindVertexArray(g_VaoHandle);
+    
+    for (int n = 0; n < draw_data->CmdListsCount; n++)
+    {
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
+        const ImDrawIdx* idx_buffer_offset = 0;
+        
+        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
+        
+        for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
+        {
+            if (pcmd->UserCallback)
+            {
+                pcmd->UserCallback(cmd_list, pcmd);
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                glScissor((int)pcmd->ClipRect.x, (int)(height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer_offset);
+            }
+            idx_buffer_offset += pcmd->ElemCount;
+        }
+    }
+    
+    // Restore modified state
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glUseProgram(last_program);
+    glDisable(GL_SCISSOR_TEST);
+    glBindTexture(GL_TEXTURE_2D, last_texture);
+#endif
+#ifdef 0
+
+    ofxImGui::meshes->clear();
+    
+    ofLogVerbose() << "draw_data->CmdListsCount: " << draw_data->CmdListsCount;
+    for (int n = 0; n < draw_data->CmdListsCount; n++)
+    {
+        ofMesh mesh;
+        mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
+        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
+        
+        ofLogVerbose() << "cmd_list->VtxBuffer.size(): " << cmd_list->VtxBuffer.size();
+        
+        for(size_t i=0;i<cmd_list->VtxBuffer.size(); i++)
+        {
+            ofVec3f point;
+            mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
+            mesh.addTexCoord(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
+            mesh.addColor(ofFloatColor(ofRandom(0,255), ofRandom(0,255), ofRandom(0,255), ofRandom(0,255) ));
+            mesh.addIndex(cmd_list->IdxBuffer[i]);
+            
+            ofxImGui::meshes->push_back(mesh);
+            /*ofVec2f uv(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y);
+            struct ImDrawVert
+            {
+                ImVec2  pos;
+                ImVec2  uv;
+                ImU32   col;
+            };
+            
+            point = cmd_list->VtxBuffer[i];*/
+            //ofLogVerbose() << i << "==" << "pos: " << pos;
+        }
+        ofLogVerbose() << "getNumVertices: " << mesh.getNumVertices();
+        ofLogVerbose() << "getNumNormals: " << mesh.getNumNormals();
+        ofLogVerbose() << "getNumColors: " << mesh.getNumColors();
+        ofLogVerbose() << "getNumIndices: " << mesh.getNumIndices();
+        
+        ofLogVerbose() << "vtx_buffer()";
+       // mesh.addVertices((const vector<ofVec3f>&)cmd_list->VtxBuffer.front());
+        
+       // glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
+    }
+    return;
+#endif
     glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
@@ -112,12 +225,14 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
         glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, uv)));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, col)));
-
+        ofLogVerbose() << "cmd_list->CmdBuffer.size(): " << cmd_list->CmdBuffer.size();
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
         {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
             if (pcmd->UserCallback)
             {
+                ofLogVerbose() << "UserCallback: ";
+
                 pcmd->UserCallback(cmd_list, pcmd);
             }
             else
@@ -270,6 +385,16 @@ void ofxImGui::updateFrame()
 void ofxImGui::end()
 {
     ImGui::Render();
+    if(ofxImGui::meshes)
+    {
+        for(size_t i=0;i<ofxImGui::meshes->size(); i++)
+        {
+            fontTexture.bind();
+            ofxImGui::meshes->at(i).draw();
+            fontTexture.unbind();
+        } 
+    }
+    
 }
 
 ofxImGui::~ofxImGui()
