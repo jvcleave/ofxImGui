@@ -1,14 +1,24 @@
 #include "ofxImGui.h"
 
+#ifndef TARGET_OPENGLES
+int ofxImGui::g_ShaderHandle = 0;
+int ofxImGui::g_AttribLocationTex =0;
+int ofxImGui::g_AttribLocationProjMtx=0;
+unsigned int ofxImGui::g_VaoHandle=0;
+unsigned int ofxImGui::g_VboHandle=0;
+unsigned int ofxImGui::g_ElementsHandle = 0;
+#endif
 
 ofxImGui::ofxImGui()
 {
     time = 0.0f;
     mouseWheel = 0.0f;
 
-#if USING_GLFW
+#ifndef TARGET_OPENGLES
     ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
     glfwWindow = baseWindow->getGLFWWindow();
+#else
+    
 #endif    
     io = &ImGui::GetIO();
     
@@ -74,6 +84,7 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 #ifdef TARGET_OPENGLES
 void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
 {
+  #if 0
     GLint last_program, last_texture;
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -98,7 +109,7 @@ void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
     glUseProgram(g_ShaderHandle);
     glUniform1i(g_AttribLocationTex, 0);
     glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
-    glBindVertexArray(g_VaoHandle);
+    glBindVertexArrayFunc(g_VaoHandle);
     
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
@@ -134,6 +145,7 @@ void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
     glUseProgram(last_program);
     glDisable(GL_SCISSOR_TEST);
     glBindTexture(GL_TEXTURE_2D, last_texture);
+    #endif
 }
 #endif
 
