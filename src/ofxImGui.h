@@ -60,7 +60,8 @@ public:
 #endif
 
     
-   
-    //static vector<ofMesh>* meshes;
+   static ofVboMesh vboMesh;
+    static ofFloatColor convertToFloatColor(ImU32 rgba);
+    
 
 };
