@@ -52,7 +52,7 @@ public:
    	static unsigned int g_VboHandle;
 	static unsigned int g_ElementsHandle;
 
-   	
+   	static void  renderDrawLists(ImDrawData* draw_data);
     static void  renderDrawLists_GLES(ImDrawData* draw_data);
 #endif
 
