@@ -13,7 +13,7 @@ public:
 #ifndef TARGET_OPENGLES
     GLFWwindow*  glfwWindow;
 #endif
-    ofTexture fontTexture;
+    static ofTexture fontTexture;
     
     
     void        setup();

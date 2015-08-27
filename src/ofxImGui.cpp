@@ -9,7 +9,7 @@ unsigned int ofxImGui::g_VboHandle=0;
 unsigned int ofxImGui::g_ElementsHandle = 0;
 #endif
 
-ofVboMesh ofxImGui::vboMesh;
+ofTexture ofxImGui::fontTexture;
 ofxImGui::ofxImGui()
 {
     time = 0.0f;
@@ -175,38 +175,14 @@ ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
     
-   
-    
-    ofEnableSmoothing();
-    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    ofDisableDepthTest();
-    glEnable(GL_SCISSOR_TEST);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
-
-    // Setup orthographic projection matrix
-    
-    
-    ofSetMatrixMode(OF_MATRIX_PROJECTION); 
-    ofPushMatrix(); 
-    glLoadIdentity();
-    glOrtho(0.0f, ofGetWidth(), ofGetHeight(), 0.0f, -ofGetHeight(), ofGetHeight());
-    ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-    ofPushMatrix();
-    glLoadIdentity();
-
-    // Render command lists
-    ofLogVerbose() << " draw_data->CmdListsCount: " <<  draw_data->CmdListsCount;
+    glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
+    glEnable(GL_SCISSOR_TEST);
     for (int n = 0; n <  draw_data->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         
-        
-       // const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
+    
         
         ofVboMesh mesh;
         vector<ofVec3f> verts;
@@ -226,17 +202,13 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
             index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
         }
         
-        ImDrawIdx* myIndexBuffer = (ImDrawIdx*) &index[0];
         
         mesh.addVertices(verts);
         mesh.addTexCoords(texCoords);
         mesh.addColors(colors);
         mesh.addIndices(index);        
         
-        glVertexPointer(2, GL_FLOAT, sizeof(ofVec3f),  mesh.getVerticesPointer());
-        glTexCoordPointer(2, GL_FLOAT, sizeof(ofVec2f), mesh.getTexCoordsPointer());
-        glColorPointer(4, GL_FLOAT, sizeof(ofFloatColor), mesh.getColorsPointer());
-        //ofLogVerbose() << "cmd_list->CmdBuffer.size(): " << cmd_list->CmdBuffer.size();
+
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
         {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
@@ -248,35 +220,21 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                
                 glScissor((int)pcmd->ClipRect.x, 
                           (int)(ofGetHeight() - pcmd->ClipRect.w), 
                           (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
                           (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
 
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, myIndexBuffer);
+                mesh.getVbo().drawElements(GL_TRIANGLES, index.size());
+               
+                
             }
-            myIndexBuffer += pcmd->ElemCount;
         }
-        
-
-     
-        //mesh.drawWireframe();
-        //mesh.drawVertices();
-        //mesh.draw();
     }
-    
-    // Restore modified state
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    ofSetMatrixMode(OF_MATRIX_MODELVIEW); 
-    ofPopMatrix(); 
-    ofSetMatrixMode(OF_MATRIX_PROJECTION); 
-    ofPopMatrix();
-    ofDisableSmoothing();
-    ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+     glBindTexture(GL_TEXTURE_2D, 0);
+   
+
 
 
 }
@@ -314,10 +272,10 @@ bool ofxImGui::createDeviceObjects()
                  GL_ALPHA, 
                  GL_UNSIGNED_BYTE, 
                  pixels);
-    fontTexture.setUseExternalTextureID(externalTexture);
+    ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
     
     // Store our identifier
-    io->Fonts->TexID = (void *)(intptr_t)fontTexture.getTextureData().textureID;
+    io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
 
 
     // Cleanup (don't clear the input data if you want to append new fonts later)
@@ -329,7 +287,7 @@ bool ofxImGui::createDeviceObjects()
 
 void ofxImGui::begin()
 {
-    if (!fontTexture.isAllocated())
+    if (!ofxImGui::fontTexture.isAllocated())
     {
          createDeviceObjects();
     }
