@@ -1,12 +1,8 @@
 #pragma once
 
-// ImGui GLFW binding with OpenGL
-// https://github.com/ocornut/imgui
-
 #include "ofMain.h"
 #include "imgui.h"
 
-#define USING_GLFW 0
 
 class ofxImGui
 {
@@ -14,10 +10,10 @@ public:
     
     ofxImGui();
     ~ofxImGui();
-#if USING_GLFW
+#ifndef TARGET_OPENGLES
     GLFWwindow*  glfwWindow;
 #endif
-    ofTexture fontTexture;
+    static ofTexture fontTexture;
     
     
     void        setup();
@@ -45,10 +41,24 @@ public:
 
     static const char* getClipboardString();
     static void  setClipboardString(const char* text);
+#ifndef TARGET_OPENGLES
+
     static void  renderDrawLists(ImDrawData* draw_data);
-    
-   
+#else
+	static int g_ShaderHandle;
+   	static int g_AttribLocationTex;
+   	static int g_AttribLocationProjMtx;
+   	static unsigned int g_VaoHandle;
+   	static unsigned int g_VboHandle;
+	static unsigned int g_ElementsHandle;
+
+   	static void  renderDrawLists(ImDrawData* draw_data);
+    static void  renderDrawLists_GLES(ImDrawData* draw_data);
+#endif
 
     
+   static ofVboMesh vboMesh;
+    static ofFloatColor convertToFloatColor(ImU32 rgba);
     
+
 };
