@@ -9,6 +9,7 @@ unsigned int ofxImGui::g_VboHandle=0;
 unsigned int ofxImGui::g_ElementsHandle = 0;
 #endif
 
+ofTexture ofxImGui::fontTexture;
 ofxImGui::ofxImGui()
 {
     time = 0.0f;
@@ -84,6 +85,7 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 #ifdef TARGET_OPENGLES
 void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
 {
+    
   #if 0
     GLint last_program, last_texture;
     glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
@@ -155,78 +157,86 @@ void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
     If text or lines are blurry when integrating ImGui in your engine:
     in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
 */
+//https://github.com/ocornut/imgui/commit/59d498f3d0319dab32b3f4842c6e5f2da6d68830
+
+ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
+{
+    float sc = 1.0f/255.0f;
+    
+    ofFloatColor result;
+    result.r = (float)(rgba&0xFF) * sc; 
+    result.g = (float)((rgba>>8)&0xFF) * sc; 
+    result.b = (float)((rgba>>16)&0xFF) * sc; 
+    result.a = (float)(rgba >> 24) * sc;
+    return result;
+}
+
 #ifndef TARGET_OPENGLES
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
-    /*
-     We are using the OpenGL fixed pipeline to make the example code simpler to read!
-     A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
-     Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
-     */
     
-    glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
-
-    // Setup orthographic projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0.0f, ofGetWidth(), ofGetHeight(), 0.0f, -1.0f, +1.0f);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    // Render command lists
-    #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
+    glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
+    glEnable(GL_SCISSOR_TEST);
+    for (int n = 0; n <  draw_data->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
-        glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
-        glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, uv)));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, col)));
-        ofLogVerbose() << "cmd_list->CmdBuffer.size(): " << cmd_list->CmdBuffer.size();
+        
+    
+        
+        ofVboMesh mesh;
+        vector<ofVec3f> verts;
+        vector<ofVec2f> texCoords;
+        vector<ofFloatColor> colors;
+        vector<ofIndexType> index;
+        for(size_t i = 0; i<cmd_list->VtxBuffer.size(); i++)
+        {
+            verts.push_back(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
+            texCoords.push_back(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
+            colors.push_back(ofxImGui::convertToFloatColor(cmd_list->VtxBuffer[i].col));
+            
+        }
+        
+        for(size_t i = 0; i<cmd_list->IdxBuffer.size(); i++)
+        {
+            index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
+        }
+        
+        
+        mesh.addVertices(verts);
+        mesh.addTexCoords(texCoords);
+        mesh.addColors(colors);
+        mesh.addIndices(index);        
+        
+
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
         {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
             if (pcmd->UserCallback)
             {
                 ofLogVerbose() << "UserCallback: ";
-
+                
                 pcmd->UserCallback(cmd_list, pcmd);
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                glScissor((int)pcmd->ClipRect.x, (int)(ofGetHeight() - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
+                
+                glScissor((int)pcmd->ClipRect.x, 
+                          (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
+                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+
+                mesh.getVbo().drawElements(GL_TRIANGLES, index.size());
+               
+                
             }
-            idx_buffer += pcmd->ElemCount;
         }
     }
-    #undef OFFSETOF
+     glBindTexture(GL_TEXTURE_2D, 0);
+   
 
-    // Restore modified state
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glPopAttrib();
+
+
 }
 #endif
 
@@ -262,10 +272,10 @@ bool ofxImGui::createDeviceObjects()
                  GL_ALPHA, 
                  GL_UNSIGNED_BYTE, 
                  pixels);
-    fontTexture.setUseExternalTextureID(externalTexture);
+    ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
     
     // Store our identifier
-    io->Fonts->TexID = (void *)(intptr_t)fontTexture.getTextureData().textureID;
+    io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
 
 
     // Cleanup (don't clear the input data if you want to append new fonts later)
@@ -277,7 +287,7 @@ bool ofxImGui::createDeviceObjects()
 
 void ofxImGui::begin()
 {
-    if (!fontTexture.isAllocated())
+    if (!ofxImGui::fontTexture.isAllocated())
     {
          createDeviceObjects();
     }
@@ -356,7 +366,7 @@ void ofxImGui::updateFrame()
 
 void ofxImGui::end()
 {
-    ImGui::Render();    
+    ImGui::Render(); 
 }
 
 ofxImGui::~ofxImGui()

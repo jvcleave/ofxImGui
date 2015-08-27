@@ -1,8 +1,5 @@
 #pragma once
 
-// ImGui GLFW binding with OpenGL
-// https://github.com/ocornut/imgui
-
 #include "ofMain.h"
 #include "imgui.h"
 
@@ -16,7 +13,7 @@ public:
 #ifndef TARGET_OPENGLES
     GLFWwindow*  glfwWindow;
 #endif
-    ofTexture fontTexture;
+    static ofTexture fontTexture;
     
     
     void        setup();
@@ -60,7 +57,8 @@ public:
 #endif
 
     
-   
-    //static vector<ofMesh>* meshes;
+   static ofVboMesh vboMesh;
+    static ofFloatColor convertToFloatColor(ImU32 rgba);
+    
 
 };

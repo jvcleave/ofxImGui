@@ -47,6 +47,8 @@
         operator MyVec4() const { return MyVec4(x,y,z,w); }
 
 
+#define ImDrawIdx unsigned int
+
 //---- Freely implement extra functions within the ImGui:: namespace.
 //---- Declare helpers or widgets implemented in imgui_user.inl or elsewhere, so end-user doesn't need to include multiple files.
 //---- e.g. you can create variants of the ImGui::Value() helper for your low-level math types, or your own widgets/helpers.
