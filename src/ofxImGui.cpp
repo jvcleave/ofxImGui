@@ -174,12 +174,12 @@ ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
 #ifndef TARGET_OPENGLES
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
-    glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+    
+   
+    
+    ofEnableSmoothing();
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    ofDisableDepthTest();
     glEnable(GL_SCISSOR_TEST);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -188,14 +188,16 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
 
     // Setup orthographic projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0.0f, ofGetWidth(), ofGetHeight(), 0.0f, -1.0f, +1.0f);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
     
+    
+    ofSetMatrixMode(OF_MATRIX_PROJECTION); 
+    ofPushMatrix(); 
+    glLoadIdentity();
+    glOrtho(0.0f, ofGetWidth(), ofGetHeight(), 0.0f, -ofGetHeight(), ofGetHeight());
+    ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+    ofPushMatrix();
+    glLoadIdentity();
+
     // Render command lists
     ofLogVerbose() << " draw_data->CmdListsCount: " <<  draw_data->CmdListsCount;
     for (int n = 0; n <  draw_data->CmdListsCount; n++)
@@ -259,8 +261,8 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         
 
      
-        mesh.drawWireframe();
-        mesh.drawVertices();
+        //mesh.drawWireframe();
+        //mesh.drawVertices();
         //mesh.draw();
     }
     
@@ -269,11 +271,13 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glPopAttrib();
+    ofSetMatrixMode(OF_MATRIX_MODELVIEW); 
+    ofPopMatrix(); 
+    ofSetMatrixMode(OF_MATRIX_PROJECTION); 
+    ofPopMatrix();
+    ofDisableSmoothing();
+    ofEnableBlendMode(OF_BLENDMODE_DISABLED);
+
 
 }
 #endif
