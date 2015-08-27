@@ -171,7 +171,7 @@ ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
     return result;
 }
 
-#ifndef TARGET_OPENGLES
+//#ifndef TARGET_OPENGLES
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
     
@@ -238,7 +238,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 
 
 }
-#endif
+//#endif
 
 const char* ofxImGui::getClipboardString()
 {    
