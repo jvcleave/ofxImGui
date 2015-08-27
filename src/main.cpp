@@ -1,12 +1,12 @@
 #include "ofMain.h"
 #include "ofApp.h"
-#if (OF_VERSION_MINOR != 9) && (TARGET_OPENGLES)
+#if (OF_VERSION_MINOR != 9) && defined(TARGET_OPENGLES)
 #include "ofGLProgrammableRenderer.h"
 #endif
 int main()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
-#if (TARGET_OPENGLES)
+#if defined(TARGET_OPENGLES)
     #if (OF_VERSION_MINOR == 9)
         ofGLESWindowSettings settings;
         settings.width = 1280;
