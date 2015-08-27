@@ -1,8 +1,5 @@
 #pragma once
 
-// ImGui GLFW binding with OpenGL
-// https://github.com/ocornut/imgui
-
 #include "ofMain.h"
 #include "imgui.h"
 

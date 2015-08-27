@@ -195,18 +195,22 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
+    
     // Render command lists
-    #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+    ofLogVerbose() << " draw_data->CmdListsCount: " <<  draw_data->CmdListsCount;
     for (int n = 0; n <  draw_data->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         
         
-        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-        ofMesh mesh;
+       // const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
+        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
+        
+        ofVboMesh mesh;
         vector<ofVec3f> verts;
         vector<ofVec2f> texCoords;
         vector<ofFloatColor> colors;
+        vector<ofIndexType> index;
         for(size_t i = 0; i<cmd_list->VtxBuffer.size(); i++)
         {
             verts.push_back(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
@@ -214,38 +218,23 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
             colors.push_back(ofxImGui::convertToFloatColor(cmd_list->VtxBuffer[i].col));
             
         }
-        ofFloatColor colasdsa;
+        
+        for(size_t i = 0; i<cmd_list->IdxBuffer.size(); i++)
+        {
+            index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
+        }
+        
+        ImDrawIdx* myIndexBuffer = (ImDrawIdx*) &index[0];
         
         mesh.addVertices(verts);
         mesh.addTexCoords(texCoords);
         mesh.addColors(colors);
+        mesh.addIndices(index);        
         
-        glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
-        
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_SCISSOR_TEST);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnable(GL_TEXTURE_2D);
-        //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
-        
-        // Setup orthographic projection matrix
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0f, ofGetWidth(), ofGetHeight(), 0.0f, -1.0f, +1.0f);
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-        
-        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
         glVertexPointer(2, GL_FLOAT, sizeof(ofVec3f),  mesh.getVerticesPointer());
         glTexCoordPointer(2, GL_FLOAT, sizeof(ofVec2f), mesh.getTexCoordsPointer());
         glColorPointer(4, GL_FLOAT, sizeof(ofFloatColor), mesh.getColorsPointer());
+        //ofLogVerbose() << "cmd_list->CmdBuffer.size(): " << cmd_list->CmdBuffer.size();
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
         {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
@@ -258,34 +247,33 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
             else
             {
                 glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                
-                glScissor(0, 
-                          0, 
-                          ofGetWidth(), 
-                          ofGetHeight());
-                
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
+                glScissor((int)pcmd->ClipRect.x, 
+                          (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
+                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+
+                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, myIndexBuffer);
             }
-            idx_buffer += pcmd->ElemCount;
+            myIndexBuffer += pcmd->ElemCount;
         }
         
-        // Restore modified state
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glPopAttrib();
+
      
-        mesh.draw(OF_MESH_WIREFRAME);
-        
-        }
-
-    #undef OFFSETOF
-
+        mesh.drawWireframe();
+        mesh.drawVertices();
+        //mesh.draw();
+    }
+    
+    // Restore modified state
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glPopAttrib();
 
 }
 #endif
