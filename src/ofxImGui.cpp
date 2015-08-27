@@ -1,6 +1,6 @@
 #include "ofxImGui.h"
 
-#ifdef TARGET_OPENGLES
+#if 0
 int ofxImGui::g_ShaderHandle = 0;
 int ofxImGui::g_AttribLocationTex =0;
 int ofxImGui::g_AttribLocationProjMtx=0;
@@ -18,9 +18,8 @@ ofxImGui::ofxImGui()
 #ifndef TARGET_OPENGLES
     ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
     glfwWindow = baseWindow->getGLFWWindow();
-#else
-    
 #endif    
+    
     io = &ImGui::GetIO();
     
     ofAddListener(ofEvents().keyPressed, this, &ofxImGui::onKeyPressed);
@@ -46,11 +45,7 @@ void ofxImGui::setup()
     io->KeyMap[ImGuiKey_Backspace] = OF_KEY_BACKSPACE;
     io->KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
     io->KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
-#ifndef TARGET_OPENGLES
     io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
-#else
-    io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
-#endif
     io->SetClipboardTextFn = ofxImGui::setClipboardString;
     io->GetClipboardTextFn = &ofxImGui::getClipboardString;
     
@@ -82,7 +77,8 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 {    
     mouseWheel += (float)event.y;
 }
-#ifdef TARGET_OPENGLES
+
+#if 0
 void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
 {
     
@@ -152,11 +148,6 @@ void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
 #endif
 
 
-/*  This is the main rendering function that you have to implement and provide to
-    ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-    If text or lines are blurry when integrating ImGui in your engine:
-    in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-*/
 //https://github.com/ocornut/imgui/commit/59d498f3d0319dab32b3f4842c6e5f2da6d68830
 
 ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
