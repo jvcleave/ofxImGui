@@ -49,7 +49,7 @@ void ofxImGui::setup()
 #ifndef TARGET_OPENGLES
     io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
 #else
-    io->RenderDrawListsFn =  &ofxImGui::renderDrawLists_GLES;
+    io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
 #endif
     io->SetClipboardTextFn = ofxImGui::setClipboardString;
     io->GetClipboardTextFn = &ofxImGui::getClipboardString;
