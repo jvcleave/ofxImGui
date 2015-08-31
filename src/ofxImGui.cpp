@@ -8,6 +8,7 @@ int ofxImGui::g_ShaderHandle = 0, ofxImGui::g_VertHandle = 0, ofxImGui::g_FragHa
 int ofxImGui::g_AttribLocationTex = 0, ofxImGui::g_AttribLocationProjMtx = 0;
 int ofxImGui::g_AttribLocationPosition = 0, ofxImGui::g_AttribLocationUV = 0, ofxImGui::g_AttribLocationColor = 0;
 unsigned int ofxImGui::g_VboHandle = 0, ofxImGui::g_VaoHandle = 0, ofxImGui::g_ElementsHandle = 0;
+ofShader ofxImGui::shader;
 
 ofxImGui::ofxImGui()
 {
@@ -125,35 +126,27 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         meshes.push_back(mesh);
         
     }
-    const float width = ImGui::GetIO().DisplaySize.x;
-    const float height = ImGui::GetIO().DisplaySize.y;
+
     
     if(ofIsGLProgrammableRenderer())
     {
-        // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
-        GLint last_program, last_texture;
-        glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-        glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-        glEnable(GL_BLEND);
-        glBlendEquation(GL_FUNC_ADD);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
         glEnable(GL_SCISSOR_TEST);
-        glActiveTexture(GL_TEXTURE0);
         
-        glUseProgram(ofxImGui::g_ShaderHandle);
-        glUniform1i(ofxImGui::g_AttribLocationTex, 0);
+        ofxImGui::shader.begin();
+        ofxImGui::shader.setUniform1i("Texture", 0);
         
-        const float ortho_projection[4][4] =
-        {
-            { 2.0f/width,	0.0f,			0.0f,		0.0f },
-            { 0.0f,			2.0f/-height,	0.0f,		0.0f },
-            { 0.0f,			0.0f,			-1.0f,		0.0f },
-            { -1.0f,		1.0f,			0.0f,		1.0f },
-        };
+        const float width = ofGetWidth();
+        const float height = ofGetHeight();
+        ofMatrix4x4 ortho_projection(
+            2.0f/width, 0.0f,           0.0f,   0.0f,
+            0.0f,       2.0f/-height,   0.0f,   0.0f ,
+            0.0f,       0.0f,           -1.0f,  0.0f ,
+            -1.0f,      1.0f,           0.0f,   1.0f
+        );
+        ofxImGui::shader.setUniformMatrix4f("ProjMtx", ortho_projection, 1);
         
-        glUniformMatrix4fv(ofxImGui::g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
         glBindVertexArray(ofxImGui::g_VaoHandle);
         
         for (int n = 0; n < draw_data->CmdListsCount; n++)
@@ -190,9 +183,10 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glUseProgram(last_program);
+        //glUseProgram(last_program);
         glDisable(GL_SCISSOR_TEST);
-        glBindTexture(GL_TEXTURE_2D, last_texture);
+        ofxImGui::shader.end();
+        //glBindTexture(GL_TEXTURE_2D, last_texture);
         
     } else
     {
@@ -249,7 +243,7 @@ bool ofxImGui::createDeviceObjects()
     ofLogVerbose() << "ofIsGLProgrammableRenderer(): " << ofIsGLProgrammableRenderer();
 
     if (ofIsGLProgrammableRenderer()) {
-        const GLchar *vertex_shader =
+        string vertex_shader =
         "#version 330\n"
         "uniform mat4 ProjMtx;\n"
         "in vec2 Position;\n"
@@ -264,7 +258,7 @@ bool ofxImGui::createDeviceObjects()
         "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
         "}\n";
         
-        const GLchar* fragment_shader =
+        string fragment_shader =
         "#version 330\n"
         "uniform sampler2D Texture;\n"
         "in vec2 Frag_UV;\n"
@@ -275,22 +269,19 @@ bool ofxImGui::createDeviceObjects()
         "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
         "}\n";
         
-        g_ShaderHandle = glCreateProgram();
-        ofxImGui::g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
-        ofxImGui::g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(ofxImGui::g_VertHandle, 1, &vertex_shader, 0);
-        glShaderSource(ofxImGui::g_FragHandle, 1, &fragment_shader, 0);
-        glCompileShader(ofxImGui::g_VertHandle);
-        glCompileShader(ofxImGui::g_FragHandle);
-        glAttachShader(ofxImGui::g_ShaderHandle, ofxImGui::g_VertHandle);
-        glAttachShader(ofxImGui::g_ShaderHandle,ofxImGui:: g_FragHandle);
-        glLinkProgram(ofxImGui::g_ShaderHandle);
+        shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
+        shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
         
-        ofxImGui::g_AttribLocationTex = glGetUniformLocation(ofxImGui::g_ShaderHandle, "Texture");
-        ofxImGui::g_AttribLocationProjMtx = glGetUniformLocation(ofxImGui::g_ShaderHandle, "ProjMtx");
-        ofxImGui::g_AttribLocationPosition = glGetAttribLocation(ofxImGui::g_ShaderHandle, "Position");
-        ofxImGui::g_AttribLocationUV = glGetAttribLocation(ofxImGui::g_ShaderHandle, "UV");
-        ofxImGui::g_AttribLocationColor = glGetAttribLocation(ofxImGui::g_ShaderHandle, "Color");
+        bool didLink = shader.linkProgram();
+        ofLogVerbose() << "didLink: " << didLink;
+        ofxImGui::g_ShaderHandle = shader.getProgram();
+        
+        ofxImGui::g_AttribLocationTex = shader.getUniformLocation("Texture");
+        ofxImGui::g_AttribLocationProjMtx = shader.getUniformLocation("ProjMtx");
+        ofxImGui::g_AttribLocationPosition = shader.getAttributeLocation("Position");
+        ofxImGui::g_AttribLocationUV = shader.getAttributeLocation("UV");
+        ofxImGui::g_AttribLocationColor = shader.getAttributeLocation("Color");
+        
         
         glGenBuffers(1, &ofxImGui::g_VboHandle);
         glGenBuffers(1, &ofxImGui::g_ElementsHandle);
@@ -303,46 +294,42 @@ bool ofxImGui::createDeviceObjects()
         glEnableVertexAttribArray(ofxImGui::g_AttribLocationColor);
         
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
-        glVertexAttribPointer(ofxImGui::g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
-        glVertexAttribPointer(ofxImGui::g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+        shader.setAttribute2fv("Position", (const float *)OFFSETOF(ImDrawVert, pos), sizeof(ImDrawVert));
+        shader.setAttribute2fv("UV", (const float *)OFFSETOF(ImDrawVert, uv), sizeof(ImDrawVert));
         glVertexAttribPointer(ofxImGui::g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
 #undef OFFSETOF
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         
-        ImGuiIO& io = ImGui::GetIO();
-        
-        unsigned char* pixels;
-        int width, height;
-        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
-        GLuint externalTexture;
-        glGenTextures(1, &externalTexture);
-        glBindTexture(GL_TEXTURE_2D, externalTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        
-        ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
-        
-        // Store our identifier
-        io.Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
-        
-        // Cleanup (don't clear the input data if you want to append new fonts later)
-        io.Fonts->ClearInputData();
-        io.Fonts->ClearTexData();
+    }
+    
+    // Build texture
+    unsigned char* pixels;
+    int width, height;
+    
+    GLuint externalTexture;
+    glGenTextures(1, &externalTexture);
+    glBindTexture(GL_TEXTURE_2D, externalTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if(ofIsGLProgrammableRenderer())
+    {
+        // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
+        io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+        glTexImage2D(GL_TEXTURE_2D, 
+                     0, 
+                     GL_RGBA, 
+                     width, 
+                     height, 
+                     0, 
+                     GL_RGBA, 
+                     GL_UNSIGNED_BYTE, 
+                     pixels);
         
     }else
     {
-        // Build texture
-        unsigned char* pixels;
-        int width, height;
         io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-        
-        GLuint externalTexture;
-        glGenTextures(1, &externalTexture);
-        glBindTexture(GL_TEXTURE_2D, externalTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 
                      0,
                      GL_ALPHA,
@@ -352,17 +339,16 @@ bool ofxImGui::createDeviceObjects()
                      GL_ALPHA, 
                      GL_UNSIGNED_BYTE, 
                      pixels);
-        ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
-        
-        // Store our identifier
-        io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
-        
-        
-        // Cleanup (don't clear the input data if you want to append new fonts later)
-        io->Fonts->ClearInputData();
-        io->Fonts->ClearTexData();
-
     }
+    
+    ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
+    
+    // Store our identifier
+    io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
+    
+    // Cleanup (don't clear the input data if you want to append new fonts later)
+    io->Fonts->ClearInputData();
+    io->Fonts->ClearTexData();
     
     return true;
 }

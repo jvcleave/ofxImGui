@@ -61,6 +61,8 @@ public:
     static int          g_AttribLocationTex, g_AttribLocationProjMtx;
     static int          g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
     static unsigned int g_VboHandle, g_VaoHandle, g_ElementsHandle;
+    
+    static ofShader shader;
 
     
 };
