@@ -1,6 +1,5 @@
 #include "ofxImGui.h"
 
-ofShader ofxImGui::vboShader;
 ofTexture ofxImGui::fontTexture;
 
 
@@ -91,7 +90,6 @@ ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
     return result;
 }
 
-//#ifndef TARGET_OPENGLES
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
     vector<ofVboMesh> meshes;
@@ -144,7 +142,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         
         glBindVertexArray(ofxImGui::g_VaoHandle);
         
-        for (int n = 0; n < draw_data->CmdListsCount; n++)
+        for (int n = 0; n <  meshes.size(); n++)
         {
             const ImDrawList* cmd_list = draw_data->CmdLists[n];
             const ImDrawIdx* idx_buffer_offset = 0;
@@ -163,12 +161,12 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                 }
                 else
                 {
-                    glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
                     glScissor((int)pcmd->ClipRect.x, 
                               (int)(height - pcmd->ClipRect.w), 
                               (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
                               (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));;
                     glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, idx_buffer_offset);
+                    
                 }
                 idx_buffer_offset += pcmd->ElemCount;
             }
@@ -185,8 +183,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         
     } else
     {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
+        ofxImGui::fontTexture.bind();
         glEnable(GL_SCISSOR_TEST);
         for (int n = 0; n <  meshes.size(); n++)
         {
@@ -213,14 +210,11 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                 }
             }
         }
-        glBindTexture(GL_TEXTURE_2D, 0);
+        ofxImGui::fontTexture.unbind();
     }
        
 
-
-
 }
-//#endif
 
 const char* ofxImGui::getClipboardString()
 {    
@@ -252,7 +246,7 @@ bool ofxImGui::createDeviceObjects()
         {
             Frag_UV = UV;
             Frag_Color = Color;
-            gl_Position = ProjMtx * vec4(Position.xy,0,1);
+            gl_Position = ProjMtx * vec4(Position.xy, 0, 1);
         });
         
         string fragment_shader = header + STRINGIFY(
@@ -283,9 +277,18 @@ bool ofxImGui::createDeviceObjects()
         glEnableVertexAttribArray(shader.getAttributeLocation("Color"));
         
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
-        shader.setAttribute2fv("Position", (const float *)OFFSETOF(ImDrawVert, pos), sizeof(ImDrawVert));
-        shader.setAttribute2fv("UV", (const float *)OFFSETOF(ImDrawVert, uv), sizeof(ImDrawVert));
-        glVertexAttribPointer(ofxImGui::g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+        shader.setAttribute2fv("Position", 
+                               (const float *)OFFSETOF(ImDrawVert, pos), 
+                               sizeof(ImDrawVert));
+        shader.setAttribute2fv("UV", 
+                               (const float *)OFFSETOF(ImDrawVert, uv), 
+                               sizeof(ImDrawVert));
+        glVertexAttribPointer(ofxImGui::g_AttribLocationColor, 
+                              4, 
+                              GL_UNSIGNED_BYTE, 
+                              GL_TRUE, 
+                              sizeof(ImDrawVert), 
+                              (GLvoid*)OFFSETOF(ImDrawVert, col));
 #undef OFFSETOF
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -295,6 +298,8 @@ bool ofxImGui::createDeviceObjects()
     // Build texture
     unsigned char* pixels;
     int width, height;
+    
+    //GL_RGB8
     
     GLuint externalTexture;
     glGenTextures(1, &externalTexture);
@@ -329,8 +334,43 @@ bool ofxImGui::createDeviceObjects()
                      GL_UNSIGNED_BYTE, 
                      pixels);
     }
-    
+    ofxImGui::fontTexture.texData.textureTarget = GL_TEXTURE_2D;
     ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
+
+    
+#if 0    
+    ofTextureData texData;
+    texData.textureTarget = GL_TEXTURE_2D;
+    int glFormat;
+    int pixelType = GL_UNSIGNED_BYTE;
+    ofPixelFormat pixFormat;
+    if(ofIsGLProgrammableRenderer())
+    {
+        // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
+        io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+        texData.glInternalFormat = GL_RGBA;
+        
+        glFormat = GL_RGBA;
+        pixFormat = OF_PIXELS_RGBA;
+        
+    }else
+    {
+        texData.glInternalFormat = GL_RGB8;
+        glFormat = GL_ALPHA;
+        io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+        pixFormat = OF_PIXELS_GRAY_ALPHA;
+        
+    }
+    texData.width = width;
+    texData.height = height;
+    ofPixels myPixels;
+    myPixels.setFromExternalPixels(pixels, width, height, pixFormat);
+
+    
+    ofxImGui::fontTexture.allocate(myPixels);
+    
+    
+#endif
     
     // Store our identifier
     io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;

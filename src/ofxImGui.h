@@ -42,24 +42,11 @@ public:
     static const char* getClipboardString();
     static void  setClipboardString(const char* text);
     
-#ifdef TARGET_OPENGLES
-    static int g_ShaderHandle;
-   	static int g_AttribLocationTex;
-   	static int g_AttribLocationProjMtx;
-   	static unsigned int g_VaoHandle;
-   	static unsigned int g_VboHandle;
-    static unsigned int g_ElementsHandle;
-    //static void  renderDrawLists_GLES(ImDrawData* draw_data);
-#endif
-
     static void  renderDrawLists(ImDrawData* draw_data); 
     static ofFloatColor convertToFloatColor(ImU32 rgba);
     
-    static ofShader vboShader;
     
-    static int          g_ShaderHandle, g_VertHandle, g_FragHandle;
-    static int          g_AttribLocationTex, g_AttribLocationProjMtx;
-    static int          g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
+    static int g_AttribLocationColor;
     static unsigned int g_VboHandle, g_VaoHandle, g_ElementsHandle;
     
     static ofShader shader;

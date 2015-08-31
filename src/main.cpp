@@ -4,7 +4,7 @@
 #include "ofGLProgrammableRenderer.h"
 #endif
 
-#define FORCE_PROGRAMMMABLE 1
+//#define FORCE_PROGRAMMMABLE 1
 
 #ifdef FORCE_PROGRAMMMABLE
 #include "ofGLProgrammableRenderer.h"
