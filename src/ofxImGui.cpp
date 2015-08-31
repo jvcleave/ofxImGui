@@ -77,75 +77,6 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
     mouseWheel += (float)event.y;
 }
 
-#if 0
-void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
-{
-    
-  #if 0
-    GLint last_program, last_texture;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
-    glActiveTexture(GL_TEXTURE0);
-    
-    // Setup orthographic projection matrix
-    const float width = ImGui::GetIO().DisplaySize.x;
-    const float height = ImGui::GetIO().DisplaySize.y;
-    const float ortho_projection[4][4] =
-    {
-        { 2.0f/width,	0.0f,			0.0f,		0.0f },
-        { 0.0f,			2.0f/-height,	0.0f,		0.0f },
-        { 0.0f,			0.0f,			-1.0f,		0.0f },
-        { -1.0f,		1.0f,			0.0f,		1.0f },
-    };
-    glUseProgram(g_ShaderHandle);
-    glUniform1i(g_AttribLocationTex, 0);
-    glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
-    glBindVertexArrayFunc(g_VaoHandle);
-    
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
-    {
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        const ImDrawIdx* idx_buffer_offset = 0;
-        
-        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
-        
-        for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
-        {
-            if (pcmd->UserCallback)
-            {
-                pcmd->UserCallback(cmd_list, pcmd);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                glScissor((int)pcmd->ClipRect.x, (int)(height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer_offset);
-            }
-            idx_buffer_offset += pcmd->ElemCount;
-        }
-    }
-    
-    // Restore modified state
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glUseProgram(last_program);
-    glDisable(GL_SCISSOR_TEST);
-    glBindTexture(GL_TEXTURE_2D, last_texture);
-    #endif
-}
-#endif
-
 
 //https://github.com/ocornut/imgui/commit/59d498f3d0319dab32b3f4842c6e5f2da6d68830
 
@@ -197,13 +128,6 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     const float width = ImGui::GetIO().DisplaySize.x;
     const float height = ImGui::GetIO().DisplaySize.y;
     
-    const float ortho_projection[4][4] =
-    {
-        { 2.0f/width,	0.0f,			0.0f,		0.0f },
-        { 0.0f,			2.0f/-height,	0.0f,		0.0f },
-        { 0.0f,			0.0f,			-1.0f,		0.0f },
-        { -1.0f,		1.0f,			0.0f,		1.0f },
-    };
     if(ofIsGLProgrammableRenderer())
     {
         // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
@@ -218,21 +142,17 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         glEnable(GL_SCISSOR_TEST);
         glActiveTexture(GL_TEXTURE0);
         
-        // Handle cases of screen coordinates != from framebuffer coordinates (e.g. retina displays)
-        ImGuiIO& io = ImGui::GetIO();
-        float fb_height = io.DisplaySize.y * io.DisplayFramebufferScale.y;
-        draw_data->ScaleClipRects(io.DisplayFramebufferScale);
-        
-        // Setup orthographic projection matrix
-        const float ortho_projection[4][4] =
-        {
-            { 2.0f/io.DisplaySize.x, 0.0f,                   0.0f, 0.0f },
-            { 0.0f,                  2.0f/-io.DisplaySize.y, 0.0f, 0.0f },
-            { 0.0f,                  0.0f,                  -1.0f, 0.0f },
-            {-1.0f,                  1.0f,                   0.0f, 1.0f },
-        };
         glUseProgram(ofxImGui::g_ShaderHandle);
         glUniform1i(ofxImGui::g_AttribLocationTex, 0);
+        
+        const float ortho_projection[4][4] =
+        {
+            { 2.0f/width,	0.0f,			0.0f,		0.0f },
+            { 0.0f,			2.0f/-height,	0.0f,		0.0f },
+            { 0.0f,			0.0f,			-1.0f,		0.0f },
+            { -1.0f,		1.0f,			0.0f,		1.0f },
+        };
+        
         glUniformMatrix4fv(ofxImGui::g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
         glBindVertexArray(ofxImGui::g_VaoHandle);
         
@@ -256,7 +176,10 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                 else
                 {
                     glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                    glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    glScissor((int)pcmd->ClipRect.x, 
+                              (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
+                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));;
                     glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, idx_buffer_offset);
                 }
                 idx_buffer_offset += pcmd->ElemCount;
@@ -270,63 +193,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         glUseProgram(last_program);
         glDisable(GL_SCISSOR_TEST);
         glBindTexture(GL_TEXTURE_2D, last_texture);
-    }
-    if(ofIsGLProgrammableRenderer())
-    {
-#if 0
-        ofEnableNormalizedTexCoords();
-        ofEnablePointSprites();
-        ofDisableDepthTest();
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
-        glEnable(GL_SCISSOR_TEST);
-        //ofxImGui::vboShader.begin();
-        //ofxImGui::fontTexture.bind();
         
-        //ofxImGui::vboShader.setUniform1f("Texture", ofxImGui::fontTexture.texData.textureID);
-        //ofxImGui::vboShader.setUniformMatrix4f("ProjMtx", &ortho_projection[0][0], 1);
-        glPointSize(5);
-        for (int n = 0; n <  meshes.size(); n++)
-        {
-            //meshes[n].getVbo().bind();
-            float* buffere = (float* )&meshes[n].getVbo().getVertexBuffer();
-            
-            //ofxImGui::vboShader.setAttribute2fv("Position",  buffere);
-            //UniformMatrix4f("ProjMtx", &ortho_projection[0][0], 1);
-            const ImDrawList* cmd_list = draw_data->CmdLists[n];
-            
-            for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
-            {
-                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-                if (pcmd->UserCallback)
-                {
-                    ofLogVerbose() << "UserCallback: ";
-                    
-                    pcmd->UserCallback(cmd_list, pcmd);
-                }
-                else
-                {
-                    //glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
-                    glScissor((int)pcmd->ClipRect.x, 
-                              (int)(ofGetHeight() - pcmd->ClipRect.w), 
-                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
-                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                    
-                    //meshes[n].getVbo().drawElements(GL_POINTS, meshes[n].getNumIndices());
-                    //meshes[n].drawWireframe();
-                    meshes[n].draw();
-                    //meshes[n].drawFaces();
-                    //meshes[n].drawVertices();
-                    
-                }
-            }
-            //meshes[n].getVbo().unbind();
-        }
-        //ofxImGui::vboShader.end(); 
-        glBindTexture(GL_TEXTURE_2D, 0);
-        //ofDisableDepthTest();
-        //ofxImGui::fontTexture.unbind();
-#endif
     } else
     {
         glEnable(GL_TEXTURE_2D);
@@ -380,41 +247,7 @@ void ofxImGui::setClipboardString(const char* text)
 bool ofxImGui::createDeviceObjects()
 {
     ofLogVerbose() << "ofIsGLProgrammableRenderer(): " << ofIsGLProgrammableRenderer();
-#if 0
-    if(ofIsGLProgrammableRenderer())
-    {
-        string vertex_shader =
-        "#version 330\n"
-        "uniform mat4 ProjMtx;\n"
-        "in vec2 Position;\n"
-        "in vec2 UV;\n"
-        "in vec4 Color;\n"
-        "out vec2 Frag_UV;\n"
-        "out vec4 Frag_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Frag_UV = UV;\n"
-        "	Frag_Color = Color;\n"
-        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-        "}\n";
-        
-        string fragment_shader =
-        "#version 330\n"
-        "uniform sampler2D Texture;\n"
-        "in vec2 Frag_UV;\n"
-        "in vec4 Frag_Color;\n"
-        "out vec4 Out_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
-        "}\n";
-        
-        ofxImGui::vboShader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
-        ofxImGui::vboShader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
-        
-        
-    }
-#endif 
+
     if (ofIsGLProgrammableRenderer()) {
         const GLchar *vertex_shader =
         "#version 330\n"
@@ -440,7 +273,6 @@ bool ofxImGui::createDeviceObjects()
         "void main()\n"
         "{\n"
         "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
-        "	//Out_Color = Frag_Color;\n"
         "}\n";
         
         g_ShaderHandle = glCreateProgram();
