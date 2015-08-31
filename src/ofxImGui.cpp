@@ -4,9 +4,7 @@ ofShader ofxImGui::vboShader;
 ofTexture ofxImGui::fontTexture;
 
 
-int ofxImGui::g_ShaderHandle = 0, ofxImGui::g_VertHandle = 0, ofxImGui::g_FragHandle = 0;
-int ofxImGui::g_AttribLocationTex = 0, ofxImGui::g_AttribLocationProjMtx = 0;
-int ofxImGui::g_AttribLocationPosition = 0, ofxImGui::g_AttribLocationUV = 0, ofxImGui::g_AttribLocationColor = 0;
+int ofxImGui::g_AttribLocationColor = 0;
 unsigned int ofxImGui::g_VboHandle = 0, ofxImGui::g_VaoHandle = 0, ofxImGui::g_ElementsHandle = 0;
 ofShader ofxImGui::shader;
 
@@ -130,15 +128,12 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
     
     if(ofIsGLProgrammableRenderer())
     {
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
         glEnable(GL_SCISSOR_TEST);
-        
+        ofxImGui::fontTexture.bind();
         ofxImGui::shader.begin();
-        ofxImGui::shader.setUniform1i("Texture", 0);
         
-        const float width = ofGetWidth();
-        const float height = ofGetHeight();
+        float width = ofGetWidth();
+        float height = ofGetHeight();
         ofMatrix4x4 ortho_projection(
             2.0f/width, 0.0f,           0.0f,   0.0f,
             0.0f,       2.0f/-height,   0.0f,   0.0f ,
@@ -170,7 +165,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                 {
                     glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
                     glScissor((int)pcmd->ClipRect.x, 
-                              (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                              (int)(height - pcmd->ClipRect.w), 
                               (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
                               (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));;
                     glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, idx_buffer_offset);
@@ -183,10 +178,10 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        //glUseProgram(last_program);
         glDisable(GL_SCISSOR_TEST);
+        
         ofxImGui::shader.end();
-        //glBindTexture(GL_TEXTURE_2D, last_texture);
+        ofxImGui::fontTexture.unbind();
         
     } else
     {
@@ -237,51 +232,45 @@ void ofxImGui::setClipboardString(const char* text)
     ofGetWindowPtr()->setClipboardString(text);
 }
 
-
+#define STRINGIFY(x) #x
 bool ofxImGui::createDeviceObjects()
 {
     ofLogVerbose() << "ofIsGLProgrammableRenderer(): " << ofIsGLProgrammableRenderer();
 
-    if (ofIsGLProgrammableRenderer()) {
-        string vertex_shader =
-        "#version 330\n"
-        "uniform mat4 ProjMtx;\n"
-        "in vec2 Position;\n"
-        "in vec2 UV;\n"
-        "in vec4 Color;\n"
-        "out vec2 Frag_UV;\n"
-        "out vec4 Frag_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Frag_UV = UV;\n"
-        "	Frag_Color = Color;\n"
-        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-        "}\n";
+    if (ofIsGLProgrammableRenderer()) 
+    {
+        string header = "#version 330\n";
+        string vertex_shader = header + STRINGIFY(
+                                                  
+         uniform mat4 ProjMtx;
+         in vec2 Position;
+         in vec2 UV;
+         in vec4 Color;
+         out vec2 Frag_UV;
+         out vec4 Frag_Color;
+         void main()
+        {
+            Frag_UV = UV;
+            Frag_Color = Color;
+            gl_Position = ProjMtx * vec4(Position.xy,0,1);
+        });
         
-        string fragment_shader =
-        "#version 330\n"
-        "uniform sampler2D Texture;\n"
-        "in vec2 Frag_UV;\n"
-        "in vec4 Frag_Color;\n"
-        "out vec4 Out_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
-        "}\n";
+        string fragment_shader = header + STRINGIFY(
+        
+        uniform sampler2D Texture;
+        in vec2 Frag_UV;
+        in vec4 Frag_Color;
+        out vec4 Out_Color;
+        void main()
+        {
+            Out_Color = Frag_Color * texture( Texture, Frag_UV.st);
+        });
         
         shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
         shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
         
         bool didLink = shader.linkProgram();
         ofLogVerbose() << "didLink: " << didLink;
-        ofxImGui::g_ShaderHandle = shader.getProgram();
-        
-        ofxImGui::g_AttribLocationTex = shader.getUniformLocation("Texture");
-        ofxImGui::g_AttribLocationProjMtx = shader.getUniformLocation("ProjMtx");
-        ofxImGui::g_AttribLocationPosition = shader.getAttributeLocation("Position");
-        ofxImGui::g_AttribLocationUV = shader.getAttributeLocation("UV");
-        ofxImGui::g_AttribLocationColor = shader.getAttributeLocation("Color");
-        
         
         glGenBuffers(1, &ofxImGui::g_VboHandle);
         glGenBuffers(1, &ofxImGui::g_ElementsHandle);
@@ -289,9 +278,9 @@ bool ofxImGui::createDeviceObjects()
         glGenVertexArrays(1, &ofxImGui::g_VaoHandle);
         glBindVertexArray(ofxImGui::g_VaoHandle);
         glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
-        glEnableVertexAttribArray(ofxImGui::g_AttribLocationPosition);
-        glEnableVertexAttribArray(ofxImGui::g_AttribLocationUV);
-        glEnableVertexAttribArray(ofxImGui::g_AttribLocationColor);
+        glEnableVertexAttribArray(shader.getAttributeLocation("Position"));
+        glEnableVertexAttribArray(shader.getAttributeLocation("UV"));
+        glEnableVertexAttribArray(shader.getAttributeLocation("Color"));
         
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
         shader.setAttribute2fv("Position", (const float *)OFFSETOF(ImDrawVert, pos), sizeof(ImDrawVert));
