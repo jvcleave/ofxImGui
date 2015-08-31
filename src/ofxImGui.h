@@ -55,5 +55,12 @@ public:
     static void  renderDrawLists(ImDrawData* draw_data); 
     static ofFloatColor convertToFloatColor(ImU32 rgba);
     
+    static ofShader vboShader;
+    
+    static int          g_ShaderHandle, g_VertHandle, g_FragHandle;
+    static int          g_AttribLocationTex, g_AttribLocationProjMtx;
+    static int          g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
+    static unsigned int g_VboHandle, g_VaoHandle, g_ElementsHandle;
 
+    
 };

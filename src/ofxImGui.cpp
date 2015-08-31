@@ -1,15 +1,14 @@
 #include "ofxImGui.h"
 
-#if 0
-int ofxImGui::g_ShaderHandle = 0;
-int ofxImGui::g_AttribLocationTex =0;
-int ofxImGui::g_AttribLocationProjMtx=0;
-unsigned int ofxImGui::g_VaoHandle=0;
-unsigned int ofxImGui::g_VboHandle=0;
-unsigned int ofxImGui::g_ElementsHandle = 0;
-#endif
-
+ofShader ofxImGui::vboShader;
 ofTexture ofxImGui::fontTexture;
+
+
+int ofxImGui::g_ShaderHandle = 0, ofxImGui::g_VertHandle = 0, ofxImGui::g_FragHandle = 0;
+int ofxImGui::g_AttribLocationTex = 0, ofxImGui::g_AttribLocationProjMtx = 0;
+int ofxImGui::g_AttribLocationPosition = 0, ofxImGui::g_AttribLocationUV = 0, ofxImGui::g_AttribLocationColor = 0;
+unsigned int ofxImGui::g_VboHandle = 0, ofxImGui::g_VaoHandle = 0, ofxImGui::g_ElementsHandle = 0;
+
 ofxImGui::ofxImGui()
 {
     time = 0.0f;
@@ -165,21 +164,15 @@ ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
 //#ifndef TARGET_OPENGLES
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
-    
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
-    glEnable(GL_SCISSOR_TEST);
+    vector<ofVboMesh> meshes;
     for (int n = 0; n <  draw_data->CmdListsCount; n++)
     {
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        
-    
-        
         ofVboMesh mesh;
         vector<ofVec3f> verts;
         vector<ofVec2f> texCoords;
         vector<ofFloatColor> colors;
         vector<ofIndexType> index;
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
         for(size_t i = 0; i<cmd_list->VtxBuffer.size(); i++)
         {
             verts.push_back(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
@@ -197,34 +190,176 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         mesh.addVertices(verts);
         mesh.addTexCoords(texCoords);
         mesh.addColors(colors);
-        mesh.addIndices(index);        
+        mesh.addIndices(index);  
+        meshes.push_back(mesh);
         
-
-        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+    }
+    const float width = ImGui::GetIO().DisplaySize.x;
+    const float height = ImGui::GetIO().DisplaySize.y;
+    
+    const float ortho_projection[4][4] =
+    {
+        { 2.0f/width,	0.0f,			0.0f,		0.0f },
+        { 0.0f,			2.0f/-height,	0.0f,		0.0f },
+        { 0.0f,			0.0f,			-1.0f,		0.0f },
+        { -1.0f,		1.0f,			0.0f,		1.0f },
+    };
+    if(ofIsGLProgrammableRenderer())
+    {
+        // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
+        GLint last_program, last_texture;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+        glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_SCISSOR_TEST);
+        glActiveTexture(GL_TEXTURE0);
+        
+        // Handle cases of screen coordinates != from framebuffer coordinates (e.g. retina displays)
+        ImGuiIO& io = ImGui::GetIO();
+        float fb_height = io.DisplaySize.y * io.DisplayFramebufferScale.y;
+        draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+        
+        // Setup orthographic projection matrix
+        const float ortho_projection[4][4] =
         {
-            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-            if (pcmd->UserCallback)
+            { 2.0f/io.DisplaySize.x, 0.0f,                   0.0f, 0.0f },
+            { 0.0f,                  2.0f/-io.DisplaySize.y, 0.0f, 0.0f },
+            { 0.0f,                  0.0f,                  -1.0f, 0.0f },
+            {-1.0f,                  1.0f,                   0.0f, 1.0f },
+        };
+        glUseProgram(ofxImGui::g_ShaderHandle);
+        glUniform1i(ofxImGui::g_AttribLocationTex, 0);
+        glUniformMatrix4fv(ofxImGui::g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+        glBindVertexArray(ofxImGui::g_VaoHandle);
+        
+        for (int n = 0; n < draw_data->CmdListsCount; n++)
+        {
+            const ImDrawList* cmd_list = draw_data->CmdLists[n];
+            const ImDrawIdx* idx_buffer_offset = 0;
+            
+            glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ofxImGui::g_ElementsHandle);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
+            
+            for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
             {
-                ofLogVerbose() << "UserCallback: ";
-                
-                pcmd->UserCallback(cmd_list, pcmd);
-            }
-            else
-            {
-                
-                glScissor((int)pcmd->ClipRect.x, 
-                          (int)(ofGetHeight() - pcmd->ClipRect.w), 
-                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
-                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-
-                mesh.getVbo().drawElements(GL_TRIANGLES, index.size());
-               
-                
+                if (pcmd->UserCallback)
+                {
+                    pcmd->UserCallback(cmd_list, pcmd);
+                }
+                else
+                {
+                    glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                    glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, idx_buffer_offset);
+                }
+                idx_buffer_offset += pcmd->ElemCount;
             }
         }
+        
+        // Restore modified state
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glUseProgram(last_program);
+        glDisable(GL_SCISSOR_TEST);
+        glBindTexture(GL_TEXTURE_2D, last_texture);
     }
-     glBindTexture(GL_TEXTURE_2D, 0);
-   
+    if(ofIsGLProgrammableRenderer())
+    {
+#if 0
+        ofEnableNormalizedTexCoords();
+        ofEnablePointSprites();
+        ofDisableDepthTest();
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
+        glEnable(GL_SCISSOR_TEST);
+        //ofxImGui::vboShader.begin();
+        //ofxImGui::fontTexture.bind();
+        
+        //ofxImGui::vboShader.setUniform1f("Texture", ofxImGui::fontTexture.texData.textureID);
+        //ofxImGui::vboShader.setUniformMatrix4f("ProjMtx", &ortho_projection[0][0], 1);
+        glPointSize(5);
+        for (int n = 0; n <  meshes.size(); n++)
+        {
+            //meshes[n].getVbo().bind();
+            float* buffere = (float* )&meshes[n].getVbo().getVertexBuffer();
+            
+            //ofxImGui::vboShader.setAttribute2fv("Position",  buffere);
+            //UniformMatrix4f("ProjMtx", &ortho_projection[0][0], 1);
+            const ImDrawList* cmd_list = draw_data->CmdLists[n];
+            
+            for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+            {
+                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+                if (pcmd->UserCallback)
+                {
+                    ofLogVerbose() << "UserCallback: ";
+                    
+                    pcmd->UserCallback(cmd_list, pcmd);
+                }
+                else
+                {
+                    //glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
+                    glScissor((int)pcmd->ClipRect.x, 
+                              (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
+                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    
+                    //meshes[n].getVbo().drawElements(GL_POINTS, meshes[n].getNumIndices());
+                    //meshes[n].drawWireframe();
+                    meshes[n].draw();
+                    //meshes[n].drawFaces();
+                    //meshes[n].drawVertices();
+                    
+                }
+            }
+            //meshes[n].getVbo().unbind();
+        }
+        //ofxImGui::vboShader.end(); 
+        glBindTexture(GL_TEXTURE_2D, 0);
+        //ofDisableDepthTest();
+        //ofxImGui::fontTexture.unbind();
+#endif
+    } else
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
+        glEnable(GL_SCISSOR_TEST);
+        for (int n = 0; n <  meshes.size(); n++)
+        {
+            const ImDrawList* cmd_list = draw_data->CmdLists[n];
+            
+            for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+            {
+                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+                if (pcmd->UserCallback)
+                {
+                    pcmd->UserCallback(cmd_list, pcmd);
+                }
+                else
+                {
+                    
+                    glScissor((int)pcmd->ClipRect.x, 
+                              (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
+                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                    
+                    meshes[n].getVbo().drawElements(GL_TRIANGLES, meshes[n].getNumIndices());
+
+                    
+                }
+            }
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+       
 
 
 
@@ -244,35 +379,159 @@ void ofxImGui::setClipboardString(const char* text)
 
 bool ofxImGui::createDeviceObjects()
 {
-    // Build texture
-    unsigned char* pixels;
-    int width, height;
-    io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+    ofLogVerbose() << "ofIsGLProgrammableRenderer(): " << ofIsGLProgrammableRenderer();
+#if 0
+    if(ofIsGLProgrammableRenderer())
+    {
+        string vertex_shader =
+        "#version 330\n"
+        "uniform mat4 ProjMtx;\n"
+        "in vec2 Position;\n"
+        "in vec2 UV;\n"
+        "in vec4 Color;\n"
+        "out vec2 Frag_UV;\n"
+        "out vec4 Frag_Color;\n"
+        "void main()\n"
+        "{\n"
+        "	Frag_UV = UV;\n"
+        "	Frag_Color = Color;\n"
+        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
+        "}\n";
+        
+        string fragment_shader =
+        "#version 330\n"
+        "uniform sampler2D Texture;\n"
+        "in vec2 Frag_UV;\n"
+        "in vec4 Frag_Color;\n"
+        "out vec4 Out_Color;\n"
+        "void main()\n"
+        "{\n"
+        "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
+        "}\n";
+        
+        ofxImGui::vboShader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
+        ofxImGui::vboShader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
+        
+        
+    }
+#endif 
+    if (ofIsGLProgrammableRenderer()) {
+        const GLchar *vertex_shader =
+        "#version 330\n"
+        "uniform mat4 ProjMtx;\n"
+        "in vec2 Position;\n"
+        "in vec2 UV;\n"
+        "in vec4 Color;\n"
+        "out vec2 Frag_UV;\n"
+        "out vec4 Frag_Color;\n"
+        "void main()\n"
+        "{\n"
+        "	Frag_UV = UV;\n"
+        "	Frag_Color = Color;\n"
+        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
+        "}\n";
+        
+        const GLchar* fragment_shader =
+        "#version 330\n"
+        "uniform sampler2D Texture;\n"
+        "in vec2 Frag_UV;\n"
+        "in vec4 Frag_Color;\n"
+        "out vec4 Out_Color;\n"
+        "void main()\n"
+        "{\n"
+        "	Out_Color = Frag_Color * texture( Texture, Frag_UV.st);\n"
+        "	//Out_Color = Frag_Color;\n"
+        "}\n";
+        
+        g_ShaderHandle = glCreateProgram();
+        ofxImGui::g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
+        ofxImGui::g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(ofxImGui::g_VertHandle, 1, &vertex_shader, 0);
+        glShaderSource(ofxImGui::g_FragHandle, 1, &fragment_shader, 0);
+        glCompileShader(ofxImGui::g_VertHandle);
+        glCompileShader(ofxImGui::g_FragHandle);
+        glAttachShader(ofxImGui::g_ShaderHandle, ofxImGui::g_VertHandle);
+        glAttachShader(ofxImGui::g_ShaderHandle,ofxImGui:: g_FragHandle);
+        glLinkProgram(ofxImGui::g_ShaderHandle);
+        
+        ofxImGui::g_AttribLocationTex = glGetUniformLocation(ofxImGui::g_ShaderHandle, "Texture");
+        ofxImGui::g_AttribLocationProjMtx = glGetUniformLocation(ofxImGui::g_ShaderHandle, "ProjMtx");
+        ofxImGui::g_AttribLocationPosition = glGetAttribLocation(ofxImGui::g_ShaderHandle, "Position");
+        ofxImGui::g_AttribLocationUV = glGetAttribLocation(ofxImGui::g_ShaderHandle, "UV");
+        ofxImGui::g_AttribLocationColor = glGetAttribLocation(ofxImGui::g_ShaderHandle, "Color");
+        
+        glGenBuffers(1, &ofxImGui::g_VboHandle);
+        glGenBuffers(1, &ofxImGui::g_ElementsHandle);
+        
+        glGenVertexArrays(1, &ofxImGui::g_VaoHandle);
+        glBindVertexArray(ofxImGui::g_VaoHandle);
+        glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
+        glEnableVertexAttribArray(ofxImGui::g_AttribLocationPosition);
+        glEnableVertexAttribArray(ofxImGui::g_AttribLocationUV);
+        glEnableVertexAttribArray(ofxImGui::g_AttribLocationColor);
+        
+#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+        glVertexAttribPointer(ofxImGui::g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
+        glVertexAttribPointer(ofxImGui::g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+        glVertexAttribPointer(ofxImGui::g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+#undef OFFSETOF
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+        ImGuiIO& io = ImGui::GetIO();
+        
+        unsigned char* pixels;
+        int width, height;
+        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
+        GLuint externalTexture;
+        glGenTextures(1, &externalTexture);
+        glBindTexture(GL_TEXTURE_2D, externalTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        
+        ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
+        
+        // Store our identifier
+        io.Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
+        
+        // Cleanup (don't clear the input data if you want to append new fonts later)
+        io.Fonts->ClearInputData();
+        io.Fonts->ClearTexData();
+        
+    }else
+    {
+        // Build texture
+        unsigned char* pixels;
+        int width, height;
+        io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+        
+        GLuint externalTexture;
+        glGenTextures(1, &externalTexture);
+        glBindTexture(GL_TEXTURE_2D, externalTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 
+                     0,
+                     GL_ALPHA,
+                     width,
+                     height, 
+                     0,
+                     GL_ALPHA, 
+                     GL_UNSIGNED_BYTE, 
+                     pixels);
+        ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
+        
+        // Store our identifier
+        io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
+        
+        
+        // Cleanup (don't clear the input data if you want to append new fonts later)
+        io->Fonts->ClearInputData();
+        io->Fonts->ClearTexData();
+
+    }
     
-    GLuint externalTexture;
-    glGenTextures(1, &externalTexture);
-    glBindTexture(GL_TEXTURE_2D, externalTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 
-                 0,
-                 GL_ALPHA,
-                 width,
-                 height, 
-                 0,
-                 GL_ALPHA, 
-                 GL_UNSIGNED_BYTE, 
-                 pixels);
-    ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
-    
-    // Store our identifier
-    io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
-
-
-    // Cleanup (don't clear the input data if you want to append new fonts later)
-    io->Fonts->ClearInputData();
-    io->Fonts->ClearTexData();
-
     return true;
 }
 

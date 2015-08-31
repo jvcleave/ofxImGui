@@ -1,5 +1,6 @@
 #include "ofApp.h"
-
+#include "ofAppGLFWWindow.h"
+#include "GLFW/glfw3.h"
 //--------------------------------------------------------------
 void ofApp::setup()
 {
@@ -12,7 +13,11 @@ void ofApp::setup()
     show_another_window = false;
     f = 0.0f;
     
-    
+    ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
+    GLFWwindow* glfwWindow= baseWindow->getGLFWWindow();
+    //ofLogVerbose() << "baseWindow->settings.glVersionMajor " << baseWindow->settings.glVersionMajor;
+    //<< glfwWindow.settings.glVersionMajor;
+
 }
 
 //--------------------------------------------------------------
