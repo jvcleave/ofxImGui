@@ -6,6 +6,10 @@ ofTexture ofxImGui::fontTexture;
 int ofxImGui::g_AttribLocationColor = 0;
 unsigned int ofxImGui::g_VboHandle = 0, ofxImGui::g_VaoHandle = 0, ofxImGui::g_ElementsHandle = 0;
 ofShader ofxImGui::shader;
+ofVbo ofxImGui::vbo;
+ofVbo ofxImGui::elements;
+ofBufferObject ofxImGui::elementsData;
+ofBufferObject ofxImGui::vertsData;
 
 ofxImGui::ofxImGui()
 {
@@ -114,12 +118,19 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
             index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
         }
         
+        //ofVec2f* verts2D = (ofVec2f*)&cmd_list->VtxBuffer.front().pos;
+        //ofVec3f* verts2DConverted = (ofVec3f*)verts2D;
+        //ofVec3f
+       // ofVec3f* com = (ofVec3f*)verts2D;
         
         mesh.addVertices(verts);
         mesh.addTexCoords(texCoords);
         mesh.addColors(colors);
         mesh.addIndices(index);  
         meshes.push_back(mesh);
+        
+        
+        
         
     }
 
@@ -146,8 +157,20 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         {
             const ImDrawList* cmd_list = draw_data->CmdLists[n];
             const ImDrawIdx* idx_buffer_offset = 0;
+            ofVec3f* posPointer = meshes[n].getVerticesPointer();
+            ofVec2f* posPointer2D = (ofVec2f*)meshes[n].getVerticesPointer();
+            float* floatPointer = (float*)posPointer;
+            
+            ofVbo& v = meshes[n].getVbo();
+            
+            /*shader.setAttribute2fv("Position", 
+                                   (const float *)OFFSETOF(ImDrawVert, pos), 
+                                   sizeof(ImDrawVert));*/
+           // ImVector<ImDrawVert> verts = cmd_list->VtxBuffer;
             
             glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
+            //glBufferData(GL_ARRAY_BUFFER, meshes[n].getNumVertices(), (GLvoid*)posPointer2D, GL_STREAM_DRAW);
+            
             glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
             
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ofxImGui::g_ElementsHandle);
@@ -170,6 +193,7 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                 }
                 idx_buffer_offset += pcmd->ElemCount;
             }
+           // meshes[n].getVbo().unbind();
         }
         
         // Restore modified state
@@ -266,33 +290,57 @@ bool ofxImGui::createDeviceObjects()
         bool didLink = shader.linkProgram();
         ofLogVerbose() << "didLink: " << didLink;
         
+        ofxImGui::vbo.bind();
+        ofxImGui::vbo.unbind();
+        
+        ofxImGui::elements.bind();
+        ofxImGui::elements.unbind();
+
+        
+                
+        ofxImGui::vertsData.allocate();
+        ofxImGui::elementsData.allocate();
+        
+        ofxImGui::g_VboHandle = ofxImGui::vbo.getVaoId();
+        ofxImGui::g_ElementsHandle = ofxImGui::elements.getVaoId();
+        
         glGenBuffers(1, &ofxImGui::g_VboHandle);
         glGenBuffers(1, &ofxImGui::g_ElementsHandle);
         
+        
+  
+
+        
         glGenVertexArrays(1, &ofxImGui::g_VaoHandle);
         glBindVertexArray(ofxImGui::g_VaoHandle);
-        glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
-        glEnableVertexAttribArray(shader.getAttributeLocation("Position"));
-        glEnableVertexAttribArray(shader.getAttributeLocation("UV"));
-        glEnableVertexAttribArray(shader.getAttributeLocation("Color"));
         
-#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+        //ofxImGui::vbo.bind();
+        //ofxImGui::elementsData.bind(ofxImGui::g_VaoHandle);
+        //ofxImGui::vertsData.bind(ofxImGui::g_VboHandle);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
+
+        shader.bindAttribute(ofShader::POSITION_ATTRIBUTE, "Position");
+        shader.bindAttribute(ofShader::TEXCOORD_ATTRIBUTE, "UV");
+        
+        //shader.bindAttribute(ofShader::COLOR_ATTRIBUTE, "Color");
+        glEnableVertexAttribArray(shader.getAttributeLocation("Color"));
         shader.setAttribute2fv("Position", 
-                               (const float *)OFFSETOF(ImDrawVert, pos), 
+                               0, 
                                sizeof(ImDrawVert));
         shader.setAttribute2fv("UV", 
-                               (const float *)OFFSETOF(ImDrawVert, uv), 
+                               (float*)8, 
                                sizeof(ImDrawVert));
+        
         glVertexAttribPointer(ofxImGui::g_AttribLocationColor, 
                               4, 
                               GL_UNSIGNED_BYTE, 
                               GL_TRUE, 
                               sizeof(ImDrawVert), 
-                              (GLvoid*)OFFSETOF(ImDrawVert, col));
-#undef OFFSETOF
+                              (float*)16);
+        
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        
     }
     
     // Build texture

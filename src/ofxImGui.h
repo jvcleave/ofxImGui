@@ -51,5 +51,8 @@ public:
     
     static ofShader shader;
 
-    
+    static ofVbo vbo;
+    static ofVbo elements;
+    static ofBufferObject vertsData;
+    static ofBufferObject elementsData;
 };
