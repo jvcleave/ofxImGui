@@ -2,15 +2,6 @@
 
 ofTexture ofxImGui::fontTexture;
 
-
-int ofxImGui::g_AttribLocationColor = 0;
-unsigned int ofxImGui::g_VboHandle = 0, ofxImGui::g_VaoHandle = 0, ofxImGui::g_ElementsHandle = 0;
-ofShader ofxImGui::shader;
-ofVbo ofxImGui::vbo;
-ofVbo ofxImGui::elements;
-ofBufferObject ofxImGui::elementsData;
-ofBufferObject ofxImGui::vertsData;
-
 ofxImGui::ofxImGui()
 {
     time = 0.0f;
@@ -117,12 +108,6 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         {
             index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
         }
-        
-        //ofVec2f* verts2D = (ofVec2f*)&cmd_list->VtxBuffer.front().pos;
-        //ofVec3f* verts2DConverted = (ofVec3f*)verts2D;
-        //ofVec3f
-       // ofVec3f* com = (ofVec3f*)verts2D;
-        
         mesh.addVertices(verts);
         mesh.addTexCoords(texCoords);
         mesh.addColors(colors);
@@ -133,109 +118,35 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
         
         
     }
-
-    
-    if(ofIsGLProgrammableRenderer())
+    ofxImGui::fontTexture.bind();
+    glEnable(GL_SCISSOR_TEST);
+    for (int n = 0; n <  meshes.size(); n++)
     {
-        glEnable(GL_SCISSOR_TEST);
-        ofxImGui::fontTexture.bind();
-        ofxImGui::shader.begin();
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
         
-        float width = ofGetWidth();
-        float height = ofGetHeight();
-        ofMatrix4x4 ortho_projection(
-            2.0f/width, 0.0f,           0.0f,   0.0f,
-            0.0f,       2.0f/-height,   0.0f,   0.0f ,
-            0.0f,       0.0f,           -1.0f,  0.0f ,
-            -1.0f,      1.0f,           0.0f,   1.0f
-        );
-        ofxImGui::shader.setUniformMatrix4f("ProjMtx", ortho_projection, 1);
-        
-        glBindVertexArray(ofxImGui::g_VaoHandle);
-        
-        for (int n = 0; n <  meshes.size(); n++)
+        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
         {
-            const ImDrawList* cmd_list = draw_data->CmdLists[n];
-            const ImDrawIdx* idx_buffer_offset = 0;
-            ofVec3f* posPointer = meshes[n].getVerticesPointer();
-            ofVec2f* posPointer2D = (ofVec2f*)meshes[n].getVerticesPointer();
-            float* floatPointer = (float*)posPointer;
-            
-            ofVbo& v = meshes[n].getVbo();
-            
-            /*shader.setAttribute2fv("Position", 
-                                   (const float *)OFFSETOF(ImDrawVert, pos), 
-                                   sizeof(ImDrawVert));*/
-           // ImVector<ImDrawVert> verts = cmd_list->VtxBuffer;
-            
-            glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
-            //glBufferData(GL_ARRAY_BUFFER, meshes[n].getNumVertices(), (GLvoid*)posPointer2D, GL_STREAM_DRAW);
-            
-            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
-            
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ofxImGui::g_ElementsHandle);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
-            
-            for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
+            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+            if (pcmd->UserCallback)
             {
-                if (pcmd->UserCallback)
-                {
-                    pcmd->UserCallback(cmd_list, pcmd);
-                }
-                else
-                {
-                    glScissor((int)pcmd->ClipRect.x, 
-                              (int)(height - pcmd->ClipRect.w), 
-                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
-                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));;
-                    glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_INT, idx_buffer_offset);
-                    
-                }
-                idx_buffer_offset += pcmd->ElemCount;
+                pcmd->UserCallback(cmd_list, pcmd);
             }
-           // meshes[n].getVbo().unbind();
-        }
-        
-        // Restore modified state
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glDisable(GL_SCISSOR_TEST);
-        
-        ofxImGui::shader.end();
-        ofxImGui::fontTexture.unbind();
-        
-    } else
-    {
-        ofxImGui::fontTexture.bind();
-        glEnable(GL_SCISSOR_TEST);
-        for (int n = 0; n <  meshes.size(); n++)
-        {
-            const ImDrawList* cmd_list = draw_data->CmdLists[n];
-            
-            for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+            else
             {
-                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-                if (pcmd->UserCallback)
-                {
-                    pcmd->UserCallback(cmd_list, pcmd);
-                }
-                else
-                {
-                    
-                    glScissor((int)pcmd->ClipRect.x, 
-                              (int)(ofGetHeight() - pcmd->ClipRect.w), 
-                              (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
-                              (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                    
-                    meshes[n].getVbo().drawElements(GL_TRIANGLES, meshes[n].getNumIndices());
-
-                    
-                }
+                
+                glScissor((int)pcmd->ClipRect.x, 
+                          (int)(ofGetHeight() - pcmd->ClipRect.w), 
+                          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
+                          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                
+                meshes[n].getVbo().drawElements(GL_TRIANGLES, meshes[n].getNumIndices());
+                
+                
             }
         }
-        ofxImGui::fontTexture.unbind();
     }
+    glDisable(GL_SCISSOR_TEST);
+    ofxImGui::fontTexture.unbind();
        
 
 }
@@ -254,95 +165,6 @@ void ofxImGui::setClipboardString(const char* text)
 bool ofxImGui::createDeviceObjects()
 {
     ofLogVerbose() << "ofIsGLProgrammableRenderer(): " << ofIsGLProgrammableRenderer();
-
-    if (ofIsGLProgrammableRenderer()) 
-    {
-        string header = "#version 330\n";
-        string vertex_shader = header + STRINGIFY(
-                                                  
-         uniform mat4 ProjMtx;
-         in vec2 Position;
-         in vec2 UV;
-         in vec4 Color;
-         out vec2 Frag_UV;
-         out vec4 Frag_Color;
-         void main()
-        {
-            Frag_UV = UV;
-            Frag_Color = Color;
-            gl_Position = ProjMtx * vec4(Position.xy, 0, 1);
-        });
-        
-        string fragment_shader = header + STRINGIFY(
-        
-        uniform sampler2D Texture;
-        in vec2 Frag_UV;
-        in vec4 Frag_Color;
-        out vec4 Out_Color;
-        void main()
-        {
-            Out_Color = Frag_Color * texture( Texture, Frag_UV.st);
-        });
-        
-        shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
-        shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
-        
-        bool didLink = shader.linkProgram();
-        ofLogVerbose() << "didLink: " << didLink;
-        
-        ofxImGui::vbo.bind();
-        ofxImGui::vbo.unbind();
-        
-        ofxImGui::elements.bind();
-        ofxImGui::elements.unbind();
-
-        
-                
-        ofxImGui::vertsData.allocate();
-        ofxImGui::elementsData.allocate();
-        
-        ofxImGui::g_VboHandle = ofxImGui::vbo.getVaoId();
-        ofxImGui::g_ElementsHandle = ofxImGui::elements.getVaoId();
-        
-        glGenBuffers(1, &ofxImGui::g_VboHandle);
-        glGenBuffers(1, &ofxImGui::g_ElementsHandle);
-        
-        
-  
-
-        
-        glGenVertexArrays(1, &ofxImGui::g_VaoHandle);
-        glBindVertexArray(ofxImGui::g_VaoHandle);
-        
-        //ofxImGui::vbo.bind();
-        //ofxImGui::elementsData.bind(ofxImGui::g_VaoHandle);
-        //ofxImGui::vertsData.bind(ofxImGui::g_VboHandle);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, ofxImGui::g_VboHandle);
-
-        shader.bindAttribute(ofShader::POSITION_ATTRIBUTE, "Position");
-        shader.bindAttribute(ofShader::TEXCOORD_ATTRIBUTE, "UV");
-        
-        //shader.bindAttribute(ofShader::COLOR_ATTRIBUTE, "Color");
-        glEnableVertexAttribArray(shader.getAttributeLocation("Color"));
-        shader.setAttribute2fv("Position", 
-                               0, 
-                               sizeof(ImDrawVert));
-        shader.setAttribute2fv("UV", 
-                               (float*)8, 
-                               sizeof(ImDrawVert));
-        
-        glVertexAttribPointer(ofxImGui::g_AttribLocationColor, 
-                              4, 
-                              GL_UNSIGNED_BYTE, 
-                              GL_TRUE, 
-                              sizeof(ImDrawVert), 
-                              (float*)16);
-        
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-    
     // Build texture
     unsigned char* pixels;
     int width, height;
