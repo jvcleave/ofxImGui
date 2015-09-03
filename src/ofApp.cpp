@@ -1,4 +1,5 @@
 #include "ofApp.h"
+#include "ofAppGLFWWindow.h"
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -12,7 +13,8 @@ void ofApp::setup()
     show_another_window = false;
     f = 0.0f;
     
-    
+
+
 }
 
 //--------------------------------------------------------------
@@ -35,8 +37,7 @@ void ofApp::draw(){
         if (ImGui::Button("Test Window")) show_test_window ^= 1;
         if (ImGui::Button("Another Window")) show_another_window ^= 1;
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    }
- #if 1   
+    } 
     // 2. Show another simple window, this time using an explicit Begin/End pair
     if (show_another_window)
     {
@@ -52,13 +53,6 @@ void ofApp::draw(){
        ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
         ImGui::ShowTestWindow(&show_test_window);
     }
-#endif
-#if 0
-    ImGui::Begin("Keys");
-    for (int i = 0; i < ImGuiKey_COUNT; i++)
-        ofLog(OF_LOG_VERBOSE, "Key %d: %d", i, ImGui::IsKeyDown(ImGui::GetKeyIndex(i)));
-    ImGui::End();
-#endif
     gui.end();
     
     

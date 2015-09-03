@@ -1,15 +1,12 @@
 # Attempt to load a config.make file.
 # If none is found, project defaults in config.project.make will be used.
-
-#MAKEFILE_DEBUG=1
-
 ifneq ($(wildcard config.make),)
 	include config.make
 endif
 
 # make sure the the OF_ROOT location is defined
 ifndef OF_ROOT
-    OF_ROOT=../../..
+    OF_ROOT=$(realpath ../../..)
 endif
 
 # call the project makefile!

@@ -1,15 +1,7 @@
 #include "ofxImGui.h"
 
-#ifdef TARGET_OPENGLES
-int ofxImGui::g_ShaderHandle = 0;
-int ofxImGui::g_AttribLocationTex =0;
-int ofxImGui::g_AttribLocationProjMtx=0;
-unsigned int ofxImGui::g_VaoHandle=0;
-unsigned int ofxImGui::g_VboHandle=0;
-unsigned int ofxImGui::g_ElementsHandle = 0;
-#endif
-
 ofTexture ofxImGui::fontTexture;
+
 ofxImGui::ofxImGui()
 {
     time = 0.0f;
@@ -18,9 +10,8 @@ ofxImGui::ofxImGui()
 #ifndef TARGET_OPENGLES
     ofAppGLFWWindow* baseWindow = (ofAppGLFWWindow*)ofGetWindowPtr();
     glfwWindow = baseWindow->getGLFWWindow();
-#else
-    
 #endif    
+    
     io = &ImGui::GetIO();
     
     ofAddListener(ofEvents().keyPressed, this, &ofxImGui::onKeyPressed);
@@ -46,11 +37,7 @@ void ofxImGui::setup()
     io->KeyMap[ImGuiKey_Backspace] = OF_KEY_BACKSPACE;
     io->KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
     io->KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
-#ifndef TARGET_OPENGLES
     io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
-#else
-    io->RenderDrawListsFn =  &ofxImGui::renderDrawLists;
-#endif
     io->SetClipboardTextFn = ofxImGui::setClipboardString;
     io->GetClipboardTextFn = &ofxImGui::getClipboardString;
     
@@ -82,140 +69,36 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 {    
     mouseWheel += (float)event.y;
 }
-#ifdef TARGET_OPENGLES
-void ofxImGui::renderDrawLists_GLES(ImDrawData* draw_data)
-{
-    
-  #if 0
-    GLint last_program, last_texture;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
-    glActiveTexture(GL_TEXTURE0);
-    
-    // Setup orthographic projection matrix
-    const float width = ImGui::GetIO().DisplaySize.x;
-    const float height = ImGui::GetIO().DisplaySize.y;
-    const float ortho_projection[4][4] =
-    {
-        { 2.0f/width,	0.0f,			0.0f,		0.0f },
-        { 0.0f,			2.0f/-height,	0.0f,		0.0f },
-        { 0.0f,			0.0f,			-1.0f,		0.0f },
-        { -1.0f,		1.0f,			0.0f,		1.0f },
-    };
-    glUseProgram(g_ShaderHandle);
-    glUniform1i(g_AttribLocationTex, 0);
-    glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
-    glBindVertexArrayFunc(g_VaoHandle);
-    
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
-    {
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        const ImDrawIdx* idx_buffer_offset = 0;
-        
-        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
-        
-        for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
-        {
-            if (pcmd->UserCallback)
-            {
-                pcmd->UserCallback(cmd_list, pcmd);
-            }
-            else
-            {
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
-                glScissor((int)pcmd->ClipRect.x, (int)(height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer_offset);
-            }
-            idx_buffer_offset += pcmd->ElemCount;
-        }
-    }
-    
-    // Restore modified state
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glUseProgram(last_program);
-    glDisable(GL_SCISSOR_TEST);
-    glBindTexture(GL_TEXTURE_2D, last_texture);
-    #endif
-}
-#endif
 
 
-/*  This is the main rendering function that you have to implement and provide to
-    ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-    If text or lines are blurry when integrating ImGui in your engine:
-    in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-*/
-//https://github.com/ocornut/imgui/commit/59d498f3d0319dab32b3f4842c6e5f2da6d68830
-
-ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
-{
-    float sc = 1.0f/255.0f;
-    
-    ofFloatColor result;
-    result.r = (float)(rgba&0xFF) * sc; 
-    result.g = (float)((rgba>>8)&0xFF) * sc; 
-    result.b = (float)((rgba>>16)&0xFF) * sc; 
-    result.a = (float)(rgba >> 24) * sc;
-    return result;
-}
-
-//#ifndef TARGET_OPENGLES
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
-    
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)ofxImGui::fontTexture.texData.textureID);
-    glEnable(GL_SCISSOR_TEST);
     for (int n = 0; n <  draw_data->CmdListsCount; n++)
     {
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        
-    
-        
         ofVboMesh mesh;
-        vector<ofVec3f> verts;
-        vector<ofVec2f> texCoords;
-        vector<ofFloatColor> colors;
         vector<ofIndexType> index;
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
         for(size_t i = 0; i<cmd_list->VtxBuffer.size(); i++)
         {
-            verts.push_back(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
-            texCoords.push_back(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
-            colors.push_back(ofxImGui::convertToFloatColor(cmd_list->VtxBuffer[i].col));
-            
+            mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
+            mesh.addTexCoord(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
+            ImColor imColor(cmd_list->VtxBuffer[i].col);
+            mesh.addColor(ofFloatColor(imColor.Value.x, imColor.Value.y, imColor.Value.z, imColor.Value.w));
+
         }
         
         for(size_t i = 0; i<cmd_list->IdxBuffer.size(); i++)
         {
-            index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
+            mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
         }
-        
-        
-        mesh.addVertices(verts);
-        mesh.addTexCoords(texCoords);
-        mesh.addColors(colors);
-        mesh.addIndices(index);        
-        
 
-        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+        ofxImGui::fontTexture.bind();
+        glEnable(GL_SCISSOR_TEST);
+        for (size_t i = 0; i < cmd_list->CmdBuffer.size(); i++)
         {
-            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[i];
             if (pcmd->UserCallback)
             {
-                ofLogVerbose() << "UserCallback: ";
-                
                 pcmd->UserCallback(cmd_list, pcmd);
             }
             else
@@ -225,20 +108,15 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                           (int)(ofGetHeight() - pcmd->ClipRect.w), 
                           (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
                           (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-
-                mesh.getVbo().drawElements(GL_TRIANGLES, index.size());
-               
                 
+                mesh.getVbo().drawElements(GL_TRIANGLES, mesh.getNumIndices());
             }
         }
+        glDisable(GL_SCISSOR_TEST);
+        ofxImGui::fontTexture.unbind();
     }
-     glBindTexture(GL_TEXTURE_2D, 0);
-   
-
-
-
 }
-//#endif
+
 
 const char* ofxImGui::getClipboardString()
 {    
@@ -250,38 +128,54 @@ void ofxImGui::setClipboardString(const char* text)
     ofGetWindowPtr()->setClipboardString(text);
 }
 
-
 bool ofxImGui::createDeviceObjects()
 {
-    // Build texture
     unsigned char* pixels;
     int width, height;
-    io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
     
     GLuint externalTexture;
     glGenTextures(1, &externalTexture);
     glBindTexture(GL_TEXTURE_2D, externalTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 
-                 0,
-                 GL_ALPHA,
-                 width,
-                 height, 
-                 0,
-                 GL_ALPHA, 
-                 GL_UNSIGNED_BYTE, 
-                 pixels);
+    
+    if(ofIsGLProgrammableRenderer())
+    {
+        // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
+        io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+        glTexImage2D(GL_TEXTURE_2D, 
+                     0, 
+                     GL_RGBA, 
+                     width, 
+                     height, 
+                     0, 
+                     GL_RGBA, 
+                     GL_UNSIGNED_BYTE, 
+                     pixels);
+        
+    }else
+    {
+        io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+        glTexImage2D(GL_TEXTURE_2D, 
+                     0,
+                     GL_ALPHA,
+                     width,
+                     height, 
+                     0,
+                     GL_ALPHA, 
+                     GL_UNSIGNED_BYTE, 
+                     pixels);
+    }
+    ofxImGui::fontTexture.texData.textureTarget = GL_TEXTURE_2D;
     ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
     
     // Store our identifier
     io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
-
-
+    
     // Cleanup (don't clear the input data if you want to append new fonts later)
     io->Fonts->ClearInputData();
     io->Fonts->ClearTexData();
-
+    
     return true;
 }
 
