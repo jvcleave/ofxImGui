@@ -3,7 +3,7 @@ imgui example in openFrameworks
 
 CURRENT STATUS: Work in progress   
 
-This is an ofxAddon that allows you to use ImGui in openFrameworks
+This is an ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in openFrameworks
 
 EXAMPLES:   
 
