@@ -6,12 +6,15 @@ void ofApp::setup()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
+    //required call
     gui.setup();
+    
+    
     ImGui::GetIO().MouseDrawCursor = true;
     clear_color = ImColor(114, 144, 154);
     show_test_window = true;
     show_another_window = false;
-    f = 0.0f;
+    floatValue = 0.0f;
     
 
 
@@ -25,14 +28,14 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    
+    //required to call this at beginning
     gui.begin();
 
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
     {
         ImGui::Text("Hello, world!");
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+        ImGui::SliderFloat("float", &floatValue, 0.0f, 1.0f);
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
         if (ImGui::Button("Test Window")) show_test_window ^= 1;
         if (ImGui::Button("Another Window")) show_another_window ^= 1;
@@ -41,7 +44,8 @@ void ofApp::draw(){
     // 2. Show another simple window, this time using an explicit Begin/End pair
     if (show_another_window)
     {
-        ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+        //note: ofVec2f and ImVec2f are interchangeable 
+        ImGui::SetNextWindowSize(ofVec2f(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Another Window", &show_another_window);
         ImGui::Text("Hello");
         ImGui::End();
@@ -50,9 +54,10 @@ void ofApp::draw(){
     // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
     if (show_test_window)
     {
-       ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+       ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
         ImGui::ShowTestWindow(&show_test_window);
     }
+    //required to call this at end
     gui.end();
     
     
