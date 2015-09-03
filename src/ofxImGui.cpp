@@ -71,62 +71,32 @@ void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 }
 
 
-//https://github.com/ocornut/imgui/commit/59d498f3d0319dab32b3f4842c6e5f2da6d68830
-
-ofFloatColor ofxImGui::convertToFloatColor(ImU32 rgba)
-{
-    float sc = 1.0f/255.0f;
-    
-    ofFloatColor result;
-    result.r = (float)(rgba&0xFF) * sc; 
-    result.g = (float)((rgba>>8)&0xFF) * sc; 
-    result.b = (float)((rgba>>16)&0xFF) * sc; 
-    result.a = (float)(rgba >> 24) * sc;
-    return result;
-}
-
 void ofxImGui::renderDrawLists(ImDrawData* draw_data)
 {
-    vector<ofVboMesh> meshes;
     for (int n = 0; n <  draw_data->CmdListsCount; n++)
     {
         ofVboMesh mesh;
-        vector<ofVec3f> verts;
-        vector<ofVec2f> texCoords;
-        vector<ofFloatColor> colors;
         vector<ofIndexType> index;
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         for(size_t i = 0; i<cmd_list->VtxBuffer.size(); i++)
         {
-            verts.push_back(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
-            texCoords.push_back(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
-            colors.push_back(ofxImGui::convertToFloatColor(cmd_list->VtxBuffer[i].col));
-            
+            mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
+            mesh.addTexCoord(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
+            ImColor imColor(cmd_list->VtxBuffer[i].col);
+            mesh.addColor(ofFloatColor(imColor.Value.x, imColor.Value.y, imColor.Value.z, imColor.Value.w));
+
         }
         
         for(size_t i = 0; i<cmd_list->IdxBuffer.size(); i++)
         {
-            index.push_back((ofIndexType)cmd_list->IdxBuffer[i] );
+            mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
         }
-        mesh.addVertices(verts);
-        mesh.addTexCoords(texCoords);
-        mesh.addColors(colors);
-        mesh.addIndices(index);  
-        meshes.push_back(mesh);
-        
-        
-        
-        
-    }
-    ofxImGui::fontTexture.bind();
-    glEnable(GL_SCISSOR_TEST);
-    for (int n = 0; n <  meshes.size(); n++)
-    {
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        
-        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+
+        ofxImGui::fontTexture.bind();
+        glEnable(GL_SCISSOR_TEST);
+        for (size_t i = 0; i < cmd_list->CmdBuffer.size(); i++)
         {
-            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[i];
             if (pcmd->UserCallback)
             {
                 pcmd->UserCallback(cmd_list, pcmd);
@@ -139,17 +109,14 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
                           (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), 
                           (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 
-                meshes[n].getVbo().drawElements(GL_TRIANGLES, meshes[n].getNumIndices());
-                
-                
+                mesh.getVbo().drawElements(GL_TRIANGLES, mesh.getNumIndices());
             }
         }
+        glDisable(GL_SCISSOR_TEST);
+        ofxImGui::fontTexture.unbind();
     }
-    glDisable(GL_SCISSOR_TEST);
-    ofxImGui::fontTexture.unbind();
-       
-
 }
+
 
 const char* ofxImGui::getClipboardString()
 {    
@@ -161,15 +128,10 @@ void ofxImGui::setClipboardString(const char* text)
     ofGetWindowPtr()->setClipboardString(text);
 }
 
-#define STRINGIFY(x) #x
 bool ofxImGui::createDeviceObjects()
 {
-    ofLogVerbose() << "ofIsGLProgrammableRenderer(): " << ofIsGLProgrammableRenderer();
-    // Build texture
     unsigned char* pixels;
     int width, height;
-    
-    //GL_RGB8
     
     GLuint externalTexture;
     glGenTextures(1, &externalTexture);
@@ -206,41 +168,6 @@ bool ofxImGui::createDeviceObjects()
     }
     ofxImGui::fontTexture.texData.textureTarget = GL_TEXTURE_2D;
     ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
-
-    
-#if 0    
-    ofTextureData texData;
-    texData.textureTarget = GL_TEXTURE_2D;
-    int glFormat;
-    int pixelType = GL_UNSIGNED_BYTE;
-    ofPixelFormat pixFormat;
-    if(ofIsGLProgrammableRenderer())
-    {
-        // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
-        io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
-        texData.glInternalFormat = GL_RGBA;
-        
-        glFormat = GL_RGBA;
-        pixFormat = OF_PIXELS_RGBA;
-        
-    }else
-    {
-        texData.glInternalFormat = GL_RGB8;
-        glFormat = GL_ALPHA;
-        io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-        pixFormat = OF_PIXELS_GRAY_ALPHA;
-        
-    }
-    texData.width = width;
-    texData.height = height;
-    ofPixels myPixels;
-    myPixels.setFromExternalPixels(pixels, width, height, pixFormat);
-
-    
-    ofxImGui::fontTexture.allocate(myPixels);
-    
-    
-#endif
     
     // Store our identifier
     io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
