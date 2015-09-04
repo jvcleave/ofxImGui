@@ -12,10 +12,10 @@ Demo functionality of ImGui's demo example. see main.cpp to switch between Progr
 
 OBSERVED LIMITATIONS/KNOWN ISSUES   
 Lots of features to go through - Not much has been tested beyond demo :)
-
+Requires at least openFrameworks 0.9 RC
 
 TESTED ON   
-openFrameworks 0.9 RC (should be compatible with 0.84 but untested)   
+openFrameworks 0.9 RC 
 
 Mac OS X 10.10   
 Xcode Version 6.4   
