@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxImGui.h"
+#include "ofxImgui.h"
 
 class ofApp : public ofBaseApp{
 	public:
@@ -20,7 +20,7 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
         void mouseScrolled(float x, float y);
     
-    ofxImGui gui;
+    ofxImgui gui;
     ImVec4 clear_color;
     bool show_test_window;
     bool show_another_window;

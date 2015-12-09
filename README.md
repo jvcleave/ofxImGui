@@ -1,4 +1,4 @@
-# ofxImGui
+# ofxImgui
 imgui example in openFrameworks
 
 CURRENT STATUS: Work in progress   

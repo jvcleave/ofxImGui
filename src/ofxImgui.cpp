@@ -1,24 +1,25 @@
-#include "ofxImGui.h"
+#include "ofxImgui.h"
 
-ofTexture ofxImGui::fontTexture;
+ofTexture ofxImgui::fontTexture;
 
-ofxImGui::ofxImGui()
+ofxImgui::ofxImgui()
 {
   time = 0.0f;
   mouseWheel = 0.0f;
 
   io = &ImGui::GetIO();
+  style = &ImGui::GetStyle();
 
-  ofAddListener(ofEvents().setup, this, &ofxImGui::setup);
-  ofAddListener(ofEvents().keyPressed, this, &ofxImGui::onKeyPressed);
-  ofAddListener(ofEvents().keyReleased, this, &ofxImGui::onKeyReleased);
-  ofAddListener(ofEvents().mousePressed, this, &ofxImGui::onMousePressed);
-  ofAddListener(ofEvents().mouseScrolled, this, &ofxImGui::onMouseScrolled);
+  ofAddListener(ofEvents().setup, this, &ofxImgui::setup);
+  ofAddListener(ofEvents().keyPressed, this, &ofxImgui::onKeyPressed);
+  ofAddListener(ofEvents().keyReleased, this, &ofxImgui::onKeyReleased);
+  ofAddListener(ofEvents().mousePressed, this, &ofxImgui::onMousePressed);
+  ofAddListener(ofEvents().mouseScrolled, this, &ofxImgui::onMouseScrolled);
 }
 
 
-void ofxImGui::setup(ofEventArgs&)
-{   
+void ofxImgui::setup(ofEventArgs&)
+{
   io->KeyMap[ImGuiKey_Tab]        = OF_KEY_TAB;
   io->KeyMap[ImGuiKey_LeftArrow]  = OF_KEY_LEFT;
   io->KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
@@ -33,12 +34,12 @@ void ofxImGui::setup(ofEventArgs&)
   io->KeyMap[ImGuiKey_Enter]      = OF_KEY_RETURN;
   io->KeyMap[ImGuiKey_Escape]     = OF_KEY_ESC;
 
-  io->RenderDrawListsFn  = &ofxImGui::renderDrawLists;
-  io->SetClipboardTextFn =  ofxImGui::setClipboardString;
-  io->GetClipboardTextFn = &ofxImGui::getClipboardString;
+  io->RenderDrawListsFn  = &ofxImgui::renderDrawLists;
+  io->SetClipboardTextFn =  ofxImgui::setClipboardString;
+  io->GetClipboardTextFn = &ofxImgui::getClipboardString;
 }
 
-void ofxImGui::onKeyPressed(ofKeyEventArgs& event)
+void ofxImgui::onKeyPressed(ofKeyEventArgs& event)
 {
   io->KeysDown[event.key] = true;
 
@@ -82,12 +83,12 @@ void ofxImGui::onKeyPressed(ofKeyEventArgs& event)
   }
 }
 
-void ofxImGui::onKeyReleased(ofKeyEventArgs& event)
+void ofxImgui::onKeyReleased(ofKeyEventArgs& event)
 {
   io->KeysDown[event.key] = false;
 }
 
-void ofxImGui::onMousePressed(ofMouseEventArgs& event)
+void ofxImgui::onMousePressed(ofMouseEventArgs& event)
 {
   if (event.button >= 0 && event.button < 3)
   {
@@ -95,19 +96,19 @@ void ofxImGui::onMousePressed(ofMouseEventArgs& event)
   }
 }
 
-void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
-{    
+void ofxImgui::onMouseScrolled(ofMouseEventArgs& event)
+{
   mouseWheel += (float)event.y;
 }
 
-void ofxImGui::renderDrawLists(ImDrawData* draw_data)
+void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 {
   for (int n = 0; n <  draw_data->CmdListsCount; n++)
   {
     ofVboMesh mesh;
     vector<ofIndexType> index;
-    const ImDrawList* cmd_list = draw_data->CmdLists[n];
-    for(size_t i = 0; i<cmd_list->VtxBuffer.size(); i++)
+    const ImDrawList * cmd_list = draw_data->CmdLists[n];
+    for(size_t i = 0; i < cmd_list->VtxBuffer.size(); i++)
     {
       mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
       mesh.addTexCoord(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
@@ -115,12 +116,12 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
       mesh.addColor(ofFloatColor(imColor.Value.x, imColor.Value.y, imColor.Value.z, imColor.Value.w));
     }
 
-    for(size_t i = 0; i<cmd_list->IdxBuffer.size(); i++)
+    for(size_t i = 0; i < cmd_list->IdxBuffer.size(); i++)
     {
       mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
     }
 
-    ofxImGui::fontTexture.bind();
+    ofxImgui::fontTexture.bind();
     glEnable(GL_SCISSOR_TEST);
     for(size_t i = 0; i < cmd_list->CmdBuffer.size(); i++)
     {
@@ -139,21 +140,21 @@ void ofxImGui::renderDrawLists(ImDrawData* draw_data)
       }
     }
     glDisable(GL_SCISSOR_TEST);
-    ofxImGui::fontTexture.unbind();
+    ofxImgui::fontTexture.unbind();
   }
 }
 
-const char * ofxImGui::getClipboardString()
-{    
+const char * ofxImgui::getClipboardString()
+{
   return ofGetWindowPtr()->getClipboardString().c_str();
 }
 
-void ofxImGui::setClipboardString(const char* text)
+void ofxImgui::setClipboardString(const char * text)
 {
   ofGetWindowPtr()->setClipboardString(text);
 }
 
-bool ofxImGui::createDeviceObjects()
+bool ofxImgui::createDeviceObjects()
 {
   unsigned char * pixels;
   int width, height;
@@ -192,10 +193,10 @@ bool ofxImGui::createDeviceObjects()
       pixels
     );
   }
-  ofxImGui::fontTexture.texData.textureTarget = GL_TEXTURE_2D;
-  ofxImGui::fontTexture.setUseExternalTextureID(externalTexture);
+  ofxImgui::fontTexture.texData.textureTarget = GL_TEXTURE_2D;
+  ofxImgui::fontTexture.setUseExternalTextureID(externalTexture);
 
-  io->Fonts->TexID = (void *)(intptr_t)ofxImGui::fontTexture.getTextureData().textureID;
+  io->Fonts->TexID = (void *)(intptr_t)ofxImgui::fontTexture.getTextureData().textureID;
 
   io->Fonts->ClearInputData();
   io->Fonts->ClearTexData();
@@ -203,9 +204,9 @@ bool ofxImGui::createDeviceObjects()
   return true;
 }
 
-void ofxImGui::begin()
+void ofxImgui::begin()
 {
-  if(!ofxImGui::fontTexture.isAllocated())
+  if(!ofxImgui::fontTexture.isAllocated())
   {
     createDeviceObjects();
   }
@@ -215,7 +216,7 @@ void ofxImGui::begin()
   ImGui::NewFrame();
 }
 
-void ofxImGui::updateFrame()
+void ofxImgui::updateFrame()
 {
   float current_time =  ofGetElapsedTimef();
 
@@ -246,12 +247,12 @@ void ofxImGui::updateFrame()
   }
 }
 
-void ofxImGui::end()
+void ofxImgui::end()
 {
   ImGui::Render();
 }
 
-ofxImGui::~ofxImGui()
+ofxImgui::~ofxImgui()
 {
   ImGui::GetIO().Fonts->TexID = 0;
   io = NULL;

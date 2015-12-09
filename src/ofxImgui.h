@@ -3,12 +3,12 @@
 #include "ofMain.h"
 #include "imgui.h"
 
-class ofxImGui
+class ofxImgui
 {
   public:
 
-    ofxImGui();
-   ~ofxImGui();
+    ofxImgui();
+   ~ofxImgui();
 
     static ofTexture fontTexture;
 
@@ -31,6 +31,7 @@ class ofxImGui
     static ofFloatColor convertToFloatColor(ImU32 rgba);
 
     ImGuiIO * io;
+    ImGuiStyle * style;
     double time;
     float mouseWheel;
     bool mousePressed[3];
