@@ -37,14 +37,20 @@
 
 #define MyVec2 ofVec2f
 #define MyVec4 ofVec4f
+#define MyFloatColor ofFloatColor
+#define MyColor ofColor
 
-#define IM_VEC2_CLASS_EXTRA                                                 \
-ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                       \
+#define IM_VEC2_CLASS_EXTRA                                             \
+ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                           \
 operator MyVec2() const { return MyVec2(x,y); }
 
-#define IM_VEC4_CLASS_EXTRA                                                 \
-ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
-operator MyVec4() const { return MyVec4(x,y,z,w); }
+#define IM_VEC4_CLASS_EXTRA                                                        \
+ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }                    \
+operator MyVec4() const { return MyVec4(x,y,z,w); }                                \
+ImVec4(const MyFloatColor& f) { x = f.r; y = f.g; z = f.b; w = f.a; }              \
+operator MyFloatColor() const { return MyFloatColor(x, y, z, w); }                 \
+ImVec4(const MyColor& f) { x = f.r/255.0f; y = f.g/255.0f; z = f.b/255.0f; w = f.a/255.0f; }   \
+operator MyColor() const { return MyColor((int) (x*255.0f+0.5f), (int) (y*255.0f+0.5f), (int) (z*255.0f+0.5f), (int) (w*255.0f+0.5f)); }
 
 
 #define ImDrawIdx unsigned int
@@ -59,4 +65,3 @@ namespace ImGui
     void    Value(const char* prefix, const MyVec4& v, const char* float_format = NULL);
 }
 */
-
