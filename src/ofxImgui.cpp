@@ -175,9 +175,9 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
     for(size_t i = 0; i < cmd_list->IdxBuffer.size(); i++)
       mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
 
-    ofxImgui::fontTexture.bind();
+    fontTexture.bind();
     mesh.draw();
-    ofxImgui::fontTexture.unbind();
+    fontTexture.unbind();
   }
 }
 
@@ -228,10 +228,10 @@ bool ofxImgui::createDeviceObjects()
       pixels
     );
   }
-  ofxImgui::fontTexture.texData.textureTarget = GL_TEXTURE_2D;
-  ofxImgui::fontTexture.setUseExternalTextureID(externalTexture);
+  fontTexture.texData.textureTarget = GL_TEXTURE_2D;
+  fontTexture.setUseExternalTextureID(externalTexture);
 
-  io->Fonts->TexID = (void *)(intptr_t)ofxImgui::fontTexture.getTextureData().textureID;
+  io->Fonts->TexID = (ImTextureID)(intptr_t)fontTexture.texData.textureID;
 
   io->Fonts->ClearInputData();
   io->Fonts->ClearTexData();
