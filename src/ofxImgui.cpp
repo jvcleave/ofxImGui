@@ -107,7 +107,7 @@ void ofxImgui::setup(ofEventArgs&)
 
   io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 
-  createDeviceObjects();
+  initFontTexture();
 }
 
 void ofxImgui::onKeyPressed(ofKeyEventArgs& event)
@@ -191,7 +191,7 @@ void ofxImgui::setClipboardString(const char * text)
   ofGetWindowPtr()->setClipboardString(text);
 }
 
-bool ofxImgui::createDeviceObjects()
+bool ofxImgui::initFontTexture()
 {
   unsigned char * pixels;
   int width, height;
@@ -201,33 +201,17 @@ bool ofxImgui::createDeviceObjects()
   glBindTexture(GL_TEXTURE_2D, externalTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  if(ofIsGLProgrammableRenderer())
-  {
-    io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_RGBA,
-      width, height,
-      0,
-      GL_RGBA,
-      GL_UNSIGNED_BYTE,
-      pixels
-    );
-  } else {
-    io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_ALPHA,
-      width, height,
-      0,
-      GL_ALPHA,
-      GL_UNSIGNED_BYTE,
-      pixels
-    );
-  }
+  io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    GL_RGBA,
+    width, height,
+    0,
+    GL_RGBA,
+    GL_UNSIGNED_BYTE,
+    pixels
+  );
   fontTexture.texData.textureTarget = GL_TEXTURE_2D;
   fontTexture.setUseExternalTextureID(externalTexture);
 

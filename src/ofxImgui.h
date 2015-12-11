@@ -12,8 +12,6 @@ class ofxImgui
     ofxImgui();
    ~ofxImgui();
 
-    static ofTexture fontTexture;
-
     void setup(ofEventArgs&);
     void begin();
     void end();
@@ -30,7 +28,9 @@ class ofxImgui
     static const char * getClipboardString();
     static void setClipboardString(const char * text);
 
-    bool createDeviceObjects();
+    bool initFontTexture();
+
+    static ofTexture fontTexture;
 
   private:
 
