@@ -16,7 +16,68 @@ ofxImgui::ofxImgui()
 
 void ofxImgui::setup(ofEventArgs&)
 {
-  io = &ImGui::GetIO();
+  io = &ui::GetIO();
+  style = &ui::GetStyle();
+
+  style->WindowMinSize            = ImVec2(160, 20);
+  style->FramePadding             = ImVec2(4, 2);
+  style->ItemSpacing              = ImVec2(6, 2);
+  style->ItemInnerSpacing         = ImVec2(6, 4);
+  style->Alpha                    = 1.5f;
+  style->WindowFillAlphaDefault   = 1.0f;
+  style->WindowRounding           = 0.0f;
+  style->FrameRounding            = 2.0f;
+  style->IndentSpacing            = 6.0f;
+  style->ItemInnerSpacing         = ImVec2(2, 4);
+  style->ColumnsMinSpacing        = 50.0f;
+  style->GrabMinSize              = 14.0f;
+  style->GrabRounding             = 16.0f;
+  style->ScrollbarSize            = 12.0f;
+  style->ScrollbarRounding        = 16.0f;
+
+  style->Colors[ImGuiCol_Text]                  = ImVec4(0.86f, 0.93f, 0.89f, 0.61f);
+  style->Colors[ImGuiCol_TextDisabled]          = ImVec4(0.86f, 0.93f, 0.89f, 0.28f);
+  style->Colors[ImGuiCol_WindowBg]              = ImVec4(0.13f, 0.14f, 0.17f, 1.00f);
+  style->Colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.20f, 0.22f, 0.27f, 0.58f);
+  style->Colors[ImGuiCol_Border]                = ImVec4(0.31f, 0.31f, 1.00f, 0.00f);
+  style->Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+  style->Colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+  style->Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+  style->Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_TitleBg]               = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+  style->Colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.20f, 0.22f, 0.27f, 0.75f);
+  style->Colors[ImGuiCol_TitleBgActive]         = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.20f, 0.22f, 0.27f, 0.47f);
+  style->Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+  style->Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.47f, 0.77f, 0.83f, 0.21f);
+  style->Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+  style->Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_ComboBg]               = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+  style->Colors[ImGuiCol_CheckMark]             = ImVec4(0.71f, 0.22f, 0.27f, 1.00f);
+  style->Colors[ImGuiCol_SliderGrab]            = ImVec4(0.47f, 0.77f, 0.83f, 0.14f);
+  style->Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_Button]                = ImVec4(0.47f, 0.77f, 0.83f, 0.14f);
+  style->Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.92f, 0.18f, 0.29f, 0.86f);
+  style->Colors[ImGuiCol_ButtonActive]          = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_Header]                = ImVec4(0.92f, 0.18f, 0.29f, 0.76f);
+  style->Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.92f, 0.18f, 0.29f, 0.86f);
+  style->Colors[ImGuiCol_HeaderActive]          = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_Column]                = ImVec4(0.47f, 0.77f, 0.83f, 0.32f);
+  style->Colors[ImGuiCol_ColumnHovered]         = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+  style->Colors[ImGuiCol_ColumnActive]          = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.47f, 0.77f, 0.83f, 0.04f);
+  style->Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+  style->Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_CloseButton]           = ImVec4(0.86f, 0.93f, 0.89f, 0.16f);
+  style->Colors[ImGuiCol_CloseButtonHovered]    = ImVec4(0.86f, 0.93f, 0.89f, 0.39f);
+  style->Colors[ImGuiCol_CloseButtonActive]     = ImVec4(0.86f, 0.93f, 0.89f, 1.00f);
+  style->Colors[ImGuiCol_PlotLines]             = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
+  style->Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
+  style->Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+  style->Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.92f, 0.18f, 0.29f, 0.43f);
+  style->Colors[ImGuiCol_TooltipBg]             = ImVec4(0.47f, 0.77f, 0.83f, 0.72f);
+  style->Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(0.20f, 0.22f, 0.27f, 0.73f);
 
   io->MouseDrawCursor = false;
 
@@ -115,24 +176,7 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
       mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
 
     ofxImgui::fontTexture.bind();
-    glEnable(GL_SCISSOR_TEST);
-    for(size_t i = 0; i < cmd_list->CmdBuffer.size(); i++)
-    {
-      const ImDrawCmd * pcmd = &cmd_list->CmdBuffer[i];
-      if(pcmd->UserCallback)
-      {
-        pcmd->UserCallback(cmd_list, pcmd);
-      } else {
-        glScissor(
-          (int)pcmd->ClipRect.x,
-          (int)(ofGetHeight() - pcmd->ClipRect.w),
-          (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
-          (int)(pcmd->ClipRect.w - pcmd->ClipRect.y)
-        );
-        mesh.draw();
-      }
-    }
-    glDisable(GL_SCISSOR_TEST);
+    mesh.draw();
     ofxImgui::fontTexture.unbind();
   }
 }
