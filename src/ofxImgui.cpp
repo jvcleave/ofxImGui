@@ -197,6 +197,17 @@ bool ofxImgui::initFontTexture()
   int width, height;
   io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
+  fontTexture = loadTextureImage2D(pixels, width, height);
+  io->Fonts->TexID = getImguiTextureID(fontTexture);
+
+  io->Fonts->ClearInputData();
+  io->Fonts->ClearTexData();
+
+  return true;
+}
+
+ofTexture ofxImgui::loadTextureImage2D(unsigned char * pixels, int width, int height)
+{
   GLuint externalTexture;
   glGenTextures(1, &externalTexture);
   glBindTexture(GL_TEXTURE_2D, externalTexture);
@@ -212,15 +223,17 @@ bool ofxImgui::initFontTexture()
     GL_UNSIGNED_BYTE,
     pixels
   );
-  fontTexture.texData.textureTarget = GL_TEXTURE_2D;
-  fontTexture.setUseExternalTextureID(externalTexture);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
-  io->Fonts->TexID = (ImTextureID)(intptr_t)fontTexture.texData.textureID;
+  ofTexture texture;
+  texture.texData.textureTarget = GL_TEXTURE_2D;
+  texture.setUseExternalTextureID(externalTexture);
+  return texture;
+}
 
-  io->Fonts->ClearInputData();
-  io->Fonts->ClearTexData();
-
-  return true;
+ImTextureID ofxImgui::getImguiTextureID(ofTexture & texture)
+{
+  return (ImTextureID)(intptr_t)texture.getTextureData().textureID;
 }
 
 void ofxImgui::begin()
