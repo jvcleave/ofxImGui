@@ -159,17 +159,21 @@ void ofxImgui::onWindowResized(ofResizeEventArgs& window)
 
 void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 {
-  GLint last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
-  GLint last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
-  GLint last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
-  GLint last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
-  GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
+  GLint last_blend_src;
+  GLint last_blend_dst;
+  GLint last_blend_equation_rgb;
+  GLint last_blend_equation_alpha;
 
+  glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+  glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+  glGetIntegerv(GL_BLEND_EQUATION_RGB,   &last_blend_equation_rgb);
+  glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
+
+  GLboolean last_enable_blend        = glIsEnabled(GL_BLEND);
   GLboolean last_enable_cull_face    = glIsEnabled(GL_CULL_FACE);
   GLboolean last_enable_depth_test   = glIsEnabled(GL_DEPTH_TEST);
   GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
 
-  // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -178,13 +182,9 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_SCISSOR_TEST);
 
-  // Handle cases of screen coordinates != from framebuffer coordinates (e.g. retina displays)
   ImGuiIO& io = ImGui::GetIO();
   float fb_height = io.DisplaySize.y * io.DisplayFramebufferScale.y;
   draw_data->ScaleClipRects(io.DisplayFramebufferScale);
-
-  // Setup viewport, orthographic projection matrix
-  glViewport(0, 0, (GLsizei)io.DisplaySize.x, (GLsizei)io.DisplaySize.y);
 
   for (int n = 0; n < draw_data->CmdListsCount; n++)
   {
@@ -226,8 +226,8 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 
   glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
   glBlendFunc(last_blend_src, last_blend_dst);
-  last_enable_blend ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
 
+  last_enable_blend        ? glEnable(GL_BLEND)        : glDisable(GL_BLEND);
   last_enable_cull_face    ? glEnable(GL_CULL_FACE)    : glDisable(GL_CULL_FACE);
   last_enable_depth_test   ? glEnable(GL_DEPTH_TEST)   : glDisable(GL_DEPTH_TEST);
   last_enable_scissor_test ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST);
