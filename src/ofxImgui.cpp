@@ -3,109 +3,104 @@
 ofTexture ofxImgui::fontTexture;
 
 ofxImgui::ofxImgui()
+:last_time(0.f)
 {
-  time = 0.0f;
-  mouseWheel = 0.0f;
-
-  io = &ImGui::GetIO();
-  style = &ImGui::GetStyle();
-
   ofAddListener(ofEvents().setup, this, &ofxImgui::setup);
   ofAddListener(ofEvents().keyPressed, this, &ofxImgui::onKeyPressed);
   ofAddListener(ofEvents().keyReleased, this, &ofxImgui::onKeyReleased);
   ofAddListener(ofEvents().mousePressed, this, &ofxImgui::onMousePressed);
+  ofAddListener(ofEvents().mouseReleased, this, &ofxImgui::onMouseReleased);
   ofAddListener(ofEvents().mouseScrolled, this, &ofxImgui::onMouseScrolled);
+  ofAddListener(ofEvents().windowResized, this, &ofxImgui::onWindowResized);
 }
-
 
 void ofxImgui::setup(ofEventArgs&)
 {
-  io->KeyMap[ImGuiKey_Tab]        = OF_KEY_TAB;
-  io->KeyMap[ImGuiKey_LeftArrow]  = OF_KEY_LEFT;
-  io->KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
-  io->KeyMap[ImGuiKey_UpArrow]    = OF_KEY_UP;
-  io->KeyMap[ImGuiKey_DownArrow]  = OF_KEY_DOWN;
-  io->KeyMap[ImGuiKey_PageUp]     = OF_KEY_PAGE_UP;
-  io->KeyMap[ImGuiKey_PageDown]   = OF_KEY_PAGE_DOWN;
-  io->KeyMap[ImGuiKey_Home]       = OF_KEY_HOME;
-  io->KeyMap[ImGuiKey_End]        = OF_KEY_END;
-  io->KeyMap[ImGuiKey_Delete]     = OF_KEY_DEL;
-  io->KeyMap[ImGuiKey_Backspace]  = OF_KEY_BACKSPACE;
-  io->KeyMap[ImGuiKey_Enter]      = OF_KEY_RETURN;
-  io->KeyMap[ImGuiKey_Escape]     = OF_KEY_ESC;
+  io = &ImGui::GetIO();
+
+  io->MouseDrawCursor = false;
+
+  io->KeyMap[ImGuiKey_Tab]        = GLFW_KEY_TAB;
+  io->KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;
+  io->KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+  io->KeyMap[ImGuiKey_UpArrow]    = GLFW_KEY_UP;
+  io->KeyMap[ImGuiKey_DownArrow]  = GLFW_KEY_DOWN;
+  io->KeyMap[ImGuiKey_PageUp]     = GLFW_KEY_PAGE_UP;
+  io->KeyMap[ImGuiKey_PageDown]   = GLFW_KEY_PAGE_DOWN;
+  io->KeyMap[ImGuiKey_Home]       = GLFW_KEY_HOME;
+  io->KeyMap[ImGuiKey_End]        = GLFW_KEY_END;
+  io->KeyMap[ImGuiKey_Delete]     = GLFW_KEY_DELETE;
+  io->KeyMap[ImGuiKey_Backspace]  = GLFW_KEY_BACKSPACE;
+  io->KeyMap[ImGuiKey_Enter]      = GLFW_KEY_ENTER;
+  io->KeyMap[ImGuiKey_Escape]     = GLFW_KEY_ESCAPE;
+  io->KeyMap[ImGuiKey_A]          = GLFW_KEY_A;
+  io->KeyMap[ImGuiKey_C]          = GLFW_KEY_C;
+  io->KeyMap[ImGuiKey_V]          = GLFW_KEY_V;
+  io->KeyMap[ImGuiKey_X]          = GLFW_KEY_X;
+  io->KeyMap[ImGuiKey_Y]          = GLFW_KEY_Y;
+  io->KeyMap[ImGuiKey_Z]          = GLFW_KEY_Z;
 
   io->RenderDrawListsFn  = &ofxImgui::renderDrawLists;
-  io->SetClipboardTextFn =  ofxImgui::setClipboardString;
+  io->SetClipboardTextFn = &ofxImgui::setClipboardString;
   io->GetClipboardTextFn = &ofxImgui::getClipboardString;
+
+  io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+
+  createDeviceObjects();
 }
 
 void ofxImgui::onKeyPressed(ofKeyEventArgs& event)
 {
-  io->KeysDown[event.key] = true;
+  int key = event.keycode;
 
-  int key = event.key;
+  io->KeysDown[key] = true;
 
-  if(key != OF_KEY_DEL &&
-     key != OF_KEY_MODIFIER &&
-     key != OF_KEY_RETURN &&
-     key != OF_KEY_ESC &&
-     key != OF_KEY_TAB &&
-     key != OF_KEY_COMMAND &&
-     key != OF_KEY_BACKSPACE &&
-     key != OF_KEY_DEL &&
-     key != OF_KEY_F1 &&
-     key != OF_KEY_F2 &&
-     key != OF_KEY_F3 &&
-     key != OF_KEY_F4 &&
-     key != OF_KEY_F5 &&
-     key != OF_KEY_F6 &&
-     key != OF_KEY_F7 &&
-     key != OF_KEY_F8 &&
-     key != OF_KEY_F9 &&
-     key != OF_KEY_F10 &&
-     key != OF_KEY_F11 &&
-     key != OF_KEY_F12 &&
-     key != OF_KEY_LEFT &&
-     key != OF_KEY_UP &&
-     key != OF_KEY_RIGHT &&
-     key != OF_KEY_DOWN &&
-     key != OF_KEY_PAGE_UP &&
-     key != OF_KEY_PAGE_DOWN &&
-     key != OF_KEY_HOME &&
-     key != OF_KEY_END &&
-     key != OF_KEY_INSERT &&
-     key != OF_KEY_CONTROL &&
-     key != OF_KEY_ALT &&
-     key != OF_KEY_SHIFT &&
-     key != OF_KEY_SUPER)
-  {
+  io->KeyCtrl  = io->KeysDown[GLFW_KEY_LEFT_CONTROL] || io->KeysDown[GLFW_KEY_RIGHT_CONTROL];
+  io->KeyShift = io->KeysDown[GLFW_KEY_LEFT_SHIFT]   || io->KeysDown[GLFW_KEY_RIGHT_SHIFT];
+  io->KeyAlt   = io->KeysDown[GLFW_KEY_LEFT_ALT]     || io->KeysDown[GLFW_KEY_RIGHT_ALT];
+
+  if(key < GLFW_KEY_ESCAPE)
     io->AddInputCharacter((unsigned short)event.codepoint);
-  }
 }
 
 void ofxImgui::onKeyReleased(ofKeyEventArgs& event)
 {
-  io->KeysDown[event.key] = false;
+  int key = event.keycode;
+
+  io->KeysDown[key] = false;
+
+  io->KeyCtrl  = io->KeysDown[GLFW_KEY_LEFT_CONTROL] || io->KeysDown[GLFW_KEY_RIGHT_CONTROL];
+  io->KeyShift = io->KeysDown[GLFW_KEY_LEFT_SHIFT]   || io->KeysDown[GLFW_KEY_RIGHT_SHIFT];
+  io->KeyAlt   = io->KeysDown[GLFW_KEY_LEFT_ALT]     || io->KeysDown[GLFW_KEY_RIGHT_ALT];
 }
 
 void ofxImgui::onMousePressed(ofMouseEventArgs& event)
 {
-  if (event.button >= 0 && event.button < 3)
-  {
-    mousePressed[event.button] = true;
-  }
+  if(event.button >= 0 && event.button < 5)
+    io->MouseDown[event.button] = true;
+}
+
+void ofxImgui::onMouseReleased(ofMouseEventArgs& event)
+{
+  if(event.button >= 0 && event.button < 5)
+    io->MouseDown[event.button] = false;
 }
 
 void ofxImgui::onMouseScrolled(ofMouseEventArgs& event)
 {
-  mouseWheel += (float)event.y;
+  io->MouseWheel = event.scrollY;
+}
+
+void ofxImgui::onWindowResized(ofResizeEventArgs& window)
+{
+  io->DisplaySize = ImVec2((float)window.width, (float)window.height);
 }
 
 void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 {
   for (int n = 0; n <  draw_data->CmdListsCount; n++)
   {
-    ofVboMesh mesh;
+    ofMesh mesh;
     vector<ofIndexType> index;
     const ImDrawList * cmd_list = draw_data->CmdLists[n];
     for(size_t i = 0; i < cmd_list->VtxBuffer.size(); i++)
@@ -117,9 +112,7 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
     }
 
     for(size_t i = 0; i < cmd_list->IdxBuffer.size(); i++)
-    {
       mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
-    }
 
     ofxImgui::fontTexture.bind();
     glEnable(GL_SCISSOR_TEST);
@@ -136,7 +129,7 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
           (int)(pcmd->ClipRect.z - pcmd->ClipRect.x),
           (int)(pcmd->ClipRect.w - pcmd->ClipRect.y)
         );
-        mesh.getVbo().drawElements(GL_TRIANGLES, mesh.getNumIndices());
+        mesh.draw();
       }
     }
     glDisable(GL_SCISSOR_TEST);
@@ -146,7 +139,7 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 
 const char * ofxImgui::getClipboardString()
 {
-  return ofGetWindowPtr()->getClipboardString().c_str();
+  return &ofGetWindowPtr()->getClipboardString()[0];
 }
 
 void ofxImgui::setClipboardString(const char * text)
@@ -172,8 +165,7 @@ bool ofxImgui::createDeviceObjects()
       GL_TEXTURE_2D,
       0,
       GL_RGBA,
-      width,
-      height,
+      width, height,
       0,
       GL_RGBA,
       GL_UNSIGNED_BYTE,
@@ -185,8 +177,7 @@ bool ofxImgui::createDeviceObjects()
       GL_TEXTURE_2D,
       0,
       GL_ALPHA,
-      width,
-      height,
+      width, height,
       0,
       GL_ALPHA,
       GL_UNSIGNED_BYTE,
@@ -206,45 +197,13 @@ bool ofxImgui::createDeviceObjects()
 
 void ofxImgui::begin()
 {
-  if(!ofxImgui::fontTexture.isAllocated())
-  {
-    createDeviceObjects();
-  }
+  float current_time = ofGetElapsedTimef();
+  io->DeltaTime = last_time > 0.f ? current_time - last_time : 1.f / 60.f;
+  last_time = current_time;
 
-  updateFrame();
-
-  ImGui::NewFrame();
-}
-
-void ofxImgui::updateFrame()
-{
-  float current_time =  ofGetElapsedTimef();
-
-  if(time > 0.0)
-  {
-    io->DeltaTime = current_time - time;
-  } else {
-    io->DeltaTime = 1.0f / 60.0f;
-  }
-
-  time = current_time;
-
-  io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
   io->MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
 
-  for (int i = 0; i < 3; i++)
-  {
-    io->MouseDown[i] = mousePressed[i] || ofGetMousePressed(i);
-    mousePressed[i] = false;
-  }
-
-  io->MouseWheel = mouseWheel;
-  mouseWheel = 0.0f;
-
-  if(io->MouseDrawCursor)
-  {
-    ofHideCursor();
-  }
+  ImGui::NewFrame();
 }
 
 void ofxImgui::end()

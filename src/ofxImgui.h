@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "imgui.h"
 
+namespace ui = ImGui;
+
 class ofxImgui
 {
   public:
@@ -19,20 +21,19 @@ class ofxImgui
     void onKeyPressed(ofKeyEventArgs& event);
     void onKeyReleased(ofKeyEventArgs& event);
     void onMousePressed(ofMouseEventArgs& event);
+    void onMouseReleased(ofMouseEventArgs& event);
     void onMouseScrolled(ofMouseEventArgs& event);
+    void onWindowResized(ofResizeEventArgs& window);
 
-    void updateFrame();
-    bool createDeviceObjects();
+    static void renderDrawLists(ImDrawData * draw_data);
 
     static const char * getClipboardString();
     static void setClipboardString(const char * text);
 
-    static void renderDrawLists(ImDrawData * draw_data);
-    static ofFloatColor convertToFloatColor(ImU32 rgba);
+    bool createDeviceObjects();
+
+  private:
 
     ImGuiIO * io;
-    ImGuiStyle * style;
-    double time;
-    float mouseWheel;
-    bool mousePressed[3];
+    float last_time;
 };
