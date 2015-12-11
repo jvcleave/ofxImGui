@@ -159,7 +159,7 @@ void ofxImgui::onWindowResized(ofResizeEventArgs& window)
 
 void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 {
-  for (int n = 0; n <  draw_data->CmdListsCount; n++)
+  for (int n = 0; n < draw_data->CmdListsCount; n++)
   {
     ofMesh mesh;
     vector<ofIndexType> index;
