@@ -220,9 +220,13 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
       }
       else
       {
-          glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+          ofTexture tex;
+          tex.texData.textureTarget = GL_TEXTURE_2D;
+          tex.setUseExternalTextureID((intptr_t)pcmd->TextureId);
+          tex.bind();
           glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
           mesh.draw();
+          tex.unbind();
       }
       idx_buffer_offset += pcmd->ElemCount;
     }
