@@ -28,8 +28,7 @@ class ofxImgui
     static const char * getClipboardString();
     static void setClipboardString(const char * text);
 
-    ofTexture loadTextureImage2D(unsigned char * pixels, int width, int height);
-    ImTextureID getImguiTextureID(ofTexture & texture);
+    GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
     bool initFontTexture();
 

@@ -19,21 +19,21 @@ void ofxImgui::setup(ofEventArgs&)
   io = &ui::GetIO();
   style = &ui::GetStyle();
 
-  style->WindowMinSize            = ImVec2(160, 20);
-  style->FramePadding             = ImVec2(4, 2);
-  style->ItemSpacing              = ImVec2(6, 2);
-  style->ItemInnerSpacing         = ImVec2(6, 4);
-  style->Alpha                    = 1.5f;
-  style->WindowFillAlphaDefault   = 1.0f;
-  style->WindowRounding           = 0.0f;
-  style->FrameRounding            = 0.0f;
-  style->IndentSpacing            = 6.0f;
-  style->ItemInnerSpacing         = ImVec2(2, 4);
-  style->ColumnsMinSpacing        = 50.0f;
-  style->GrabMinSize              = 14.0f;
-  style->GrabRounding             = 0.0f;
-  style->ScrollbarSize            = 12.0f;
-  style->ScrollbarRounding        = 0.0f;
+  style->WindowMinSize           = ImVec2(160, 20);
+  style->FramePadding            = ImVec2(4, 2);
+  style->ItemSpacing             = ImVec2(6, 2);
+  style->ItemInnerSpacing        = ImVec2(6, 4);
+  style->Alpha                   = 1.5f;
+  style->WindowFillAlphaDefault  = 1.0f;
+  style->WindowRounding          = 0.0f;
+  style->FrameRounding           = 0.0f;
+  style->IndentSpacing           = 6.0f;
+  style->ItemInnerSpacing        = ImVec2(2, 4);
+  style->ColumnsMinSpacing       = 50.0f;
+  style->GrabMinSize             = 14.0f;
+  style->GrabRounding            = 0.0f;
+  style->ScrollbarSize           = 12.0f;
+  style->ScrollbarRounding       = 0.0f;
 
   style->Colors[ImGuiCol_Text]                  = ImVec4(0.86f, 0.93f, 0.89f, 0.61f);
   style->Colors[ImGuiCol_TextDisabled]          = ImVec4(0.86f, 0.93f, 0.89f, 0.28f);
@@ -159,26 +159,88 @@ void ofxImgui::onWindowResized(ofResizeEventArgs& window)
 
 void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 {
+  // Backup GL state
+  GLint last_program; glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+  GLint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+  GLint last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+  GLint last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+  GLint last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+  GLint last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+  GLint last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+  GLint last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
+  GLint last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
+  GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
+  GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
+  GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
+  GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+  GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+
+  // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
+  glEnable(GL_BLEND);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_SCISSOR_TEST);
+  glActiveTexture(GL_TEXTURE0);
+
+  // Handle cases of screen coordinates != from framebuffer coordinates (e.g. retina displays)
+  ImGuiIO& io = ImGui::GetIO();
+  float fb_height = io.DisplaySize.y * io.DisplayFramebufferScale.y;
+  draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+
+  // Setup viewport, orthographic projection matrix
+  glViewport(0, 0, (GLsizei)io.DisplaySize.x, (GLsizei)io.DisplaySize.y);
+
   for (int n = 0; n < draw_data->CmdListsCount; n++)
   {
+    const ImDrawList* cmd_list = draw_data->CmdLists[n];
+    const ImDrawIdx* idx_buffer_offset = 0;
+
     ofMesh mesh;
-    vector<ofIndexType> index;
-    const ImDrawList * cmd_list = draw_data->CmdLists[n];
+
     for(size_t i = 0; i < cmd_list->VtxBuffer.size(); i++)
     {
-      mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0));
+      mesh.addVertex(ofVec3f(cmd_list->VtxBuffer[i].pos.x, cmd_list->VtxBuffer[i].pos.y, 0.f));
       mesh.addTexCoord(ofVec2f(cmd_list->VtxBuffer[i].uv.x, cmd_list->VtxBuffer[i].uv.y));
-      ImColor imColor(cmd_list->VtxBuffer[i].col);
-      mesh.addColor(ofFloatColor(imColor.Value.x, imColor.Value.y, imColor.Value.z, imColor.Value.w));
+      ImVec4 col = ImColor(cmd_list->VtxBuffer[i].col).Value;
+      mesh.addColor(ofFloatColor(col.x, col.y, col.z, col.w));
     }
 
     for(size_t i = 0; i < cmd_list->IdxBuffer.size(); i++)
+    {
       mesh.addIndex((ofIndexType)cmd_list->IdxBuffer[i]);
+    }
 
-    fontTexture.bind();
-    mesh.draw();
-    fontTexture.unbind();
+    for (const ImDrawCmd * pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
+    {
+      if (pcmd->UserCallback)
+      {
+          pcmd->UserCallback(cmd_list, pcmd);
+      }
+      else
+      {
+          glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+          glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+          mesh.draw();
+      }
+      idx_buffer_offset += pcmd->ElemCount;
+    }
   }
+
+  // Restore modified GL state
+  glUseProgram(last_program);
+  glBindTexture(GL_TEXTURE_2D, last_texture);
+  glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+  glBindVertexArray(last_vertex_array);
+  glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+  glBlendFunc(last_blend_src, last_blend_dst);
+  if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+  if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+  if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+  if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+  glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 }
 
 const char * ofxImgui::getClipboardString()
@@ -197,8 +259,8 @@ bool ofxImgui::initFontTexture()
   int width, height;
   io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-  fontTexture = loadTextureImage2D(pixels, width, height);
-  io->Fonts->TexID = getImguiTextureID(fontTexture);
+  GLuint texture_id = loadTextureImage2D(pixels, width, height);
+  io->Fonts->TexID = (ImTextureID)(intptr_t)texture_id;
 
   io->Fonts->ClearInputData();
   io->Fonts->ClearTexData();
@@ -206,11 +268,14 @@ bool ofxImgui::initFontTexture()
   return true;
 }
 
-ofTexture ofxImgui::loadTextureImage2D(unsigned char * pixels, int width, int height)
+GLuint ofxImgui::loadTextureImage2D(unsigned char * pixels, int width, int height)
 {
-  GLuint externalTexture;
-  glGenTextures(1, &externalTexture);
-  glBindTexture(GL_TEXTURE_2D, externalTexture);
+  GLint last_texture;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+
+  GLuint new_texture;
+  glGenTextures(1, &new_texture);
+  glBindTexture(GL_TEXTURE_2D, new_texture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexImage2D(
@@ -223,17 +288,10 @@ ofTexture ofxImgui::loadTextureImage2D(unsigned char * pixels, int width, int he
     GL_UNSIGNED_BYTE,
     pixels
   );
-  glBindTexture(GL_TEXTURE_2D, 0);
 
-  ofTexture texture;
-  texture.texData.textureTarget = GL_TEXTURE_2D;
-  texture.setUseExternalTextureID(externalTexture);
-  return texture;
-}
+  glBindTexture(GL_TEXTURE_2D, last_texture);
 
-ImTextureID ofxImgui::getImguiTextureID(ofTexture & texture)
-{
-  return (ImTextureID)(intptr_t)texture.getTextureData().textureID;
+  return new_texture;
 }
 
 void ofxImgui::begin()
@@ -254,7 +312,8 @@ void ofxImgui::end()
 
 ofxImgui::~ofxImgui()
 {
-  ImGui::GetIO().Fonts->TexID = 0;
-  io = NULL;
+  io->Fonts->TexID = 0;
+  io = nullptr;
+  style = nullptr;
   ImGui::Shutdown();
 }
