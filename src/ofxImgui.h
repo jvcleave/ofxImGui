@@ -32,10 +32,10 @@ class ofxImgui
 
     bool createDeviceObjects();
 
-    ImGuiIO * io;
-    ImGuiStyle * style;
-
   private:
 
     float last_time;
+
+    ImGuiIO * io;
+    ImGuiStyle * style;
 };
