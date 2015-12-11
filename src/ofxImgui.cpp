@@ -228,34 +228,34 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 //    }
 
     #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
-    for (int n = 0; n < draw_data->CmdListsCount; n++)
+    for(int n = 0; n < draw_data->CmdListsCount; n++)
     {
-        const ImDrawList* cmd_list = draw_data->CmdLists[n];
-        const unsigned char* vtx_buffer = (const unsigned char*)&cmd_list->VtxBuffer.front();
-        const ImDrawIdx* idx_buffer = &cmd_list->IdxBuffer.front();
-        glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
-        glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, uv)));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer + OFFSETOF(ImDrawVert, col)));
+      const ImDrawList * cmd_list = draw_data->CmdLists[n];
+      const unsigned char * vtx_buffer = (const unsigned char *)&cmd_list->VtxBuffer.front();
+      const ImDrawIdx * idx_buffer = &cmd_list->IdxBuffer.front();
+      glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void *)(vtx_buffer + OFFSETOF(ImDrawVert, pos)));
+      glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void *)(vtx_buffer + OFFSETOF(ImDrawVert, uv)));
+      glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void *)(vtx_buffer + OFFSETOF(ImDrawVert, col)));
 
-        for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+      for(int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.size(); cmd_i++)
+      {
+        const ImDrawCmd * pcmd = &cmd_list->CmdBuffer[cmd_i];
+        if (pcmd->UserCallback)
         {
-            const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-            if (pcmd->UserCallback)
-            {
-                pcmd->UserCallback(cmd_list, pcmd);
-            }
-            else
-            {
-                ofTexture tex;
-                tex.texData.textureTarget = GL_TEXTURE_2D;
-                tex.setUseExternalTextureID((intptr_t)pcmd->TextureId);
-                tex.bind();
-                glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
-                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer);
-                tex.unbind();
-            }
-            idx_buffer += pcmd->ElemCount;
+            pcmd->UserCallback(cmd_list, pcmd);
         }
+        else
+        {
+            ofTexture tex;
+            tex.texData.textureTarget = GL_TEXTURE_2D;
+            tex.setUseExternalTextureID((intptr_t)pcmd->TextureId);
+            tex.bind();
+            glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+            glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer);
+            tex.unbind();
+        }
+        idx_buffer += pcmd->ElemCount;
+      }
     }
     #undef OFFSETOF
   }
