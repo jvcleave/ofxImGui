@@ -194,8 +194,7 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
 
   for (int n = 0; n < draw_data->CmdListsCount; n++)
   {
-    const ImDrawList* cmd_list = draw_data->CmdLists[n];
-    const ImDrawIdx* idx_buffer_offset = 0;
+    const ImDrawList * cmd_list = draw_data->CmdLists[n];
 
     ofMesh mesh;
 
@@ -228,7 +227,6 @@ void ofxImgui::renderDrawLists(ImDrawData * draw_data)
           mesh.draw();
           tex.unbind();
       }
-      idx_buffer_offset += pcmd->ElemCount;
     }
   }
 
