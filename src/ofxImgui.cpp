@@ -195,13 +195,13 @@ bool ofxImgui::initFontTexture()
 {
   unsigned char * pixels;
   int width, height;
+  io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
   GLuint externalTexture;
   glGenTextures(1, &externalTexture);
   glBindTexture(GL_TEXTURE_2D, externalTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
