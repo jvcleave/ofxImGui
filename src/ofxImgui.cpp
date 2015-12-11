@@ -26,14 +26,14 @@ void ofxImgui::setup(ofEventArgs&)
   style->Alpha                    = 1.5f;
   style->WindowFillAlphaDefault   = 1.0f;
   style->WindowRounding           = 0.0f;
-  style->FrameRounding            = 2.0f;
+  style->FrameRounding            = 0.0f;
   style->IndentSpacing            = 6.0f;
   style->ItemInnerSpacing         = ImVec2(2, 4);
   style->ColumnsMinSpacing        = 50.0f;
   style->GrabMinSize              = 14.0f;
-  style->GrabRounding             = 16.0f;
+  style->GrabRounding             = 0.0f;
   style->ScrollbarSize            = 12.0f;
-  style->ScrollbarRounding        = 16.0f;
+  style->ScrollbarRounding        = 0.0f;
 
   style->Colors[ImGuiCol_Text]                  = ImVec4(0.86f, 0.93f, 0.89f, 0.61f);
   style->Colors[ImGuiCol_TextDisabled]          = ImVec4(0.86f, 0.93f, 0.89f, 0.28f);
