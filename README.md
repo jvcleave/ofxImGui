@@ -44,16 +44,16 @@ void ofApp::draw()
 
     if(show_another_window)
     {
-      ui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-      ui::Begin("Another Window", &show_another_window);
-      ui::Text("Hello");
-      ui::End();
+      ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+      ImGui::Begin("Another Window", &show_another_window);
+      ImGui::Text("Hello");
+      ImGui::End();
     }
 
     if(show_test_window)
     {
-      ui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-      ui::ShowTestWindow(&show_test_window);
+      ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+      ImGui::ShowTestWindow(&show_test_window);
     }
 
   m_ui.end();
@@ -79,8 +79,21 @@ void ofApp::draw()
 {
   m_ui.begin();
   
-    bool pressed = ui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
+    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
   
   m_ui.end();
+}
+```
+
+Loading Custom Fonts
+--------------------
+
+Assuming `NotoSans.ttf` placed in application's `data` folder:
+
+```cpp
+void ofApp::setup()
+{
+  ImGuiIO * io = &ImGui::GetIO();
+  io->Fonts->AddFontFromFileTTF(&ofToDataPath("NotoSans.ttf")[0], 24.f);
 }
 ```
