@@ -72,7 +72,7 @@ void ofApp::draw()
 {
   m_ui.begin();
   
-    ui::ImageButton((ImTextureID)(intptr_t)tex_button, ImVec2(200, 141));
+    bool pressed = ui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
   
   m_ui.end();
 }

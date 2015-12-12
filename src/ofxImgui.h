@@ -40,6 +40,12 @@ class ofxImgui
     static ofShader shader;
     static ofVbo vbo;
 
+    ImVec4 col_main_text = ImVec4(0.86f, 0.93f, 0.89f, 0.f);
+    ImVec4 col_main_back = ImVec4(0.82f, 0.18f, 0.29f, 0.f);
+    ImVec4 col_win_inact = ImVec4(0.20f, 0.22f, 0.27f, 0.f);
+    ImVec4 col_win_popup = ImVec4(0.47f, 0.77f, 0.83f, 0.f);
+    ImVec4 col_win_backg = ImVec4(0.13f, 0.14f, 0.17f, 0.f);
+
   private:
 
     float last_time;
