@@ -23,16 +23,22 @@ class ofxImgui
     void onMouseScrolled(ofMouseEventArgs& event);
     void onWindowResized(ofResizeEventArgs& window);
 
-    static void renderDrawLists(ImDrawData * draw_data);
+    bool createDeviceObjects();
+
+    GLuint loadTextureImage2D(ofImage & image);
+    GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
     static const char * getClipboardString();
     static void setClipboardString(const char * text);
 
-    GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
-
-    bool initFontTexture();
+    static void programmableRendererDrawLists(ImDrawData * draw_data);
+    static void glRendererDrawLists(ImDrawData * draw_data);
 
     static ofTexture fontTexture;
+    static unsigned int vboHandle, vaoHandle, elementsHandle;
+    static int attribLocationColor;
+    static ofShader shader;
+    static ofVbo vbo;
 
   private:
 
