@@ -36,8 +36,8 @@ ofxImgui::ofxImgui()
 
 void ofxImgui::setup()
 {
-  io = &ui::GetIO();
-  style = &ui::GetStyle();
+  io = &ImGui::GetIO();
+  style = &ImGui::GetStyle();
 
   style->WindowMinSize            = ImVec2(160, 65);
   style->FramePadding             = ImVec2(4, 2);
@@ -215,7 +215,7 @@ void ofxImgui::glRendererDrawLists(ImDrawData * draw_data)
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_COLOR_ARRAY);
 
-  ImGuiIO * io = &ui::GetIO();
+  ImGuiIO * io = &ImGui::GetIO();
   float fb_height = io->DisplaySize.y * io->DisplayFramebufferScale.y;
   draw_data->ScaleClipRects(io->DisplayFramebufferScale);
 
@@ -547,12 +547,12 @@ void ofxImgui::begin()
 
   io->MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
 
-  ui::NewFrame();
+  ImGui::NewFrame();
 }
 
 void ofxImgui::end()
 {
-  ui::Render();
+  ImGui::Render();
 }
 
 ofxImgui::~ofxImgui()
@@ -560,5 +560,5 @@ ofxImgui::~ofxImgui()
   io->Fonts->TexID = 0;
   io = nullptr;
   style = nullptr;
-  ui::Shutdown();
+  ImGui::Shutdown();
 }
