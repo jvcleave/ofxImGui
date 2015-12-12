@@ -151,8 +151,7 @@ void ofxImgui::themeColorsWindow(bool * p_opened)
       col_main_text.g / 255.f,
       col_main_text.b / 255.f
     };
-    bool changed_col_main_text = ImGui::ColorEdit3(
-     "col_main_text",
+    bool changed_col_main_text = ImGui::ColorEdit3("Text",
      &set_main_text[0]
     );
     col_main_text = ofColor(
@@ -167,8 +166,7 @@ void ofxImgui::themeColorsWindow(bool * p_opened)
       col_main_head.g / 255.f,
       col_main_head.b / 255.f
     };
-    bool changed_col_main_head = ImGui::ColorEdit3(
-     "col_main_head",
+    bool changed_col_main_head = ImGui::ColorEdit3("Headers",
      &set_main_head[0]
     );
     col_main_head = ofColor(
@@ -183,8 +181,7 @@ void ofxImgui::themeColorsWindow(bool * p_opened)
       col_main_area.g / 255.f,
       col_main_area.b / 255.f
     };
-    bool changed_col_main_area = ImGui::ColorEdit3(
-     "col_main_area",
+    bool changed_col_main_area = ImGui::ColorEdit3("Areas",
      &set_main_area[0]
     );
     col_main_area = ofColor(
@@ -199,8 +196,7 @@ void ofxImgui::themeColorsWindow(bool * p_opened)
       col_win_popup.g / 255.f,
       col_win_popup.b / 255.f
     };
-    bool changed_col_win_popup = ImGui::ColorEdit3(
-     "col_win_popup",
+    bool changed_col_win_popup = ImGui::ColorEdit3("Popups",
      &set_win_popup[0]
     );
     col_win_popup = ofColor(
@@ -215,8 +211,7 @@ void ofxImgui::themeColorsWindow(bool * p_opened)
       col_win_backg.g / 255.f,
       col_win_backg.b / 255.f
     };
-    bool changed_col_win_backg = ImGui::ColorEdit3(
-     "col_win_backg",
+    bool changed_col_win_backg = ImGui::ColorEdit3("Background",
      &set_win_backg[0]
     );
     col_win_backg = ofColor(
