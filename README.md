@@ -1,6 +1,13 @@
 ofxImgui
 ========
 
+ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks)
+
+CURRENT STATUS:  
+Tested on Mac/Linux Desktop with OF 0.9.0. 
+See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for previous versions
+
+
 ![Screenshot](images/Screenshot.png)
 
 Example
