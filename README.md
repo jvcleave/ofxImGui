@@ -35,6 +35,11 @@ class ofApp : public ofBaseApp
 In `ofApp.cpp`:
 
 ```cpp
+void ofApp::setup()
+{
+  m_ui.setup();
+}
+
 void ofApp::draw()
 {
   m_ui.begin();
@@ -70,6 +75,8 @@ GLuint tex_button;
 
 void ofApp::setup()
 {
+  m_ui.setup();
+
   ofImage img_button;
   img_button.load("youtube.png");
   tex_button = m_ui.loadTextureImage2D(img_button);
@@ -93,6 +100,8 @@ Assuming `NotoSans.ttf` placed in application's `data` folder:
 ```cpp
 void ofApp::setup()
 {
+  m_ui.setup();
+
   ImGuiIO * io = &ImGui::GetIO();
   io->Fonts->AddFontFromFileTTF(&ofToDataPath("NotoSans.ttf")[0], 24.f);
 }
