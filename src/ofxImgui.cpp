@@ -134,8 +134,108 @@ void ofxImgui::updateThemeColors()
   style->Colors[ImGuiCol_PlotHistogram]         = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.63f);
   style->Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(col_main_head.r / 255.f, col_main_head.g / 255.f, col_main_head.b / 255.f, 1.00f);
   style->Colors[ImGuiCol_TextSelectedBg]        = ImVec4(col_main_head.r / 255.f, col_main_head.g / 255.f, col_main_head.b / 255.f, 0.43f);
-  style->Colors[ImGuiCol_TooltipBg]             = ImVec4(col_win_popup.r / 255.f, col_win_popup.g / 255.f, col_win_popup.b / 255.f, 0.72f);
+  style->Colors[ImGuiCol_TooltipBg]             = ImVec4(col_win_popup.r / 255.f, col_win_popup.g / 255.f, col_win_popup.b / 255.f, 0.92f);
   style->Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(col_main_area.r / 255.f, col_main_area.g / 255.f, col_main_area.b / 255.f, 0.73f);
+}
+
+void ofxImgui::themeColorsWindow(bool * p_opened)
+{
+  if(p_opened)
+  {
+    ImGui::SetNextWindowSize(ImVec2(421, 192), ImGuiSetCond_FirstUseEver);
+    ImGui::Begin("Theme Colors", p_opened);
+
+    static float set_main_text[3] =
+    {
+      col_main_text.r / 255.f,
+      col_main_text.g / 255.f,
+      col_main_text.b / 255.f
+    };
+    bool changed_col_main_text = ImGui::ColorEdit3(
+     "col_main_text",
+     &set_main_text[0]
+    );
+    col_main_text = ofColor(
+      set_main_text[0] * 255.f,
+      set_main_text[1] * 255.f,
+      set_main_text[2] * 255.f
+    );
+
+    static float set_main_head[3] =
+    {
+      col_main_head.r / 255.f,
+      col_main_head.g / 255.f,
+      col_main_head.b / 255.f
+    };
+    bool changed_col_main_head = ImGui::ColorEdit3(
+     "col_main_head",
+     &set_main_head[0]
+    );
+    col_main_head = ofColor(
+      set_main_head[0] * 255.f,
+      set_main_head[1] * 255.f,
+      set_main_head[2] * 255.f
+    );
+
+    static float set_main_area[3] =
+    {
+      col_main_area.r / 255.f,
+      col_main_area.g / 255.f,
+      col_main_area.b / 255.f
+    };
+    bool changed_col_main_area = ImGui::ColorEdit3(
+     "col_main_area",
+     &set_main_area[0]
+    );
+    col_main_area = ofColor(
+      set_main_area[0] * 255.f,
+      set_main_area[1] * 255.f,
+      set_main_area[2] * 255.f
+    );
+
+    static float set_win_popup[3] =
+    {
+      col_win_popup.r / 255.f,
+      col_win_popup.g / 255.f,
+      col_win_popup.b / 255.f
+    };
+    bool changed_col_win_popup = ImGui::ColorEdit3(
+     "col_win_popup",
+     &set_win_popup[0]
+    );
+    col_win_popup = ofColor(
+      set_win_popup[0] * 255.f,
+      set_win_popup[1] * 255.f,
+      set_win_popup[2] * 255.f
+    );
+
+    static float set_win_backg[3] =
+    {
+      col_win_backg.r / 255.f,
+      col_win_backg.g / 255.f,
+      col_win_backg.b / 255.f
+    };
+    bool changed_col_win_backg = ImGui::ColorEdit3(
+     "col_win_backg",
+     &set_win_backg[0]
+    );
+    col_win_backg = ofColor(
+      set_win_backg[0] * 255.f,
+      set_win_backg[1] * 255.f,
+      set_win_backg[2] * 255.f
+    );
+
+    if(changed_col_main_text ||
+       changed_col_main_head ||
+       changed_col_main_area ||
+       changed_col_win_popup ||
+       changed_col_win_backg)
+    {
+      updateThemeColors();
+    }
+
+    ImGui::End();
+  }
 }
 
 void ofxImgui::onKeyPressed(ofKeyEventArgs& event)

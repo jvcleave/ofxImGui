@@ -25,6 +25,7 @@ class ofxImgui
 
     bool createDeviceObjects();
     void updateThemeColors();
+    void themeColorsWindow(bool * p_opened);
 
     GLuint loadTextureImage2D(ofImage & image);
     GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
