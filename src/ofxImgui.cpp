@@ -43,7 +43,7 @@ void ofxImgui::setup()
   style->FramePadding             = ImVec2(4, 2);
   style->ItemSpacing              = ImVec2(6, 2);
   style->ItemInnerSpacing         = ImVec2(6, 4);
-  style->Alpha                    = 1.5f;
+  style->Alpha                    = 1.0f;
   style->WindowFillAlphaDefault   = 1.0f;
   style->WindowRounding           = 0.0f;
   style->FrameRounding            = 0.0f;
@@ -93,8 +93,8 @@ void ofxImgui::setup()
 
 void ofxImgui::updateThemeColors()
 {
-  style->Colors[ImGuiCol_Text]                  = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.61f);
-  style->Colors[ImGuiCol_TextDisabled]          = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.28f);
+  style->Colors[ImGuiCol_Text]                  = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 1.00f);
+  style->Colors[ImGuiCol_TextDisabled]          = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.58f);
   style->Colors[ImGuiCol_WindowBg]              = ImVec4(col_win_backg.r / 255.f, col_win_backg.g / 255.f, col_win_backg.b / 255.f, 1.00f);
   style->Colors[ImGuiCol_ChildWindowBg]         = ImVec4(col_main_area.r / 255.f, col_main_area.g / 255.f, col_main_area.b / 255.f, 0.58f);
   style->Colors[ImGuiCol_Border]                = ImVec4(col_win_backg.r / 255.f, col_win_backg.g / 255.f, col_win_backg.b / 255.f, 0.00f);
