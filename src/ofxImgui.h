@@ -12,7 +12,7 @@ class ofxImgui
     ofxImgui();
    ~ofxImgui();
 
-    void setup(ofEventArgs&);
+    void setup();
     void begin();
     void end();
 
@@ -24,6 +24,7 @@ class ofxImgui
     void onWindowResized(ofResizeEventArgs& window);
 
     bool createDeviceObjects();
+    void updateThemeColors();
 
     GLuint loadTextureImage2D(ofImage & image);
     GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);

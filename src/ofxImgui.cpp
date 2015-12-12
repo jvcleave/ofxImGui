@@ -26,7 +26,6 @@ glBindVertexArrayType glBindVertexArrayFuncAlt = nullptr;
 ofxImgui::ofxImgui()
 :last_time(0.f)
 {
-  ofAddListener(ofEvents().setup, this, &ofxImgui::setup);
   ofAddListener(ofEvents().keyPressed, this, &ofxImgui::onKeyPressed);
   ofAddListener(ofEvents().keyReleased, this, &ofxImgui::onKeyReleased);
   ofAddListener(ofEvents().mousePressed, this, &ofxImgui::onMousePressed);
@@ -35,27 +34,65 @@ ofxImgui::ofxImgui()
   ofAddListener(ofEvents().windowResized, this, &ofxImgui::onWindowResized);
 }
 
-void ofxImgui::setup(ofEventArgs&)
+void ofxImgui::setup()
 {
   io = &ui::GetIO();
   style = &ui::GetStyle();
 
-  style->WindowMinSize           = ImVec2(160, 65);
-  style->FramePadding            = ImVec2(4, 2);
-  style->ItemSpacing             = ImVec2(6, 2);
-  style->ItemInnerSpacing        = ImVec2(6, 4);
-  style->Alpha                   = 1.5f;
-  style->WindowFillAlphaDefault  = 1.0f;
-  style->WindowRounding          = 0.0f;
-  style->FrameRounding           = 0.0f;
-  style->IndentSpacing           = 6.0f;
-  style->ItemInnerSpacing        = ImVec2(2, 4);
-  style->ColumnsMinSpacing       = 50.0f;
-  style->GrabMinSize             = 14.0f;
-  style->GrabRounding            = 0.0f;
-  style->ScrollbarSize           = 12.0f;
-  style->ScrollbarRounding       = 0.0f;
+  style->WindowMinSize            = ImVec2(160, 65);
+  style->FramePadding             = ImVec2(4, 2);
+  style->ItemSpacing              = ImVec2(6, 2);
+  style->ItemInnerSpacing         = ImVec2(6, 4);
+  style->Alpha                    = 1.5f;
+  style->WindowFillAlphaDefault   = 1.0f;
+  style->WindowRounding           = 0.0f;
+  style->FrameRounding            = 0.0f;
+  style->IndentSpacing            = 6.0f;
+  style->ItemInnerSpacing         = ImVec2(2, 4);
+  style->ColumnsMinSpacing        = 50.0f;
+  style->GrabMinSize              = 14.0f;
+  style->GrabRounding             = 0.0f;
+  style->ScrollbarSize            = 12.0f;
+  style->ScrollbarRounding        = 0.0f;
 
+  io->KeyMap[ImGuiKey_Tab]        = GLFW_KEY_TAB;
+  io->KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;
+  io->KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+  io->KeyMap[ImGuiKey_UpArrow]    = GLFW_KEY_UP;
+  io->KeyMap[ImGuiKey_DownArrow]  = GLFW_KEY_DOWN;
+  io->KeyMap[ImGuiKey_PageUp]     = GLFW_KEY_PAGE_UP;
+  io->KeyMap[ImGuiKey_PageDown]   = GLFW_KEY_PAGE_DOWN;
+  io->KeyMap[ImGuiKey_Home]       = GLFW_KEY_HOME;
+  io->KeyMap[ImGuiKey_End]        = GLFW_KEY_END;
+  io->KeyMap[ImGuiKey_Delete]     = GLFW_KEY_DELETE;
+  io->KeyMap[ImGuiKey_Backspace]  = GLFW_KEY_BACKSPACE;
+  io->KeyMap[ImGuiKey_Enter]      = GLFW_KEY_ENTER;
+  io->KeyMap[ImGuiKey_Escape]     = GLFW_KEY_ESCAPE;
+  io->KeyMap[ImGuiKey_A]          = GLFW_KEY_A;
+  io->KeyMap[ImGuiKey_C]          = GLFW_KEY_C;
+  io->KeyMap[ImGuiKey_V]          = GLFW_KEY_V;
+  io->KeyMap[ImGuiKey_X]          = GLFW_KEY_X;
+  io->KeyMap[ImGuiKey_Y]          = GLFW_KEY_Y;
+  io->KeyMap[ImGuiKey_Z]          = GLFW_KEY_Z;
+
+  io->RenderDrawListsFn = ofIsGLProgrammableRenderer() ?
+    &ofxImgui::programmableRendererDrawLists :
+    &ofxImgui::glRendererDrawLists
+  ;
+
+  io->SetClipboardTextFn = &ofxImgui::setClipboardString;
+  io->GetClipboardTextFn = &ofxImgui::getClipboardString;
+
+  io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+
+  io->MouseDrawCursor = false;
+
+  createDeviceObjects();
+  updateThemeColors();
+}
+
+void ofxImgui::updateThemeColors()
+{
   style->Colors[ImGuiCol_Text]                  = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.61f);
   style->Colors[ImGuiCol_TextDisabled]          = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.28f);
   style->Colors[ImGuiCol_WindowBg]              = ImVec4(col_win_backg.r / 255.f, col_win_backg.g / 255.f, col_win_backg.b / 255.f, 1.00f);
@@ -99,40 +136,6 @@ void ofxImgui::setup(ofEventArgs&)
   style->Colors[ImGuiCol_TextSelectedBg]        = ImVec4(col_main_head.r / 255.f, col_main_head.g / 255.f, col_main_head.b / 255.f, 0.43f);
   style->Colors[ImGuiCol_TooltipBg]             = ImVec4(col_win_popup.r / 255.f, col_win_popup.g / 255.f, col_win_popup.b / 255.f, 0.72f);
   style->Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(col_main_area.r / 255.f, col_main_area.g / 255.f, col_main_area.b / 255.f, 0.73f);
-
-  io->KeyMap[ImGuiKey_Tab]        = GLFW_KEY_TAB;
-  io->KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;
-  io->KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-  io->KeyMap[ImGuiKey_UpArrow]    = GLFW_KEY_UP;
-  io->KeyMap[ImGuiKey_DownArrow]  = GLFW_KEY_DOWN;
-  io->KeyMap[ImGuiKey_PageUp]     = GLFW_KEY_PAGE_UP;
-  io->KeyMap[ImGuiKey_PageDown]   = GLFW_KEY_PAGE_DOWN;
-  io->KeyMap[ImGuiKey_Home]       = GLFW_KEY_HOME;
-  io->KeyMap[ImGuiKey_End]        = GLFW_KEY_END;
-  io->KeyMap[ImGuiKey_Delete]     = GLFW_KEY_DELETE;
-  io->KeyMap[ImGuiKey_Backspace]  = GLFW_KEY_BACKSPACE;
-  io->KeyMap[ImGuiKey_Enter]      = GLFW_KEY_ENTER;
-  io->KeyMap[ImGuiKey_Escape]     = GLFW_KEY_ESCAPE;
-  io->KeyMap[ImGuiKey_A]          = GLFW_KEY_A;
-  io->KeyMap[ImGuiKey_C]          = GLFW_KEY_C;
-  io->KeyMap[ImGuiKey_V]          = GLFW_KEY_V;
-  io->KeyMap[ImGuiKey_X]          = GLFW_KEY_X;
-  io->KeyMap[ImGuiKey_Y]          = GLFW_KEY_Y;
-  io->KeyMap[ImGuiKey_Z]          = GLFW_KEY_Z;
-
-  io->RenderDrawListsFn = ofIsGLProgrammableRenderer() ?
-    &ofxImgui::programmableRendererDrawLists :
-    &ofxImgui::glRendererDrawLists
-  ;
-
-  io->SetClipboardTextFn = &ofxImgui::setClipboardString;
-  io->GetClipboardTextFn = &ofxImgui::getClipboardString;
-
-  io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
-
-  io->MouseDrawCursor = false;
-
-  createDeviceObjects();
 }
 
 void ofxImgui::onKeyPressed(ofKeyEventArgs& event)
