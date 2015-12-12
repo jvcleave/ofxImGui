@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------------
 
 #pragma once
+#include "ofMain.h"
 
 //---- Define assertion handler. Defaults to calling assert().
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)
@@ -33,15 +34,20 @@
 //#define IMGUI_STB_NAMESPACE     ImGuiStb
 
 //---- Define constructor and implicit cast operators to convert back<>forth from your math types and ImVec2/ImVec4.
-/*
+
+#define MyVec2 ofVec2f
+#define MyVec4 ofVec4f
+
 #define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                       \
-        operator MyVec2() const { return MyVec2(x,y); }
+ImVec2(const MyVec2& f) { x = f.x; y = f.y; }                       \
+operator MyVec2() const { return MyVec2(x,y); }
 
 #define IM_VEC4_CLASS_EXTRA                                                 \
-        ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
-        operator MyVec4() const { return MyVec4(x,y,z,w); }
-*/
+ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
+operator MyVec4() const { return MyVec4(x,y,z,w); }
+
+
+#define ImDrawIdx unsigned int
 
 //---- Freely implement extra functions within the ImGui:: namespace.
 //---- Declare helpers or widgets implemented in imgui_user.inl or elsewhere, so end-user doesn't need to include multiple files.
