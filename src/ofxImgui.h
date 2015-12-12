@@ -40,11 +40,11 @@ class ofxImgui
     static ofShader shader;
     static ofVbo vbo;
 
-    ImVec4 col_main_text = ImVec4(0.86f, 0.93f, 0.89f, 0.f);
-    ImVec4 col_main_back = ImVec4(0.82f, 0.18f, 0.29f, 0.f);
-    ImVec4 col_win_inact = ImVec4(0.20f, 0.22f, 0.27f, 0.f);
-    ImVec4 col_win_popup = ImVec4(0.47f, 0.77f, 0.83f, 0.f);
-    ImVec4 col_win_backg = ImVec4(0.13f, 0.14f, 0.17f, 0.f);
+    ofColor col_main_text = ofColor::fromHex(0xdbede2);
+    ofColor col_main_back = ofColor::fromHex(0xd12d49);
+    ofColor col_win_inact = ofColor::fromHex(0x333844);
+    ofColor col_win_popup = ofColor::fromHex(0x77c4d3);
+    ofColor col_win_backg = ofColor::fromHex(0x21232b);
 
   private:
 
