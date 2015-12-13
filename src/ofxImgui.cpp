@@ -140,7 +140,7 @@ void ofxImgui::updateThemeColors()
 
 void ofxImgui::themeColorsWindow(bool * p_opened)
 {
-  if(p_opened)
+  if(*p_opened)
   {
     ImGui::SetNextWindowSize(ImVec2(421, 192), ImGuiSetCond_FirstUseEver);
     ImGui::Begin("Theme Colors", p_opened);
