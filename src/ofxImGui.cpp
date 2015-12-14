@@ -10,8 +10,6 @@ ofShader ofxImGui::shader;
 
 #if defined(TARGET_OPENGLES)
 int ofxImGui::g_ShaderHandle = 0;
-int ofxImGui::g_VertHandle = 0;
-int ofxImGui::g_FragHandle = 0;
 int ofxImGui::g_AttribLocationTex = 0;
 int ofxImGui::g_AttribLocationProjMtx = 0;
 int ofxImGui::g_AttribLocationPosition = 0;
@@ -732,17 +730,15 @@ bool ofxImGui::createDeviceObjects()
   glGenBuffers(1, &vboHandle);
   glGenBuffers(1, &elementsHandle);
   
-  ImGuiIO& io = ImGui::GetIO();
   
   // Build texture
   unsigned char* pixels;
   int width, height;
-  //io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
   
   if(ofIsGLProgrammableRenderer())
   {
     // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+    io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
     glTexImage2D(GL_TEXTURE_2D, 
                  0, 
                  GL_RGBA, 
@@ -755,7 +751,7 @@ bool ofxImGui::createDeviceObjects()
     
   }else
   {
-    io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+    io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
     glTexImage2D(GL_TEXTURE_2D, 
                  0,
                  GL_ALPHA,
@@ -767,20 +763,11 @@ bool ofxImGui::createDeviceObjects()
                  pixels);
   }
   
-  // Create OpenGL texture
-  GLuint g_FontTexture = 0;
-  glGenTextures(1, &g_FontTexture);
-  glBindTexture(GL_TEXTURE_2D, g_FontTexture);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
   
-  // Store our identifier
-  io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
-  
-  // Cleanup (don't clear the input data if you want to append new fonts later)
-  io.Fonts->ClearInputData();
-  io.Fonts->ClearTexData();
+  GLuint textureid = loadTextureImage2D(pixels, width, height);
+  io->Fonts->TexID = (void *)(intptr_t)textureid;
+
+  io->Fonts->ClearTexData();
   
   // Restore modified GL state
   glBindTexture(GL_TEXTURE_2D, last_texture);

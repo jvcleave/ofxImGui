@@ -52,8 +52,6 @@ class ofxImGui
 
 #if defined(TARGET_OPENGLES)
     static int  g_ShaderHandle;
-    static int  g_VertHandle;
-    static int  g_FragHandle;
     static int  g_AttribLocationTex;
     static int  g_AttribLocationProjMtx;
     static int  g_AttribLocationPosition;
