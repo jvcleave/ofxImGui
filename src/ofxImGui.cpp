@@ -1,40 +1,35 @@
-#include "ofxImgui.h"
+#include "ofxImGui.h"
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
-ofTexture ofxImgui::fontTexture;
-unsigned int ofxImgui::vboHandle = 0, ofxImgui::vaoHandle = 0, ofxImgui::elementsHandle = 0;
-int ofxImgui::attribLocationColor = 0;
-ofShader ofxImgui::shader;
-ofVbo ofxImgui::vbo;
+ofTexture ofxImGui::fontTexture;
+unsigned int ofxImGui::vboHandle = 0;
+unsigned int ofxImGui::vaoHandle = 0;
+unsigned int ofxImGui::elementsHandle = 0;
+int ofxImGui::attribLocationColor = 0;
+ofShader ofxImGui::shader;
+ofVbo ofxImGui::vbo;
 
-#ifdef TARGET_OPENGLES
-#include <dlfcn.h>
-typedef void (* glGenVertexArraysType) (GLsizei n, GLuint *arrays);
-glGenVertexArraysType glGenVertexArraysFuncAlt = nullptr;
-#define glGenVertexArrays glGenVertexArraysFuncAlt
-
-typedef void (* glDeleteVertexArraysType) (GLsizei n, GLuint *arrays);
-glDeleteVertexArraysType glDeleteVertexArraysFuncAlt = nullptr;
-#define glDeleteVertexArrays glDeleteVertexArraysFuncAlt
-
-typedef void (* glBindVertexArrayType) (GLuint array);
-glBindVertexArrayType glBindVertexArrayFuncAlt = nullptr;
-#define glBindVertexArray glBindVertexArrayFuncAlt
+#if defined(TARGET_OPENGLES)
+int ofxImGui::g_ShaderHandle = 0;
+int ofxImGui::g_VertHandle = 0;
+int ofxImGui::g_FragHandle = 0;
+int ofxImGui::g_AttribLocationTex = 0;
+int ofxImGui::g_AttribLocationProjMtx = 0;
+int ofxImGui::g_AttribLocationPosition = 0;
+int ofxImGui::g_AttribLocationUV = 0;
+int ofxImGui::g_AttribLocationColor = 0;
+unsigned int ofxImGui::g_VboHandle = 0;
+unsigned int ofxImGui::g_ElementsHandle = 0;
+GLuint ofxImGui::g_FontTexture = 0;
 #endif
-
-ofxImgui::ofxImgui()
+ofxImGui::ofxImGui()
 :last_time(0.f)
 {
-  ofAddListener(ofEvents().keyPressed, this, &ofxImgui::onKeyPressed);
-  ofAddListener(ofEvents().keyReleased, this, &ofxImgui::onKeyReleased);
-  ofAddListener(ofEvents().mousePressed, this, &ofxImgui::onMousePressed);
-  ofAddListener(ofEvents().mouseReleased, this, &ofxImgui::onMouseReleased);
-  ofAddListener(ofEvents().mouseScrolled, this, &ofxImgui::onMouseScrolled);
-  ofAddListener(ofEvents().windowResized, this, &ofxImgui::onWindowResized);
+
 }
 
-void ofxImgui::setup()
+void ofxImGui::setup()
 {
   io = &ImGui::GetIO();
   style = &ImGui::GetStyle();
@@ -55,6 +50,24 @@ void ofxImgui::setup()
   style->ScrollbarSize            = 12.0f;
   style->ScrollbarRounding        = 0.0f;
 
+#if defined(TARGET_OPENGLES)
+  io->KeyMap[ImGuiKey_Tab]        = OF_KEY_TAB;
+  io->KeyMap[ImGuiKey_LeftArrow]  = OF_KEY_LEFT;
+  io->KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
+  io->KeyMap[ImGuiKey_UpArrow]    = OF_KEY_UP;
+  io->KeyMap[ImGuiKey_DownArrow]  = OF_KEY_DOWN;
+  io->KeyMap[ImGuiKey_PageUp]     = OF_KEY_PAGE_UP;
+  io->KeyMap[ImGuiKey_PageDown]   = OF_KEY_PAGE_DOWN;
+  io->KeyMap[ImGuiKey_Home]       = OF_KEY_HOME;
+  io->KeyMap[ImGuiKey_End]        = OF_KEY_END;
+  io->KeyMap[ImGuiKey_Delete]     = OF_KEY_DEL;
+  io->KeyMap[ImGuiKey_Backspace]  = OF_KEY_BACKSPACE;
+  io->KeyMap[ImGuiKey_Enter]      = OF_KEY_RETURN;
+  io->KeyMap[ImGuiKey_Escape]     = OF_KEY_ESC;
+  
+  io->RenderDrawListsFn = openGLES_RendererDrawLists; 
+#else
+
   io->KeyMap[ImGuiKey_Tab]        = GLFW_KEY_TAB;
   io->KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;
   io->KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
@@ -74,14 +87,18 @@ void ofxImgui::setup()
   io->KeyMap[ImGuiKey_X]          = GLFW_KEY_X;
   io->KeyMap[ImGuiKey_Y]          = GLFW_KEY_Y;
   io->KeyMap[ImGuiKey_Z]          = GLFW_KEY_Z;
-
-  io->RenderDrawListsFn = ofIsGLProgrammableRenderer() ?
-    &ofxImgui::programmableRendererDrawLists :
-    &ofxImgui::glRendererDrawLists
-  ;
-
-  io->SetClipboardTextFn = &ofxImgui::setClipboardString;
-  io->GetClipboardTextFn = &ofxImgui::getClipboardString;
+  
+  if(ofIsGLProgrammableRenderer())
+  {
+    io->RenderDrawListsFn = programmableRendererDrawLists;  
+  }
+  else
+  {
+    io->RenderDrawListsFn = glRendererDrawLists;  
+  }
+#endif
+  io->SetClipboardTextFn = &ofxImGui::setClipboardString;
+  io->GetClipboardTextFn = &ofxImGui::getClipboardString;
 
   io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 
@@ -89,9 +106,16 @@ void ofxImgui::setup()
 
   createDeviceObjects();
   updateThemeColors();
+  
+  ofAddListener(ofEvents().keyPressed, this, &ofxImGui::onKeyPressed);
+  ofAddListener(ofEvents().keyReleased, this, &ofxImGui::onKeyReleased);
+  ofAddListener(ofEvents().mousePressed, this, &ofxImGui::onMousePressed);
+  ofAddListener(ofEvents().mouseReleased, this, &ofxImGui::onMouseReleased);
+  ofAddListener(ofEvents().mouseScrolled, this, &ofxImGui::onMouseScrolled);
+  ofAddListener(ofEvents().windowResized, this, &ofxImGui::onWindowResized);
 }
 
-void ofxImgui::updateThemeColors()
+void ofxImGui::updateThemeColors()
 {
   style->Colors[ImGuiCol_Text]                  = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 1.00f);
   style->Colors[ImGuiCol_TextDisabled]          = ImVec4(col_main_text.r / 255.f, col_main_text.g / 255.f, col_main_text.b / 255.f, 0.58f);
@@ -138,7 +162,7 @@ void ofxImgui::updateThemeColors()
   style->Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(col_main_area.r / 255.f, col_main_area.g / 255.f, col_main_area.b / 255.f, 0.73f);
 }
 
-void ofxImgui::themeColorsWindow(bool * p_opened)
+void ofxImGui::themeColorsWindow(bool * p_opened)
 {
   if(*p_opened)
   {
@@ -233,54 +257,153 @@ void ofxImgui::themeColorsWindow(bool * p_opened)
   }
 }
 
-void ofxImgui::onKeyPressed(ofKeyEventArgs& event)
+void ofxImGui::onKeyPressed(ofKeyEventArgs& event)
 {
   int key = event.keycode;
 
   io->KeysDown[key] = true;
 
+#if defined(TARGET_OPENGLES)
+  io->AddInputCharacter((unsigned short)event.codepoint);
+  //TODO add modifier keys?
+#else
   io->KeyCtrl  = io->KeysDown[GLFW_KEY_LEFT_CONTROL] || io->KeysDown[GLFW_KEY_RIGHT_CONTROL];
   io->KeyShift = io->KeysDown[GLFW_KEY_LEFT_SHIFT]   || io->KeysDown[GLFW_KEY_RIGHT_SHIFT];
   io->KeyAlt   = io->KeysDown[GLFW_KEY_LEFT_ALT]     || io->KeysDown[GLFW_KEY_RIGHT_ALT];
-
   if(key < GLFW_KEY_ESCAPE)
+  {
     io->AddInputCharacter((unsigned short)event.codepoint);
+  }
+#endif
 }
 
-void ofxImgui::onKeyReleased(ofKeyEventArgs& event)
+void ofxImGui::onKeyReleased(ofKeyEventArgs& event)
 {
   int key = event.keycode;
 
-  io->KeysDown[key] = false;
 
+  io->KeysDown[key] = false;
+  
+#if defined(TARGET_OPENGLES)
+  //TODO Check backspace on GLFW
+  io->AddInputCharacter((unsigned short)event.codepoint);
+#else
   io->KeyCtrl  = io->KeysDown[GLFW_KEY_LEFT_CONTROL] || io->KeysDown[GLFW_KEY_RIGHT_CONTROL];
   io->KeyShift = io->KeysDown[GLFW_KEY_LEFT_SHIFT]   || io->KeysDown[GLFW_KEY_RIGHT_SHIFT];
   io->KeyAlt   = io->KeysDown[GLFW_KEY_LEFT_ALT]     || io->KeysDown[GLFW_KEY_RIGHT_ALT];
+#endif
+  
 }
 
-void ofxImgui::onMousePressed(ofMouseEventArgs& event)
+void ofxImGui::onMousePressed(ofMouseEventArgs& event)
 {
   if(event.button >= 0 && event.button < 5)
     io->MouseDown[event.button] = true;
 }
 
-void ofxImgui::onMouseReleased(ofMouseEventArgs& event)
+void ofxImGui::onMouseReleased(ofMouseEventArgs& event)
 {
   if(event.button >= 0 && event.button < 5)
     io->MouseDown[event.button] = false;
 }
 
-void ofxImgui::onMouseScrolled(ofMouseEventArgs& event)
+void ofxImGui::onMouseScrolled(ofMouseEventArgs& event)
 {
   io->MouseWheel = event.scrollY;
 }
 
-void ofxImgui::onWindowResized(ofResizeEventArgs& window)
+void ofxImGui::onWindowResized(ofResizeEventArgs& window)
 {
   io->DisplaySize = ImVec2((float)window.width, (float)window.height);
 }
 
-void ofxImgui::glRendererDrawLists(ImDrawData * draw_data)
+void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
+{
+#if defined(TARGET_OPENGLES)
+  GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+    
+    // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+    glActiveTexture(GL_TEXTURE0);
+    
+    float width = ofGetWidth();
+    float height = ofGetHeight();
+    
+    
+    
+    // Setup orthographic projection matrix
+    const float ortho_projection[4][4] =
+    {
+        { 2.0f/width,           0.0f,                   0.0f, 0.0f },
+        { 0.0f,                  2.0f/-height,           0.0f, 0.0f },
+        { 0.0f,                  0.0f,                  -1.0f, 0.0f },
+        {-1.0f,                  1.0f,                   0.0f, 1.0f },
+    };
+    glUseProgram(g_ShaderHandle);
+    glUniform1i(g_AttribLocationTex, 0);
+    glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+    
+    // Render command lists
+    glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+    glEnableVertexAttribArray(g_AttribLocationPosition);
+    glEnableVertexAttribArray(g_AttribLocationUV);
+    glEnableVertexAttribArray(g_AttribLocationColor);
+    
+#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+    glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
+    glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+    glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+#undef OFFSETOF
+    
+    for (int n = 0; n < draw_data->CmdListsCount; n++)
+    {
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
+        const ImDrawIdx* idx_buffer_offset = 0;
+        
+        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
+        
+        for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
+        {
+            if (pcmd->UserCallback)
+            {
+                pcmd->UserCallback(cmd_list, pcmd);
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                glScissor((int)pcmd->ClipRect.x, (int)(height-pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer_offset);
+
+            }
+            idx_buffer_offset += pcmd->ElemCount;
+        }
+    }
+    
+    // Restore modified state
+    glDisableVertexAttribArray(g_AttribLocationPosition);
+    glDisableVertexAttribArray(g_AttribLocationUV);
+    glDisableVertexAttribArray(g_AttribLocationColor);
+    glUseProgram(last_program);
+    glBindTexture(GL_TEXTURE_2D, last_texture);
+    glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+    glDisable(GL_SCISSOR_TEST);
+#endif
+}
+void ofxImGui::glRendererDrawLists(ImDrawData * draw_data)
 {
 #ifndef TARGET_OPENGLES
   GLint last_blend_src;
@@ -376,8 +499,9 @@ void ofxImgui::glRendererDrawLists(ImDrawData * draw_data)
 #endif
 }
 
-void ofxImgui::programmableRendererDrawLists(ImDrawData * draw_data)
+void ofxImGui::programmableRendererDrawLists(ImDrawData * draw_data)
 {
+#if !defined(TARGET_OPENGLES)
   GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
 
   glEnable(GL_SCISSOR_TEST);
@@ -447,24 +571,26 @@ void ofxImgui::programmableRendererDrawLists(ImDrawData * draw_data)
   shader.end();
 
   last_enable_scissor_test ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST);
+#endif //end TARGET_OPENGLES check
 }
 
-const char * ofxImgui::getClipboardString()
+const char * ofxImGui::getClipboardString()
 {
   return &ofGetWindowPtr()->getClipboardString()[0];
 }
 
-void ofxImgui::setClipboardString(const char * text)
+void ofxImGui::setClipboardString(const char * text)
 {
   ofGetWindowPtr()->setClipboardString(text);
 }
 
-bool ofxImgui::createDeviceObjects()
+bool ofxImGui::createDeviceObjects()
 {
+#ifndef TARGET_OPENGLES
   if(ofIsGLProgrammableRenderer())
   {
 
-#ifndef TARGET_OPENGLES
+
 
     string header = "#version 330\n";
 
@@ -504,48 +630,6 @@ bool ofxImgui::createDeviceObjects()
 
     )";
 
-#else
-
-    string header = "";
-
-    string vertex_shader = header + R"(
-
-      uniform mat4 ProjMat;
-
-      in vec2 Position;
-      in vec2 UV;
-      in vec4 Color;
-
-      out vec2 Frag_UV;
-      out vec4 Frag_Color;
-
-      void main()
-      {
-        Frag_UV = UV;
-        Frag_Color = Color;
-        gl_Position = ProjMat * vec4(Position.xy, 0, 1);
-      }
-
-    )";
-
-    string fragment_shader = header + R"(
-
-      uniform sampler2D Texture;
-
-      in vec2 Frag_UV;
-      in vec4 Frag_Color;
-
-      out vec4 Out_Color;
-
-      void main()
-      {
-        Out_Color = Frag_Color * texture( Texture, Frag_UV.st);
-      }
-
-    )";
-
-#endif
-
     shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
     shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
 
@@ -581,11 +665,7 @@ bool ofxImgui::createDeviceObjects()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
-#ifdef TARGET_OPENGLES
-  #undef glGenVertexArrays
-  #undef glBindVertexArray
-  #undef glDeleteVertexArrays
-#endif
+
 
   unsigned char * pixels;
   int width, height;
@@ -597,9 +677,150 @@ bool ofxImgui::createDeviceObjects()
   io->Fonts->ClearTexData();
 
   return true;
+  
+#else
+  string header = "";
+  
+  string vertex_shader = header + R"(
+  
+  uniform mat4 ProjMat;
+  
+  attribute vec2 Position;
+  attribute vec2 UV;
+  attribute vec4 Color;
+  
+  varying vec2 Frag_UV;
+  varying vec4 Frag_Color;
+  
+  void main()
+  {
+    Frag_UV = UV;
+    Frag_Color = Color;
+    gl_Position = ProjMat * vec4(Position.xy, 0, 1);
+  }
+  
+  )";
+  
+  string fragment_shader = header + R"(
+  
+  uniform sampler2D Texture;
+  
+  varying vec2 Frag_UV;
+  varying vec4 Frag_Color;
+  
+  void main()
+  {
+    gl_FragColor = Frag_Color * texture2D( Texture, Frag_UV);
+  }
+  
+  )";
+  // Backup GL state
+  GLint last_texture, last_array_buffer;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+  
+  const GLchar *vertex_shader_es =
+  "uniform mat4 ProjMtx;\n"
+  "attribute vec2 Position;\n"
+  "attribute vec2 UV;\n"
+  "attribute vec4 Color;\n"
+  "varying vec2 Frag_UV;\n"
+  "varying vec4 Frag_Color;\n"
+  "void main()\n"
+  "{\n"
+  "	Frag_UV = UV;\n"
+  "	Frag_Color = Color;\n"
+  "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
+  "}\n";
+  
+  const GLchar* fragment_shader_es =
+  "precision mediump float;\n"
+  "uniform sampler2D Texture;\n"
+  "varying vec2 Frag_UV;\n"
+  "varying vec4 Frag_Color;\n"
+  "void main()\n"
+  "{\n"
+  "	gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV);\n"
+  "}\n";
+  
+  g_ShaderHandle = glCreateProgram();
+  g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
+  g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(g_VertHandle, 1, &vertex_shader_es, 0);
+  glShaderSource(g_FragHandle, 1, &fragment_shader_es, 0);
+  glCompileShader(g_VertHandle);
+  glCompileShader(g_FragHandle);
+  glAttachShader(g_ShaderHandle, g_VertHandle);
+  glAttachShader(g_ShaderHandle, g_FragHandle);
+  glLinkProgram(g_ShaderHandle);
+  
+  g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
+  g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
+  g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
+  g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
+  g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
+  
+  glGenBuffers(1, &g_VboHandle);
+  glGenBuffers(1, &g_ElementsHandle);
+  
+  ImGuiIO& io = ImGui::GetIO();
+  
+  // Build texture
+  unsigned char* pixels;
+  int width, height;
+  //io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
+  
+  if(ofIsGLProgrammableRenderer())
+  {
+    // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
+    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+    glTexImage2D(GL_TEXTURE_2D, 
+                 0, 
+                 GL_RGBA, 
+                 width, 
+                 height, 
+                 0, 
+                 GL_RGBA, 
+                 GL_UNSIGNED_BYTE, 
+                 pixels);
+    
+  }else
+  {
+    io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+    glTexImage2D(GL_TEXTURE_2D, 
+                 0,
+                 GL_ALPHA,
+                 width,
+                 height, 
+                 0,
+                 GL_ALPHA, 
+                 GL_UNSIGNED_BYTE, 
+                 pixels);
+  }
+  
+  // Create OpenGL texture
+  glGenTextures(1, &g_FontTexture);
+  glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+  
+  // Store our identifier
+  io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
+  
+  // Cleanup (don't clear the input data if you want to append new fonts later)
+  io.Fonts->ClearInputData();
+  io.Fonts->ClearTexData();
+  
+  // Restore modified GL state
+  glBindTexture(GL_TEXTURE_2D, last_texture);
+  glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+  
+  return true;
+#endif
 }
 
-GLuint ofxImgui::loadTextureImage2D(ofImage & image)
+GLuint ofxImGui::loadTextureImage2D(ofImage & image)
 {
   return loadTextureImage2D(
     image.getPixels().getData(),
@@ -608,7 +829,7 @@ GLuint ofxImgui::loadTextureImage2D(ofImage & image)
   );
 }
 
-GLuint ofxImgui::loadTextureImage2D(unsigned char * pixels, int width, int height)
+GLuint ofxImGui::loadTextureImage2D(unsigned char * pixels, int width, int height)
 {
   GLint last_texture;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -634,7 +855,7 @@ GLuint ofxImgui::loadTextureImage2D(unsigned char * pixels, int width, int heigh
   return new_texture;
 }
 
-void ofxImgui::begin()
+void ofxImGui::begin()
 {
   float current_time = ofGetElapsedTimef();
   io->DeltaTime = last_time > 0.f ? current_time - last_time : 1.f / 60.f;
@@ -645,12 +866,12 @@ void ofxImgui::begin()
   ImGui::NewFrame();
 }
 
-void ofxImgui::end()
+void ofxImGui::end()
 {
   ImGui::Render();
 }
 
-ofxImgui::~ofxImgui()
+ofxImGui::~ofxImGui()
 {
   io->Fonts->TexID = 0;
   io = nullptr;

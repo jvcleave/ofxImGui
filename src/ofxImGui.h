@@ -5,12 +5,12 @@
 
 namespace ui = ImGui;
 
-class ofxImgui
+class ofxImGui
 {
   public:
 
-    ofxImgui();
-   ~ofxImgui();
+    ofxImGui();
+   ~ofxImGui();
 
     void setup();
     void begin();
@@ -35,9 +35,11 @@ class ofxImgui
 
     static void programmableRendererDrawLists(ImDrawData * draw_data);
     static void glRendererDrawLists(ImDrawData * draw_data);
-
+    static void openGLES_RendererDrawLists(ImDrawData * draw_data);
     static ofTexture fontTexture;
-    static unsigned int vboHandle, vaoHandle, elementsHandle;
+    static unsigned int vboHandle;
+    static unsigned int vaoHandle;
+    static unsigned int elementsHandle;
     static int attribLocationColor;
     static ofShader shader;
     static ofVbo vbo;
@@ -48,6 +50,20 @@ class ofxImgui
     ofColor col_win_popup = ofColor::fromHex(0x77c4d3);
     ofColor col_win_backg = ofColor::fromHex(0x21232b);
 
+#if defined(TARGET_OPENGLES)
+	static GLuint g_FontTexture;
+    static double   g_Time;
+    static int  g_ShaderHandle;
+    static int  g_VertHandle;
+    static int  g_FragHandle;
+    static int  g_AttribLocationTex;
+    static int  g_AttribLocationProjMtx;
+    static int  g_AttribLocationPosition;
+    static int  g_AttribLocationUV; 
+    static int  g_AttribLocationColor;
+    static unsigned int g_VboHandle;
+    static unsigned int g_ElementsHandle;
+#endif
   private:
 
     float last_time;
