@@ -319,7 +319,89 @@ void ofxImGui::onWindowResized(ofResizeEventArgs& window)
 
 void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
 {
-  
+#if defined(TARGET_OPENGLES)
+  GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+    
+    // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+    glActiveTexture(GL_TEXTURE0);
+    
+    float width = ofGetWidth();
+    float height = ofGetHeight();
+    
+    
+    
+    // Setup orthographic projection matrix
+    const float ortho_projection[4][4] =
+    {
+        { 2.0f/width,           0.0f,                   0.0f, 0.0f },
+        { 0.0f,                  2.0f/-height,           0.0f, 0.0f },
+        { 0.0f,                  0.0f,                  -1.0f, 0.0f },
+        {-1.0f,                  1.0f,                   0.0f, 1.0f },
+    };
+    glUseProgram(g_ShaderHandle);
+    glUniform1i(g_AttribLocationTex, 0);
+    glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+    
+    // Render command lists
+    glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+    glEnableVertexAttribArray(g_AttribLocationPosition);
+    glEnableVertexAttribArray(g_AttribLocationUV);
+    glEnableVertexAttribArray(g_AttribLocationColor);
+    
+#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+    glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
+    glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+    glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+#undef OFFSETOF
+    
+    for (int n = 0; n < draw_data->CmdListsCount; n++)
+    {
+        const ImDrawList* cmd_list = draw_data->CmdLists[n];
+        const ImDrawIdx* idx_buffer_offset = 0;
+        
+        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
+        
+        for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
+        {
+            if (pcmd->UserCallback)
+            {
+                pcmd->UserCallback(cmd_list, pcmd);
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                glScissor((int)pcmd->ClipRect.x, (int)(height-pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+                glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer_offset);
+
+            }
+            idx_buffer_offset += pcmd->ElemCount;
+        }
+    }
+    
+    // Restore modified state
+    glDisableVertexAttribArray(g_AttribLocationPosition);
+    glDisableVertexAttribArray(g_AttribLocationUV);
+    glDisableVertexAttribArray(g_AttribLocationColor);
+    glUseProgram(last_program);
+    glBindTexture(GL_TEXTURE_2D, last_texture);
+    glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+    glDisable(GL_SCISSOR_TEST);
+#endif
 }
 void ofxImGui::glRendererDrawLists(ImDrawData * draw_data)
 {
