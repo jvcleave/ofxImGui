@@ -709,48 +709,22 @@ bool ofxImGui::createDeviceObjects()
   
   )";
   
+  
+  shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
+  shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
+  
+  shader.linkProgram();
+  
+  
   // Backup GL state
   GLint last_texture, last_array_buffer;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-  
-  const GLchar *vertex_shader_es =
-  "uniform mat4 ProjMtx;\n"
-  "attribute vec2 Position;\n"
-  "attribute vec2 UV;\n"
-  "attribute vec4 Color;\n"
-  "varying vec2 Frag_UV;\n"
-  "varying vec4 Frag_Color;\n"
-  "void main()\n"
-  "{\n"
-  "	Frag_UV = UV;\n"
-  "	Frag_Color = Color;\n"
-  "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-  "}\n";
-  
-  const GLchar* fragment_shader_es =
-  "precision mediump float;\n"
-  "uniform sampler2D Texture;\n"
-  "varying vec2 Frag_UV;\n"
-  "varying vec4 Frag_Color;\n"
-  "void main()\n"
-  "{\n"
-  "	gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV);\n"
-  "}\n";
-  
-  g_ShaderHandle = glCreateProgram();
-  g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
-  g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(g_VertHandle, 1, &vertex_shader_es, 0);
-  glShaderSource(g_FragHandle, 1, &fragment_shader_es, 0);
-  glCompileShader(g_VertHandle);
-  glCompileShader(g_FragHandle);
-  glAttachShader(g_ShaderHandle, g_VertHandle);
-  glAttachShader(g_ShaderHandle, g_FragHandle);
-  glLinkProgram(g_ShaderHandle);
+
+  g_ShaderHandle = shader.getProgram();
   
   g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
-  g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
+  g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
   g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
   g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
   attribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
