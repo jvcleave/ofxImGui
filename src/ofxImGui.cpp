@@ -8,7 +8,6 @@ unsigned int ofxImGui::vaoHandle = 0;
 unsigned int ofxImGui::elementsHandle = 0;
 int ofxImGui::attribLocationColor = 0;
 ofShader ofxImGui::shader;
-ofVbo ofxImGui::vbo;
 
 #if defined(TARGET_OPENGLES)
 int ofxImGui::g_ShaderHandle = 0;
@@ -356,11 +355,9 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     glEnableVertexAttribArray(g_AttribLocationUV);
     glEnableVertexAttribArray(attribLocationColor);
     
-#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
     glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
     glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
     glVertexAttribPointer(attribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
-#undef OFFSETOF
     
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
@@ -401,9 +398,10 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     glDisable(GL_SCISSOR_TEST);
 #endif
 }
+
 void ofxImGui::glRendererDrawLists(ImDrawData * draw_data)
 {
-#ifndef TARGET_OPENGLES
+#if !defined(TARGET_OPENGLES)
   GLint last_blend_src;
   GLint last_blend_dst;
   GLint last_blend_equation_rgb;
@@ -712,6 +710,7 @@ bool ofxImGui::createDeviceObjects()
   }
   
   )";
+  
   // Backup GL state
   GLint last_texture, last_array_buffer;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
