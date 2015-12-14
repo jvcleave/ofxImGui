@@ -8,7 +8,6 @@ unsigned int ofxImGui::vaoHandle = 0;
 unsigned int ofxImGui::elementsHandle = 0;
 int ofxImGui::attribLocationColor = 0;
 ofShader ofxImGui::shader;
-ofVbo ofxImGui::vbo;
 
 #if defined(TARGET_OPENGLES)
 int ofxImGui::g_ShaderHandle = 0;
@@ -18,11 +17,9 @@ int ofxImGui::g_AttribLocationTex = 0;
 int ofxImGui::g_AttribLocationProjMtx = 0;
 int ofxImGui::g_AttribLocationPosition = 0;
 int ofxImGui::g_AttribLocationUV = 0;
-int ofxImGui::g_AttribLocationColor = 0;
-unsigned int ofxImGui::g_VboHandle = 0;
-unsigned int ofxImGui::g_ElementsHandle = 0;
 GLuint ofxImGui::g_FontTexture = 0;
 #endif
+
 ofxImGui::ofxImGui()
 :last_time(0.f)
 {
@@ -353,26 +350,24 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
     
     // Render command lists
-    glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+    glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
     glEnableVertexAttribArray(g_AttribLocationPosition);
     glEnableVertexAttribArray(g_AttribLocationUV);
-    glEnableVertexAttribArray(g_AttribLocationColor);
+    glEnableVertexAttribArray(attribLocationColor);
     
-#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
     glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
     glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
-    glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
-#undef OFFSETOF
+    glVertexAttribPointer(attribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
     
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         const ImDrawIdx* idx_buffer_offset = 0;
         
-        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+        glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
         glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
         
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsHandle);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
         
         for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
@@ -395,7 +390,7 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     // Restore modified state
     glDisableVertexAttribArray(g_AttribLocationPosition);
     glDisableVertexAttribArray(g_AttribLocationUV);
-    glDisableVertexAttribArray(g_AttribLocationColor);
+    glDisableVertexAttribArray(attribLocationColor);
     glUseProgram(last_program);
     glBindTexture(GL_TEXTURE_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
@@ -403,9 +398,10 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     glDisable(GL_SCISSOR_TEST);
 #endif
 }
+
 void ofxImGui::glRendererDrawLists(ImDrawData * draw_data)
 {
-#ifndef TARGET_OPENGLES
+#if !defined(TARGET_OPENGLES)
   GLint last_blend_src;
   GLint last_blend_dst;
   GLint last_blend_equation_rgb;
@@ -714,6 +710,7 @@ bool ofxImGui::createDeviceObjects()
   }
   
   )";
+  
   // Backup GL state
   GLint last_texture, last_array_buffer;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -758,10 +755,10 @@ bool ofxImGui::createDeviceObjects()
   g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
   g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
   g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
-  g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
+  attribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
   
-  glGenBuffers(1, &g_VboHandle);
-  glGenBuffers(1, &g_ElementsHandle);
+  glGenBuffers(1, &vboHandle);
+  glGenBuffers(1, &elementsHandle);
   
   ImGuiIO& io = ImGui::GetIO();
   
