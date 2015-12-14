@@ -46,8 +46,11 @@ operator MyVec2() const { return MyVec2(x,y); }
 ImVec4(const MyVec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }     \
 operator MyVec4() const { return MyVec4(x,y,z,w); }
 
-
+#if defined(TARGET_OPENGLES)
+#define ImDrawIdx unsigned short
+#else
 #define ImDrawIdx unsigned int
+#endif
 
 //---- Freely implement extra functions within the ImGui:: namespace.
 //---- Declare helpers or widgets implemented in imgui_user.inl or elsewhere, so end-user doesn't need to include multiple files.

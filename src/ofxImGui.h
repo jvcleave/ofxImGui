@@ -50,6 +50,20 @@ class ofxImGui
     ofColor col_win_popup = ofColor::fromHex(0x77c4d3);
     ofColor col_win_backg = ofColor::fromHex(0x21232b);
 
+#if defined(TARGET_OPENGLES)
+	static GLuint g_FontTexture;
+    static double   g_Time;
+    static int  g_ShaderHandle;
+    static int  g_VertHandle;
+    static int  g_FragHandle;
+    static int  g_AttribLocationTex;
+    static int  g_AttribLocationProjMtx;
+    static int  g_AttribLocationPosition;
+    static int  g_AttribLocationUV; 
+    static int  g_AttribLocationColor;
+    static unsigned int g_VboHandle;
+    static unsigned int g_ElementsHandle;
+#endif
   private:
 
     float last_time;

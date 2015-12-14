@@ -10,6 +10,19 @@ int ofxImGui::attribLocationColor = 0;
 ofShader ofxImGui::shader;
 ofVbo ofxImGui::vbo;
 
+#if defined(TARGET_OPENGLES)
+int ofxImGui::g_ShaderHandle = 0;
+int ofxImGui::g_VertHandle = 0;
+int ofxImGui::g_FragHandle = 0;
+int ofxImGui::g_AttribLocationTex = 0;
+int ofxImGui::g_AttribLocationProjMtx = 0;
+int ofxImGui::g_AttribLocationPosition = 0;
+int ofxImGui::g_AttribLocationUV = 0;
+int ofxImGui::g_AttribLocationColor = 0;
+unsigned int ofxImGui::g_VboHandle = 0;
+unsigned int ofxImGui::g_ElementsHandle = 0;
+GLuint ofxImGui::g_FontTexture = 0;
+#endif
 ofxImGui::ofxImGui()
 :last_time(0.f)
 {
@@ -491,10 +504,11 @@ void ofxImGui::setClipboardString(const char * text)
 
 bool ofxImGui::createDeviceObjects()
 {
+#ifndef TARGET_OPENGLES
   if(ofIsGLProgrammableRenderer())
   {
 
-#ifndef TARGET_OPENGLES
+
 
     string header = "#version 330\n";
 
@@ -623,7 +637,7 @@ bool ofxImGui::createDeviceObjects()
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
   
-  const GLchar *vertex_shader =
+  const GLchar *vertex_shader_es =
   "uniform mat4 ProjMtx;\n"
   "attribute vec2 Position;\n"
   "attribute vec2 UV;\n"
@@ -637,7 +651,7 @@ bool ofxImGui::createDeviceObjects()
   "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
   "}\n";
   
-  const GLchar* fragment_shader =
+  const GLchar* fragment_shader_es =
   "precision mediump float;\n"
   "uniform sampler2D Texture;\n"
   "varying vec2 Frag_UV;\n"
@@ -650,8 +664,8 @@ bool ofxImGui::createDeviceObjects()
   g_ShaderHandle = glCreateProgram();
   g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
   g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(g_VertHandle, 1, &vertex_shader, 0);
-  glShaderSource(g_FragHandle, 1, &fragment_shader, 0);
+  glShaderSource(g_VertHandle, 1, &vertex_shader_es, 0);
+  glShaderSource(g_FragHandle, 1, &fragment_shader_es, 0);
   glCompileShader(g_VertHandle);
   glCompileShader(g_FragHandle);
   glAttachShader(g_ShaderHandle, g_VertHandle);
