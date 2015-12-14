@@ -60,9 +60,6 @@ class ofxImGui
     static int  g_AttribLocationProjMtx;
     static int  g_AttribLocationPosition;
     static int  g_AttribLocationUV; 
-    static int  g_AttribLocationColor;
-    static unsigned int g_VboHandle;
-    static unsigned int g_ElementsHandle;
 #endif
   private:
 
