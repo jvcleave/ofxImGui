@@ -334,19 +334,19 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     float height = ofGetHeight();
     
     
-    
+    shader.begin();
     // Setup orthographic projection matrix
-    const float ortho_projection[4][4] =
-    {
-        { 2.0f/width,           0.0f,                   0.0f, 0.0f },
-        { 0.0f,                  2.0f/-height,           0.0f, 0.0f },
-        { 0.0f,                  0.0f,                  -1.0f, 0.0f },
-        {-1.0f,                  1.0f,                   0.0f, 1.0f },
-    };
-    glUseProgram(g_ShaderHandle);
-    glUniform1i(g_AttribLocationTex, 0);
-    glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+    ofMatrix4x4 ortho_projection(
+                               2.f / width,  0.f,            0.f,  0.f,
+                               0.f,          2.f / -height,  0.f,  0.f,
+                               0.f,          0.f,           -1.f,  0.f,
+                               -1.f,          1.f,            0.f,  1.f
+                               );
     
+    //glUseProgram(g_ShaderHandle);
+    //glUniform1i(g_AttribLocationTex, 0);
+    //glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+    shader.setUniformMatrix4f("ProjMat", ortho_projection, 1);
     // Render command lists
     glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
     glEnableVertexAttribArray(g_AttribLocationPosition);
@@ -376,9 +376,14 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+                ofTexture tex;
+                tex.texData.textureTarget = GL_TEXTURE_2D;
+                tex.setUseExternalTextureID((intptr_t)pcmd->TextureId);
+                tex.bind();
+                //glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
                 glScissor((int)pcmd->ClipRect.x, (int)(height-pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                 glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer_offset);
+              tex.unbind();
 
             }
             idx_buffer_offset += pcmd->ElemCount;
@@ -394,6 +399,7 @@ void ofxImGui::openGLES_RendererDrawLists(ImDrawData * draw_data)
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     glDisable(GL_SCISSOR_TEST);
+    shader.end();
 #endif
 }
 
@@ -722,12 +728,31 @@ bool ofxImGui::createDeviceObjects()
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
 
   g_ShaderHandle = shader.getProgram();
-  
+
+#if 0
   g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
   g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
   g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
   g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
   attribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
+#endif  
+  
+  shader.bindAttribute(ofShader::POSITION_ATTRIBUTE, "Position");
+  shader.bindAttribute(ofShader::TEXCOORD_ATTRIBUTE, "UV");
+  
+  glEnableVertexAttribArray(shader.getAttributeLocation("Color"));
+  shader.setAttribute2fv("Position", 0, sizeof(ImDrawVert));
+  shader.setAttribute2fv("UV", (float*)8, sizeof(ImDrawVert));
+  
+  glVertexAttribPointer(
+                        attribLocationColor,
+                        4,
+                        GL_UNSIGNED_BYTE,
+                        GL_TRUE,
+                        sizeof(ImDrawVert),
+                        (float*)16
+                        );
+
   
   glGenBuffers(1, &vboHandle);
   glGenBuffers(1, &elementsHandle);
