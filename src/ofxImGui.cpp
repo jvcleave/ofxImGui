@@ -2,7 +2,6 @@
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
-ofTexture ofxImGui::fontTexture;
 unsigned int ofxImGui::vboHandle = 0;
 unsigned int ofxImGui::vaoHandle = 0;
 unsigned int ofxImGui::elementsHandle = 0;
@@ -17,7 +16,6 @@ int ofxImGui::g_AttribLocationTex = 0;
 int ofxImGui::g_AttribLocationProjMtx = 0;
 int ofxImGui::g_AttribLocationPosition = 0;
 int ofxImGui::g_AttribLocationUV = 0;
-GLuint ofxImGui::g_FontTexture = 0;
 #endif
 
 ofxImGui::ofxImGui()
@@ -796,6 +794,7 @@ bool ofxImGui::createDeviceObjects()
   }
   
   // Create OpenGL texture
+  GLuint g_FontTexture = 0;
   glGenTextures(1, &g_FontTexture);
   glBindTexture(GL_TEXTURE_2D, g_FontTexture);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
