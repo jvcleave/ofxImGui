@@ -2,7 +2,6 @@
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
-ofTexture ofxImGui::fontTexture;
 unsigned int ofxImGui::vboHandle = 0;
 unsigned int ofxImGui::vaoHandle = 0;
 unsigned int ofxImGui::elementsHandle = 0;
@@ -11,13 +10,10 @@ ofShader ofxImGui::shader;
 
 #if defined(TARGET_OPENGLES)
 int ofxImGui::g_ShaderHandle = 0;
-int ofxImGui::g_VertHandle = 0;
-int ofxImGui::g_FragHandle = 0;
 int ofxImGui::g_AttribLocationTex = 0;
 int ofxImGui::g_AttribLocationProjMtx = 0;
 int ofxImGui::g_AttribLocationPosition = 0;
 int ofxImGui::g_AttribLocationUV = 0;
-GLuint ofxImGui::g_FontTexture = 0;
 #endif
 
 ofxImGui::ofxImGui()
@@ -711,48 +707,22 @@ bool ofxImGui::createDeviceObjects()
   
   )";
   
+  
+  shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
+  shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
+  
+  shader.linkProgram();
+  
+  
   // Backup GL state
   GLint last_texture, last_array_buffer;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
   glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-  
-  const GLchar *vertex_shader_es =
-  "uniform mat4 ProjMtx;\n"
-  "attribute vec2 Position;\n"
-  "attribute vec2 UV;\n"
-  "attribute vec4 Color;\n"
-  "varying vec2 Frag_UV;\n"
-  "varying vec4 Frag_Color;\n"
-  "void main()\n"
-  "{\n"
-  "	Frag_UV = UV;\n"
-  "	Frag_Color = Color;\n"
-  "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-  "}\n";
-  
-  const GLchar* fragment_shader_es =
-  "precision mediump float;\n"
-  "uniform sampler2D Texture;\n"
-  "varying vec2 Frag_UV;\n"
-  "varying vec4 Frag_Color;\n"
-  "void main()\n"
-  "{\n"
-  "	gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV);\n"
-  "}\n";
-  
-  g_ShaderHandle = glCreateProgram();
-  g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
-  g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(g_VertHandle, 1, &vertex_shader_es, 0);
-  glShaderSource(g_FragHandle, 1, &fragment_shader_es, 0);
-  glCompileShader(g_VertHandle);
-  glCompileShader(g_FragHandle);
-  glAttachShader(g_ShaderHandle, g_VertHandle);
-  glAttachShader(g_ShaderHandle, g_FragHandle);
-  glLinkProgram(g_ShaderHandle);
+
+  g_ShaderHandle = shader.getProgram();
   
   g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
-  g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
+  g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
   g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
   g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
   attribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
@@ -760,17 +730,15 @@ bool ofxImGui::createDeviceObjects()
   glGenBuffers(1, &vboHandle);
   glGenBuffers(1, &elementsHandle);
   
-  ImGuiIO& io = ImGui::GetIO();
   
   // Build texture
   unsigned char* pixels;
   int width, height;
-  //io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
   
   if(ofIsGLProgrammableRenderer())
   {
     // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+    io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
     glTexImage2D(GL_TEXTURE_2D, 
                  0, 
                  GL_RGBA, 
@@ -783,7 +751,7 @@ bool ofxImGui::createDeviceObjects()
     
   }else
   {
-    io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+    io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
     glTexImage2D(GL_TEXTURE_2D, 
                  0,
                  GL_ALPHA,
@@ -795,19 +763,11 @@ bool ofxImGui::createDeviceObjects()
                  pixels);
   }
   
-  // Create OpenGL texture
-  glGenTextures(1, &g_FontTexture);
-  glBindTexture(GL_TEXTURE_2D, g_FontTexture);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
   
-  // Store our identifier
-  io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
-  
-  // Cleanup (don't clear the input data if you want to append new fonts later)
-  io.Fonts->ClearInputData();
-  io.Fonts->ClearTexData();
+  GLuint textureid = loadTextureImage2D(pixels, width, height);
+  io->Fonts->TexID = (void *)(intptr_t)textureid;
+
+  io->Fonts->ClearTexData();
   
   // Restore modified GL state
   glBindTexture(GL_TEXTURE_2D, last_texture);
