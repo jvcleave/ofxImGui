@@ -1,13 +1,8 @@
-#if !defined(TARGET_OPENGLES)
+#if !defined(TARGET_RASPBERRY_PI)
 
 #include "EngineGLFW.h"
 
-unsigned int EngineGLFW::vboHandle = 0;
 unsigned int EngineGLFW::vaoHandle = 0;
-unsigned int EngineGLFW::elementsHandle = 0;
-int EngineGLFW::attribLocationColor = 0;
-ofShader EngineGLFW::shader;
-
 
 void EngineGLFW::setup(ImGuiIO* io_)
 {

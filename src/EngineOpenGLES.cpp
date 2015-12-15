@@ -1,4 +1,3 @@
-#if defined(TARGET_OPENGLES)
 #include "EngineOpenGLES.h"
 
 int EngineOpenGLES::g_ShaderHandle = 0;
@@ -242,5 +241,4 @@ void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& event)
     io->AddInputCharacter((unsigned short)event.codepoint);
     //TODO modifiers?
 }
-#endif
 
