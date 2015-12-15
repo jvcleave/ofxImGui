@@ -1,6 +1,11 @@
 #include "BaseEngine.h"
 
 
+unsigned int BaseEngine::vboHandle = 0;
+unsigned int BaseEngine::elementsHandle = 0;
+int BaseEngine::attribLocationColor = 0;
+ofShader BaseEngine::shader;
+
 void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 {
     int key = event.keycode;

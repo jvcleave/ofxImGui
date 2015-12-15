@@ -1,5 +1,5 @@
 #pragma once
-#if !defined(TARGET_OPENGLES)
+#if !defined(TARGET_RASPBERRY_PI)
 #include "BaseEngine.h"
 
 class EngineGLFW : public BaseEngine
@@ -24,10 +24,8 @@ public:
     static void programmableRendererDrawLists(ImDrawData * draw_data);
     static void glRendererDrawLists(ImDrawData * draw_data);
     
-    static unsigned int vboHandle;
+    
     static unsigned int vaoHandle;
-    static unsigned int elementsHandle;
-    static int attribLocationColor;
-    static ofShader shader;
+
 };
 #endif

@@ -16,9 +16,7 @@ void ofApp::setup()
     show_another_window = false;
     floatValue = 0.0f;
     
-    
-    img_button.load("of.png");
-    tex_button = gui.loadTextureImage2D(img_button);
+    tex_button = gui.loadImage("of.png");
 
 }
 

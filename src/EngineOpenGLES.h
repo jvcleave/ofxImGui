@@ -1,6 +1,5 @@
 #pragma once
 
-#if defined(TARGET_OPENGLES)
 #include "BaseEngine.h"
 
 class EngineOpenGLES : public BaseEngine
@@ -30,12 +29,6 @@ public:
 
     static void rendererDrawLists(ImDrawData * draw_data);
     
-    static unsigned int vboHandle;
-    static unsigned int vaoHandle;
-    static unsigned int elementsHandle;
-    static int attribLocationColor;
-    static ofShader shader;
-    
     static int  g_ShaderHandle;
     static int  g_AttribLocationTex;
     static int  g_AttribLocationProjMtx;
@@ -43,4 +36,3 @@ public:
     static int  g_AttribLocationUV; 
     
 };
-#endif

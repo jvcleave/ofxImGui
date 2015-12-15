@@ -13,6 +13,11 @@ public:
         io = NULL;
         style = NULL;
     }
+    virtual ~BaseEngine()
+    {
+        io = NULL;
+        style = NULL;
+    }
     
     ImGuiIO* io;
     ImGuiStyle* style;
@@ -36,5 +41,10 @@ public:
     
     static const char* getClipboardString();
     static void setClipboardString(const char * text);
+    
+    static unsigned int vboHandle;
+    static unsigned int elementsHandle;
+    static int attribLocationColor;
+    static ofShader shader;
 };
 
