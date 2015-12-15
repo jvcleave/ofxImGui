@@ -10,6 +10,10 @@ public:
     {
         style = NULL;
     }
+    ~StyleCinder()
+    {
+        style = NULL;
+    }
     void setup()
     {
         style = &ImGui::GetStyle();
