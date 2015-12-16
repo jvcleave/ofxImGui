@@ -77,9 +77,7 @@ void ofApp::setup()
 {
   m_ui.setup();
 
-  ofImage img_button;
-  img_button.load("youtube.png");
-  tex_button = m_ui.loadTextureImage2D(img_button);
+  tex_button = m_ui.loadImage("youtube.png");
 }
 
 void ofApp::draw()
