@@ -7,7 +7,6 @@ unsigned int EngineGLFW::vaoHandle = 0;
 void EngineGLFW::setup(ImGuiIO* io_)
 {
     io = io_;
-    style = &ImGui::GetStyle();
     
     io->KeyMap[ImGuiKey_Tab]        = GLFW_KEY_TAB;
     io->KeyMap[ImGuiKey_LeftArrow]  = GLFW_KEY_LEFT;

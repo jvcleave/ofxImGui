@@ -11,16 +11,13 @@ public:
     BaseEngine()
     {
         io = NULL;
-        style = NULL;
     }
     virtual ~BaseEngine()
     {
         io = NULL;
-        style = NULL;
     }
     
-    ImGuiIO* io;
-    ImGuiStyle* style;
+    ImGuiIO* io; 
     
     
     virtual void setup(ImGuiIO*)=0;
