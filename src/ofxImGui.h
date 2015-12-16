@@ -20,9 +20,9 @@ public:
     ofxImGui();
     ~ofxImGui();
     void setup();
-    
     void begin();
     void end();
+    void close();
     
     GLuint loadImage(string imagePath);
     StyleCinder cinderStyle;

@@ -1,5 +1,5 @@
-#pragma once
 #if !defined(TARGET_RASPBERRY_PI)
+#pragma once
 #include "BaseEngine.h"
 
 class EngineGLFW : public BaseEngine
@@ -11,19 +11,14 @@ public:
         
     };
     
-    //EngineInterface
+    //BaseEngine required
     void setup(ImGuiIO*);
-    
-    void onKeyReleased(ofKeyEventArgs& event);
-
     bool createDeviceObjects();
-   //void updateThemeColors();
+    void onKeyReleased(ofKeyEventArgs& event);
     
- 
     //custom 
     static void programmableRendererDrawLists(ImDrawData * draw_data);
     static void glRendererDrawLists(ImDrawData * draw_data);
-    
     
     static unsigned int vaoHandle;
 

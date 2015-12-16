@@ -54,14 +54,23 @@ void ofxImGui::end()
     ImGui::Render();
 }
 
-ofxImGui::~ofxImGui()
+
+void ofxImGui::close()
 {
     if(engine)
     {
         delete engine;
         engine = NULL;
     }
-    io->Fonts->TexID = 0;
-    io = nullptr;
+    if(io)
+    {
+        io->Fonts->TexID = 0;
+        io = nullptr;
+    }
     ImGui::Shutdown();
+}
+
+ofxImGui::~ofxImGui()
+{
+    close();
 }
