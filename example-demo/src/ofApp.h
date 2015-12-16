@@ -26,6 +26,5 @@ class ofApp : public ofBaseApp{
     bool show_another_window;
     
     float floatValue;
-    ofImage img_button;
     GLuint tex_button;
 };
