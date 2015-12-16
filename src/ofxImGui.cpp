@@ -67,10 +67,10 @@ void ofxImGui::close()
         io->Fonts->TexID = 0;
         io = nullptr;
     }
-    ImGui::Shutdown();
 }
 
 ofxImGui::~ofxImGui()
 {
     close();
+    ImGui::Shutdown();
 }
