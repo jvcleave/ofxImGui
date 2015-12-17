@@ -7,16 +7,21 @@
 class BaseTheme
 {
 public:
-    BaseTheme(){};
-    virtual ~BaseTheme(){};
-    virtual void setup()=0;
-    static void themeColorsWindow(bool isOpen);
-
-    static void updateThemeColors();
+    BaseTheme();
     
-    static ofColor col_main_text;
-    static ofColor col_main_head;
-    static ofColor col_main_area;
-    static ofColor col_win_popup;
-    static ofColor col_win_backg;
+    
+    virtual void setup();
+    void themeColorsWindow(bool isOpen);
+
+    void updateColors();
+    
+    ofColor col_main_text;
+    ofColor col_main_head;
+    ofColor col_main_area;
+    ofColor col_win_popup;
+    ofColor col_win_backg;
+    
+    ImVec4 convertColor(ofColor& color, float alpha);
+    ofColor convertColor(ImVec4& vec4);
+
 };

@@ -8,7 +8,7 @@ ofxImGui::ofxImGui()
     doCinderTheme = false;
 }
 
-void ofxImGui::setup(BaseTheme* theme)
+void ofxImGui::setup(BaseTheme* theme_)
 {
     io = &ImGui::GetIO();
 
@@ -22,28 +22,31 @@ void ofxImGui::setup(BaseTheme* theme)
 #endif
 
     engine->setup(io);
-    if(theme)
+    if(theme_)
     {
-        theme->setup();
+       setTheme(theme_);
     }else
     {
-        if (doCinderTheme) 
-        {
-            setTheme(new ThemeCinder()); 
-        }
+        setTheme(new BaseTheme());
     }
+    
     
 
 }
 void ofxImGui::setTheme(BaseTheme* theme_)
 {
+    if(theme)
+    {
+        delete theme;
+        theme = NULL;
+    }
     theme = theme_;
-    theme->setup();
+    theme->updateColors();
 }
 
 void ofxImGui::openThemeColorWindow()
 {
-    BaseTheme::themeColorsWindow(true);
+    theme->themeColorsWindow(true);
 }
 
 GLuint ofxImGui::loadImage(string imagePath)
