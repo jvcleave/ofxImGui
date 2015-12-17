@@ -5,7 +5,6 @@
 BaseTheme::BaseTheme()
 {
     
-    ImGuiStyle* style = &ImGui::GetStyle();
     
     col_main_text = ofColor::white;
     col_main_head = ofColor::blue;
@@ -25,7 +24,7 @@ BaseTheme::BaseTheme()
 void BaseTheme::setup()
 {
     ImGuiStyle* style = &ImGui::GetStyle();
-    style = &ImGui::GetStyle();
+
     style->WindowMinSize            = ImVec2(160, 65);
     style->FramePadding             = ImVec2(4, 2);
     style->ItemSpacing              = ImVec2(6, 2);

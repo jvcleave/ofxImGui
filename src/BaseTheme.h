@@ -8,7 +8,9 @@ class BaseTheme
 {
 public:
     BaseTheme();
+    virtual ~BaseTheme(){
     
+    };
     
     virtual void setup();
     void themeColorsWindow(bool isOpen);

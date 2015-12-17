@@ -1,5 +1,4 @@
 #include "ofApp.h"
-#include "ofAppGLFWWindow.h"
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -8,29 +7,38 @@ void ofApp::setup()
     
     //required call
     gui.setup();
+    //gui.setTheme(new ThemeTest());
     
-    
-    ImGui::GetIO().MouseDrawCursor = true;
+    ImGui::GetIO().MouseDrawCursor = false;
     clear_color = ImColor(114, 144, 154);
     show_test_window = true;
     show_another_window = false;
     floatValue = 0.0f;
     
     tex_button = gui.loadImage("of.png");
-
-}
-
-//--------------------------------------------------------------
-void ofApp::update(){
     
 }
 
+bool doSetTheme = false;
+//--------------------------------------------------------------
+void ofApp::update(){
+    
+    if(doSetTheme)
+    {
+        doSetTheme = false;
+        gui.setTheme(new ThemeTest());
+        
+    }
+    
+    
+}
+bool doThemeColorsWindow = false;
 //--------------------------------------------------------------
 void ofApp::draw(){
     
     //required to call this at beginning
     gui.begin();
-
+    
     // 1. Show a simple window
     // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
     {
@@ -54,13 +62,18 @@ void ofApp::draw(){
     // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
     if (show_test_window)
     {
-       ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
         ImGui::ShowTestWindow(&show_test_window);
     }
     
     
     bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
     
+    if(doThemeColorsWindow)
+    {
+        gui.openThemeColorWindow();
+        
+    }
     
     //required to call this at end
     gui.end();
@@ -70,15 +83,28 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    
     ofLogVerbose(__FUNCTION__) << key;
+    switch (key)
+    {
+        case 't' :
+        {
+            doThemeColorsWindow = !doThemeColorsWindow;
+            break;
+        }
+        case 'c' :
+        {
+            doSetTheme = !doSetTheme;
+            break;
+        }
+    }
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
     ofLogVerbose(__FUNCTION__) << key;
-
+    
 }
 
 
@@ -88,35 +114,35 @@ void ofApp::mouseScrolled(float x, float y)
 }
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg){
-
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
+    
 }
