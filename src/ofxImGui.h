@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "imgui.h"
 
-#include "StyleCinder.h"
+#include "ThemeCinder.h"
 
 #if defined(TARGET_OPENGLES)
     #include "EngineOpenGLES.h"
@@ -19,13 +19,17 @@ public:
 
     ofxImGui();
     ~ofxImGui();
-    void setup();
+    void setup(BaseTheme* theme=NULL);
     void begin();
     void end();
     void close();
     
+    void openThemeColorWindow();
     GLuint loadImage(string imagePath);
-    StyleCinder cinderStyle;
+    
+    BaseTheme* theme;
+    void setTheme(BaseTheme* theme);
+    bool doCinderTheme;
 private:
 
     float last_time;
