@@ -100,9 +100,34 @@ ImVec4 BaseTheme::convertColor(ofColor& color, float alpha)
 }
 
 inline
+ImVec4 BaseTheme::convertColor(ofColor& color)
+{
+    return ImVec4(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
+}
+
+inline
 ofColor BaseTheme::convertColor(ImVec4& vec4)
 {
     return ofColor(vec4.x *255, vec4.y *255, vec4.z *255, vec4.w);
+}
+
+inline
+ofColor BaseTheme::convertColor(float* f)
+{
+    return ofColor(f[0] *255, f[1] *255, f[2] *255);
+}
+
+
+bool BaseTheme::addColorEdit(string label, ofColor& color)
+{
+    bool didChange = false;
+    float floats[3];
+    floats[0] = color.r / 255.f;
+    floats[1] = color.g / 255.f;
+    floats[2] = color.b / 255.f;
+    didChange = ImGui::ColorEdit3(label.c_str(), &floats[0]);
+    color = convertColor(&floats[0]);
+    return didChange;
 }
 
 void BaseTheme::themeColorsWindow(bool isOpen)
@@ -112,90 +137,18 @@ void BaseTheme::themeColorsWindow(bool isOpen)
         ImGui::SetNextWindowSize(ImVec2(421, 192), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Theme Colors", &isOpen);
         
-        static float set_main_text[3] =
-        {
-            col_main_text.r / 255.f,
-            col_main_text.g / 255.f,
-            col_main_text.b / 255.f
-        };
-        bool changed_col_main_text = ImGui::ColorEdit3("Text",
-                                                       &set_main_text[0]
-                                                       );
-        col_main_text = ofColor(
-                                set_main_text[0] * 255.f,
-                                set_main_text[1] * 255.f,
-                                set_main_text[2] * 255.f
-                                );
+        bool b1 = addColorEdit("Text",        col_main_text);
+        bool b2 = addColorEdit("Headers",     col_main_head);
+        bool b3 = addColorEdit("Areas",       col_main_area);
+        bool b4 = addColorEdit("Popups",      col_win_popup);
+        bool b5 = addColorEdit("Background",  col_win_backg);
         
-        static float set_main_head[3] =
+        if(b1 || b2 || b3 || b4 || b5)
         {
-            col_main_head.r / 255.f,
-            col_main_head.g / 255.f,
-            col_main_head.b / 255.f
-        };
-        bool changed_col_main_head = ImGui::ColorEdit3("Headers",
-                                                       &set_main_head[0]
-                                                       );
-        col_main_head = ofColor(
-                                set_main_head[0] * 255.f,
-                                set_main_head[1] * 255.f,
-                                set_main_head[2] * 255.f
-                                );
-        
-        static float set_main_area[3] =
-        {
-            col_main_area.r / 255.f,
-            col_main_area.g / 255.f,
-            col_main_area.b / 255.f
-        };
-        bool changed_col_main_area = ImGui::ColorEdit3("Areas",
-                                                       &set_main_area[0]
-                                                       );
-        col_main_area = ofColor(
-                                set_main_area[0] * 255.f,
-                                set_main_area[1] * 255.f,
-                                set_main_area[2] * 255.f
-                                );
-        
-        static float set_win_popup[3] =
-        {
-            col_win_popup.r / 255.f,
-            col_win_popup.g / 255.f,
-            col_win_popup.b / 255.f
-        };
-        bool changed_col_win_popup = ImGui::ColorEdit3("Popups",
-                                                       &set_win_popup[0]
-                                                       );
-        col_win_popup = ofColor(
-                                set_win_popup[0] * 255.f,
-                                set_win_popup[1] * 255.f,
-                                set_win_popup[2] * 255.f
-                                );
-        
-        static float set_win_backg[3] =
-        {
-            col_win_backg.r / 255.f,
-            col_win_backg.g / 255.f,
-            col_win_backg.b / 255.f
-        };
-        bool changed_col_win_backg = ImGui::ColorEdit3("Background",
-                                                       &set_win_backg[0]
-                                                       );
-        col_win_backg = ofColor(
-                                set_win_backg[0] * 255.f,
-                                set_win_backg[1] * 255.f,
-                                set_win_backg[2] * 255.f
-                                );
-        
-        if(changed_col_main_text ||
-           changed_col_main_head ||
-           changed_col_main_area ||
-           changed_col_win_popup ||
-           changed_col_win_backg)
-        {
-            updateColors();
+           updateColors();
         }
         
+
         ImGui::End();
     }
 }
