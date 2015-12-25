@@ -23,9 +23,6 @@ public:
     ofColor col_win_popup;
     ofColor col_win_backg;
     
-    ImVec4 convertColor(ofColor& color, float alpha);
-    ofColor convertColor(ImVec4& vec4);
-    ImVec4 convertColor(ofColor& color);
     bool addColorEdit(string label, ofColor& color);
     ofColor convertColor(float* f);
 
