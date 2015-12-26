@@ -26,7 +26,9 @@ public:
     void openThemeColorWindow();
     GLuint loadImage(ofImage& image);
     GLuint loadImage(string imagePath);
-    GLuint loadTexture(string imagePath);
+    
+    GLuint loadPixels(string imagePath);
+    GLuint loadPixels(ofPixels& pixels);
     BaseTheme* theme;
     void setTheme(BaseTheme* theme);
 private:

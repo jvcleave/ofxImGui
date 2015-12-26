@@ -27,6 +27,9 @@ public:
     bool show_another_window;
     
     float floatValue;
-    GLuint imageButton;
-    GLuint textureButton;
+    ofImage imageButtonSource;
+    GLuint imageButtonID;
+
+    ofPixels pixelsButtonSource;
+    GLuint pixelsButtonID;
 };

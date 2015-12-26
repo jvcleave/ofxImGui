@@ -48,25 +48,28 @@ void ofxImGui::openThemeColorWindow()
     theme->themeColorsWindow(true);
 }
 
-GLuint ofxImGui::loadImage(ofImage& image)
+GLuint ofxImGui::loadPixels(ofPixels& pixels)
 {
-    if(!engine) return -1;
-    return engine->loadTextureImage2D(image.getPixels());
+    return engine->loadTextureImage2D(pixels);
 }
 
-GLuint ofxImGui::loadImage(string imagePath)
-{
-    if(!engine) return -1;
-
-    return loadTexture(imagePath);
-}
-
-GLuint ofxImGui::loadTexture(string imagePath)
+GLuint ofxImGui::loadPixels(string imagePath)
 {
     if(!engine) return -1;
     ofPixels pixels;
     ofLoadImage(pixels, imagePath);
-    return engine->loadTextureImage2D(pixels);
+    return loadPixels(pixels);
+}
+
+GLuint ofxImGui::loadImage(ofImage& image)
+{
+    if(!engine) return -1;
+    return loadPixels(image.getPixels());
+}
+
+GLuint ofxImGui::loadImage(string imagePath)
+{
+    return loadPixels(imagePath);
 }
 
 void ofxImGui::begin()

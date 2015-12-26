@@ -15,11 +15,20 @@ void ofApp::setup()
     show_another_window = false;
     floatValue = 0.0f;
     
-    ofImage image;
-    image.load("of.png");
-    imageButton = gui.loadImage(image);
-    //imageButton = gui.loadImage("of.png");
-    textureButton = gui.loadTexture("of_upside_down.png");
+    //load your own ofImage
+    imageButtonSource.load("of.png");
+    imageButtonID = gui.loadImage(imageButtonSource);
+    
+    //or have the loading done for you if you don't need the ofImage reference
+    //imageButtonID = gui.loadImage("of.png");
+    
+    //can also use ofPixels in same manner
+    ofLoadImage(pixelsButtonSource, "of_upside_down.png");
+    pixelsButtonID = gui.loadPixels(pixelsButtonSource);
+    
+    //and alt method
+    //pixelsButtonID = gui.loadPixels("of_upside_down.png");
+    
     
     
 }
@@ -88,8 +97,8 @@ void ofApp::draw(){
     }
     
     
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButton, ImVec2(200, 141));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureButton, ImVec2(200, 200));
+    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 141));
+    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
     
     if(doThemeColorsWindow)
     {
