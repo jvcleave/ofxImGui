@@ -11,7 +11,6 @@
     #include "EngineGLFW.h"
 #endif
 
-namespace ui = ImGui;
 
 class ofxImGui
 {
@@ -29,10 +28,9 @@ public:
     
     BaseTheme* theme;
     void setTheme(BaseTheme* theme);
-    bool doCinderTheme;
 private:
 
-    float last_time;
+    float lastTime;
     
 #if defined(TARGET_OPENGLES)
     EngineOpenGLES* engine;

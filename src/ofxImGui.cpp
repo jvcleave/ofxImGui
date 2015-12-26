@@ -2,10 +2,9 @@
 
 ofxImGui::ofxImGui()
 {
-    last_time = 0.0f;
+    lastTime = 0.0f;
     engine = NULL;
     io = NULL;
-    doCinderTheme = false;
 }
 
 void ofxImGui::setup(BaseTheme* theme_)
@@ -65,9 +64,16 @@ void ofxImGui::begin()
         ofLogError() << "setup call required - calling it for you";
         setup();
     }
-    float current_time = ofGetElapsedTimef();
-    io->DeltaTime = last_time > 0.f ? current_time - last_time : 1.f / 60.f;
-    last_time = current_time;
+    float currentTime = ofGetElapsedTimef();
+    if(lastTime > 0.f)
+    {
+        io->DeltaTime = currentTime - lastTime;
+    }else
+    {
+        io->DeltaTime = 1.0f / 60.f;
+    }
+    lastTime = currentTime;
+    
 
     io->MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
     ImGui::NewFrame();
