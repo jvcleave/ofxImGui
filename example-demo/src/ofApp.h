@@ -22,11 +22,11 @@ public:
     void mouseScrolled(float x, float y);
     
     ofxImGui gui;
-    ImVec4 clear_color;
+    ImVec4 backgroundColor;
     bool show_test_window;
     bool show_another_window;
     
     float floatValue;
-    ofImage img_button;
-    GLuint tex_button;
+    GLuint imageButton;
+    GLuint textureButton;
 };

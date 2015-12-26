@@ -1,3 +1,4 @@
+*.xcodeproj
 example*/bin/data
 example*/bin/libs/
 example*/bin/*
