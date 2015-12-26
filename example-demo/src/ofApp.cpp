@@ -29,7 +29,11 @@ void ofApp::setup()
     //and alt method
     //pixelsButtonID = gui.loadPixels("of_upside_down.png");
     
+    //pass in your own texture reference if you want to keep it
     textureSourceID = gui.loadTexture(textureSource, "of_upside_down.png");
+    
+    //or just pass a path
+    //textureSourceID = gui.loadTexture("of_upside_down.png");
 
     ofLogVerbose() << "textureSourceID: " << textureSourceID;
 }

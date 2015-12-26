@@ -74,6 +74,16 @@ GLuint ofxImGui::loadImage(string imagePath)
     return loadPixels(imagePath);
 }
 
+GLuint ofxImGui::loadTexture(string imagePath)
+{
+    
+    ofDisableArbTex();
+    ofTexture* texture  = new ofTexture();
+    ofLoadImage(*texture, imagePath);
+    ofEnableArbTex();
+    loadedTextures.push_back(texture);
+    return texture->getTextureData().textureID;
+}
 
 GLuint ofxImGui::loadTexture(ofTexture& texture, string imagePath)
 {
@@ -137,6 +147,11 @@ void ofxImGui::close()
         delete theme;
         theme = NULL;
     }
+    for(size_t i=0; i<loadedTextures.size(); i++)
+    {
+        delete loadedTextures[i];
+    }
+    loadedTextures.clear();
 }
 
 ofxImGui::~ofxImGui()

@@ -38,6 +38,7 @@ public:
 private:
 
     float lastTime;
+    vector<ofTexture*> loadedTextures;
     
 #if defined(TARGET_OPENGLES)
     EngineOpenGLES* engine;
