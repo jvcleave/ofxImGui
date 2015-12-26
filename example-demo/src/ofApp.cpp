@@ -118,7 +118,7 @@ void ofApp::draw(){
     
     if(textureSource.isAllocated())
     {
-        textureSource.draw(ofRandom(200), ofRandom(200));
+        //textureSource.draw(ofRandom(200), ofRandom(200));
     }
 }
 

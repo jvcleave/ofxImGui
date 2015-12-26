@@ -5,6 +5,7 @@ ofxImGui::ofxImGui()
     lastTime = 0.0f;
     engine = NULL;
     io = NULL;
+    theme = NULL;
 }
 
 void ofxImGui::setup(BaseTheme* theme_)
