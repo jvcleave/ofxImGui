@@ -4,7 +4,7 @@
 void ofApp::setup(){	
     
     ofSetLogLevel(OF_LOG_VERBOSE);
-    
+    ofLogVerbose() << ofGetWidth() << " x " << ofGetHeight();
     //required call
     gui.setup();
     

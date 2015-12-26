@@ -44,8 +44,12 @@ void EngineOpenGLES::setup(ImGuiIO* io_)
 bool EngineOpenGLES::createDeviceObjects()
 {
     
+
+#if defined(TARGET_RASPBERRY_PI)
     string header = "";
-    
+#else
+    string header = "precision highp float; \n";
+#endif
     string vertex_shader = header + R"(
     
     uniform mat4 ProjMat;
