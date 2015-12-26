@@ -29,8 +29,9 @@ void ofApp::setup()
     //and alt method
     //pixelsButtonID = gui.loadPixels("of_upside_down.png");
     
-    
-    
+    textureSourceID = gui.loadTexture(textureSource, "of_upside_down.png");
+
+    ofLogVerbose() << "textureSourceID: " << textureSourceID;
 }
 
 bool doSetTheme = false;
@@ -97,8 +98,10 @@ void ofApp::draw(){
     }
     
     
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 141));
+    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
     pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+    
     
     if(doThemeColorsWindow)
     {
@@ -109,7 +112,10 @@ void ofApp::draw(){
     //required to call this at end
     gui.end();
     
-    
+    if(textureSource.isAllocated())
+    {
+        textureSource.draw(ofRandom(200), ofRandom(200));
+    }
 }
 
 //--------------------------------------------------------------

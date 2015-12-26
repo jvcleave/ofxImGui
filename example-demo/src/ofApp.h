@@ -32,4 +32,8 @@ public:
 
     ofPixels pixelsButtonSource;
     GLuint pixelsButtonID;
+    
+    ofTexture textureSource;
+    GLuint textureSourceID;
+    
 };

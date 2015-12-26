@@ -29,6 +29,10 @@ public:
     
     GLuint loadPixels(string imagePath);
     GLuint loadPixels(ofPixels& pixels);
+    
+    GLuint loadTexture(string imagePath);
+    GLuint loadTexture(ofTexture& texture, string imagePath);
+    
     BaseTheme* theme;
     void setTheme(BaseTheme* theme);
 private:

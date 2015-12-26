@@ -43,17 +43,13 @@ void BaseEngine::onWindowResized(ofResizeEventArgs& window)
 const char* BaseEngine::getClipboardString()
 {
     return &ofGetWindowPtr()->getClipboardString()[0];
-};
+}
 
 void BaseEngine::setClipboardString(const char * text)
 {
     ofGetWindowPtr()->setClipboardString(text);
-};
-
-GLuint BaseEngine::loadTextureImage2D(ofPixels& pixels)
-{
-    return loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
 }
+
 
 GLuint BaseEngine::loadTextureImage2D(unsigned char * pixels, int width, int height)
 {

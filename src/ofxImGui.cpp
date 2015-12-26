@@ -50,7 +50,9 @@ void ofxImGui::openThemeColorWindow()
 
 GLuint ofxImGui::loadPixels(ofPixels& pixels)
 {
-    return engine->loadTextureImage2D(pixels);
+    return engine->loadTextureImage2D(pixels.getData(),
+                                      pixels.getWidth(),
+                                      pixels.getHeight());
 }
 
 GLuint ofxImGui::loadPixels(string imagePath)
@@ -70,6 +72,23 @@ GLuint ofxImGui::loadImage(ofImage& image)
 GLuint ofxImGui::loadImage(string imagePath)
 {
     return loadPixels(imagePath);
+}
+
+
+GLuint ofxImGui::loadTexture(ofTexture& texture, string imagePath)
+{
+    bool isUsingArb = ofGetUsingArbTex();
+    if (isUsingArb)
+    {
+        ofDisableArbTex();
+
+    }
+    ofLoadImage(texture, imagePath);
+    if (isUsingArb)
+    {
+        ofEnableArbTex();
+    }
+    return texture.getTextureData().textureID;
 }
 
 void ofxImGui::begin()

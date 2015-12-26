@@ -33,8 +33,6 @@ public:
     void onWindowResized(ofResizeEventArgs& window);
 
     GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
-    GLuint loadTextureImage2D(ofPixels& pixels);
-
     
     static const char* getClipboardString();
     static void setClipboardString(const char * text);
