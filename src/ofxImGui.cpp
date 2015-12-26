@@ -48,13 +48,25 @@ void ofxImGui::openThemeColorWindow()
     theme->themeColorsWindow(true);
 }
 
+GLuint ofxImGui::loadImage(ofImage& image)
+{
+    if(!engine) return -1;
+    return engine->loadTextureImage2D(image.getPixels());
+}
+
 GLuint ofxImGui::loadImage(string imagePath)
 {
     if(!engine) return -1;
 
-    ofImage image;
-    image.load(imagePath);
-    return engine->loadTextureImage2D(image);
+    return loadTexture(imagePath);
+}
+
+GLuint ofxImGui::loadTexture(string imagePath)
+{
+    if(!engine) return -1;
+    ofPixels pixels;
+    ofLoadImage(pixels, imagePath);
+    return engine->loadTextureImage2D(pixels);
 }
 
 void ofxImGui::begin()

@@ -7,15 +7,20 @@ void ofApp::setup()
     
     //required call
     gui.setup();
-    //gui.setTheme(new ThemeTest());
     
     ImGui::GetIO().MouseDrawCursor = false;
-    clear_color = ImColor(114, 144, 154);
+    //backgroundColor is stored as an ImVec4 type but can handle ofColor
+    backgroundColor = ofColor(114, 144, 154);
     show_test_window = true;
     show_another_window = false;
     floatValue = 0.0f;
     
-    tex_button = gui.loadImage("of.png");
+    ofImage image;
+    image.load("of.png");
+    imageButton = gui.loadImage(image);
+    //imageButton = gui.loadImage("of.png");
+    textureButton = gui.loadTexture("of_upside_down.png");
+    
     
 }
 
@@ -36,23 +41,39 @@ bool doThemeColorsWindow = false;
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+    //backgroundColor is stored as an ImVec4 type but is converted to ofColor automatically
+    
+    ofSetBackgroundColor(backgroundColor);
+    
     //required to call this at beginning
     gui.begin();
     
+    //In between gui.begin() and gui.end() you can use ImGui as you would anywhere else
+    
     // 1. Show a simple window
-    // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
     {
         ImGui::Text("Hello, world!");
-        ImGui::SliderFloat("float", &floatValue, 0.0f, 1.0f);
-        ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        if (ImGui::Button("Test Window")) show_test_window ^= 1;
-        if (ImGui::Button("Another Window")) show_another_window ^= 1;
+        ImGui::SliderFloat("Float", &floatValue, 0.0f, 1.0f);
+        
+        //this will change the app background color
+        ImGui::ColorEdit3("Background Color", (float*)&backgroundColor);
+        if(ImGui::Button("Test Window"))
+        {
+            show_test_window = !show_test_window;
+        }
+        
+        if (ImGui::Button("Another Window"))
+        {
+            //bitwise OR
+            show_another_window ^= 1;
+            
+        }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    } 
-    // 2. Show another simple window, this time using an explicit Begin/End pair
+    }
+    // 2. Show another window, this time using an explicit ImGui::Begin and ImGui::End
     if (show_another_window)
     {
-        //note: ofVec2f and ImVec2f are interchangeable 
+        //note: ofVec2f and ImVec2f are interchangeable
         ImGui::SetNextWindowSize(ofVec2f(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Another Window", &show_another_window);
         ImGui::Text("Hello");
@@ -67,7 +88,8 @@ void ofApp::draw(){
     }
     
     
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
+    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButton, ImVec2(200, 141));
+    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureButton, ImVec2(200, 200));
     
     if(doThemeColorsWindow)
     {
@@ -95,6 +117,10 @@ void ofApp::keyPressed(int key){
         case 'c' :
         {
             doSetTheme = !doSetTheme;
+            break;
+        }
+        case 's':
+        {
             break;
         }
     }
@@ -143,6 +169,6 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
     
 }

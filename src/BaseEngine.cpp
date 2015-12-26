@@ -50,14 +50,10 @@ void BaseEngine::setClipboardString(const char * text)
     ofGetWindowPtr()->setClipboardString(text);
 };
 
-GLuint BaseEngine::loadTextureImage2D(ofImage & image)
+GLuint BaseEngine::loadTextureImage2D(ofPixels& pixels)
 {
-    return loadTextureImage2D(
-                              image.getPixels().getData(),
-                              image.getWidth(),
-                              image.getHeight()
-                              );
-};
+    return loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
+}
 
 GLuint BaseEngine::loadTextureImage2D(unsigned char * pixels, int width, int height)
 {
