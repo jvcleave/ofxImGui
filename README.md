@@ -5,7 +5,7 @@ ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [op
 
 CURRENT STATUS:  
 Tested on with OF 0.9.0 on   
- - Raspberry Pi
+ - Raspberry Pi 1 and 2
  - Mac 10.10, Xcode 7
  - iOS 9.2, 8.1.2
  - Linux Desktop
