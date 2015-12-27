@@ -4,7 +4,13 @@ ofxImgui
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks)
 
 CURRENT STATUS:  
-Tested on Raspberry Pi, Mac and Linux Desktop with OF 0.9.0. 
+Tested on with OF 0.9.0 on   
+ - Raspberry Pi
+ - Mac 10.10, Xcode 7
+ - iOS 9.2, 8.1.2
+ - Linux Desktop
+
+ 
 See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for previous versions
 
 
