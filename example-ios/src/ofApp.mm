@@ -35,11 +35,15 @@ void ofApp::setup(){
     //textureSourceID = gui.loadTexture("of_upside_down.png");
     
     ofLogVerbose() << "textureSourceID: " << textureSourceID;
+    
+    editableText.setup("Some Editable Text");
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-
+void ofApp::update()
+{
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -55,6 +59,13 @@ void ofApp::draw(){
     
     // 1. Show a simple window
     {
+        editableText.begin();
+            //ImGui::SetKeyboardFocusHere();
+            ImGui::InputText("input text", editableText.getText(), 128);
+            ImGui::Text(editableText.getText());
+            //ImGui::SetCursorPos(ofVec2f(0, 0));
+        editableText.end();
+        
         ImGui::Text("Hello, world!");
         ImGui::SliderFloat("Float", &floatValue, 0.0f, 1.0f);
         
