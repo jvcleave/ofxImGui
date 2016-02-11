@@ -9,6 +9,7 @@ Tested with OF 0.9.0 on
  - Mac 10.10, Xcode 7
  - iOS 9.2, 8.1.2
  - Linux Desktop
+ - Windows 10/Visual Studio 2015
 
  
 See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for previous versions
@@ -26,7 +27,7 @@ In `ofApp.h`:
 
 #include "ofMain.h"
 
-#include "ofxImgui.h"
+#include "ofxImGui.h"
 
 class ofApp : public ofBaseApp
 {
@@ -34,7 +35,7 @@ class ofApp : public ofBaseApp
   
   ...
   
-  ofxImgui m_ui;
+  ofxImGui m_ui;
 }
 ```
 
@@ -104,9 +105,10 @@ Assuming `NotoSans.ttf` placed in application's `data` folder:
 ```cpp
 void ofApp::setup()
 {
-  m_ui.setup();
-
+  
   ImGuiIO * io = &ImGui::GetIO();
   io->Fonts->AddFontFromFileTTF(&ofToDataPath("NotoSans.ttf")[0], 24.f);
+  
+  m_ui.setup();
 }
 ```

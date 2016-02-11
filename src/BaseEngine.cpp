@@ -10,7 +10,7 @@ void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 {
     int key = event.keycode;
     io->KeysDown[key] = true;
-    io->AddInputCharacter((unsigned short)event.codepoint);
+    //io->AddInputCharacter((unsigned short)event.codepoint);
 }
 
 void BaseEngine::onMousePressed(ofMouseEventArgs& event)
