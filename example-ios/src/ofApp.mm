@@ -36,7 +36,7 @@ void ofApp::setup(){
     
     ofLogVerbose() << "textureSourceID: " << textureSourceID;
     
-    editableText.setup("Some Editable Text");
+    inputTextButton.setup("Editable Text Button");
 }
 
 //--------------------------------------------------------------
@@ -45,24 +45,7 @@ void ofApp::update()
     
     
 }
-int ofApp::textCallback (ImGuiTextEditCallbackData *data)
-{
-    //
-    ofApp* app = (ofApp*)data->UserData;
-    if(!app->editableText.internalBuffer)
-    {
-        ofLogVerbose(__func__) << "data->Buf: " << data->Buf;
 
-    }
-    app->editableText.internalBuffer = data->Buf;
-    if(ImGui::GetIO().KeysDown[ImGui::GetIO().KeyMap[ImGuiKey_Backspace]])
-    {
-        ImGui::GetIO().KeysDown[ImGui::GetIO().KeyMap[ImGuiKey_Backspace]] = false;
-    }
-    
-    
-    return 0;
-}
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -77,15 +60,9 @@ void ofApp::draw(){
     
     // 1. Show a simple window
     {
-        editableText.begin();
-            //ImGui::SetKeyboardFocusHere();
-            ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackAlways;
-            ImGui::InputText("input text", editableText.getText(), 128, flags, &ofApp::textCallback, (void*)this);
-            ImGui::Text(editableText.getText());
-            //ImGui::SetCursorPos(ofVec2f(0, 0));
-        editableText.end();
+        inputTextButton.draw();
         
-        ImGui::Text("Hello, world!");
+        ImGui::Text(inputTextButton.text.c_str());
         ImGui::SliderFloat("Float", &floatValue, 0.0f, 1.0f);
         
         //this will change the app background color

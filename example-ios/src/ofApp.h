@@ -2,7 +2,7 @@
 
 #include "ofxiOS.h"
 #include "ofxImGui.h"
-#include "EditableText.h"
+#include "InputTextButton.h"
 
 class ofApp : public ofxiOSApp {
 	
@@ -38,12 +38,7 @@ public:
     ofTexture textureSource;
     GLuint textureSourceID;
     
-    EditableText editableText;
-    
-    //int (*TextEditCallback)(ImGuiTextEditCallbackData *data);
-    
-    static int textCallback (ImGuiTextEditCallbackData *data);
-    
+    InputTextButton inputTextButton;
 
 };
 
