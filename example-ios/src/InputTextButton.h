@@ -5,12 +5,13 @@
 
 class InputTextButton;
 
-@interface TextField : UITextField<UIKeyInput>
+@interface TextFieldDelegate : NSObject<UITextFieldDelegate>
 {
 @public
     InputTextButton* inputTextButton;
 }
 - (void)textFieldEditingChanged:(id)sender;
+- (BOOL)textFieldShouldReturn:(UITextField *)textField;
 
 @end
 
@@ -22,6 +23,7 @@ public:
     void setup(string initialString);
     void draw();
     void onTextEdit(string);
-    TextField* textField;
+    UITextField* textField;
+    TextFieldDelegate* textFieldDelegate;
     string text;
 };

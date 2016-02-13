@@ -8,13 +8,17 @@
 
 #include "InputTextButton.h"
 
-@implementation TextField
+@implementation TextFieldDelegate
 
 - (void)textFieldEditingChanged:(id)sender
 {
     
-    TextField* tf = (TextField *)sender;
-    inputTextButton->onTextEdit([tf.text UTF8String]);
+    UITextField* textField = (UITextField *)sender;
+    inputTextButton->onTextEdit([textField.text UTF8String]);
+}
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return NO;
 }
 @end
 
@@ -31,19 +35,21 @@ InputTextButton::InputTextButton()
 {
     textField = NULL;
     text = "";
+    textFieldDelegate = [[TextFieldDelegate alloc] init];
 };
 
 void InputTextButton::setup(string initialString)
 {
     text = initialString;
-    textField = [[TextField alloc] initWithFrame:CGRectMake(0, 0, 100, 20)];
+    
+    textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 100, 20)];
     textField.text = [NSString stringWithUTF8String:text.c_str()];
     textField.placeholder = textField.text;
     textField.hidden = YES;
-    textField->inputTextButton  = this;
-
+    textField.delegate = textFieldDelegate;
+    textFieldDelegate->inputTextButton  = this;
     
-    [textField addTarget:textField
+    [textField addTarget:textFieldDelegate
                     action:@selector(textFieldEditingChanged:)
                     forControlEvents:UIControlEventEditingChanged];
     
