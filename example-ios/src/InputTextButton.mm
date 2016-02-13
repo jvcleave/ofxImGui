@@ -8,8 +8,6 @@
 
 #include "InputTextButton.h"
 
-
-
 @implementation TextField
 
 - (void)textFieldEditingChanged:(id)sender
@@ -32,7 +30,6 @@ void InputTextButton::onTextEdit(string s)
 InputTextButton::InputTextButton()
 {
     textField = NULL;
-    hasText = false;
     text = "";
 };
 

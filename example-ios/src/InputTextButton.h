@@ -19,7 +19,6 @@ class InputTextButton
     
 public:
     InputTextButton();
-    bool hasText;
     void setup(string initialString);
     void draw();
     void onTextEdit(string);
