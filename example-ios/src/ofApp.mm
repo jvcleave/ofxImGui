@@ -45,6 +45,24 @@ void ofApp::update()
     
     
 }
+int ofApp::textCallback (ImGuiTextEditCallbackData *data)
+{
+    //
+    ofApp* app = (ofApp*)data->UserData;
+    if(!app->editableText.internalBuffer)
+    {
+        ofLogVerbose(__func__) << "data->Buf: " << data->Buf;
+
+    }
+    app->editableText.internalBuffer = data->Buf;
+    if(ImGui::GetIO().KeysDown[ImGui::GetIO().KeyMap[ImGuiKey_Backspace]])
+    {
+        ImGui::GetIO().KeysDown[ImGui::GetIO().KeyMap[ImGuiKey_Backspace]] = false;
+    }
+    
+    
+    return 0;
+}
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -61,7 +79,8 @@ void ofApp::draw(){
     {
         editableText.begin();
             //ImGui::SetKeyboardFocusHere();
-            ImGui::InputText("input text", editableText.getText(), 128);
+            ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackAlways;
+            ImGui::InputText("input text", editableText.getText(), 128, flags, &ofApp::textCallback, (void*)this);
             ImGui::Text(editableText.getText());
             //ImGui::SetCursorPos(ofVec2f(0, 0));
         editableText.end();

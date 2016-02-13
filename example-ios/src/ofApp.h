@@ -39,6 +39,11 @@ public:
     GLuint textureSourceID;
     
     EditableText editableText;
+    
+    //int (*TextEditCallback)(ImGuiTextEditCallbackData *data);
+    
+    static int textCallback (ImGuiTextEditCallbackData *data);
+    
 
 };
 
