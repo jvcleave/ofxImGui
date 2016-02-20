@@ -45,13 +45,54 @@ void EngineGLFW::setup(ImGuiIO* io_)
     ofAddListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
     
     ofAddListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
-    ofAddListener(ofEvents().mousePressed, (BaseEngine*)this, &BaseEngine::onMousePressed);
-    ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
+    ofAddListener(ofEvents().mousePressed,  this, &EngineGLFW::onMousePressed);
+    ofAddListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
     ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
     ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
      
 }
 
+void remapToGLFWConvention(int& button)
+{
+    switch (button)
+    {
+        
+        case 0 :
+        {
+            break;
+        }
+        case 1:
+        {
+            button = 2;
+            break;
+        }
+        case 2:
+        {
+            button = 1;
+            break;
+        }
+    }
+}
+
+void EngineGLFW::onMousePressed(ofMouseEventArgs& event)
+{
+    int button = event.button;
+    if(button >= 0 && button < 5)
+    {
+        remapToGLFWConvention(button);
+        io->MouseDown[button] = true;
+    }
+}
+
+void EngineGLFW::onMouseReleased(ofMouseEventArgs& event)
+{
+    int button = event.button;
+    if(button >= 0 && button < 5)
+    {
+        remapToGLFWConvention(button);
+        io->MouseDown[button] = false;
+    }
+}
 
 void EngineGLFW::programmableRendererDrawLists(ImDrawData * draw_data)
 {
