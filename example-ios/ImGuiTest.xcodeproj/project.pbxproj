@@ -9,10 +9,6 @@
 /* Begin PBXBuildFile section */
 		0380BABC1C2F3C7200EF0075 /* BaseEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAA71C2F3C7200EF0075 /* BaseEngine.cpp */; };
 		0380BABF1C2F3C7200EF0075 /* EngineOpenGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAAD1C2F3C7200EF0075 /* EngineOpenGLES.cpp */; };
-		0380BAC01C2F3C7200EF0075 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAB01C2F3C7200EF0075 /* imgui.cpp */; };
-		0380BAC11C2F3C7200EF0075 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAB21C2F3C7200EF0075 /* imgui_demo.cpp */; };
-		0380BAC21C2F3C7200EF0075 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAB31C2F3C7200EF0075 /* imgui_draw.cpp */; };
-		0380BAC31C2F3C7200EF0075 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 0380BAB51C2F3C7200EF0075 /* LICENSE */; };
 		0380BAC41C2F3C7200EF0075 /* ofxImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAB61C2F3C7200EF0075 /* ofxImGui.cpp */; };
 		0380BAC71C2F42DC00EF0075 /* BaseTheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0380BAC51C2F42DC00EF0075 /* BaseTheme.cpp */; };
 		03B6688E1C6E735400C4E7BA /* InputTextButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 03B6688D1C6E735400C4E7BA /* InputTextButton.mm */; };
@@ -21,6 +17,10 @@
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		5326AEA810A23A0500278DE6 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5326AEA710A23A0500278DE6 /* CoreLocation.framework */; };
 		53F323EB10A20EDB00E0DAE4 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53F323EA10A20EDB00E0DAE4 /* OpenAL.framework */; };
+		64E0CB5F1C8E23DD007E3B0D /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64E0CB561C8E23DD007E3B0D /* imgui.cpp */; };
+		64E0CB601C8E23DD007E3B0D /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64E0CB581C8E23DD007E3B0D /* imgui_demo.cpp */; };
+		64E0CB611C8E23DD007E3B0D /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64E0CB591C8E23DD007E3B0D /* imgui_draw.cpp */; };
+		64E0CB621C8E23DD007E3B0D /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 64E0CB5B1C8E23DD007E3B0D /* LICENSE */; };
 		678E130817951530005B6D19 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 678E130717951530005B6D19 /* Icon@2x.png */; };
 		678E130A17951536005B6D19 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 678E130917951536005B6D19 /* Icon.png */; };
 		678E130C1795153C005B6D19 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 678E130B1795153C005B6D19 /* Default.png */; };
@@ -62,17 +62,8 @@
 		0380BAAD1C2F3C7200EF0075 /* EngineOpenGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineOpenGLES.cpp; sourceTree = "<group>"; };
 		0380BAAE1C2F3C7200EF0075 /* EngineOpenGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineOpenGLES.h; sourceTree = "<group>"; };
 		0380BAAF1C2F3C7200EF0075 /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
-		0380BAB01C2F3C7200EF0075 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
-		0380BAB11C2F3C7200EF0075 /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
-		0380BAB21C2F3C7200EF0075 /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
-		0380BAB31C2F3C7200EF0075 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
-		0380BAB41C2F3C7200EF0075 /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
-		0380BAB51C2F3C7200EF0075 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		0380BAB61C2F3C7200EF0075 /* ofxImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxImGui.cpp; sourceTree = "<group>"; };
 		0380BAB71C2F3C7200EF0075 /* ofxImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxImGui.h; sourceTree = "<group>"; };
-		0380BAB81C2F3C7200EF0075 /* stb_rect_pack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_rect_pack.h; sourceTree = "<group>"; };
-		0380BAB91C2F3C7200EF0075 /* stb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_textedit.h; sourceTree = "<group>"; };
-		0380BABA1C2F3C7200EF0075 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_truetype.h; sourceTree = "<group>"; };
 		0380BAC51C2F42DC00EF0075 /* BaseTheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseTheme.cpp; sourceTree = "<group>"; };
 		0380BAC61C2F42DC00EF0075 /* BaseTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseTheme.h; sourceTree = "<group>"; };
 		03B6688C1C6D13A800C4E7BA /* InputTextButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputTextButton.h; sourceTree = "<group>"; };
@@ -84,6 +75,15 @@
 		32CA4F630368D1EE00C91783 /* ofxiOS_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxiOS_Prefix.pch; sourceTree = "<group>"; };
 		5326AEA710A23A0500278DE6 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		53F323EA10A20EDB00E0DAE4 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		64E0CB561C8E23DD007E3B0D /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
+		64E0CB571C8E23DD007E3B0D /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
+		64E0CB581C8E23DD007E3B0D /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
+		64E0CB591C8E23DD007E3B0D /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
+		64E0CB5A1C8E23DD007E3B0D /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
+		64E0CB5B1C8E23DD007E3B0D /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		64E0CB5C1C8E23DD007E3B0D /* stb_rect_pack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_rect_pack.h; sourceTree = "<group>"; };
+		64E0CB5D1C8E23DD007E3B0D /* stb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_textedit.h; sourceTree = "<group>"; };
+		64E0CB5E1C8E23DD007E3B0D /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_truetype.h; sourceTree = "<group>"; };
 		678E130717951530005B6D19 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "bin/data/Icon@2x.png"; sourceTree = "<group>"; };
 		678E130917951536005B6D19 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = bin/data/Icon.png; sourceTree = "<group>"; };
 		678E130B1795153C005B6D19 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = bin/data/Default.png; sourceTree = "<group>"; };
@@ -142,17 +142,8 @@
 				0380BAAD1C2F3C7200EF0075 /* EngineOpenGLES.cpp */,
 				0380BAAE1C2F3C7200EF0075 /* EngineOpenGLES.h */,
 				0380BAAF1C2F3C7200EF0075 /* imconfig.h */,
-				0380BAB01C2F3C7200EF0075 /* imgui.cpp */,
-				0380BAB11C2F3C7200EF0075 /* imgui.h */,
-				0380BAB21C2F3C7200EF0075 /* imgui_demo.cpp */,
-				0380BAB31C2F3C7200EF0075 /* imgui_draw.cpp */,
-				0380BAB41C2F3C7200EF0075 /* imgui_internal.h */,
-				0380BAB51C2F3C7200EF0075 /* LICENSE */,
 				0380BAB61C2F3C7200EF0075 /* ofxImGui.cpp */,
 				0380BAB71C2F3C7200EF0075 /* ofxImGui.h */,
-				0380BAB81C2F3C7200EF0075 /* stb_rect_pack.h */,
-				0380BAB91C2F3C7200EF0075 /* stb_textedit.h */,
-				0380BABA1C2F3C7200EF0075 /* stb_truetype.h */,
 			);
 			name = src;
 			path = ../../../addons/ofxImGui/src;
@@ -204,6 +195,39 @@
 			name = "core frameworks";
 			sourceTree = "<group>";
 		};
+		64E0CB531C8E23DD007E3B0D /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				64E0CB541C8E23DD007E3B0D /* imgui */,
+			);
+			name = libs;
+			path = ../libs;
+			sourceTree = "<group>";
+		};
+		64E0CB541C8E23DD007E3B0D /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				64E0CB551C8E23DD007E3B0D /* src */,
+			);
+			path = imgui;
+			sourceTree = "<group>";
+		};
+		64E0CB551C8E23DD007E3B0D /* src */ = {
+			isa = PBXGroup;
+			children = (
+				64E0CB561C8E23DD007E3B0D /* imgui.cpp */,
+				64E0CB571C8E23DD007E3B0D /* imgui.h */,
+				64E0CB581C8E23DD007E3B0D /* imgui_demo.cpp */,
+				64E0CB591C8E23DD007E3B0D /* imgui_draw.cpp */,
+				64E0CB5A1C8E23DD007E3B0D /* imgui_internal.h */,
+				64E0CB5B1C8E23DD007E3B0D /* LICENSE */,
+				64E0CB5C1C8E23DD007E3B0D /* stb_rect_pack.h */,
+				64E0CB5D1C8E23DD007E3B0D /* stb_textedit.h */,
+				64E0CB5E1C8E23DD007E3B0D /* stb_truetype.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		6948EE371B920CB800B5AC1A /* local_addons */ = {
 			isa = PBXGroup;
 			children = (
@@ -222,6 +246,7 @@
 		BB16F26B0F2B646B00518274 /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				64E0CB531C8E23DD007E3B0D /* libs */,
 				0380BAA61C2F3C7200EF0075 /* src */,
 			);
 			name = addons;
@@ -338,9 +363,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0380BAC31C2F3C7200EF0075 /* LICENSE in Resources */,
 				678E130817951530005B6D19 /* Icon@2x.png in Resources */,
 				678E130A17951536005B6D19 /* Icon.png in Resources */,
+				64E0CB621C8E23DD007E3B0D /* LICENSE in Resources */,
 				678E130C1795153C005B6D19 /* Default.png in Resources */,
 				678E130E17951540005B6D19 /* Default@2x.png in Resources */,
 				678E131017951549005B6D19 /* Default-568h@2x~iphone.png in Resources */,
@@ -370,15 +395,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64E0CB611C8E23DD007E3B0D /* imgui_draw.cpp in Sources */,
 				03B6688E1C6E735400C4E7BA /* InputTextButton.mm in Sources */,
 				E4D8936E11527B74007E1F53 /* main.mm in Sources */,
-				0380BAC21C2F3C7200EF0075 /* imgui_draw.cpp in Sources */,
+				64E0CB601C8E23DD007E3B0D /* imgui_demo.cpp in Sources */,
 				0380BAC71C2F42DC00EF0075 /* BaseTheme.cpp in Sources */,
 				0380BABC1C2F3C7200EF0075 /* BaseEngine.cpp in Sources */,
+				64E0CB5F1C8E23DD007E3B0D /* imgui.cpp in Sources */,
 				0380BABF1C2F3C7200EF0075 /* EngineOpenGLES.cpp in Sources */,
-				0380BAC01C2F3C7200EF0075 /* imgui.cpp in Sources */,
 				0380BAC41C2F3C7200EF0075 /* ofxImGui.cpp in Sources */,
-				0380BAC11C2F3C7200EF0075 /* imgui_demo.cpp in Sources */,
 				E4D8936F11527B74007E1F53 /* ofApp.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
