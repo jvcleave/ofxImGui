@@ -44,5 +44,4 @@ public:
 #else  
     EngineGLFW* engine;
 #endif
-    ImGuiIO* io;
 };

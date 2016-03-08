@@ -1,50 +1,68 @@
 #include "EngineOpenGLES.h"
 
-int EngineOpenGLES::g_ShaderHandle = 0;
-int EngineOpenGLES::g_AttribLocationTex = 0;
-int EngineOpenGLES::g_AttribLocationProjMtx = 0;
-int EngineOpenGLES::g_AttribLocationPosition = 0;
-int EngineOpenGLES::g_AttribLocationUV = 0;
+ofShader EngineOpenGLES::g_Shader;
 
-void EngineOpenGLES::setup(ImGuiIO* io_)
+void EngineOpenGLES::setup()
 {
-    io = io_;
+    if (isSetup) return;
+    
+    ImGuiIO& io = ImGui::GetIO();
 
-    io->KeyMap[ImGuiKey_Tab]        = OF_KEY_TAB;
-    io->KeyMap[ImGuiKey_LeftArrow]  = OF_KEY_LEFT;
-    io->KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
-    io->KeyMap[ImGuiKey_UpArrow]    = OF_KEY_UP;
-    io->KeyMap[ImGuiKey_DownArrow]  = OF_KEY_DOWN;
-    io->KeyMap[ImGuiKey_PageUp]     = OF_KEY_PAGE_UP;
-    io->KeyMap[ImGuiKey_PageDown]   = OF_KEY_PAGE_DOWN;
-    io->KeyMap[ImGuiKey_Home]       = OF_KEY_HOME;
-    io->KeyMap[ImGuiKey_End]        = OF_KEY_END;
-    io->KeyMap[ImGuiKey_Delete]     = OF_KEY_DEL;
-    io->KeyMap[ImGuiKey_Backspace]  = OF_KEY_BACKSPACE;
-    io->KeyMap[ImGuiKey_Enter]      = OF_KEY_RETURN;
-    io->KeyMap[ImGuiKey_Escape]     = OF_KEY_ESC;
+    io.KeyMap[ImGuiKey_Tab]        = OF_KEY_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow]  = OF_KEY_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow]    = OF_KEY_UP;
+    io.KeyMap[ImGuiKey_DownArrow]  = OF_KEY_DOWN;
+    io.KeyMap[ImGuiKey_PageUp]     = OF_KEY_PAGE_UP;
+    io.KeyMap[ImGuiKey_PageDown]   = OF_KEY_PAGE_DOWN;
+    io.KeyMap[ImGuiKey_Home]       = OF_KEY_HOME;
+    io.KeyMap[ImGuiKey_End]        = OF_KEY_END;
+    io.KeyMap[ImGuiKey_Delete]     = OF_KEY_DEL;
+    io.KeyMap[ImGuiKey_Backspace]  = OF_KEY_BACKSPACE;
+    io.KeyMap[ImGuiKey_Enter]      = OF_KEY_RETURN;
+    io.KeyMap[ImGuiKey_Escape]     = OF_KEY_ESC;
     
-    io->RenderDrawListsFn = rendererDrawLists; 
+    io.RenderDrawListsFn = rendererDrawLists; 
     
-    io->SetClipboardTextFn = &BaseEngine::setClipboardString;
-    io->GetClipboardTextFn = &BaseEngine::getClipboardString;
+    io.SetClipboardTextFn = &BaseEngine::setClipboardString;
+    io.GetClipboardTextFn = &BaseEngine::getClipboardString;
     
     createDeviceObjects();
     
+    // Override listeners
     ofAddListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyReleased);
     
-    //in BaseEngine
+    // BaseEngine listeners
     ofAddListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
     ofAddListener(ofEvents().mousePressed, (BaseEngine*)this, &BaseEngine::onMousePressed);
     ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
     ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
     ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
+
+    isSetup = true;
+}
+
+void EngineOpenGLES::exit()
+{
+    if (!isSetup) return;
+
+    // Override listeners
+    ofRemoveListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyReleased);
+
+    // BaseEngine listeners
+    ofRemoveListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
+    ofRemoveListener(ofEvents().mousePressed, (BaseEngine*)this, &BaseEngine::onMousePressed);
+    ofRemoveListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
+    ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
+    ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
+
+    invalidateDeviceObjects();
+
+    isSetup = false;
 }
 
 bool EngineOpenGLES::createDeviceObjects()
 {
-    
-
 #if defined(TARGET_RASPBERRY_PI)
     string header = "";
 #else
@@ -85,28 +103,28 @@ bool EngineOpenGLES::createDeviceObjects()
     )";
     
     
-    shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
-    shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
+    g_Shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_shader);
+    g_Shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex_shader);
     
-    shader.linkProgram();
-    
+    g_Shader.linkProgram();
     
     // Backup GL state
     GLint last_texture, last_array_buffer;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     
-    g_ShaderHandle = shader.getProgram();
+    g_ShaderHandle = g_Shader.getProgram();
     
     g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
     g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
     g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
     g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
-    attribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
+    g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
     
-    glGenBuffers(1, &vboHandle);
-    glGenBuffers(1, &elementsHandle);
-    
+    glGenBuffers(1, &g_VboHandle);
+    glGenBuffers(1, &g_ElementsHandle);
+
+    ImGuiIO& io = ImGui::GetIO();
     
     // Build texture
     unsigned char* pixels;
@@ -115,7 +133,7 @@ bool EngineOpenGLES::createDeviceObjects()
     if(ofIsGLProgrammableRenderer())
     {
         // Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
-        io->Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
+        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); 
         glTexImage2D(GL_TEXTURE_2D, 
                      0, 
                      GL_RGBA, 
@@ -126,9 +144,10 @@ bool EngineOpenGLES::createDeviceObjects()
                      GL_UNSIGNED_BYTE, 
                      pixels);
         
-    }else
+    }
+    else
     {
-        io->Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+        io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
         glTexImage2D(GL_TEXTURE_2D, 
                      0,
                      GL_ALPHA,
@@ -139,18 +158,27 @@ bool EngineOpenGLES::createDeviceObjects()
                      GL_UNSIGNED_BYTE, 
                      pixels);
     }
-    
-    
+      
     GLuint textureid = loadTextureImage2D(pixels, width, height);
-    io->Fonts->TexID = (void *)(intptr_t)textureid;
+    io.Fonts->TexID = (void *)(intptr_t)textureid;
     
-    io->Fonts->ClearTexData();
+    io.Fonts->ClearTexData();
     
     // Restore modified GL state
     glBindTexture(GL_TEXTURE_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
     
     return true;
+}
+
+void EngineOpenGLES::invalidateDeviceObjects()
+{
+    if (g_VboHandle) glDeleteBuffers(1, &g_VboHandle);
+    if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
+    g_VboHandle = g_ElementsHandle = 0;
+
+    g_Shader.unload();
+    g_ShaderHandle = 0;
 }
 
 void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
@@ -173,8 +201,6 @@ void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
     float width = ofGetWidth();
     float height = ofGetHeight();
     
-    
-    
     // Setup orthographic projection matrix
     const float ortho_projection[4][4] =
     {
@@ -188,24 +214,24 @@ void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
     glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
     
     // Render command lists
-    glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
+    glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
     glEnableVertexAttribArray(g_AttribLocationPosition);
     glEnableVertexAttribArray(g_AttribLocationUV);
-    glEnableVertexAttribArray(attribLocationColor);
+    glEnableVertexAttribArray(g_AttribLocationColor);
     
     glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
     glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
-    glVertexAttribPointer(attribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
+    glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
     
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = draw_data->CmdLists[n];
         const ImDrawIdx* idx_buffer_offset = 0;
         
-        glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
+        glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
         glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
         
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementsHandle);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
         
         for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
@@ -228,7 +254,7 @@ void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
     // Restore modified state
     glDisableVertexAttribArray(g_AttribLocationPosition);
     glDisableVertexAttribArray(g_AttribLocationUV);
-    glDisableVertexAttribArray(attribLocationColor);
+    glDisableVertexAttribArray(g_AttribLocationColor);
     glUseProgram(last_program);
     glBindTexture(GL_TEXTURE_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
@@ -236,13 +262,12 @@ void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
     glDisable(GL_SCISSOR_TEST);
 }
 
-
-
 void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& event)
 {
     int key = event.keycode;
-    io->KeysDown[key] = false;
-    io->AddInputCharacter((unsigned short)event.codepoint);
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeysDown[key] = false;
+    io.AddInputCharacter((unsigned short)event.codepoint);
     //TODO modifiers?
 }
 

@@ -1,15 +1,23 @@
 #include "BaseEngine.h"
 
+int BaseEngine::g_ShaderHandle = 0;
+int BaseEngine::g_VertHandle = 0;
+int BaseEngine::g_FragHandle = 0;
 
-unsigned int BaseEngine::vboHandle = 0;
-unsigned int BaseEngine::elementsHandle = 0;
-int BaseEngine::attribLocationColor = 0;
-ofShader BaseEngine::shader;
+int BaseEngine::g_AttribLocationTex = 0;
+int BaseEngine::g_AttribLocationProjMtx = 0;
+int BaseEngine::g_AttribLocationPosition = 0;
+int BaseEngine::g_AttribLocationUV = 0;
+int BaseEngine::g_AttribLocationColor = 0;
+
+unsigned int BaseEngine::g_VboHandle = 0;
+unsigned int BaseEngine::g_ElementsHandle = 0;
 
 void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 {
     int key = event.keycode;
-    io->KeysDown[key] = true;
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeysDown[key] = true;
     //io->AddInputCharacter((unsigned short)event.codepoint);
 }
 
@@ -17,7 +25,8 @@ void BaseEngine::onMousePressed(ofMouseEventArgs& event)
 {
     if(event.button >= 0 && event.button < 5)
     {
-        io->MouseDown[event.button] = true;
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseDown[event.button] = true;
     }
 }
 
@@ -25,20 +34,22 @@ void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
 {
     if(event.button >= 0 && event.button < 5)
     {
-        io->MouseDown[event.button] = false;
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseDown[event.button] = false;
     }
 }
 
 void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 {
-    io->MouseWheel = event.scrollY;
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseWheel = event.scrollY;
 }
 
 void BaseEngine::onWindowResized(ofResizeEventArgs& window)
 {
-    io->DisplaySize = ImVec2((float)window.width, (float)window.height);
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2((float)window.width, (float)window.height);
 }
-
 
 const char* BaseEngine::getClipboardString()
 {

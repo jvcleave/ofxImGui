@@ -4,16 +4,15 @@ ofxImGui::ofxImGui()
 {
     lastTime = 0.0f;
     engine = NULL;
-    io = NULL;
     theme = NULL;
 }
 
 void ofxImGui::setup(BaseTheme* theme_)
 {
-    io = &ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
 
-    io->DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
-    io->MouseDrawCursor = false;
+    io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+    io.MouseDrawCursor = false;
 
 #if defined(TARGET_OPENGLES)
     engine = new EngineOpenGLES();
@@ -21,18 +20,18 @@ void ofxImGui::setup(BaseTheme* theme_)
     engine = new EngineGLFW();
 #endif
 
-    engine->setup(io);
-    if(theme_)
+    engine->setup();
+
+    if (theme_)
     {
-       setTheme(theme_);
-    }else
+        setTheme(theme_);
+    }
+    else
     {
         setTheme(new BaseTheme());
     }
-    
-    
-
 }
+
 void ofxImGui::setTheme(BaseTheme* theme_)
 {
     if(theme)
@@ -77,7 +76,6 @@ GLuint ofxImGui::loadImage(string imagePath)
 
 GLuint ofxImGui::loadTexture(string imagePath)
 {
-    
     ofDisableArbTex();
     ofTexture* texture  = new ofTexture();
     ofLoadImage(*texture, imagePath);
@@ -104,23 +102,26 @@ GLuint ofxImGui::loadTexture(ofTexture& texture, string imagePath)
 
 void ofxImGui::begin()
 {
-    if(!io || !engine)
+    if(!engine)
     {
-        ofLogError() << "setup call required - calling it for you";
+        ofLogError(__FUNCTION__) << "setup call required - calling it for you";
         setup();
     }
+
+    ImGuiIO& io = ImGui::GetIO();
+
     float currentTime = ofGetElapsedTimef();
     if(lastTime > 0.f)
     {
-        io->DeltaTime = currentTime - lastTime;
-    }else
+        io.DeltaTime = currentTime - lastTime;
+    }
+    else
     {
-        io->DeltaTime = 1.0f / 60.f;
+        io.DeltaTime = 1.0f / 60.f;
     }
     lastTime = currentTime;
     
-
-    io->MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+    io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
     ImGui::NewFrame();
 }
 
@@ -129,8 +130,6 @@ void ofxImGui::end()
     ImGui::Render();
 }
 
-
- 
 void ofxImGui::close()
 {
     if(engine)
@@ -138,11 +137,11 @@ void ofxImGui::close()
         delete engine;
         engine = NULL;
     }
-    if(io)
-    {
-        io->Fonts->TexID = 0;
-        io = nullptr;
-    }
+    //if(io)
+    //{
+    //    io->Fonts->TexID = 0;
+    //    io = nullptr;
+    //}
     if(theme)
     {
         delete theme;

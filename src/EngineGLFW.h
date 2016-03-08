@@ -4,24 +4,29 @@
 
 class EngineGLFW : public BaseEngine
 {
-public:
-    
-    EngineGLFW()
+public: 
+    ~EngineGLFW()
     {
-        
-    };
+        exit();
+    }
     
-    //BaseEngine required
-    void setup(ImGuiIO*);
-    bool createDeviceObjects();
-    void onKeyReleased(ofKeyEventArgs& event);
-    
-    //custom 
-    static void programmableRendererDrawLists(ImDrawData * draw_data);
-    static void glRendererDrawLists(ImDrawData * draw_data);
-    void onMousePressed(ofMouseEventArgs& event);
-    void onMouseReleased(ofMouseEventArgs& event);
-    static unsigned int vaoHandle;
+    // BaseEngine required
+    void setup() override;
+    void exit() override;
+    bool createDeviceObjects() override;
+    void invalidateDeviceObjects() override;
 
+    bool createFontsTexture();
+    
+    void onKeyReleased(ofKeyEventArgs& event) override;
+    void onMousePressed(ofMouseEventArgs& event) override;
+    void onMouseReleased(ofMouseEventArgs& event) override;
+    
+    // Custom 
+    static void programmableRenderDrawLists(ImDrawData * draw_data);
+    static void fixedRenderDrawLists(ImDrawData * draw_data);
+
+    static GLuint g_FontTexture;
+    static unsigned int g_VaoHandle;
 };
 #endif
