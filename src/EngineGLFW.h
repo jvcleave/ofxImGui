@@ -17,6 +17,7 @@ public:
     void invalidateDeviceObjects() override;
 
     bool createFontsTexture();
+    
     void onKeyReleased(ofKeyEventArgs& event) override;
     void onMousePressed(ofMouseEventArgs& event) override;
     void onMouseReleased(ofMouseEventArgs& event) override;

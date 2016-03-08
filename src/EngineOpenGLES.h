@@ -16,7 +16,7 @@ public:
     bool createDeviceObjects() override;
     void invalidateDeviceObjects() override;
 
-    void onKeyReleased(ofKeyEventArgs& event);
+    void onKeyReleased(ofKeyEventArgs& event) override;
 
     // Custom 
     static void rendererDrawLists(ImDrawData * draw_data);
