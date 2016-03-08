@@ -9,7 +9,7 @@ Tested with OF 0.9.0 on
  - Mac 10.10, Xcode 7
  - iOS 9.2, 8.1.2
  - Linux Desktop
- - Windows 10/Visual Studio 2015 (some issues with Nvidia cards, https://github.com/jvcleave/ofxImGui/issues/22)
+ - Windows 10/Visual Studio 2015
 
  
 See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for previous versions
