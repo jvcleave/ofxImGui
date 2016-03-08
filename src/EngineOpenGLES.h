@@ -5,24 +5,21 @@
 class EngineOpenGLES : public BaseEngine
 {
 public:
-    
-    EngineOpenGLES()
+    ~EngineOpenGLES()
     {
-        
-    };
+        exit();
+    }
     
-    //BaseEngine required
-    void setup(ImGuiIO*);
-    bool createDeviceObjects();
+    // BaseEngine required
+    void setup() override;
+    void exit() override;
+    bool createDeviceObjects() override;
+    void invalidateDeviceObjects() override;
+
     void onKeyReleased(ofKeyEventArgs& event);
 
-    //custom 
+    // Custom 
     static void rendererDrawLists(ImDrawData * draw_data);
     
-    static int  g_ShaderHandle;
-    static int  g_AttribLocationTex;
-    static int  g_AttribLocationProjMtx;
-    static int  g_AttribLocationPosition;
-    static int  g_AttribLocationUV; 
-    
+    static ofShader g_Shader;
 };
