@@ -17,98 +17,11 @@ See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for previous vers
 
 ![Screenshot](images/Screenshot.png)
 
-Example
--------
+### Examples
 
-In `ofApp.h`:
+#### example-demo    
+Works on Desktop, uses imgui demo windows
 
-```cpp
-#pragma once
+#### example-ios  
+iOS specific with Keyboard input helper
 
-#include "ofMain.h"
-
-#include "ofxImGui.h"
-
-class ofApp : public ofBaseApp
-{
-  public:
-  
-  ...
-  
-  ofxImGui gui;
-}
-```
-
-In `ofApp.cpp`:
-
-```cpp
-void ofApp::setup()
-{
-  gui.setup();
-}
-
-void ofApp::draw()
-{
-  gui.begin();
-
-    static bool show_another_window = true;
-    static bool show_test_window = true;
-
-    if(show_another_window)
-    {
-      ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-      ImGui::Begin("Another Window", &show_another_window);
-      ImGui::Text("Hello");
-      ImGui::End();
-    }
-
-    if(show_test_window)
-    {
-      ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-      ImGui::ShowTestWindow(&show_test_window);
-    }
-
-  gui.end();
-}
-```
-
-Loading Images and Image Buttons
---------------------------------
-
-![ImageButton](images/ImageButton.gif)
-
-```cpp
-GLuint tex_button;
-
-void ofApp::setup()
-{
-  gui.setup();
-
-  tex_button = gui.loadImage("youtube.png");
-}
-
-void ofApp::draw()
-{
-  gui.begin();
-  
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
-  
-  gui.end();
-}
-```
-
-Loading Custom Fonts
---------------------
-
-Assuming `NotoSans.ttf` placed in application's `data` folder:
-
-```cpp
-void ofApp::setup()
-{
-  
-  ImGuiIO * io = &ImGui::GetIO();
-  io->Fonts->AddFontFromFileTTF(&ofToDataPath("NotoSans.ttf")[0], 24.f);
-  
-  gui.setup();
-}
-```
