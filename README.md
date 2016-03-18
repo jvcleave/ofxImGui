@@ -1,4 +1,4 @@
-ofxImgui
+ofxImGui
 ========
 
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks)
@@ -35,7 +35,7 @@ class ofApp : public ofBaseApp
   
   ...
   
-  ofxImGui m_ui;
+  ofxImGui gui;
 }
 ```
 
@@ -44,12 +44,12 @@ In `ofApp.cpp`:
 ```cpp
 void ofApp::setup()
 {
-  m_ui.setup();
+  gui.setup();
 }
 
 void ofApp::draw()
 {
-  m_ui.begin();
+  gui.begin();
 
     static bool show_another_window = true;
     static bool show_test_window = true;
@@ -68,7 +68,7 @@ void ofApp::draw()
       ImGui::ShowTestWindow(&show_test_window);
     }
 
-  m_ui.end();
+  gui.end();
 }
 ```
 
@@ -82,18 +82,18 @@ GLuint tex_button;
 
 void ofApp::setup()
 {
-  m_ui.setup();
+  gui.setup();
 
-  tex_button = m_ui.loadImage("youtube.png");
+  tex_button = gui.loadImage("youtube.png");
 }
 
 void ofApp::draw()
 {
-  m_ui.begin();
+  gui.begin();
   
     bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)tex_button, ImVec2(200, 141));
   
-  m_ui.end();
+  gui.end();
 }
 ```
 
@@ -109,6 +109,6 @@ void ofApp::setup()
   ImGuiIO * io = &ImGui::GetIO();
   io->Fonts->AddFontFromFileTTF(&ofToDataPath("NotoSans.ttf")[0], 24.f);
   
-  m_ui.setup();
+  gui.setup();
 }
 ```
