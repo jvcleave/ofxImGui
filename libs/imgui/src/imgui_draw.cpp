@@ -1,4 +1,4 @@
-// dear imgui, v1.49 WIP
+// dear imgui, v1.48
 // (drawing and font code)
 
 // Contains implementation for
@@ -37,11 +37,10 @@
 #pragma clang diagnostic ignored "-Wfloat-equal"            // warning : comparing floating point with == or != is unsafe   // storing and comparing against same constants ok.
 #pragma clang diagnostic ignored "-Wglobal-constructors"    // warning : declaration requires a global destructor           // similar to above, not sure what the exact difference it.
 #pragma clang diagnostic ignored "-Wsign-conversion"        // warning : implicit conversion changes signedness             //
-#pragma clang diagnostic ignored "-Wreserved-id-macro"      // warning : macro name is a reserved identifier                //
-#elif defined(__GNUC__)
+//#pragma clang diagnostic ignored "-Wreserved-id-macro"    // warning : macro name is a reserved identifier                //
+#endif
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wunused-function"          // warning: 'xxxx' defined but not used
-#pragma GCC diagnostic ignored "-Wdouble-promotion"         // warning: implicit conversion from 'float' to 'double' when passing argument to function
-#pragma GCC diagnostic ignored "-Wconversion"               // warning: conversion to 'xxxx' from 'xxxx' may alter its value
 #endif
 
 //-------------------------------------------------------------------------
@@ -59,7 +58,7 @@ namespace IMGUI_STB_NAMESPACE
 
 #ifdef _MSC_VER
 #pragma warning (push)
-#pragma warning (disable: 4456)                             // declaration of 'xx' hides previous local declaration
+#pragma warning (disable: 4456) // declaration of 'xx' hides previous local declaration
 #endif
 
 #ifdef __clang__
@@ -67,11 +66,6 @@ namespace IMGUI_STB_NAMESPACE
 #pragma clang diagnostic ignored "-Wold-style-cast"         // warning : use of old-style cast                              // yes, they are more terse.
 #pragma clang diagnostic ignored "-Wunused-function"
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
-#endif
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wtype-limits"              // warning: comparison is always true due to limited range of data type [-Wtype-limits]
 #endif
 
 #define STBRP_ASSERT(x)    IM_ASSERT(x)
@@ -91,10 +85,6 @@ namespace IMGUI_STB_NAMESPACE
 #define STBTT_DEF extern
 #endif
 #include "stb_truetype.h"
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 #ifdef __clang__
 #pragma clang diagnostic pop
@@ -224,29 +214,20 @@ void ImDrawList::UpdateTextureID()
 #undef GetCurrentClipRect
 #undef GetCurrentTextureId
 
-// Render-level scissoring. This is passed down to your render function but not used for CPU-side coarse clipping. Prefer using higher-level ImGui::PushClipRect() to affect logic (hit-testing and widget culling)
-void ImDrawList::PushClipRect(ImVec2 cr_min, ImVec2 cr_max, bool intersect_with_current_clip_rect)
+// Scissoring. The values in clip_rect are x1, y1, x2, y2. Only apply to rendering! Prefer using higher-level ImGui::PushClipRect() to affect logic (hit-testing and widget culling)
+void ImDrawList::PushClipRect(const ImVec4& clip_rect)
 {
-    ImVec4 cr(cr_min.x, cr_min.y, cr_max.x, cr_max.y);
-    if (intersect_with_current_clip_rect && _ClipRectStack.Size)
-    {
-        ImVec4 current = _ClipRectStack.Data[_ClipRectStack.Size-1];
-        if (cr.x < current.x) cr.x = current.x;
-        if (cr.y < current.y) cr.y = current.y;
-        if (cr.z > current.z) cr.z = current.z;
-        if (cr.w > current.w) cr.w = current.w;
-    }
-    cr.z = ImMax(cr.x, cr.z);
-    cr.w = ImMax(cr.y, cr.w);
-
-    _ClipRectStack.push_back(cr);
+    _ClipRectStack.push_back(clip_rect);
     UpdateClipRect();
 }
 
 void ImDrawList::PushClipRectFullScreen()
 {
-    PushClipRect(ImVec2(GNullClipRect.x, GNullClipRect.y), ImVec2(GNullClipRect.z, GNullClipRect.w));
-    //PushClipRect(GetVisibleRect());   // FIXME-OPT: This would be more correct but we're not supposed to access ImGuiContext from here?
+    PushClipRect(GNullClipRect);
+
+    // FIXME-OPT: This would be more correct but we're not supposed to access ImGuiState from here?
+    //ImGuiState& g = *GImGui;
+    //PushClipRect(GetVisibleRect());
 }
 
 void ImDrawList::PopClipRect()
@@ -842,30 +823,6 @@ void ImDrawList::AddRectFilledMultiColor(const ImVec2& a, const ImVec2& c, ImU32
     PrimWriteVtx(ImVec2(a.x, c.y), uv, col_bot_left);
 }
 
-void ImDrawList::AddQuad(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col, float thickness)
-{
-    if ((col >> 24) == 0)
-        return;
-
-    PathLineTo(a);
-    PathLineTo(b);
-    PathLineTo(c);
-    PathLineTo(d);
-    PathStroke(col, true, thickness);
-}
-
-void ImDrawList::AddQuadFilled(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImU32 col)
-{
-    if ((col >> 24) == 0)
-        return;
-
-    PathLineTo(a);
-    PathLineTo(b);
-    PathLineTo(c);
-    PathLineTo(d);
-    PathFill(col);
-}
-
 void ImDrawList::AddTriangle(const ImVec2& a, const ImVec2& b, const ImVec2& c, ImU32 col, float thickness)
 {
     if ((col >> 24) == 0)
@@ -937,6 +894,14 @@ void ImDrawList::AddText(const ImFont* font, float font_size, const ImVec2& pos,
 
     IM_ASSERT(font->ContainerAtlas->TexID == _TextureIdStack.back());  // Use high-level ImGui::PushFont() or low-level ImDrawList::PushTextureId() to change font.
 
+    // reserve vertices for worse case (over-reserving is useful and easily amortized)
+    const int char_count = (int)(text_end - text_begin);
+    const int vtx_count_max = char_count * 4;
+    const int idx_count_max = char_count * 6;
+    const int vtx_begin = VtxBuffer.Size;
+    const int idx_begin = IdxBuffer.Size;
+    PrimReserve(idx_count_max, vtx_count_max);
+
     ImVec4 clip_rect = _ClipRectStack.back();
     if (cpu_fine_clip_rect)
     {
@@ -945,7 +910,18 @@ void ImDrawList::AddText(const ImFont* font, float font_size, const ImVec2& pos,
         clip_rect.z = ImMin(clip_rect.z, cpu_fine_clip_rect->z);
         clip_rect.w = ImMin(clip_rect.w, cpu_fine_clip_rect->w);
     }
-    font->RenderText(this, font_size, pos, col, clip_rect, text_begin, text_end, wrap_width, cpu_fine_clip_rect != NULL);
+    font->RenderText(font_size, pos, col, clip_rect, text_begin, text_end, this, wrap_width, cpu_fine_clip_rect != NULL);
+
+    // give back unused vertices
+    // FIXME-OPT: clean this up
+    VtxBuffer.resize((int)(_VtxWritePtr - VtxBuffer.Data));
+    IdxBuffer.resize((int)(_IdxWritePtr - IdxBuffer.Data));
+    int vtx_unused = vtx_count_max - (VtxBuffer.Size - vtx_begin);
+    int idx_unused = idx_count_max - (IdxBuffer.Size - idx_begin);
+    CmdBuffer.back().ElemCount -= idx_unused;
+    _VtxWritePtr -= vtx_unused;
+    _IdxWritePtr -= idx_unused;
+    _VtxCurrentIdx = (unsigned int)VtxBuffer.Size;
 }
 
 void ImDrawList::AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end)
@@ -1228,7 +1204,7 @@ ImFont* ImFontAtlas::AddFontFromMemoryCompressedTTF(const void* compressed_ttf_d
     ImFontConfig font_cfg = font_cfg_template ? *font_cfg_template : ImFontConfig();
     IM_ASSERT(font_cfg.FontData == NULL);
     font_cfg.FontDataOwnedByAtlas = true;
-    return AddFontFromMemoryTTF(buf_decompressed_data, (int)buf_decompressed_size, size_pixels, &font_cfg, glyph_ranges);
+    return AddFontFromMemoryTTF(buf_decompressed_data, (int)buf_decompressed_size, size_pixels, font_cfg_template, glyph_ranges);
 }
 
 ImFont* ImFontAtlas::AddFontFromMemoryCompressedBase85TTF(const char* compressed_ttf_data_base85, float size_pixels, const ImFontConfig* font_cfg, const ImWchar* glyph_ranges)
@@ -1666,7 +1642,7 @@ ImFont::~ImFont()
     // If you want to delete fonts you need to do it between Render() and NewFrame().
     // FIXME-CLEANUP
     /*
-    ImGuiContext& g = *GImGui;
+    ImGuiState& g = *GImGui;
     if (g.Font == this)
         g.Font = NULL;
     */
@@ -1694,15 +1670,20 @@ void ImFont::BuildLookupTable()
     for (int i = 0; i != Glyphs.Size; i++)
         max_codepoint = ImMax(max_codepoint, (int)Glyphs[i].Codepoint);
 
-    IM_ASSERT(Glyphs.Size < 32*1024);
     IndexXAdvance.clear();
+    IndexXAdvance.resize(max_codepoint + 1);
     IndexLookup.clear();
-    GrowIndex(max_codepoint + 1);
+    IndexLookup.resize(max_codepoint + 1);
+    for (int i = 0; i < max_codepoint + 1; i++)
+    {
+        IndexXAdvance[i] = -1.0f;
+        IndexLookup[i] = -1;
+    }
     for (int i = 0; i < Glyphs.Size; i++)
     {
         int codepoint = (int)Glyphs[i].Codepoint;
         IndexXAdvance[codepoint] = Glyphs[i].XAdvance;
-        IndexLookup[codepoint] = (short)i;
+        IndexLookup[codepoint] = i;
     }
 
     // Create a glyph to handle TAB
@@ -1716,7 +1697,7 @@ void ImFont::BuildLookupTable()
         tab_glyph.Codepoint = '\t';
         tab_glyph.XAdvance *= 4;
         IndexXAdvance[(int)tab_glyph.Codepoint] = (float)tab_glyph.XAdvance;
-        IndexLookup[(int)tab_glyph.Codepoint] = (short)(Glyphs.Size-1);
+        IndexLookup[(int)tab_glyph.Codepoint] = (int)(Glyphs.Size-1);
     }
 
     FallbackGlyph = NULL;
@@ -1733,43 +1714,13 @@ void ImFont::SetFallbackChar(ImWchar c)
     BuildLookupTable();
 }
 
-void ImFont::GrowIndex(int new_size)
-{
-    IM_ASSERT(IndexXAdvance.Size == IndexLookup.Size);
-    int old_size = IndexLookup.Size;
-    if (new_size <= old_size)
-        return;
-    IndexXAdvance.resize(new_size);
-    IndexLookup.resize(new_size);
-    for (int i = old_size; i < new_size; i++)
-    {
-        IndexXAdvance[i] = -1.0f;
-        IndexLookup[i] = (short)-1;
-    }
-}
-
-void ImFont::AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst)
-{
-    IM_ASSERT(IndexLookup.Size > 0);    // Currently this can only be called AFTER the font has been built, aka after calling ImFontAtlas::GetTexDataAs*() function.
-    int index_size = IndexLookup.Size;
-
-    if (dst < index_size && IndexLookup.Data[dst] == -1 && !overwrite_dst) // 'dst' already exists
-        return;
-    if (src >= index_size && dst >= index_size) // both 'dst' and 'src' don't exist -> no-op
-        return;
-
-    GrowIndex(dst + 1);
-    IndexLookup[dst] = (src < index_size) ? IndexLookup.Data[src] : -1;
-    IndexXAdvance[dst] = (src < index_size) ? IndexXAdvance.Data[src] : 1.0f;
-}
-
 const ImFont::Glyph* ImFont::FindGlyph(unsigned short c) const
 {
     if (c < IndexLookup.Size)
     {
-        const short i = IndexLookup[c];
+        const int i = IndexLookup[c];
         if (i != -1)
-            return &Glyphs.Data[i];
+            return &Glyphs[i];
     }
     return FallbackGlyph;
 }
@@ -1965,23 +1916,7 @@ ImVec2 ImFont::CalcTextSizeA(float size, float max_width, float wrap_width, cons
     return text_size;
 }
 
-void ImFont::RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, unsigned short c) const
-{
-    if (c == ' ' || c == '\t' || c == '\n' || c == '\r') // Match behavior of RenderText(), those 4 codepoints are hard-coded.
-        return;
-    if (const Glyph* glyph = FindGlyph(c))
-    {
-        float scale = (size >= 0.0f) ? (size / FontSize) : 1.0f;
-        pos.x = (float)(int)pos.x + DisplayOffset.x;
-        pos.y = (float)(int)pos.y + DisplayOffset.y;
-        ImVec2 pos_tl(pos.x + glyph->X0 * scale, pos.y + glyph->Y0 * scale);
-        ImVec2 pos_br(pos.x + glyph->X1 * scale, pos.y + glyph->Y1 * scale);
-        draw_list->PrimReserve(6, 4);
-        draw_list->PrimRectUV(pos_tl, pos_br, ImVec2(glyph->U0, glyph->V0), ImVec2(glyph->U1, glyph->V1), col);
-    }
-}
-
-void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width, bool cpu_fine_clip) const
+void ImFont::RenderText(float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, ImDrawList* draw_list, float wrap_width, bool cpu_fine_clip) const
 {
     if (!text_end)
         text_end = text_begin + strlen(text_begin);
@@ -1999,22 +1934,14 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
     const bool word_wrap_enabled = (wrap_width > 0.0f);
     const char* word_wrap_eol = NULL;
 
-    // Skip non-visible lines
-    const char* s = text_begin;
-    if (!word_wrap_enabled && y + line_height < clip_rect.y)
-        while (s < text_end && *s != '\n')  // Fast-forward to next line
-            s++;
-
-    // Reserve vertices for remaining worse case (over-reserving is useful and easily amortized)
-    const int vtx_count_max = (int)(text_end - s) * 4;
-    const int idx_count_max = (int)(text_end - s) * 6;
-    const int idx_expected_size = draw_list->IdxBuffer.Size + idx_count_max;
-    draw_list->PrimReserve(idx_count_max, vtx_count_max);
-
     ImDrawVert* vtx_write = draw_list->_VtxWritePtr;
     ImDrawIdx* idx_write = draw_list->_IdxWritePtr;
     unsigned int vtx_current_idx = draw_list->_VtxCurrentIdx;
 
+    const char* s = text_begin;
+    if (!word_wrap_enabled && y + line_height < clip_rect.y)
+        while (s < text_end && *s != '\n')  // Fast-forward to next line
+            s++;
     while (s < text_end)
     {
         if (word_wrap_enabled)
@@ -2083,10 +2010,11 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
             if (c != ' ' && c != '\t')
             {
                 // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
-                float x1 = x + glyph->X0 * scale;
-                float x2 = x + glyph->X1 * scale;
-                float y1 = y + glyph->Y0 * scale;
-                float y2 = y + glyph->Y1 * scale;
+                float y1 = (float)(y + glyph->Y0 * scale);
+                float y2 = (float)(y + glyph->Y1 * scale);
+
+                float x1 = (float)(x + glyph->X0 * scale);
+                float x2 = (float)(x + glyph->X1 * scale);
                 if (x1 <= clip_rect.z && x2 >= clip_rect.x)
                 {
                     // Render a character
@@ -2145,13 +2073,9 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         x += char_width;
     }
 
-    // Give back unused vertices
-    draw_list->VtxBuffer.resize((int)(vtx_write - draw_list->VtxBuffer.Data));
-    draw_list->IdxBuffer.resize((int)(idx_write - draw_list->IdxBuffer.Data));
-    draw_list->CmdBuffer[draw_list->CmdBuffer.Size-1].ElemCount -= (idx_expected_size - draw_list->IdxBuffer.Size);
     draw_list->_VtxWritePtr = vtx_write;
+    draw_list->_VtxCurrentIdx = vtx_current_idx;
     draw_list->_IdxWritePtr = idx_write;
-    draw_list->_VtxCurrentIdx = (unsigned int)draw_list->VtxBuffer.Size;
 }
 
 //-----------------------------------------------------------------------------
