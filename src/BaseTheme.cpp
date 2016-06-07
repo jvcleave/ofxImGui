@@ -30,7 +30,6 @@ void BaseTheme::setup()
     style->ItemSpacing              = ImVec2(6, 2);
     style->ItemInnerSpacing         = ImVec2(6, 4);
     style->Alpha                    = 1.0f;
-    style->WindowFillAlphaDefault   = 1.0f;
     style->WindowRounding           = 0.0f;
     style->FrameRounding            = 0.0f;
     style->IndentSpacing            = 6.0f;
@@ -50,7 +49,7 @@ void BaseTheme::updateColors()
     
     style->Colors[ImGuiCol_Text]                  = ImVec4(col_main_text, 1.00f);
     style->Colors[ImGuiCol_TextDisabled]          = ImVec4(col_main_text, 0.58f);
-    style->Colors[ImGuiCol_WindowBg]              = ImVec4(col_win_backg, 1.00f);
+    style->Colors[ImGuiCol_WindowBg]              = ImVec4(col_win_backg, 0.70f);
     style->Colors[ImGuiCol_ChildWindowBg]         = ImVec4(col_main_area, 0.58f);
     style->Colors[ImGuiCol_Border]                = ImVec4(col_win_backg, 0.00f);
     style->Colors[ImGuiCol_BorderShadow]          = ImVec4(col_win_backg, 0.00f);
@@ -89,7 +88,7 @@ void BaseTheme::updateColors()
     style->Colors[ImGuiCol_PlotHistogram]         = ImVec4(col_main_text, 0.63f);
     style->Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(col_main_head, 1.00f);
     style->Colors[ImGuiCol_TextSelectedBg]        = ImVec4(col_main_head, 0.43f);
-    style->Colors[ImGuiCol_TooltipBg]             = ImVec4(col_win_popup, 0.92f);
+    style->Colors[ImGuiCol_PopupBg]               = ImVec4(col_win_backg, 0.92f);
     style->Colors[ImGuiCol_ModalWindowDarkening]  = ImVec4(col_main_area, 0.73f);
 }
 
