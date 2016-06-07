@@ -1,4 +1,4 @@
-// dear imgui, v1.49
+// dear imgui, v1.50 WIP
 // (internals)
 
 // You may use this file to debug, understand or extend ImGui features but we don't provide any guarantee of forward compatibility!
@@ -12,7 +12,7 @@
 #endif
 
 #include <stdio.h>      // FILE*
-#include <math.h>       // sqrtf()
+#include <math.h>       // sqrtf, fabsf, fmodf, powf, floorf, ceilf, cosf, sinf
 
 #ifdef _MSC_VER
 #pragma warning (push)
