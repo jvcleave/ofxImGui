@@ -121,7 +121,12 @@ void ofxImGui::begin()
     }
     lastTime = currentTime;
     
+    // Update Settings
     io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+    for(int i = 0; i < 5; i++){
+        io.MouseDown[i] = engine->mousePressed[i];
+        engine->mousePressed[i] = false;
+    }
     ImGui::NewFrame();
 }
 

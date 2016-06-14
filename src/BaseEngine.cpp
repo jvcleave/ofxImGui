@@ -25,19 +25,12 @@ void BaseEngine::onMousePressed(ofMouseEventArgs& event)
 {
     if(event.button >= 0 && event.button < 5)
     {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[event.button] = true;
+        mousePressed[event.button] = true;
     }
 }
 
 void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
-{
-    if(event.button >= 0 && event.button < 5)
-    {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[event.button] = false;
-    }
-}
+{}
 
 void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 {

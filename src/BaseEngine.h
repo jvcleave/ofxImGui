@@ -44,6 +44,7 @@ public:
     static unsigned int g_VboHandle;
     static unsigned int g_ElementsHandle;
 
+    int mousePressed[5] = {0};
 protected:
     bool isSetup;
 };

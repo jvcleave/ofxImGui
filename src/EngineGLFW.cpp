@@ -105,21 +105,12 @@ void EngineGLFW::onMousePressed(ofMouseEventArgs& event)
     if(button >= 0 && button < 5)
     {
         remapToGLFWConvention(button);
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[button] = true;
+        mousePressed[button] = true;
     }
 }
 
 void EngineGLFW::onMouseReleased(ofMouseEventArgs& event)
-{
-    int button = event.button;
-    if(button >= 0 && button < 5)
-    {
-        remapToGLFWConvention(button);
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[button] = false;
-    }
-}
+{}
 
 void EngineGLFW::programmableRenderDrawLists(ImDrawData * draw_data)
 {
