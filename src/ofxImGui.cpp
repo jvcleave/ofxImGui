@@ -125,7 +125,7 @@ void ofxImGui::begin()
     io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
     for(int i = 0; i < 5; i++){
         io.MouseDown[i] = engine->mousePressed[i];
-        engine->mousePressed[i] = false;
+        engine->mousePressed[i] = engine->mouseDragged || false;    // Don't set to false if the mouse is being dragged
     }
     ImGui::NewFrame();
 }

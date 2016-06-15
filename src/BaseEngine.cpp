@@ -21,6 +21,11 @@ void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
     //io->AddInputCharacter((unsigned short)event.codepoint);
 }
 
+void BaseEngine::onMouseDragged(ofMouseEventArgs& event)
+{
+    mouseDragged = true;
+}
+
 void BaseEngine::onMousePressed(ofMouseEventArgs& event)
 {
     if(event.button >= 0 && event.button < 5)
@@ -30,7 +35,9 @@ void BaseEngine::onMousePressed(ofMouseEventArgs& event)
 }
 
 void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
-{}
+{
+    mouseDragged = false;
+}
 
 void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 {

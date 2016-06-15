@@ -19,6 +19,7 @@ public:
     virtual bool createDeviceObjects()=0;
     virtual void invalidateDeviceObjects()=0;
 
+    virtual void onMouseDragged(ofMouseEventArgs& event);
     virtual void onMousePressed(ofMouseEventArgs& event);
     virtual void onMouseReleased(ofMouseEventArgs& event);
     virtual void onMouseScrolled(ofMouseEventArgs& event);
@@ -44,7 +45,8 @@ public:
     static unsigned int g_VboHandle;
     static unsigned int g_ElementsHandle;
 
-    int mousePressed[5] = {0};
+    bool mousePressed[5] = {false};
+    bool mouseDragged = false;
 protected:
     bool isSetup;
 };
