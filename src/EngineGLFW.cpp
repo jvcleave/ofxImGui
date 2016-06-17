@@ -47,11 +47,12 @@ void EngineGLFW::setup()
 
     // Override listeners
     ofAddListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
-    ofAddListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
     ofAddListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
     
     // BaseEngine listeners
     ofAddListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
+    ofAddListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
+    ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
     ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
     ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 
@@ -64,11 +65,12 @@ void EngineGLFW::exit()
 
     // Override listeners
     ofRemoveListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
-    ofRemoveListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
     ofRemoveListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
 
     // Base class listeners
     ofRemoveListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
+    ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
+    ofRemoveListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
     ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
     ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 
@@ -105,19 +107,8 @@ void EngineGLFW::onMousePressed(ofMouseEventArgs& event)
     if(button >= 0 && button < 5)
     {
         remapToGLFWConvention(button);
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[button] = true;
-    }
-}
-
-void EngineGLFW::onMouseReleased(ofMouseEventArgs& event)
-{
-    int button = event.button;
-    if(button >= 0 && button < 5)
-    {
-        remapToGLFWConvention(button);
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[button] = false;
+        mousePressed[button] = true;
+        mouseReleased = false;
     }
 }
 

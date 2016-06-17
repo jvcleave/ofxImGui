@@ -20,7 +20,6 @@ public:
     
     void onKeyReleased(ofKeyEventArgs& event) override;
     void onMousePressed(ofMouseEventArgs& event) override;
-    void onMouseReleased(ofMouseEventArgs& event) override;
     
     // Custom 
     static void programmableRenderDrawLists(ImDrawData * draw_data);
