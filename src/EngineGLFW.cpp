@@ -108,6 +108,7 @@ void EngineGLFW::onMousePressed(ofMouseEventArgs& event)
     {
         remapToGLFWConvention(button);
         mousePressed[button] = true;
+        mouseReleased = false;
     }
 }
 

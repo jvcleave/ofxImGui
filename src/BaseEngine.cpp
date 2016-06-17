@@ -23,7 +23,7 @@ void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 
 void BaseEngine::onMouseDragged(ofMouseEventArgs& event)
 {
-    mouseDragged = true;
+    mouseReleased = false;
 }
 
 void BaseEngine::onMousePressed(ofMouseEventArgs& event)
@@ -31,12 +31,13 @@ void BaseEngine::onMousePressed(ofMouseEventArgs& event)
     if(event.button >= 0 && event.button < 5)
     {
         mousePressed[event.button] = true;
+        mouseReleased = false;
     }
 }
 
 void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
 {
-    mouseDragged = false;
+    mouseReleased = true;
 }
 
 void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)

@@ -46,7 +46,7 @@ public:
     static unsigned int g_ElementsHandle;
 
     bool mousePressed[5] = {false};
-    bool mouseDragged = false;
+    bool mouseReleased = true;
 protected:
     bool isSetup;
 };
