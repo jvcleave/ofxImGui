@@ -48,9 +48,9 @@ void EngineGLFW::setup()
     // Override listeners
     ofAddListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
     ofAddListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
-    
+    ofAddListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
+
     // BaseEngine listeners
-    ofAddListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
     ofAddListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
     ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
     ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
@@ -66,9 +66,9 @@ void EngineGLFW::exit()
     // Override listeners
     ofRemoveListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
     ofRemoveListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
+    ofRemoveListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
 
     // Base class listeners
-    ofRemoveListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
     ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
     ofRemoveListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
     ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
@@ -290,6 +290,19 @@ void EngineGLFW::onKeyReleased(ofKeyEventArgs& event)
     io.KeyCtrl  = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
     io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT]   || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
     io.KeyAlt   = io.KeysDown[GLFW_KEY_LEFT_ALT]     || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+    io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+}
+
+void EngineGLFW::onKeyPressed(ofKeyEventArgs& event){
+    int key = event.keycode;
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeysDown[key] = true;
+
+    io.KeyCtrl  = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+    io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT]   || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+    io.KeyAlt   = io.KeysDown[GLFW_KEY_LEFT_ALT]     || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+    io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+    
     if(key < GLFW_KEY_ESCAPE)
     {
         io.AddInputCharacter((unsigned short)event.codepoint);
