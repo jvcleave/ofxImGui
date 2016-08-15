@@ -21,22 +21,23 @@ void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
     //io->AddInputCharacter((unsigned short)event.codepoint);
 }
 
+void BaseEngine::onMouseDragged(ofMouseEventArgs& event)
+{
+    mouseReleased = false;
+}
+
 void BaseEngine::onMousePressed(ofMouseEventArgs& event)
 {
     if(event.button >= 0 && event.button < 5)
     {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[event.button] = true;
+        mousePressed[event.button] = true;
+        mouseReleased = false;
     }
 }
 
 void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
 {
-    if(event.button >= 0 && event.button < 5)
-    {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[event.button] = false;
-    }
+    mouseReleased = true;
 }
 
 void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
