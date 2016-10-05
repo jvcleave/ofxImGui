@@ -3,7 +3,7 @@
 #include "imgui.h"
 
 //--------------------------------------------------------------
-ofxImGuiExt::Settings::Settings()
+ofxImGui::Settings::Settings()
 	: windowPos(kGuiMargin, kGuiMargin)
 	, windowSize(ofVec2f::zero())
 	, windowBlock(false)
@@ -12,13 +12,13 @@ ofxImGuiExt::Settings::Settings()
 {}
 
 //--------------------------------------------------------------
-const char * ofxImGuiExt::GetUniqueName(ofAbstractParameter& parameter)
+const char * ofxImGui::GetUniqueName(ofAbstractParameter& parameter)
 {
 	return GetUniqueName(parameter.getName());
 }
 
 //--------------------------------------------------------------
-const char * ofxImGuiExt::GetUniqueName(const std::string& candidate)
+const char * ofxImGui::GetUniqueName(const std::string& candidate)
 {
 	std::string result = candidate;
 	while (std::find(windowOpen.usedNames.top().begin(), windowOpen.usedNames.top().end(), result) != windowOpen.usedNames.top().end())
@@ -30,14 +30,14 @@ const char * ofxImGuiExt::GetUniqueName(const std::string& candidate)
 }
 
 //--------------------------------------------------------------
-void ofxImGuiExt::SetNextWindow(Settings& settings)
+void ofxImGui::SetNextWindow(Settings& settings)
 {
 	settings.windowSize.x = 0;
 	settings.windowPos.y += settings.windowSize.y + kGuiMargin;
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::BeginWindow(ofParameter<bool>& parameter, Settings& settings, bool collapse)
+bool ofxImGui::BeginWindow(ofParameter<bool>& parameter, Settings& settings, bool collapse)
 {
 	if (settings.windowBlock)
 	{
@@ -49,13 +49,13 @@ bool ofxImGuiExt::BeginWindow(ofParameter<bool>& parameter, Settings& settings, 
 	windowOpen.parameter = dynamic_pointer_cast<ofParameter<bool>>(parameter.newReference());
 	windowOpen.value = parameter.get();
 
-	auto result = ofxImGuiExt::BeginWindow(parameter.getName(), settings, collapse, &windowOpen.value);
+	auto result = ofxImGui::BeginWindow(parameter.getName(), settings, collapse, &windowOpen.value);
 	parameter = windowOpen.value;
 	return result;
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::BeginWindow(const string& name, Settings& settings, bool collapse, bool * open)
+bool ofxImGui::BeginWindow(const string& name, Settings& settings, bool collapse, bool * open)
 {
 	if (settings.windowBlock)
 	{
@@ -75,7 +75,7 @@ bool ofxImGuiExt::BeginWindow(const string& name, Settings& settings, bool colla
 }
 
 //--------------------------------------------------------------
-void ofxImGuiExt::EndWindow(Settings& settings)
+void ofxImGui::EndWindow(Settings& settings)
 {
 	if (!settings.windowBlock)
 	{
@@ -111,13 +111,13 @@ void ofxImGuiExt::EndWindow(Settings& settings)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::BeginTree(ofAbstractParameter& parameter, Settings& settings)
+bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
 {
-	return ofxImGuiExt::BeginTree(parameter.getName(), settings);
+	return ofxImGui::BeginTree(parameter.getName(), settings);
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::BeginTree(const string& name, Settings& settings)
+bool ofxImGui::BeginTree(const string& name, Settings& settings)
 {
 	bool result;
 	ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
@@ -140,7 +140,7 @@ bool ofxImGuiExt::BeginTree(const string& name, Settings& settings)
 }
 
 //--------------------------------------------------------------
-void ofxImGuiExt::EndTree(Settings& settings)
+void ofxImGui::EndTree(Settings& settings)
 {
 	settings.treeLevel = std::max(0, settings.treeLevel - 1);
 
@@ -151,21 +151,21 @@ void ofxImGuiExt::EndTree(Settings& settings)
 }
 
 //--------------------------------------------------------------
-void ofxImGuiExt::AddGroup(ofParameterGroup& group, Settings& settings)
+void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 {
 	bool prevWindowBlock = settings.windowBlock;
 	if (settings.windowBlock)
 	{
-		if (!ofxImGuiExt::BeginTree(group, settings))
+		if (!ofxImGui::BeginTree(group, settings))
 		{
 			return;
 		}
 	}
 	else
 	{
-		if (!ofxImGuiExt::BeginWindow(group.getName().c_str(), settings))
+		if (!ofxImGui::BeginWindow(group.getName().c_str(), settings))
 		{
-			ofxImGuiExt::EndWindow(settings);
+			ofxImGui::EndWindow(settings);
 			return;
 		}
 	}
@@ -177,7 +177,7 @@ void ofxImGuiExt::AddGroup(ofParameterGroup& group, Settings& settings)
 		if (parameterGroup)
 		{
 			// Recurse through contents.
-			ofxImGuiExt::AddGroup(*parameterGroup, settings);
+			ofxImGui::AddGroup(*parameterGroup, settings);
 			continue;
 		}
 
@@ -185,61 +185,61 @@ void ofxImGuiExt::AddGroup(ofParameterGroup& group, Settings& settings)
 		auto parameterVec2f = dynamic_pointer_cast<ofParameter<glm::vec2>>(parameter);
 		if (parameterVec2f)
 		{
-			ofxImGuiExt::AddParameter(*parameterVec2f);
+			ofxImGui::AddParameter(*parameterVec2f);
 			continue;
 		}
 		auto parameterVec3f = dynamic_pointer_cast<ofParameter<glm::vec3>>(parameter);
 		if (parameterVec3f)
 		{
-			ofxImGuiExt::AddParameter(*parameterVec3f);
+			ofxImGui::AddParameter(*parameterVec3f);
 			continue;
 		}
 		auto parameterVec4f = dynamic_pointer_cast<ofParameter<glm::vec4>>(parameter);
 		if (parameterVec4f)
 		{
-			ofxImGuiExt::AddParameter(*parameterVec4f);
+			ofxImGui::AddParameter(*parameterVec4f);
 			continue;
 		}
 		auto parameterOfVec2f = dynamic_pointer_cast<ofParameter<ofVec2f>>(parameter);
 		if (parameterOfVec2f)
 		{
-			ofxImGuiExt::AddParameter(*parameterOfVec2f);
+			ofxImGui::AddParameter(*parameterOfVec2f);
 			continue;
 		}
 		auto parameterOfVec3f = dynamic_pointer_cast<ofParameter<ofVec3f>>(parameter);
 		if (parameterOfVec3f)
 		{
-			ofxImGuiExt::AddParameter(*parameterOfVec3f);
+			ofxImGui::AddParameter(*parameterOfVec3f);
 			continue;
 		}
 		auto parameterOfVec4f = dynamic_pointer_cast<ofParameter<ofVec4f>>(parameter);
 		if (parameterOfVec4f)
 		{
-			ofxImGuiExt::AddParameter(*parameterOfVec4f);
+			ofxImGui::AddParameter(*parameterOfVec4f);
 			continue;
 		}
 		auto parameterFloatColor = dynamic_pointer_cast<ofParameter<ofFloatColor>>(parameter);
 		if (parameterFloatColor)
 		{
-			ofxImGuiExt::AddParameter(*parameterFloatColor);
+			ofxImGui::AddParameter(*parameterFloatColor);
 			continue;
 		}
 		auto parameterFloat = dynamic_pointer_cast<ofParameter<float>>(parameter);
 		if (parameterFloat)
 		{
-			ofxImGuiExt::AddParameter(*parameterFloat);
+			ofxImGui::AddParameter(*parameterFloat);
 			continue;
 		}
 		auto parameterInt = dynamic_pointer_cast<ofParameter<int>>(parameter);
 		if (parameterInt)
 		{
-			ofxImGuiExt::AddParameter(*parameterInt);
+			ofxImGui::AddParameter(*parameterInt);
 			continue;
 		}
 		auto parameterBool = dynamic_pointer_cast<ofParameter<bool>>(parameter);
 		if (parameterBool)
 		{
-			ofxImGuiExt::AddParameter(*parameterBool);
+			ofxImGui::AddParameter(*parameterBool);
 			continue;
 		}
 
@@ -249,17 +249,17 @@ void ofxImGuiExt::AddGroup(ofParameterGroup& group, Settings& settings)
 	if (settings.windowBlock && !prevWindowBlock)
 	{
 		// End window if we created it.
-		ofxImGuiExt::EndWindow(settings);
+		ofxImGui::EndWindow(settings);
 	}
 	else
 	{
 		// End tree.
-		ofxImGuiExt::EndTree(settings);
+		ofxImGui::EndTree(settings);
 	}
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<glm::tvec2<int>>& parameter)
+bool ofxImGui::AddParameter(ofParameter<glm::tvec2<int>>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderInt2(GetUniqueName(parameter), glm::value_ptr(tmpRef), parameter.getMin().x, parameter.getMax().x))
@@ -271,7 +271,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<glm::tvec2<int>>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<glm::tvec3<int>>& parameter)
+bool ofxImGui::AddParameter(ofParameter<glm::tvec3<int>>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderInt3(GetUniqueName(parameter), glm::value_ptr(tmpRef), parameter.getMin().x, parameter.getMax().x))
@@ -283,7 +283,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<glm::tvec3<int>>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<glm::tvec4<int>>& parameter)
+bool ofxImGui::AddParameter(ofParameter<glm::tvec4<int>>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderInt4(GetUniqueName(parameter), glm::value_ptr(tmpRef), parameter.getMin().x, parameter.getMax().x))
@@ -295,7 +295,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<glm::tvec4<int>>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<glm::vec2>& parameter)
+bool ofxImGui::AddParameter(ofParameter<glm::vec2>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderFloat2(GetUniqueName(parameter), glm::value_ptr(tmpRef), parameter.getMin().x, parameter.getMax().x))
@@ -307,7 +307,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<glm::vec2>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<glm::vec3>& parameter)
+bool ofxImGui::AddParameter(ofParameter<glm::vec3>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderFloat3(GetUniqueName(parameter), glm::value_ptr(tmpRef), parameter.getMin().x, parameter.getMax().x))
@@ -319,7 +319,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<glm::vec3>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<glm::vec4>& parameter)
+bool ofxImGui::AddParameter(ofParameter<glm::vec4>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderFloat4(GetUniqueName(parameter), glm::value_ptr(tmpRef), parameter.getMin().x, parameter.getMax().x))
@@ -331,7 +331,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<glm::vec4>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<ofVec2f>& parameter)
+bool ofxImGui::AddParameter(ofParameter<ofVec2f>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderFloat2(GetUniqueName(parameter), tmpRef.getPtr(), parameter.getMin().x, parameter.getMax().x))
@@ -343,7 +343,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<ofVec2f>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<ofVec3f>& parameter)
+bool ofxImGui::AddParameter(ofParameter<ofVec3f>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderFloat3(GetUniqueName(parameter), tmpRef.getPtr(), parameter.getMin().x, parameter.getMax().x))
@@ -355,7 +355,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<ofVec3f>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<ofVec4f>& parameter)
+bool ofxImGui::AddParameter(ofParameter<ofVec4f>& parameter)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::SliderFloat4(GetUniqueName(parameter), tmpRef.getPtr(), parameter.getMin().x, parameter.getMax().x))
@@ -367,7 +367,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<ofVec4f>& parameter)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha)
+bool ofxImGui::AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha)
 {
 	auto tmpRef = parameter.get();
 	if (alpha)
@@ -387,7 +387,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha)
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddRadio(ofParameter<int>& parameter, vector<string> labels, int columns)
+bool ofxImGui::AddRadio(ofParameter<int>& parameter, vector<string> labels, int columns)
 {
 	ImGui::Text(parameter.getName().c_str());
 	auto result = false;
@@ -411,7 +411,7 @@ bool ofxImGuiExt::AddRadio(ofParameter<int>& parameter, vector<string> labels, i
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
+bool ofxImGui::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
 {
 	auto tmpRef = parameter.get();
 	if (ImGui::InputInt(GetUniqueName(parameter), &tmpRef, step, stepFast))
@@ -423,7 +423,7 @@ bool ofxImGuiExt::AddStepper(ofParameter<int>& parameter, int step, int stepFast
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddRange(const string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed)
+bool ofxImGui::AddRange(const string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed)
 {
 	auto tmpRefMin = parameterMin.get();
 	auto tmpRefMax = parameterMax.get();
@@ -437,7 +437,7 @@ bool ofxImGuiExt::AddRange(const string& name, ofParameter<float>& parameterMin,
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<glm::tvec2<int>>& values, int minValue, int maxValue)
+bool ofxImGui::AddValues(const string& name, vector<glm::tvec2<int>>& values, int minValue, int maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -449,7 +449,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<glm::tvec2<int>>& values,
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<glm::tvec3<int>>& values, int minValue, int maxValue)
+bool ofxImGui::AddValues(const string& name, vector<glm::tvec3<int>>& values, int minValue, int maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -461,7 +461,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<glm::tvec3<int>>& values,
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<glm::tvec4<int>>& values, int minValue, int maxValue)
+bool ofxImGui::AddValues(const string& name, vector<glm::tvec4<int>>& values, int minValue, int maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -473,7 +473,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<glm::tvec4<int>>& values,
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<glm::vec2>& values, float minValue, float maxValue)
+bool ofxImGui::AddValues(const string& name, vector<glm::vec2>& values, float minValue, float maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -485,7 +485,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<glm::vec2>& values, float
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<glm::vec3>& values, float minValue, float maxValue)
+bool ofxImGui::AddValues(const string& name, vector<glm::vec3>& values, float minValue, float maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -497,7 +497,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<glm::vec3>& values, float
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<glm::vec4>& values, float minValue, float maxValue)
+bool ofxImGui::AddValues(const string& name, vector<glm::vec4>& values, float minValue, float maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -509,7 +509,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<glm::vec4>& values, float
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<ofVec2f>& values, float minValue, float maxValue)
+bool ofxImGui::AddValues(const string& name, vector<ofVec2f>& values, float minValue, float maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -521,7 +521,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<ofVec2f>& values, float m
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<ofVec3f>& values, float minValue, float maxValue)
+bool ofxImGui::AddValues(const string& name, vector<ofVec3f>& values, float minValue, float maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -533,7 +533,7 @@ bool ofxImGuiExt::AddValues(const string& name, vector<ofVec3f>& values, float m
 }
 
 //--------------------------------------------------------------
-bool ofxImGuiExt::AddValues(const string& name, vector<ofVec4f>& values, float minValue, float maxValue)
+bool ofxImGui::AddValues(const string& name, vector<ofVec4f>& values, float minValue, float maxValue)
 {
 	auto result = false;
 	for (int i = 0; i < values.size(); ++i)
@@ -545,13 +545,13 @@ bool ofxImGuiExt::AddValues(const string& name, vector<ofVec4f>& values, float m
 }
 
 //--------------------------------------------------------------
-void ofxImGuiExt::AddImage(ofBaseHasTexture& hasTexture, const glm::vec2& size)
+void ofxImGui::AddImage(ofBaseHasTexture& hasTexture, const glm::vec2& size)
 {
-	ofxImGuiExt::AddImage(hasTexture.getTexture(), size);
+	ofxImGui::AddImage(hasTexture.getTexture(), size);
 }
 
 //--------------------------------------------------------------
-void ofxImGuiExt::AddImage(ofTexture& texture, const glm::vec2& size)
+void ofxImGui::AddImage(ofTexture& texture, const glm::vec2& size)
 {
 	ImTextureID textureID = (ImTextureID)(uintptr_t)texture.texData.textureID;
 	ImGui::Image(textureID, size);

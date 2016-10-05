@@ -6,7 +6,7 @@
 
 static const int kGuiMargin = 10;
 
-namespace ofxImGuiExt
+namespace ofxImGui
 {
 	struct WindowOpen
 	{
@@ -88,7 +88,7 @@ namespace ofxImGuiExt
 
 //--------------------------------------------------------------
 template<typename ParameterType>
-bool ofxImGuiExt::AddParameter(ofParameter<ParameterType>& parameter)
+bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 {
 	auto tmpRef = parameter.get();
 	const auto& info = typeid(ParameterType);
@@ -126,7 +126,7 @@ bool ofxImGuiExt::AddParameter(ofParameter<ParameterType>& parameter)
 
 //--------------------------------------------------------------
 template<typename DataType>
-bool ofxImGuiExt::AddValues(const string& name, vector<DataType>& values, DataType minValue, DataType maxValue)
+bool ofxImGui::AddValues(const string& name, vector<DataType>& values, DataType minValue, DataType maxValue)
 {
 	auto result = false;
 	const auto& info = typeid(DataType);
