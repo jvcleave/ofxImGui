@@ -11,6 +11,7 @@
     #include "EngineGLFW.h"
 #endif
 
+#include "Helpers.h"
 
 class ofxImGui
 {
