@@ -46,7 +46,7 @@ protected:
 	// Gui
 	bool imGui();
 
-	ofxImGui gui;
+	ofxImGui::Gui gui;
 	bool guiVisible;
 	bool mouseOverGui;
 

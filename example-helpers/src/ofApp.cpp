@@ -176,33 +176,33 @@ bool ofApp::loadImage(const string & filePath)
 //--------------------------------------------------------------
 bool ofApp::imGui()
 {
-	auto mainSettings = ofxImGuiExt::Settings();
+	auto mainSettings = ofxImGui::Settings();
 
 	this->gui.begin();
 	{
-		if (ofxImGuiExt::BeginWindow("Helpers", mainSettings, false))
+		if (ofxImGui::BeginWindow("Helpers", mainSettings, false))
 		{
 			ImGui::Text("%.1f FPS (%.3f ms/frame)", ofGetFrameRate(), 1000.0f / ImGui::GetIO().Framerate);
 
-			if (ofxImGuiExt::BeginTree(this->colors, mainSettings))
+			if (ofxImGui::BeginTree(this->colors, mainSettings))
 			{
-				ofxImGuiExt::AddParameter(this->background, false);
-				ofxImGuiExt::AddParameter(this->foreground);
+				ofxImGui::AddParameter(this->background, false);
+				ofxImGui::AddParameter(this->foreground);
 
-				ofxImGuiExt::EndTree(mainSettings);
+				ofxImGui::EndTree(mainSettings);
 			}
 
-			if (ofxImGuiExt::BeginTree(this->mesh, mainSettings))
+			if (ofxImGui::BeginTree(this->mesh, mainSettings))
 			{
-				ofxImGuiExt::AddParameter(this->enabled);
-				ofxImGuiExt::AddRange("Size Range", this->sizeMin, this->sizeMax, 1.0f);
-				ofxImGuiExt::AddParameter(this->speed);
+				ofxImGui::AddParameter(this->enabled);
+				ofxImGui::AddRange("Size Range", this->sizeMin, this->sizeMax, 1.0f);
+				ofxImGui::AddParameter(this->speed);
 				ImGui::Text("Size: %.2f", this->cubeSize);
 
-				ofxImGuiExt::EndTree(mainSettings);
+				ofxImGui::EndTree(mainSettings);
 			}
 
-			if (ofxImGuiExt::BeginTree(this->render, mainSettings))
+			if (ofxImGui::BeginTree(this->render, mainSettings))
 			{
 				if (ImGui::Button("Load Image..."))
 				{
@@ -215,31 +215,31 @@ bool ofApp::imGui()
 
 				static const vector<string> labels = { "None", "Color", "Texture" };
 
-				ofxImGuiExt::AddRadio(this->fillMode, labels, 3);
-				ofxImGuiExt::AddRadio(this->strokeMode, labels, 3);
+				ofxImGui::AddRadio(this->fillMode, labels, 3);
+				ofxImGui::AddRadio(this->strokeMode, labels, 3);
 
 				if (this->texture.isAllocated())
 				{
-					ofxImGuiExt::AddParameter(this->preview);
+					ofxImGui::AddParameter(this->preview);
 				}
 
-				ofxImGuiExt::EndTree(mainSettings);
+				ofxImGui::EndTree(mainSettings);
 			}
 		}
-		ofxImGuiExt::EndWindow(mainSettings);
+		ofxImGui::EndWindow(mainSettings);
 
 		if (this->preview)
 		{
 			static const float kPreviewSize = 256.0f;
-			auto previewSettings = ofxImGuiExt::Settings();
+			auto previewSettings = ofxImGui::Settings();
 			previewSettings.windowPos = glm::vec2(ofGetWidth() - kPreviewSize - kGuiMargin * 3, kGuiMargin);
 			previewSettings.windowSize = glm::vec2(kPreviewSize, kPreviewSize);
 
-			if (ofxImGuiExt::BeginWindow(this->preview, previewSettings, false))
+			if (ofxImGui::BeginWindow(this->preview, previewSettings, false))
 			{
-				ofxImGuiExt::AddImage(this->texture, previewSettings.windowSize);
+				ofxImGui::AddImage(this->texture, previewSettings.windowSize);
 			}
-			ofxImGuiExt::EndWindow(previewSettings);
+			ofxImGui::EndWindow(previewSettings);
 		}
 	}
 	this->gui.end();

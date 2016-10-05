@@ -21,7 +21,7 @@ public:
     void gotMessage(ofMessage msg);
     void mouseScrolled(float x, float y);
     
-    ofxImGui gui;
+    ofxImGui::Gui gui;
     ImVec4 backgroundColor;
     bool show_test_window;
     bool show_another_window;
