@@ -18,7 +18,6 @@ namespace ofxImGui
 		col_main_area = ofColor::fromHex(0x333844);
 		col_win_popup = ofColor::fromHex(0x77c4d3);
 		col_win_backg = ofColor::fromHex(0x21232b);
-
 	}
 
 	//--------------------------------------------------------------

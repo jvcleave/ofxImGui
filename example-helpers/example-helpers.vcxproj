@@ -195,8 +195,8 @@
     <ClInclude Include="..\src\EngineOpenGLES.h" />
     <ClInclude Include="..\src\Gui.h" />
     <ClInclude Include="..\src\Helpers.h" />
+    <ClInclude Include="..\src\imconfig.h" />
     <ClInclude Include="..\src\ofxImGui.h" />
-    <ClInclude Include="..\src\ofxImGui\imconfig.h" />
     <ClInclude Include="..\src\ThemeTest.h" />
     <ClInclude Include="src\ofApp.h" />
   </ItemGroup>

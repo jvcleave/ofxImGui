@@ -174,12 +174,12 @@
     <ClCompile Include="..\libs\imgui\src\imgui.cpp" />
     <ClCompile Include="..\libs\imgui\src\imgui_demo.cpp" />
     <ClCompile Include="..\libs\imgui\src\imgui_draw.cpp" />
-    <ClCompile Include="..\src\ofxImGui\BaseEngine.cpp" />
-    <ClCompile Include="..\src\ofxImGui\BaseTheme.cpp" />
-    <ClCompile Include="..\src\ofxImGui\EngineGLFW.cpp" />
-    <ClCompile Include="..\src\ofxImGui\EngineOpenGLES.cpp" />
-    <ClCompile Include="..\src\ofxImGui\Gui.cpp" />
-    <ClCompile Include="..\src\ofxImGui\Helpers.cpp" />
+    <ClCompile Include="..\src\BaseEngine.cpp" />
+    <ClCompile Include="..\src\BaseTheme.cpp" />
+    <ClCompile Include="..\src\EngineGLFW.cpp" />
+    <ClCompile Include="..\src\EngineOpenGLES.cpp" />
+    <ClCompile Include="..\src\Gui.cpp" />
+    <ClCompile Include="..\src\Helpers.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
   </ItemGroup>
@@ -189,14 +189,14 @@
     <ClInclude Include="..\libs\imgui\src\stb_rect_pack.h" />
     <ClInclude Include="..\libs\imgui\src\stb_textedit.h" />
     <ClInclude Include="..\libs\imgui\src\stb_truetype.h" />
+    <ClInclude Include="..\src\BaseEngine.h" />
+    <ClInclude Include="..\src\BaseTheme.h" />
+    <ClInclude Include="..\src\EngineGLFW.h" />
+    <ClInclude Include="..\src\EngineOpenGLES.h" />
+    <ClInclude Include="..\src\Gui.h" />
+    <ClInclude Include="..\src\Helpers.h" />
     <ClInclude Include="..\src\imconfig.h" />
     <ClInclude Include="..\src\ofxImGui.h" />
-    <ClInclude Include="..\src\ofxImGui\BaseEngine.h" />
-    <ClInclude Include="..\src\ofxImGui\BaseTheme.h" />
-    <ClInclude Include="..\src\ofxImGui\EngineGLFW.h" />
-    <ClInclude Include="..\src\ofxImGui\EngineOpenGLES.h" />
-    <ClInclude Include="..\src\ofxImGui\Gui.h" />
-    <ClInclude Include="..\src\ofxImGui\Helpers.h" />
     <ClInclude Include="..\src\ThemeTest.h" />
     <ClInclude Include="src\ofApp.h" />
   </ItemGroup>

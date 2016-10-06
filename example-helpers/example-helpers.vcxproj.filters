@@ -80,9 +80,6 @@
     <ClInclude Include="..\src\ofxImGui.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\imconfig.h">
-      <Filter>addons\ofxImGui\src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ThemeTest.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
@@ -102,6 +99,9 @@
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Helpers.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\imconfig.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -16,23 +16,23 @@
     <ClCompile Include="..\libs\imgui\src\imgui_draw.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGui\BaseEngine.cpp">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
+    <ClCompile Include="..\src\BaseEngine.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGui\BaseTheme.cpp">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
+    <ClCompile Include="..\src\BaseTheme.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGui\EngineGLFW.cpp">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
+    <ClCompile Include="..\src\EngineGLFW.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGui\EngineOpenGLES.cpp">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
+    <ClCompile Include="..\src\EngineOpenGLES.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGui\Gui.cpp">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
+    <ClCompile Include="..\src\Gui.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGui\Helpers.cpp">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
+    <ClCompile Include="..\src\Helpers.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +57,6 @@
     <Filter Include="addons\ofxImGui\libs\imgui\src">
       <UniqueIdentifier>{ef257726-8a1c-41e7-8e73-0eeb6ceb7615}</UniqueIdentifier>
     </Filter>
-    <Filter Include="addons\ofxImGui\src\ofxImGui">
-      <UniqueIdentifier>{90e80c5e-eaea-4c72-bef9-7db9779927d6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ofApp.h">
@@ -80,6 +77,24 @@
     <ClInclude Include="..\libs\imgui\src\stb_truetype.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\BaseEngine.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\BaseTheme.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\EngineGLFW.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\EngineOpenGLES.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Gui.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Helpers.h">
+      <Filter>addons\ofxImGui\src</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\imconfig.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
@@ -88,24 +103,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ThemeTest.h">
       <Filter>addons\ofxImGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\BaseEngine.h">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\BaseTheme.h">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\EngineGLFW.h">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\EngineOpenGLES.h">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\Gui.h">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ofxImGui\Helpers.h">
-      <Filter>addons\ofxImGui\src\ofxImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
