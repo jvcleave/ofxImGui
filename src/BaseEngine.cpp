@@ -1,5 +1,6 @@
 #include "BaseEngine.h"
 
+#include "ofAppRunner.h"
 #include "imgui.h"
 
 namespace ofxImGui

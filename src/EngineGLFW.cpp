@@ -2,6 +2,9 @@
 
 #if !defined(TARGET_OPENGLES)
 
+#include "ofAppGLFWWindow.h"
+#include "ofGLProgrammableRenderer.h"
+
 namespace ofxImGui
 {
 	GLuint EngineGLFW::g_FontTexture = 0;

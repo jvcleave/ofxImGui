@@ -5,7 +5,6 @@
 //-----------------------------------------------------------------------------
 
 #pragma once
-#include "ofMain.h"
 
 //---- Define assertion handler. Defaults to calling assert().
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)
@@ -34,6 +33,9 @@
 //#define IMGUI_STB_NAMESPACE     ImGuiStb
 
 //---- Define constructor and implicit cast operators to convert back<>forth from your math types and ImVec2/ImVec4.
+
+#include "ofVectorMath.h"
+#include "ofColor.h"
 
 #define IM_VEC2_CLASS_EXTRA							\
 ImVec2(const ofVec2f& f) { x = f.x; y = f.y; }		\
