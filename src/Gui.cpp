@@ -1,5 +1,7 @@
 #include "Gui.h"
 
+#include "ofAppRunner.h"
+
 #if defined(TARGET_OPENGLES)
 #include "EngineOpenGLES.h"
 #else
