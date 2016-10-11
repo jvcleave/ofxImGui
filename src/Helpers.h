@@ -19,8 +19,8 @@ namespace ofxImGui
 	{
 		Settings();
 
-		glm::vec2 windowPos;
-		glm::vec2 windowSize;
+		ofVec2f windowPos;
+		ofVec2f windowSize;
 		bool mouseOverGui;
 		bool windowBlock;
 		int treeLevel;
@@ -45,6 +45,7 @@ namespace ofxImGui
 
 	void AddGroup(ofParameterGroup& group, Settings& settings);
 
+#if OF_VERSION_MINOR >= 10
 	bool AddParameter(ofParameter<glm::ivec2>& parameter);
 	bool AddParameter(ofParameter<glm::ivec3>& parameter);
 	bool AddParameter(ofParameter<glm::ivec4>& parameter);
@@ -52,6 +53,7 @@ namespace ofxImGui
 	bool AddParameter(ofParameter<glm::vec2>& parameter);
 	bool AddParameter(ofParameter<glm::vec3>& parameter);
 	bool AddParameter(ofParameter<glm::vec4>& parameter);
+#endif
 
 	bool AddParameter(ofParameter<ofVec2f>& parameter);
 	bool AddParameter(ofParameter<ofVec3f>& parameter);
@@ -67,6 +69,7 @@ namespace ofxImGui
 
 	bool AddRange(const string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed = 0.01f);
 
+#if OF_VERSION_MINOR >= 10
 	bool AddValues(const string& name, vector<glm::ivec2>& values, int minValue, int maxValue);
 	bool AddValues(const string& name, vector<glm::ivec3>& values, int minValue, int maxValue);
 	bool AddValues(const string& name, vector<glm::ivec4>& values, int minValue, int maxValue);
@@ -74,6 +77,7 @@ namespace ofxImGui
 	bool AddValues(const string& name, vector<glm::vec2>& values, float minValue, float maxValue);
 	bool AddValues(const string& name, vector<glm::vec3>& values, float minValue, float maxValue);
 	bool AddValues(const string& name, vector<glm::vec4>& values, float minValue, float maxValue);
+#endif
 
 	bool AddValues(const string& name, vector<ofVec2f>& values, float minValue, float maxValue);
 	bool AddValues(const string& name, vector<ofVec3f>& values, float minValue, float maxValue);
@@ -82,8 +86,8 @@ namespace ofxImGui
 	template<typename DataType>
 	bool AddValues(const string& name, vector<DataType>& values, DataType minValue, DataType maxValue);
 
-	void AddImage(ofBaseHasTexture& hasTexture, const glm::vec2& size);
-	void AddImage(ofTexture& texture, const glm::vec2& size);
+	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
+	void AddImage(ofTexture& texture, const ofVec2f& size);
 }
 
 //--------------------------------------------------------------

@@ -182,6 +182,7 @@ void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 		}
 
 		// Parameter, try everything we know how to handle.
+#if OF_VERSION_MINOR >= 10
 		auto parameterVec2f = dynamic_pointer_cast<ofParameter<glm::vec2>>(parameter);
 		if (parameterVec2f)
 		{
@@ -200,6 +201,7 @@ void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 			ofxImGui::AddParameter(*parameterVec4f);
 			continue;
 		}
+#endif
 		auto parameterOfVec2f = dynamic_pointer_cast<ofParameter<ofVec2f>>(parameter);
 		if (parameterOfVec2f)
 		{
@@ -257,6 +259,8 @@ void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 		ofxImGui::EndTree(settings);
 	}
 }
+
+#if OF_VERSION_MINOR >= 10
 
 //--------------------------------------------------------------
 bool ofxImGui::AddParameter(ofParameter<glm::tvec2<int>>& parameter)
@@ -329,6 +333,8 @@ bool ofxImGui::AddParameter(ofParameter<glm::vec4>& parameter)
 	}
 	return false;
 }
+
+#endif
 
 //--------------------------------------------------------------
 bool ofxImGui::AddParameter(ofParameter<ofVec2f>& parameter)
@@ -436,6 +442,8 @@ bool ofxImGui::AddRange(const string& name, ofParameter<float>& parameterMin, of
 	return false;
 }
 
+#if OF_VERSION_MINOR >= 10
+
 //--------------------------------------------------------------
 bool ofxImGui::AddValues(const string& name, vector<glm::tvec2<int>>& values, int minValue, int maxValue)
 {
@@ -508,6 +516,8 @@ bool ofxImGui::AddValues(const string& name, vector<glm::vec4>& values, float mi
 	return result;
 }
 
+#endif
+
 //--------------------------------------------------------------
 bool ofxImGui::AddValues(const string& name, vector<ofVec2f>& values, float minValue, float maxValue)
 {
@@ -545,13 +555,13 @@ bool ofxImGui::AddValues(const string& name, vector<ofVec4f>& values, float minV
 }
 
 //--------------------------------------------------------------
-void ofxImGui::AddImage(ofBaseHasTexture& hasTexture, const glm::vec2& size)
+void ofxImGui::AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size)
 {
 	ofxImGui::AddImage(hasTexture.getTexture(), size);
 }
 
 //--------------------------------------------------------------
-void ofxImGui::AddImage(ofTexture& texture, const glm::vec2& size)
+void ofxImGui::AddImage(ofTexture& texture, const ofVec2f& size)
 {
 	ImTextureID textureID = (ImTextureID)(uintptr_t)texture.texData.textureID;
 	ImGui::Image(textureID, size);

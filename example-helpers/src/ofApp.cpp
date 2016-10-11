@@ -232,8 +232,8 @@ bool ofApp::imGui()
 		{
 			static const float kPreviewSize = 256.0f;
 			auto previewSettings = ofxImGui::Settings();
-			previewSettings.windowPos = glm::vec2(ofGetWidth() - kPreviewSize - kGuiMargin * 3, kGuiMargin);
-			previewSettings.windowSize = glm::vec2(kPreviewSize, kPreviewSize);
+			previewSettings.windowPos = ofVec2f(ofGetWidth() - kPreviewSize - kGuiMargin * 3, kGuiMargin);
+			previewSettings.windowSize = ofVec2f(kPreviewSize, kPreviewSize);
 
 			if (ofxImGui::BeginWindow(this->preview, previewSettings, false))
 			{
