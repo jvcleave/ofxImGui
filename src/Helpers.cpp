@@ -1,7 +1,5 @@
 #include "Helpers.h"
 
-#include "imgui.h"
-
 //--------------------------------------------------------------
 ofxImGui::Settings::Settings()
 	: windowPos(kGuiMargin, kGuiMargin)
