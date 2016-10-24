@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ofConstants.h"
 #if !defined(TARGET_OPENGLES)
 
 #include "BaseEngine.h"

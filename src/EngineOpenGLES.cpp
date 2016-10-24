@@ -2,6 +2,8 @@
 
 #if defined(TARGET_OPENGLES)
 
+#include "ofAppRunner.h"
+
 namespace ofxImGui
 {
 	ofShader EngineOpenGLES::g_Shader;

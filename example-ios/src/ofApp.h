@@ -23,7 +23,7 @@ public:
     void gotMemoryWarning();
     void deviceOrientationChanged(int newOrientation);
     
-    ofxImGui gui;
+    ofxImGui::Gui gui;
     ImVec4 backgroundColor;
     bool show_test_window;
     bool show_another_window;
