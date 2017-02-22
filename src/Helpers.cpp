@@ -73,6 +73,26 @@ bool ofxImGui::BeginWindow(const string& name, Settings& settings, bool collapse
 }
 
 //--------------------------------------------------------------
+bool ofxImGui::BeginWindow(const string& name, Settings& settings, ImGuiWindowFlags flags, bool * open)
+{
+        if (settings.windowBlock)
+        {
+                ofLogWarning(__FUNCTION__) << "Already inside a window block!";
+                return false;
+        }
+
+        settings.windowBlock = true;
+
+        // Push a new list of names onto the stack.
+        windowOpen.usedNames.push(std::vector<std::string>());
+
+        ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiSetCond_Appearing);
+        return ImGui::Begin(name.c_str(), open, flags);
+}
+
+//--------------------------------------------------------------
 void ofxImGui::EndWindow(Settings& settings)
 {
 	if (!settings.windowBlock)

@@ -38,6 +38,7 @@ namespace ofxImGui
 	void SetNextWindow(Settings& settings);
 	bool BeginWindow(ofParameter<bool>& parameter, Settings& settings, bool collapse = true);
 	bool BeginWindow(const string& name, Settings& settings, bool collapse = true, bool * open = nullptr);
+	bool BeginWindow(const string& name, Settings& settings, ImGuiWindowFlags flags, bool * open = nullptr);
 	void EndWindow(Settings& settings);
 
 	bool BeginTree(ofAbstractParameter& parameter, Settings& settings);
