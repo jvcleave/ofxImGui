@@ -28,7 +28,7 @@ void ofApp::draw()
 {
 	// We have to use ofParameter::get() since this we are using an ofFloatColor.
 	ofClear(this->background.get());
-	
+
 	this->camera.begin();
 	{
 		ofEnableDepthTest();
@@ -155,7 +155,7 @@ bool ofApp::loadImage(const string & filePath)
 {
 	ofImage image;
 	image.setUseTexture(false);
-	if (!image.load(filePath)) 
+	if (!image.load(filePath))
 	{
 		ofLogError(__FUNCTION__) << "No image found at " << filePath;
 		return false;
@@ -232,7 +232,7 @@ bool ofApp::imGui()
 		{
 			static const float kPreviewSize = 256.0f;
 			auto previewSettings = ofxImGui::Settings();
-			previewSettings.windowPos = ofVec2f(ofGetWidth() - kPreviewSize - kGuiMargin * 3, kGuiMargin);
+			previewSettings.windowPos = ofVec2f(ofGetWidth() - kPreviewSize - kImGuiMargin * 3, kImGuiMargin);
 			previewSettings.windowSize = ofVec2f(kPreviewSize, kPreviewSize);
 
 			if (ofxImGui::BeginWindow(this->preview, previewSettings, false))

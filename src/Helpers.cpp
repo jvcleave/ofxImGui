@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 ofxImGui::Settings::Settings()
-	: windowPos(kGuiMargin, kGuiMargin)
+	: windowPos(kImGuiMargin, kImGuiMargin)
 	, windowSize(ofVec2f::zero())
 	, windowBlock(false)
 	, treeLevel(0)
@@ -31,7 +31,7 @@ const char * ofxImGui::GetUniqueName(const std::string& candidate)
 void ofxImGui::SetNextWindow(Settings& settings)
 {
 	settings.windowSize.x = 0;
-	settings.windowPos.y += settings.windowSize.y + kGuiMargin;
+	settings.windowPos.y += settings.windowSize.y + kImGuiMargin;
 }
 
 //--------------------------------------------------------------

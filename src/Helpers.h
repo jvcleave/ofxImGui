@@ -5,7 +5,7 @@
 #include "ofTexture.h"
 #include "imgui.h"
 
-static const int kGuiMargin = 10;
+static const int kImGuiMargin = 10;
 
 namespace ofxImGui
 {
