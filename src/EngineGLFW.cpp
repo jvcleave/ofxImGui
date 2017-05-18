@@ -1,6 +1,6 @@
 #include "EngineGLFW.h"
 
-#if !defined(TARGET_OPENGLES)
+#if !defined(TARGET_OPENGLES) && !defined(OF_TARGET_API_VULKAN)
 
 #include "ofAppGLFWWindow.h"
 #include "ofGLProgrammableRenderer.h"
@@ -382,12 +382,12 @@ namespace ofxImGui
 			glBindVertexArray(g_VaoHandle);
 			glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
 			glEnableVertexAttribArray(g_AttribLocationPosition);
-			glEnableVertexAttribArray(g_AttribLocationUV);
+			glEnableVertexAttribArray(g_UniformLocationUV);
 			glEnableVertexAttribArray(g_AttribLocationColor);
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 			glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
-			glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+			glVertexAttribPointer(g_UniformLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
 			glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
 #undef OFFSETOF
 
