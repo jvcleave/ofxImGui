@@ -184,10 +184,10 @@ namespace ofxImGui
 
 		const glm::mat4 ortho_projection =
 		{
-			{ 2.0f / io.DisplaySize.x, 0.0f,                   0.0f, 0.0f },
-			{ 0.0f,                  2.0f / io.DisplaySize.y, 0.0f, 0.0f },
-			{ 0.0f,                  0.0f,                     1.0f, 0.0f },
-			{ -1.f,                   -1.f,                      0.0f, 1.0f },
+			{ 2.0f / io.DisplaySize.x, 0.0f,                    0.0f, 0.0f },
+			{ 0.0f,                    2.0f / io.DisplaySize.y, 0.0f, 0.0f },
+			{ 0.0f,                    0.0f,                    1.0f, 0.0f },
+			{ -1.f,                    -1.f,                    0.0f, 1.0f },
 		};
 
 		// create a 
@@ -231,28 +231,28 @@ namespace ofxImGui
 
 	void EngineVk::onKeyReleased(ofKeyEventArgs& event)
 	{
-		int key = event.scancode;
+		int key = event.keycode;
 		
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
 
-		io.KeyCtrl  = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT]   || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-		io.KeyAlt   = io.KeysDown[GLFW_KEY_LEFT_ALT]     || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER]   || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+		io.KeyCtrl  = event.modifiers & GLFW_MOD_CONTROL;
+		io.KeyShift = event.modifiers & GLFW_MOD_SHIFT;
+		io.KeyAlt   = event.modifiers & GLFW_MOD_ALT;
+		io.KeySuper = event.modifiers & GLFW_MOD_SUPER;
 	}
 
 	//--------------------------------------------------------------
 	
 	void EngineVk::onKeyPressed(ofKeyEventArgs& event) {
-		int key = event.scancode;
+		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
 
-		io.KeyCtrl  = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT]   || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-		io.KeyAlt   = io.KeysDown[GLFW_KEY_LEFT_ALT]     || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER]   || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+		io.KeyCtrl  = event.modifiers & GLFW_MOD_CONTROL;
+		io.KeyShift = event.modifiers & GLFW_MOD_SHIFT;
+		io.KeyAlt   = event.modifiers & GLFW_MOD_ALT;
+		io.KeySuper = event.modifiers & GLFW_MOD_SUPER;
 
 		if (key < GLFW_KEY_ESCAPE)
 		{
@@ -294,7 +294,7 @@ namespace ofxImGui
 			.setLocation( 2 )
 			.setBinding( 0 )
 			.setOffset( offsetof( ImDrawVert, col ) )
-			.setFormat( ::vk::Format::eR8G8B8Unorm )
+			.setFormat( ::vk::Format::eR8G8B8A8Unorm )
 			;
 		
 		// only one binding description, as we're only using one binding.

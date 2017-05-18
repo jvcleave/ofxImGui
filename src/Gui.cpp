@@ -57,6 +57,7 @@ namespace ofxImGui
 		}
 		theme = theme_;
 		theme->updateColors();
+		theme->setup();
 	}
 
 	//--------------------------------------------------------------
