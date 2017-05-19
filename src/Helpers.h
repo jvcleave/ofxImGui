@@ -90,9 +90,27 @@ namespace ofxImGui
 
 	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
 	void AddImage(ofTexture& texture, const ofVec2f& size);
-}
+
+	/// \brief A logger channel that logs its messages to the console.
+	class LoggerChannel : public ofBaseLoggerChannel
+	{
+	public:
+	
+		static ImGuiTextBuffer & getBuffer();
+
+		/// \brief Destroy the console logger channel.
+		virtual ~LoggerChannel(){};
+		void log( ofLogLevel level, const string & module, const string & message );
+		void log( ofLogLevel level, const string & module, const char* format, ... ) OF_PRINTF_ATTR( 4, 5 );
+		void log( ofLogLevel level, const string & module, const char* format, va_list args );
+	};
+
+} // end namespace ofxImgui
+
+
 
 //--------------------------------------------------------------
+
 template<typename ParameterType>
 bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 {
