@@ -195,20 +195,21 @@ namespace ofxImGui
 
 		dc.setUniform( "modelViewProjectionMatrix", ortho_projection );
 
-		int vtx_offset = 0;
-		int idx_offset = 0;
-
 		for ( int n = 0; n < draw_data->CmdListsCount; n++ ){
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
-			
+
 			dc.allocAndSetAttribute( 0, (void*)cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof( ImDrawVert ), alloc );
 			dc.allocAndSetIndices(cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof( ImDrawIdx ), alloc );
 			
-			for ( int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++ ){
+			for ( int cmd_i = 0, idx_offset = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++ ){
 				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
 				if ( pcmd->UserCallback ){
 					pcmd->UserCallback( cmd_list, pcmd );
 				} else{
+
+					// Set texture from texture id stored with ImGui draw command
+					
+					dc.setTexture( "tex_unit_0", *( static_cast<of::vk::Texture*>( pcmd->TextureId ) ) );
 
 					//VkRect2D scissor;
 					//scissor.offset.x = (int32_t)( pcmd->ClipRect.x ) > 0 ? (int32_t)( pcmd->ClipRect.x ) : 0;
@@ -217,12 +218,11 @@ namespace ofxImGui
 					//scissor.extent.height = (uint32_t)( pcmd->ClipRect.w - pcmd->ClipRect.y + 1 ); // FIXME: Why +1 here?
 					//vkCmdSetScissor( g_CommandBuffer, 0, 1, &scissor );
 
-					batch->draw( dc, pcmd->ElemCount, 1, idx_offset, vtx_offset, 0 );
+					batch->draw( dc, pcmd->ElemCount, 1, idx_offset, 0, 0 );
 				}
 
 				idx_offset += pcmd->ElemCount;
 			}
-			vtx_offset += cmd_list->VtxBuffer.Size;
 		}
 
 	}
@@ -387,7 +387,7 @@ namespace ofxImGui
 		mFontTexture = std::make_shared<of::vk::Texture>( mRenderer->getVkDevice(), *mFontImage, samplerInfo );
 
 		// Store our identifier
-		io.Fonts->TexID = (void *)(mFontImage.get());
+		io.Fonts->TexID = (void *)( mFontTexture.get());
 
 		return true;
 	}
