@@ -7,7 +7,7 @@
 
 #include "ofEvents.h"
 #include "imgui.h"
-#include <vulkan\vulkan.hpp>
+#include <vulkan/vulkan.hpp>
 
 #include "vk/ImageAllocator.h"
 #include "vk/Context.h"
