@@ -21,6 +21,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 	{
+		ImGui::SetCurrentContext(ctx);
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
@@ -52,6 +53,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 	{
+		ImGui::SetCurrentContext(ctx);
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheel = event.scrollY;
 	}
@@ -59,6 +61,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onWindowResized(ofResizeEventArgs& window)
 	{
+		ImGui::SetCurrentContext(ctx);
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)window.width, (float)window.height);
 	}
