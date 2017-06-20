@@ -384,7 +384,9 @@ namespace ofxImGui
 			.setAddressModeW( ::vk::SamplerAddressMode::eRepeat )
 			;
 
-		mFontTexture = std::make_shared<of::vk::Texture>( mRenderer->getVkDevice(), *mFontImage, samplerInfo );
+		auto imageViewCreateInfo = of::vk::Texture::getDefaultImageViewCreateInfo(*mFontImage);
+
+		mFontTexture = std::make_shared<of::vk::Texture>( mRenderer->getVkDevice(), samplerInfo , imageViewCreateInfo);
 
 		// Store our identifier
 		io.Fonts->TexID = (void *)( mFontTexture.get());
