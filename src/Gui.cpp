@@ -163,11 +163,9 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::close()
 	{
-		// set Context
-		ImGui::SetCurrentContext(engine->getContext());
-
 		if (engine)
 		{
+			ImGui::SetCurrentContext(engine->getContext());
 			delete engine;
 			engine = nullptr;
 		}
