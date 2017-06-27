@@ -372,7 +372,7 @@ namespace ofxImGui
 			g_UniformLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
 			g_UniformLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
 			g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
-			g_UniformLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
+			g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
 			g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
 
 			glGenBuffers(1, &g_VboHandle);
@@ -382,12 +382,12 @@ namespace ofxImGui
 			glBindVertexArray(g_VaoHandle);
 			glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
 			glEnableVertexAttribArray(g_AttribLocationPosition);
-			glEnableVertexAttribArray(g_UniformLocationUV);
+			glEnableVertexAttribArray(g_AttribLocationUV);
 			glEnableVertexAttribArray(g_AttribLocationColor);
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 			glVertexAttribPointer(g_AttribLocationPosition, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, pos));
-			glVertexAttribPointer(g_UniformLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
+			glVertexAttribPointer(g_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, uv));
 			glVertexAttribPointer(g_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)OFFSETOF(ImDrawVert, col));
 #undef OFFSETOF
 

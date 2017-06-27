@@ -125,9 +125,9 @@ namespace ofxImGui
 
 		g_ShaderHandle = g_Shader.getProgram();
 
-		g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
-		g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
-		g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
+		g_UniformLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
+		g_UniformLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
+		g_UniformLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
 		g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
 		g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
 
@@ -222,8 +222,8 @@ namespace ofxImGui
 			{-1.0f,                  1.0f,                   0.0f, 1.0f },
 		};
 		glUseProgram(g_ShaderHandle);
-		glUniform1i(g_AttribLocationTex, 0);
-		glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+		glUniform1i(g_UniformLocationTex, 0);
+		glUniformMatrix4fv(g_UniformLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
 
 		// Render command lists
 		glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);

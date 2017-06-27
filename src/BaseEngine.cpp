@@ -11,7 +11,7 @@ namespace ofxImGui
 
 	int BaseEngine::g_UniformLocationTex = 0;
 	int BaseEngine::g_UniformLocationProjMtx = 0;
-	int BaseEngine::g_UniformLocationUV = 0;
+	int BaseEngine::g_AttribLocationUV = 0;
 
 	int BaseEngine::g_AttribLocationPosition = 0;
 	int BaseEngine::g_AttribLocationColor = 0;
