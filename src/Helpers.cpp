@@ -5,8 +5,8 @@ ofxImGui::Settings::Settings()
 	: windowPos(kImGuiMargin, kImGuiMargin)
 	, windowSize(ofVec2f::zero())
 	, windowBlock(false)
-	, treeLevel(0)
 	, mouseOverGui(false)
+    , treeLevel(0)
 {}
 
 //--------------------------------------------------------------
