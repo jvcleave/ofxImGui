@@ -11,7 +11,7 @@ Tested with OF 0.9.x on
  - Linux Desktop
  - Windows 10, Visual Studio 2015
 
-See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for previous versions.
+Master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
 
 #### Upgrade Notes
 Versions 1.50 and higher use the keyword `ofxImGui` as a namespace for all classes in the addon, while previous versions just had a class called `ofxImGui`. If you're upgrading from a previous version, make sure to replace all instances of class `ofxImGui` with `ofxImGui::Gui`.
