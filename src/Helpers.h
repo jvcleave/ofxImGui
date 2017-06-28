@@ -96,9 +96,14 @@ namespace ofxImGui
 
 	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
 	void AddImage(ofTexture& texture, const ofVec2f& size);
-}
+
+
+} // end namespace ofxImgui
+
+
 
 //--------------------------------------------------------------
+
 template<typename ParameterType>
 bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 {

@@ -29,7 +29,7 @@ namespace ofxImGui
 		virtual void onKeyReleased(ofKeyEventArgs& event) = 0;
 		virtual void onWindowResized(ofResizeEventArgs& window);
 
-		GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
+		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
 		static const char* getClipboardString();
 		static void setClipboardString(const char * text);
@@ -38,8 +38,8 @@ namespace ofxImGui
 		static int g_VertHandle;
 		static int g_FragHandle;
 
-		static int g_AttribLocationTex;
-		static int g_AttribLocationProjMtx;
+		static int g_UniformLocationTex;
+		static int g_UniformLocationProjMtx;
 		static int g_AttribLocationPosition;
 		static int g_AttribLocationUV;
 		static int g_AttribLocationColor;

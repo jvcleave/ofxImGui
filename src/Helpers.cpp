@@ -5,8 +5,8 @@ ofxImGui::Settings::Settings()
 	: windowPos(kImGuiMargin, kImGuiMargin)
 	, windowSize(ofVec2f::zero())
 	, windowBlock(false)
-	, treeLevel(0)
 	, mouseOverGui(false)
+    , treeLevel(0)
 {}
 
 //--------------------------------------------------------------
@@ -683,3 +683,6 @@ void ofxImGui::AddImage(ofTexture& texture, const ofVec2f& size)
 	ImTextureID textureID = (ImTextureID)(uintptr_t)texture.texData.textureID;
 	ImGui::Image(textureID, size);
 }
+
+//--------------------------------------------------------------
+
