@@ -12,10 +12,6 @@
 #include "vk/DrawCommand.h"
 #include <glm/glm.hpp>
 
-// We keep a shared pointer to the renderer so we don't have to 
-// fetch it anew every time we need it.
-
-
 namespace ofxImGui
 {
 
@@ -36,6 +32,9 @@ namespace ofxImGui
 	void EngineVk::setup()
 	{
 		if (isSetup) return;
+
+		// We keep a shared pointer to the renderer so we don't have to 
+		// fetch it anew every time we need it.
 
 		mRenderer = dynamic_pointer_cast<ofVkRenderer>( ofGetCurrentRenderer() );
 		mDevice  = mRenderer->getVkDevice();
@@ -259,6 +258,63 @@ namespace ofxImGui
 			io.AddInputCharacter((unsigned short)event.codepoint);
 		}
 	}
+	
+
+	static const std::string cImGuiFragmentShaderSource =
+		"#version 450 core\n"
+		"\n"
+		"#extension GL_ARB_separate_shader_objects : enable\n"
+		"#extension GL_ARB_shading_language_420pack : enable\n"
+		"\n"
+		"layout (set = 0, binding = 1) uniform sampler2D tex_unit_0;\n"
+		"\n"
+		"// inputs \n"
+		"layout (location = 0) in vec4 inColor;\n"
+		"layout (location = 1) in vec2 inTexCoord;\n"
+		"\n"
+		"// outputs\n"
+		"layout (location = 0) out vec4 outFragColor;\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	outFragColor = inColor * texture( tex_unit_0, inTexCoord.st);\n"
+		"}\n";
+
+	static const std::string cImGuiVertexShaderSource =
+		"#version 450 core\n"
+		"\n"
+		"#extension GL_ARB_separate_shader_objects : enable\n"
+		"#extension GL_ARB_shading_language_420pack : enable\n"
+		"\n"
+		"// uniforms (resources)\n"
+		"layout (set = 0, binding = 0) uniform DefaultMatrices \n"
+		"{\n"
+		"	mat4 modelViewProjectionMatrix;\n"
+		"};\n"
+		"\n"
+		"// inputs (vertex attributes)\n"
+		"layout (location = 0) in vec2 inPos;\n"
+		"layout (location = 1) in vec2 inTexCoord;\n"
+		"layout (location = 2) in vec4 inColor;\n"
+		"\n"
+		"// outputs \n"
+		"layout (location = 0) out vec4 outColor;\n"
+		"layout (location = 1) out vec2 outTexCoord;\n"
+		"\n"
+		"// we override the built-in fixed function outputs\n"
+		"// to have more control over the SPIR-V code created.\n"
+		"out gl_PerVertex\n"
+		"{\n"
+		"    vec4 gl_Position;\n"
+		"};\n"
+		"\n"
+		"void main()\n"
+		"{\n"
+		"	outTexCoord = inTexCoord;\n"
+		"	outColor = inColor;\n"
+		"	gl_Position = modelViewProjectionMatrix * vec4(inPos,0,1);\n"
+		"}\n";
+
 
 	//--------------------------------------------------------------
 	
@@ -266,10 +322,13 @@ namespace ofxImGui
 
 		of::vk::Shader::Settings shaderSettings;
 
-		shaderSettings.device = mDevice;
-		shaderSettings.printDebugInfo = true;
-		shaderSettings.sources[::vk::ShaderStageFlagBits::eVertex]   = "imgui.vert";
-		shaderSettings.sources[::vk::ShaderStageFlagBits::eFragment] = "imgui.frag";
+		shaderSettings
+			.setDevice(mDevice)
+			.setPrintDebugInfo( false )
+			.setSource( ::vk::ShaderStageFlagBits::eVertex, cImGuiVertexShaderSource )
+			.setSource( ::vk::ShaderStageFlagBits::eFragment, cImGuiFragmentShaderSource )
+			.setName("imGui default shader")
+			;
 
 		auto vertexInfo = std::make_shared<of::vk::Shader::VertexInfo>();
 
@@ -301,7 +360,7 @@ namespace ofxImGui
 		vertexInfo->bindingDescription = { { 0, sizeof( ImDrawVert ), ::vk::VertexInputRate::eVertex } };
 
 		// by setting vertexInfo like this we prevent the shader from reflecting
-		shaderSettings.vertexInfo = vertexInfo;
+		shaderSettings.vertexInfo = std::move(vertexInfo);
 
 		auto imGuiShader = std::make_shared<of::vk::Shader>( shaderSettings );
 
