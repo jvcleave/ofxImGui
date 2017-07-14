@@ -99,8 +99,8 @@ namespace ofxImGui
 				allocatorSettings.physicalDeviceMemoryProperties = rendererProperties.physicalDeviceMemoryProperties;
 				allocatorSettings.physicalDeviceProperties = rendererProperties.physicalDeviceProperties;
 
-				mImageAllocator = std::make_unique<of::vk::ImageAllocator>( allocatorSettings );
-				mImageAllocator->setup();
+				mImageAllocator = std::make_unique<of::vk::ImageAllocator>(  );
+				mImageAllocator->setup(allocatorSettings);
 		}
 	}
 
@@ -176,7 +176,7 @@ namespace ofxImGui
 			return;
 		draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
-		auto & alloc = batch->getContext()->getTransientAllocator();
+		auto & alloc = batch->getContext()->getAllocator();
 
 		::vk::DeviceSize offset = 0;
 		void * dataP = nullptr;
@@ -427,7 +427,7 @@ namespace ofxImGui
 		imgData.extent.width = width;
 		imgData.extent.height = height;
 
-		mFontImage = mRenderer->getStagingContext()->storeImageCmd( imgData, mImageAllocator );
+		mFontImage = mRenderer->getStagingContext()->storeImageCmd( imgData, *mImageAllocator );
 
 		::vk::SamplerCreateInfo samplerInfo = of::vk::Texture::getDefaultSamplerCreateInfo();
 		
