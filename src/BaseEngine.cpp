@@ -9,10 +9,11 @@ namespace ofxImGui
 	int BaseEngine::g_VertHandle = 0;
 	int BaseEngine::g_FragHandle = 0;
 
-	int BaseEngine::g_AttribLocationTex = 0;
-	int BaseEngine::g_AttribLocationProjMtx = 0;
-	int BaseEngine::g_AttribLocationPosition = 0;
+	int BaseEngine::g_UniformLocationTex = 0;
+	int BaseEngine::g_UniformLocationProjMtx = 0;
 	int BaseEngine::g_AttribLocationUV = 0;
+
+	int BaseEngine::g_AttribLocationPosition = 0;
 	int BaseEngine::g_AttribLocationColor = 0;
 
 	unsigned int BaseEngine::g_VboHandle = 0;

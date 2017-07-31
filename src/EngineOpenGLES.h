@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofConstants.h"
-#if defined(TARGET_OPENGLES)
+#if defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
 
 #include "BaseEngine.h"
 

@@ -4,6 +4,8 @@
 
 #if defined(TARGET_OPENGLES)
 #include "EngineOpenGLES.h"
+#elif defined (OF_TARGET_API_VULKAN)
+#include "EngineVk.h"
 #else
 #include "EngineGLFW.h"
 #endif
@@ -23,8 +25,10 @@ namespace ofxImGui
 
 #if defined(TARGET_OPENGLES)
 		engine = new EngineOpenGLES();
-#else  
-		engine = new EngineGLFW();
+#elif defined (OF_TARGET_API_VULKAN) 
+		engine = new EngineVk();
+#else 
+	engine = new EngineGLFW();
 #endif
 
 		engine->setup();
@@ -55,6 +59,7 @@ namespace ofxImGui
 		}
 		theme = theme_;
 		theme->updateColors();
+		theme->setup();
 	}
 
 	//--------------------------------------------------------------
