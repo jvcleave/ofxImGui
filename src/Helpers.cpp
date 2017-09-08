@@ -1,5 +1,7 @@
 #include "Helpers.h"
 
+using namespace std;
+
 //--------------------------------------------------------------
 ofxImGui::Settings::Settings()
 	: windowPos(kImGuiMargin, kImGuiMargin)
@@ -18,7 +20,7 @@ const char * ofxImGui::GetUniqueName(ofAbstractParameter& parameter)
 //--------------------------------------------------------------
 const char * ofxImGui::GetUniqueName(const std::string& candidate)
 {
-	std::string result = candidate;
+	string result = candidate;
 	while (std::find(windowOpen.usedNames.top().begin(), windowOpen.usedNames.top().end(), result) != windowOpen.usedNames.top().end())
 	{
 		result += " ";
@@ -64,7 +66,7 @@ bool ofxImGui::BeginWindow(const string& name, Settings& settings, bool collapse
 	settings.windowBlock = true;
 
 	// Push a new list of names onto the stack.
-	windowOpen.usedNames.push(std::vector<std::string>());
+	windowOpen.usedNames.push(vector<string>());
 
 	ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
 	ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
@@ -84,7 +86,7 @@ bool ofxImGui::BeginWindow(const string& name, Settings& settings, ImGuiWindowFl
 	settings.windowBlock = true;
 
 	// Push a new list of names onto the stack.
-	windowOpen.usedNames.push(std::vector<std::string>());
+	windowOpen.usedNames.push(vector<string>());
 
 	ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
 	ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
@@ -152,7 +154,7 @@ bool ofxImGui::BeginTree(const string& name, Settings& settings)
 		settings.treeLevel += 1;
 
 		// Push a new list of names onto the stack.
-		windowOpen.usedNames.push(std::vector<std::string>());
+		windowOpen.usedNames.push(vector<string>());
 	}
 	return result;
 }

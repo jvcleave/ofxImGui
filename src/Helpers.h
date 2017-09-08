@@ -12,7 +12,7 @@ namespace ofxImGui
 	struct WindowOpen
 	{
 		std::stack<std::vector<std::string>> usedNames;
-		shared_ptr<ofParameter<bool>> parameter;
+		std::shared_ptr<ofParameter<bool>> parameter;
 		bool value;
 	};
 
@@ -37,12 +37,12 @@ namespace ofxImGui
 
 	void SetNextWindow(Settings& settings);
 	bool BeginWindow(ofParameter<bool>& parameter, Settings& settings, bool collapse = true);
-	bool BeginWindow(const string& name, Settings& settings, bool collapse = true, bool * open = nullptr);
-	bool BeginWindow(const string& name, Settings& settings, ImGuiWindowFlags flags, bool * open = nullptr);
+	bool BeginWindow(const std::string& name, Settings& settings, bool collapse = true, bool * open = nullptr);
+	bool BeginWindow(const std::string& name, Settings& settings, ImGuiWindowFlags flags, bool * open = nullptr);
 	void EndWindow(Settings& settings);
 
 	bool BeginTree(ofAbstractParameter& parameter, Settings& settings);
-	bool BeginTree(const string& name, Settings& settings);
+	bool BeginTree(const std::string& name, Settings& settings);
 	void EndTree(Settings& settings);
 
 	void AddGroup(ofParameterGroup& group, Settings& settings);
@@ -66,27 +66,27 @@ namespace ofxImGui
 	template<typename ParameterType>
 	bool AddParameter(ofParameter<ParameterType>& parameter);
 
-	bool AddRadio(ofParameter<int>& parameter, vector<string> labels, int columns = 1);
+	bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
 	bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
 
-	bool AddRange(const string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed = 0.01f);
+	bool AddRange(const std::string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed = 0.01f);
 
 #if OF_VERSION_MINOR >= 10
-	bool AddValues(const string& name, vector<glm::ivec2>& values, int minValue, int maxValue);
-	bool AddValues(const string& name, vector<glm::ivec3>& values, int minValue, int maxValue);
-	bool AddValues(const string& name, vector<glm::ivec4>& values, int minValue, int maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::ivec2>& values, int minValue, int maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::ivec3>& values, int minValue, int maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::ivec4>& values, int minValue, int maxValue);
 
-	bool AddValues(const string& name, vector<glm::vec2>& values, float minValue, float maxValue);
-	bool AddValues(const string& name, vector<glm::vec3>& values, float minValue, float maxValue);
-	bool AddValues(const string& name, vector<glm::vec4>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::vec2>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::vec3>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::vec4>& values, float minValue, float maxValue);
 #endif
 
-	bool AddValues(const string& name, vector<ofVec2f>& values, float minValue, float maxValue);
-	bool AddValues(const string& name, vector<ofVec3f>& values, float minValue, float maxValue);
-	bool AddValues(const string& name, vector<ofVec4f>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<ofVec2f>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<ofVec3f>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<ofVec4f>& values, float minValue, float maxValue);
 
 	template<typename DataType>
-	bool AddValues(const string& name, vector<DataType>& values, DataType minValue, DataType maxValue);
+	bool AddValues(const std::string& name, std::vector<DataType>& values, DataType minValue, DataType maxValue);
 
 	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
 	void AddImage(ofTexture& texture, const ofVec2f& size);
@@ -137,7 +137,7 @@ bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 
 //--------------------------------------------------------------
 template<typename DataType>
-bool ofxImGui::AddValues(const string& name, vector<DataType>& values, DataType minValue, DataType maxValue)
+bool ofxImGui::AddValues(const std::string& name, std::vector<DataType>& values, DataType minValue, DataType maxValue)
 {
 	auto result = false;
 	const auto& info = typeid(DataType);

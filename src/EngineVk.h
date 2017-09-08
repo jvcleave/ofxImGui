@@ -54,7 +54,7 @@ namespace ofxImGui
 		static ::of::vk::RenderBatch*                   batch;           // Current batch used for drawing
 		static std::unique_ptr<of::vk::ImageAllocator>  mImageAllocator; // Allocator used for font texture
 		static std::shared_ptr<::vk::Image>             mFontImage;      // Data store for image data
-		static std::shared_ptr<of::vk::Texture>         mFontTexture;    // Wrapper with sampler around font texture
+		static of::vk::Texture                          mFontTexture;    // Wrapper with sampler around font texture
 		static std::unique_ptr<of::vk::DrawCommand>     mDrawCommand;    // Used to draw ImGui components
 		
 		void createDrawCommands();

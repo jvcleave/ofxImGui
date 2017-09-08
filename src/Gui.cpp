@@ -12,6 +12,9 @@
 
 namespace ofxImGui
 {
+
+	using namespace std;
+
 	//--------------------------------------------------------------
 	Gui::Gui()
 		: lastTime(0.0f)

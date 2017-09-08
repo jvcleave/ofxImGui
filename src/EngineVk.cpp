@@ -12,12 +12,15 @@
 #include "vk/DrawCommand.h"
 #include <glm/glm.hpp>
 
+
 namespace ofxImGui
 {
 
+	using namespace std;
+
 	::of::vk::RenderBatch*                  EngineVk::batch = nullptr; // current renderbatch
 	std::unique_ptr<of::vk::ImageAllocator> EngineVk::mImageAllocator;
-	std::shared_ptr<of::vk::Texture>        EngineVk::mFontTexture;    // wrapper with sampler around font texture
+	of::vk::Texture                         EngineVk::mFontTexture;    // wrapper with sampler around font texture
 	std::shared_ptr<::vk::Image>            EngineVk::mFontImage;      // data store for image data
 	::vk::Device                            EngineVk::mDevice;         // non-owning reference to vk device
 
@@ -260,25 +263,25 @@ namespace ofxImGui
 	}
 	
 
-	static const std::string cImGuiFragmentShaderSource =
-		"#version 450 core\n"
-		"\n"
-		"#extension GL_ARB_separate_shader_objects : enable\n"
-		"#extension GL_ARB_shading_language_420pack : enable\n"
-		"\n"
-		"layout (set = 0, binding = 1) uniform sampler2D tex_unit_0;\n"
-		"\n"
-		"// inputs \n"
-		"layout (location = 0) in vec4 inColor;\n"
-		"layout (location = 1) in vec2 inTexCoord;\n"
-		"\n"
-		"// outputs\n"
-		"layout (location = 0) out vec4 outFragColor;\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"	outFragColor = inColor * texture( tex_unit_0, inTexCoord.st);\n"
-		"}\n";
+	static const std::string cImGuiFragmentShaderSource = R"~glsl~(
+#version 450 core
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+
+layout (set = 0, binding = 1) uniform sampler2D tex_unit_0;
+
+// inputs
+layout (location = 0) in vec4 inColor;
+layout (location = 1) in vec2 inTexCoord;
+
+// outputs
+layout (location = 0) out vec4 outFragColor;
+
+void main(){
+	outFragColor = inColor * texture( tex_unit_0, inTexCoord.st);
+}
+)~glsl~";
 
 	static const std::string cImGuiVertexShaderSource =
 		"#version 450 core\n"
@@ -404,7 +407,7 @@ namespace ofxImGui
 		createFontsTexture();
 		createDrawCommands();
 		// attach font texture to draw command
-		mDrawCommand->setTexture( "tex_unit_0", *mFontTexture );
+		mDrawCommand->setTexture( "tex_unit_0", mFontTexture );
 
 		return true;
 	}
@@ -429,26 +432,29 @@ namespace ofxImGui
 
 		mFontImage = mRenderer->getStagingContext()->storeImageCmd( imgData, *mImageAllocator );
 
-		::vk::SamplerCreateInfo samplerInfo = of::vk::Texture::getDefaultSamplerCreateInfo();
+		of::vk::Texture::Settings textureSettings;
 		
-		samplerInfo
-			.setMagFilter( ::vk::Filter::eLinear )
-			.setMinFilter( ::vk::Filter::eLinear )
-			.setMipmapMode( ::vk::SamplerMipmapMode::eLinear )
-			.setMinLod( -1000 )
-			.setMaxLod( 1000 )
-			.setMaxAnisotropy( 1.0f )
-			.setAddressModeU( ::vk::SamplerAddressMode::eRepeat )
-			.setAddressModeV( ::vk::SamplerAddressMode::eRepeat )
-			.setAddressModeW( ::vk::SamplerAddressMode::eRepeat )
+		textureSettings
+			.setDevice(mDevice)
+			.setImage(*mFontImage)
 			;
 
-		auto imageViewCreateInfo = of::vk::Texture::getDefaultImageViewCreateInfo(*mFontImage);
+		textureSettings.samplerInfo
+			.setMagFilter(::vk::Filter::eLinear)
+			.setMinFilter(::vk::Filter::eLinear)
+			.setMipmapMode(::vk::SamplerMipmapMode::eLinear)
+			.setMinLod(-1000)
+			.setMaxLod(1000)
+			.setMaxAnisotropy(1.0f)
+			.setAddressModeU(::vk::SamplerAddressMode::eRepeat)
+			.setAddressModeV(::vk::SamplerAddressMode::eRepeat)
+			.setAddressModeW(::vk::SamplerAddressMode::eRepeat)
+			;
 
-		mFontTexture = std::make_shared<of::vk::Texture>( mRenderer->getVkDevice(), samplerInfo , imageViewCreateInfo);
+		mFontTexture.setup(textureSettings);
 
 		// Store our identifier
-		io.Fonts->TexID = (void *)( mFontTexture.get());
+		io.Fonts->TexID = (void *)( &mFontTexture );
 
 		return true;
 	}
