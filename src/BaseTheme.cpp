@@ -1,6 +1,7 @@
 #include "BaseTheme.h"
 
 #include "imgui.h"
+using namespace std;
 
 namespace ofxImGui
 {

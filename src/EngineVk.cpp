@@ -12,16 +12,15 @@
 #include "vk/DrawCommand.h"
 #include <glm/glm.hpp>
 
-// We keep a shared pointer to the renderer so we don't have to 
-// fetch it anew every time we need it.
-
 
 namespace ofxImGui
 {
 
+	using namespace std;
+
 	::of::vk::RenderBatch*                  EngineVk::batch = nullptr; // current renderbatch
 	std::unique_ptr<of::vk::ImageAllocator> EngineVk::mImageAllocator;
-	std::shared_ptr<of::vk::Texture>        EngineVk::mFontTexture;    // wrapper with sampler around font texture
+	of::vk::Texture                         EngineVk::mFontTexture;    // wrapper with sampler around font texture
 	std::shared_ptr<::vk::Image>            EngineVk::mFontImage;      // data store for image data
 	::vk::Device                            EngineVk::mDevice;         // non-owning reference to vk device
 
@@ -36,6 +35,9 @@ namespace ofxImGui
 	void EngineVk::setup()
 	{
 		if (isSetup) return;
+
+		// We keep a shared pointer to the renderer so we don't have to 
+		// fetch it anew every time we need it.
 
 		mRenderer = dynamic_pointer_cast<ofVkRenderer>( ofGetCurrentRenderer() );
 		mDevice  = mRenderer->getVkDevice();
@@ -100,8 +102,8 @@ namespace ofxImGui
 				allocatorSettings.physicalDeviceMemoryProperties = rendererProperties.physicalDeviceMemoryProperties;
 				allocatorSettings.physicalDeviceProperties = rendererProperties.physicalDeviceProperties;
 
-				mImageAllocator = std::make_unique<of::vk::ImageAllocator>( allocatorSettings );
-				mImageAllocator->setup();
+				mImageAllocator = std::make_unique<of::vk::ImageAllocator>(  );
+				mImageAllocator->setup(allocatorSettings);
 		}
 	}
 
@@ -177,7 +179,7 @@ namespace ofxImGui
 			return;
 		draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
-		auto & alloc = batch->getContext()->getTransientAllocator();
+		auto & alloc = batch->getContext()->getAllocator();
 
 		::vk::DeviceSize offset = 0;
 		void * dataP = nullptr;
@@ -259,6 +261,64 @@ namespace ofxImGui
 			io.AddInputCharacter((unsigned short)event.codepoint);
 		}
 	}
+	
+
+static const std::string cImGuiFragmentShaderSource = R"~glsl~(
+#version 450 core
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+
+layout (set = 0, binding = 1) uniform sampler2D tex_unit_0;
+
+// inputs
+layout (location = 0) in vec4 inColor;
+layout (location = 1) in vec2 inTexCoord;
+
+// outputs
+layout (location = 0) out vec4 outFragColor;
+
+void main(){
+	outFragColor = inColor * texture( tex_unit_0, inTexCoord.st);
+}
+)~glsl~";
+
+static const std::string cImGuiVertexShaderSource = R"~glsl~(
+#version 450 core
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+		
+// uniforms (resources)
+layout (set = 0, binding = 0) uniform DefaultMatrices
+{
+	mat4 modelViewProjectionMatrix;
+};
+		
+// inputs (vertex attributes)
+layout (location = 0) in vec2 inPos;
+layout (location = 1) in vec2 inTexCoord;
+layout (location = 2) in vec4 inColor;
+		
+// outputs
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec2 outTexCoord;
+		
+// we override the built-in fixed function outputs
+// to have more control over the SPIR-V code created.
+out gl_PerVertex
+{
+	vec4 gl_Position;
+};
+
+void main()
+{
+	outTexCoord = inTexCoord;
+	outColor = inColor;
+	gl_Position = modelViewProjectionMatrix * vec4(inPos,0,1);
+}
+)~glsl~";
+
 
 	//--------------------------------------------------------------
 	
@@ -266,10 +326,13 @@ namespace ofxImGui
 
 		of::vk::Shader::Settings shaderSettings;
 
-		shaderSettings.device = mDevice;
-		shaderSettings.printDebugInfo = true;
-		shaderSettings.sources[::vk::ShaderStageFlagBits::eVertex]   = "imgui.vert";
-		shaderSettings.sources[::vk::ShaderStageFlagBits::eFragment] = "imgui.frag";
+		shaderSettings
+			.setDevice(mDevice)
+			.setPrintDebugInfo( false )
+			.setSource( ::vk::ShaderStageFlagBits::eVertex, cImGuiVertexShaderSource )
+			.setSource( ::vk::ShaderStageFlagBits::eFragment, cImGuiFragmentShaderSource )
+			.setName("imGui default shader")
+			;
 
 		auto vertexInfo = std::make_shared<of::vk::Shader::VertexInfo>();
 
@@ -301,7 +364,7 @@ namespace ofxImGui
 		vertexInfo->bindingDescription = { { 0, sizeof( ImDrawVert ), ::vk::VertexInputRate::eVertex } };
 
 		// by setting vertexInfo like this we prevent the shader from reflecting
-		shaderSettings.vertexInfo = vertexInfo;
+		shaderSettings.vertexInfo = std::move(vertexInfo);
 
 		auto imGuiShader = std::make_shared<of::vk::Shader>( shaderSettings );
 
@@ -345,7 +408,7 @@ namespace ofxImGui
 		createFontsTexture();
 		createDrawCommands();
 		// attach font texture to draw command
-		mDrawCommand->setTexture( "tex_unit_0", *mFontTexture );
+		mDrawCommand->setTexture( "tex_unit_0", mFontTexture );
 
 		return true;
 	}
@@ -368,28 +431,31 @@ namespace ofxImGui
 		imgData.extent.width = width;
 		imgData.extent.height = height;
 
-		mFontImage = mRenderer->getStagingContext()->storeImageCmd( imgData, mImageAllocator );
+		mFontImage = mRenderer->getStagingContext()->storeImageCmd( imgData, *mImageAllocator );
 
-		::vk::SamplerCreateInfo samplerInfo = of::vk::Texture::getDefaultSamplerCreateInfo();
+		of::vk::Texture::Settings textureSettings;
 		
-		samplerInfo
-			.setMagFilter( ::vk::Filter::eLinear )
-			.setMinFilter( ::vk::Filter::eLinear )
-			.setMipmapMode( ::vk::SamplerMipmapMode::eLinear )
-			.setMinLod( -1000 )
-			.setMaxLod( 1000 )
-			.setMaxAnisotropy( 1.0f )
-			.setAddressModeU( ::vk::SamplerAddressMode::eRepeat )
-			.setAddressModeV( ::vk::SamplerAddressMode::eRepeat )
-			.setAddressModeW( ::vk::SamplerAddressMode::eRepeat )
+		textureSettings
+			.setDevice(mDevice)
+			.setImage(*mFontImage)
 			;
 
-		auto imageViewCreateInfo = of::vk::Texture::getDefaultImageViewCreateInfo(*mFontImage);
+		textureSettings.samplerInfo
+			.setMagFilter(::vk::Filter::eLinear)
+			.setMinFilter(::vk::Filter::eLinear)
+			.setMipmapMode(::vk::SamplerMipmapMode::eLinear)
+			.setMinLod(-1000)
+			.setMaxLod(1000)
+			.setMaxAnisotropy(1.0f)
+			.setAddressModeU(::vk::SamplerAddressMode::eRepeat)
+			.setAddressModeV(::vk::SamplerAddressMode::eRepeat)
+			.setAddressModeW(::vk::SamplerAddressMode::eRepeat)
+			;
 
-		mFontTexture = std::make_shared<of::vk::Texture>( mRenderer->getVkDevice(), samplerInfo , imageViewCreateInfo);
+		mFontTexture.setup(textureSettings);
 
 		// Store our identifier
-		io.Fonts->TexID = (void *)( mFontTexture.get());
+		io.Fonts->TexID = (void *)( &mFontTexture );
 
 		return true;
 	}
