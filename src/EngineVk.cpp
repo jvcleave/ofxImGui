@@ -263,7 +263,7 @@ namespace ofxImGui
 	}
 	
 
-	static const std::string cImGuiFragmentShaderSource = R"~glsl~(
+static const std::string cImGuiFragmentShaderSource = R"~glsl~(
 #version 450 core
 
 #extension GL_ARB_separate_shader_objects : enable
@@ -283,40 +283,41 @@ void main(){
 }
 )~glsl~";
 
-	static const std::string cImGuiVertexShaderSource =
-		"#version 450 core\n"
-		"\n"
-		"#extension GL_ARB_separate_shader_objects : enable\n"
-		"#extension GL_ARB_shading_language_420pack : enable\n"
-		"\n"
-		"// uniforms (resources)\n"
-		"layout (set = 0, binding = 0) uniform DefaultMatrices \n"
-		"{\n"
-		"	mat4 modelViewProjectionMatrix;\n"
-		"};\n"
-		"\n"
-		"// inputs (vertex attributes)\n"
-		"layout (location = 0) in vec2 inPos;\n"
-		"layout (location = 1) in vec2 inTexCoord;\n"
-		"layout (location = 2) in vec4 inColor;\n"
-		"\n"
-		"// outputs \n"
-		"layout (location = 0) out vec4 outColor;\n"
-		"layout (location = 1) out vec2 outTexCoord;\n"
-		"\n"
-		"// we override the built-in fixed function outputs\n"
-		"// to have more control over the SPIR-V code created.\n"
-		"out gl_PerVertex\n"
-		"{\n"
-		"    vec4 gl_Position;\n"
-		"};\n"
-		"\n"
-		"void main()\n"
-		"{\n"
-		"	outTexCoord = inTexCoord;\n"
-		"	outColor = inColor;\n"
-		"	gl_Position = modelViewProjectionMatrix * vec4(inPos,0,1);\n"
-		"}\n";
+static const std::string cImGuiVertexShaderSource = R"~glsl~(
+#version 450 core
+
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_shading_language_420pack : enable
+		
+// uniforms (resources)
+layout (set = 0, binding = 0) uniform DefaultMatrices
+{
+	mat4 modelViewProjectionMatrix;
+};
+		
+// inputs (vertex attributes)
+layout (location = 0) in vec2 inPos;
+layout (location = 1) in vec2 inTexCoord;
+layout (location = 2) in vec4 inColor;
+		
+// outputs
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec2 outTexCoord;
+		
+// we override the built-in fixed function outputs
+// to have more control over the SPIR-V code created.
+out gl_PerVertex
+{
+	vec4 gl_Position;
+};
+
+void main()
+{
+	outTexCoord = inTexCoord;
+	outColor = inColor;
+	gl_Position = modelViewProjectionMatrix * vec4(inPos,0,1);
+}
+)~glsl~";
 
 
 	//--------------------------------------------------------------
