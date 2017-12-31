@@ -98,7 +98,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	bool BaseTheme::addColorEdit(string label, ofColor& color)
+	bool BaseTheme::addColorEdit(const std::string& label, ofColor& color)
 	{
 		bool didChange = false;
 		float floats[3];

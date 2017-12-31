@@ -22,7 +22,7 @@ namespace ofxImGui
 		ofColor col_win_popup;
 		ofColor col_win_backg;
 
-		bool addColorEdit(string label, ofColor& color);
+		bool addColorEdit(const std::string& label, ofColor& color);
 		ofColor convertColor(float* f);
 	};
 }
