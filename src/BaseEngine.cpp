@@ -1,5 +1,6 @@
 #include "BaseEngine.h"
 
+#include "ofAppBaseWindow.h"
 #include "ofAppRunner.h"
 #include "imgui.h"
 
@@ -65,13 +66,13 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	const char* BaseEngine::getClipboardString()
+	const char* BaseEngine::getClipboardString(void * userData)
 	{
 		return &ofGetWindowPtr()->getClipboardString()[0];
 	}
 
 	//--------------------------------------------------------------
-	void BaseEngine::setClipboardString(const char * text)
+	void BaseEngine::setClipboardString(void * userData, const char * text)
 	{
 		ofGetWindowPtr()->setClipboardString(text);
 	}
