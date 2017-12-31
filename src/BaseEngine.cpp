@@ -1,5 +1,6 @@
 #include "BaseEngine.h"
 
+#include "ofAppBaseWindow.h"
 #include "ofAppRunner.h"
 #include "imgui.h"
 

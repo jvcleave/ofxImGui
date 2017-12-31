@@ -4,6 +4,7 @@
 
 #include "ofAppGLFWWindow.h"
 #include "ofGLProgrammableRenderer.h"
+#include "GLFW/glfw3.h"
 
 namespace ofxImGui
 {

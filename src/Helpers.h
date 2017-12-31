@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ofGLBaseTypes.h"
 #include "ofParameter.h"
 #include "ofRectangle.h"
 #include "ofTexture.h"
