@@ -71,7 +71,7 @@ void ofApp::draw(){
         
         //this will change the app background color
         ImGui::ColorEdit3("Background Color", (float*)&backgroundColor);
-        if(ImGui::Button("Test Window"))
+        if(ImGui::Button("Demo Window"))
         {
             show_test_window = !show_test_window;
         }
@@ -94,11 +94,11 @@ void ofApp::draw(){
         ImGui::End();
     }
     
-    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+    // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowDemoWindow()
     if (show_test_window)
     {
         ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::ShowTestWindow(&show_test_window);
+        ImGui::ShowDemoWindow(&show_test_window);
     }
     
     
