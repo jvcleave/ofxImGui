@@ -64,6 +64,10 @@ namespace ofxImGui
 
 	bool AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha = true);
 
+	bool AddParameter(ofParameter<std::string>& parameter, size_t maxChars = 255, bool multiline = false);
+
+	bool AddParameter(ofParameter<void>& parameter);
+
 	template<typename ParameterType>
 	bool AddParameter(ofParameter<ParameterType>& parameter);
 
@@ -97,14 +101,10 @@ namespace ofxImGui
 
 	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
 	void AddImage(ofTexture& texture, const ofVec2f& size);
-
-
-} // end namespace ofxImgui
-
+}
 
 
 //--------------------------------------------------------------
-
 template<typename ParameterType>
 bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 {

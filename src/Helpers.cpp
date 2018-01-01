@@ -411,6 +411,41 @@ bool ofxImGui::AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha)
 }
 
 //--------------------------------------------------------------
+bool ofxImGui::AddParameter(ofParameter<std::string>& parameter, size_t maxChars, bool multiline)
+{
+	auto tmpRef = parameter.get();
+	char * cString = new char[maxChars];
+	strcpy(cString, tmpRef.c_str());
+	auto result = false;
+	if (multiline)
+	{
+		if (ImGui::InputTextMultiline(GetUniqueName(parameter), cString, maxChars))
+		{
+			parameter.set(cString);
+			result = true;
+		}
+	}
+	else if (ImGui::InputText(GetUniqueName(parameter), cString, maxChars))
+	{
+		parameter.set(cString);
+		result = true;
+	}
+	delete[] cString;
+	return result;
+}
+
+//--------------------------------------------------------------
+bool ofxImGui::AddParameter(ofParameter<void>& parameter)
+{
+	if (ImGui::Button(GetUniqueName(parameter)))
+	{
+		parameter.trigger();
+		return true;
+	}
+	return false;
+}
+
+//--------------------------------------------------------------
 bool ofxImGui::AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns)
 {
 	ImGui::Text(parameter.getName().c_str());
@@ -683,6 +718,3 @@ void ofxImGui::AddImage(ofTexture& texture, const ofVec2f& size)
 	ImTextureID textureID = (ImTextureID)(uintptr_t)texture.texData.textureID;
 	ImGui::Image(textureID, size);
 }
-
-//--------------------------------------------------------------
-
