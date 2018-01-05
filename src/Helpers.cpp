@@ -448,10 +448,11 @@ bool ofxImGui::AddParameter(ofParameter<void>& parameter)
 //--------------------------------------------------------------
 bool ofxImGui::AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns)
 {
-	ImGui::Text(parameter.getName().c_str());
+	auto uniqueName = GetUniqueName(parameter);
+	ImGui::Text(uniqueName);
 	auto result = false;
 	auto tmpRef = parameter.get();
-	ImGui::PushID(parameter.getName().c_str());
+	ImGui::PushID(uniqueName);
 	{
 		ImGui::Columns(columns);
 		for (int i = 0; i < labels.size(); ++i)
