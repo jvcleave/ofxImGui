@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofEvents.h"
+#include "ofAppBaseWindow.h"
 #include "imgui.h"
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
