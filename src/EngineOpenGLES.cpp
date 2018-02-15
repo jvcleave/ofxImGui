@@ -127,7 +127,7 @@ namespace ofxImGui
 
 		g_UniformLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
 		g_UniformLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMat");
-		g_UniformLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
+		g_AttribLocationPosition = glGetAttribLocation(g_ShaderHandle, "Position");
 		g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
 		g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
 
