@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofConstants.h"
+#include "GLFW/glfw3.h"
 #if !defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
 
 #include "BaseEngine.h"
@@ -21,12 +22,14 @@ namespace ofxImGui
 
 		// BaseEngine required
 		void setup() override;
+	private:
 		void exit() override;
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
-
+		void destroyFontTextures() override;
 		bool createFontsTexture();
 
+	public:
 		void onKeyReleased(ofKeyEventArgs& event) override;
 		void onKeyPressed(ofKeyEventArgs& event) override;
 		void onMousePressed(ofMouseEventArgs& event) override;

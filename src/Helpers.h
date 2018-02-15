@@ -3,6 +3,7 @@
 #include "ofParameter.h"
 #include "ofRectangle.h"
 #include "ofTexture.h"
+#include "ofGLBaseTypes.h"
 #include "imgui.h"
 
 static const int kImGuiMargin = 10;

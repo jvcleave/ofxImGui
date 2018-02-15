@@ -22,10 +22,6 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::setup(BaseTheme* theme_)
 	{
-		ImGuiIO& io = ImGui::GetIO();
-
-		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
-		io.MouseDrawCursor = false;
 
 #if defined(TARGET_OPENGLES)
 		engine = new EngineOpenGLES();
@@ -45,6 +41,12 @@ namespace ofxImGui
 		{
 			setTheme(new BaseTheme());
 		}
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+		io.MouseDrawCursor = false;
+
 	}
 
 	//--------------------------------------------------------------
@@ -130,6 +132,9 @@ namespace ofxImGui
 			setup();
 		}
 
+		// set Context
+		ImGui::SetCurrentContext(engine->getContext());
+
 		ImGuiIO& io = ImGui::GetIO();
 
 		float currentTime = ofGetElapsedTimef();
@@ -165,6 +170,7 @@ namespace ofxImGui
 	{
 		if (engine)
 		{
+			ImGui::SetCurrentContext(engine->getContext());
 			delete engine;
 			engine = nullptr;
 		}
@@ -189,6 +195,5 @@ namespace ofxImGui
 	Gui::~Gui()
 	{
 		close();
-		ImGui::Shutdown();
 	}
 }
