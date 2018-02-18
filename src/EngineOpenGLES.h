@@ -26,10 +26,12 @@ namespace ofxImGui
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
 
+		void draw() override;
+
 		void onKeyReleased(ofKeyEventArgs& event) override;
 
 		// Custom 
-		static void rendererDrawLists(ImDrawData * draw_data);
+		static void rendererDrawData(ImDrawData * draw_data);
 
 		static ofShader g_Shader;
 	};
