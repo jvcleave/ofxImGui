@@ -105,6 +105,7 @@ void ofxImGui::EndWindow(Settings& settings)
 
 	settings.windowPos = ImGui::GetWindowPos();
 	settings.windowSize = ImGui::GetWindowSize();
+	settings.mouseOverGui |= ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 	ImGui::End();
 
 	// Unlink the referenced ofParameter.
@@ -113,11 +114,8 @@ void ofxImGui::EndWindow(Settings& settings)
 	// Clear the list of names from the stack.
 	windowOpen.usedNames.pop();
 
-	// Check if the mouse cursor is over this gui window.
-	const auto windowBounds = ofRectangle(settings.windowPos, settings.windowSize.x, settings.windowSize.y);
-	settings.mouseOverGui |= windowBounds.inside(ofGetMouseX(), ofGetMouseY());
-
 	// Include this window's bounds in the total bounds.
+	const auto windowBounds = ofRectangle(settings.windowPos, settings.windowSize.x, settings.windowSize.y);
 	if (settings.totalBounds.isZero())
 	{
 		settings.totalBounds = windowBounds;
