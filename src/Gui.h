@@ -16,9 +16,10 @@ namespace ofxImGui
 		~Gui();
 
 		void setup(BaseTheme* theme = nullptr);
+		void exit();
+
 		void begin();
 		void end();
-		void close();
 
 		BaseEngine* engine;
 		float lastTime;

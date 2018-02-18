@@ -37,7 +37,6 @@ namespace ofxImGui
 		static void fixedRenderDrawLists(ImDrawData * draw_data);
 
 		static GLuint g_FontTexture;
-		static unsigned int g_VaoHandle;
 	};
 }
 

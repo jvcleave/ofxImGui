@@ -21,7 +21,12 @@ namespace ofxImGui
 
 	//--------------------------------------------------------------
 	void Gui::setup(BaseTheme* theme_)
+	Gui::~Gui()
 	{
+		exit();
+	}
+	{
+		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
@@ -32,7 +37,7 @@ namespace ofxImGui
 #elif defined (OF_TARGET_API_VULKAN) 
 		engine = new EngineVk();
 #else 
-	engine = new EngineGLFW();
+		engine = new EngineGLFW();
 #endif
 
 		engine->setup();
@@ -45,6 +50,33 @@ namespace ofxImGui
 		{
 			setTheme(new BaseTheme());
 		}
+	}
+
+	//--------------------------------------------------------------
+	void Gui::exit()
+	{
+		if (engine)
+		{
+			delete engine;
+			engine = nullptr;
+		}
+		//if(io)
+		//{
+		//    io->Fonts->TexID = 0;
+		//    io = nullptr;
+		//}
+		if (theme)
+		{
+			delete theme;
+			theme = nullptr;
+		}
+		for (size_t i = 0; i < loadedTextures.size(); i++)
+		{
+			delete loadedTextures[i];
+		}
+		loadedTextures.clear();
+
+		ImGui::DestroyContext();
 	}
 
 	//--------------------------------------------------------------
@@ -161,34 +193,6 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void Gui::close()
 	{
-		if (engine)
-		{
-			delete engine;
-			engine = nullptr;
-		}
-		//if(io)
-		//{
-		//    io->Fonts->TexID = 0;
-		//    io = nullptr;
-		//}
-		if (theme)
-		{
-			delete theme;
-			theme = nullptr;
-		}
-		for (size_t i = 0; i < loadedTextures.size(); i++)
-		{
-			delete loadedTextures[i];
-		}
-		loadedTextures.clear();
-	}
-
-	//--------------------------------------------------------------
-	Gui::~Gui()
-	{
-		close();
-		ImGui::Shutdown();
 	}
 }
