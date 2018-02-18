@@ -58,12 +58,12 @@ namespace ofxImGui
 
 		// Override listeners
 		ofAddListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
+		ofAddListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
 		ofAddListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
 		ofAddListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
 
 		// BaseEngine listeners
 		ofAddListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
-		ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
 		ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
 		ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 
@@ -77,12 +77,12 @@ namespace ofxImGui
 
 		// Override listeners
 		ofRemoveListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
+		ofRemoveListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
 		ofRemoveListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
 		ofRemoveListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
 
 		// Base class listeners
 		ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
-		ofRemoveListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
 		ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
 		ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 
@@ -105,7 +105,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::remapToGLFWConvention(int& button)
+	void remapToGLFWConvention(int& button)
 	{
 		switch (button)
 		{
@@ -135,7 +135,17 @@ namespace ofxImGui
 		{
 			remapToGLFWConvention(button);
 			mousePressed[button] = true;
-			mouseReleased = false;
+		}
+	}
+
+	//--------------------------------------------------------------
+	void EngineGLFW::onMouseReleased(ofMouseEventArgs& event)
+	{
+		int button = event.button;
+		if (button >= 0 && button < 5)
+		{
+			remapToGLFWConvention(button);
+			mousePressed[button] = false;
 		}
 	}
 

@@ -32,7 +32,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseDragged(ofMouseEventArgs& event)
 	{
-		mouseReleased = false;
+
 	}
 
 	//--------------------------------------------------------------
@@ -41,14 +41,16 @@ namespace ofxImGui
 		if (event.button >= 0 && event.button < 5)
 		{
 			mousePressed[event.button] = true;
-			mouseReleased = false;
 		}
 	}
 
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
 	{
-		mouseReleased = true;
+		if (event.button >= 0 && event.button < 5)
+		{
+			mousePressed[event.button] = false;
+		}
 	}
 
 	//--------------------------------------------------------------

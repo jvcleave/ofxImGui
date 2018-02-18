@@ -33,6 +33,7 @@ namespace ofxImGui
 		void onKeyReleased(ofKeyEventArgs& event) override;
 		void onKeyPressed(ofKeyEventArgs& event) override;
 		void onMousePressed(ofMouseEventArgs& event) override;
+		void onMouseReleased(ofMouseEventArgs& event) override;
 
 		// Custom 
 		static void programmableDrawData(ImDrawData * draw_data);

@@ -52,7 +52,6 @@ namespace ofxImGui
 		static unsigned int g_ElementsHandle;
 
 		bool mousePressed[5] = { false };
-		bool mouseReleased = true;
 
 	protected:
 		bool isSetup;
