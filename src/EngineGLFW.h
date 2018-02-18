@@ -21,10 +21,12 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup() override;
+		void setup(bool autoDraw) override;
 		void exit() override;
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
+
+		void draw() override;
 
 		bool createFontsTexture();
 
@@ -33,8 +35,8 @@ namespace ofxImGui
 		void onMousePressed(ofMouseEventArgs& event) override;
 
 		// Custom 
-		static void programmableRenderDrawLists(ImDrawData * draw_data);
-		static void fixedRenderDrawLists(ImDrawData * draw_data);
+		static void programmableDrawData(ImDrawData * draw_data);
+		static void fixedDrawData(ImDrawData * draw_data);
 
 		static GLuint g_FontTexture;
 	};

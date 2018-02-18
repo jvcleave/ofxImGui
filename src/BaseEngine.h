@@ -17,10 +17,12 @@ namespace ofxImGui
 		virtual ~BaseEngine()
 		{}
 
-		virtual void setup() = 0;
+		virtual void setup(bool autoDraw) = 0;
 		virtual void exit() = 0;
 		virtual bool createDeviceObjects() = 0;
 		virtual void invalidateDeviceObjects() = 0;
+
+		virtual void draw() {};
 
 		virtual void onMouseDragged(ofMouseEventArgs& event);
 		virtual void onMousePressed(ofMouseEventArgs& event);

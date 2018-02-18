@@ -9,7 +9,7 @@ namespace ofxImGui
 	ofShader EngineOpenGLES::g_Shader;
 
 	//--------------------------------------------------------------
-	void EngineOpenGLES::setup()
+	void EngineOpenGLES::setup(bool autoDraw)
 	{
 		if (isSetup) return;
 

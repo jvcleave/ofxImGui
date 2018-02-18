@@ -20,11 +20,13 @@ namespace ofxImGui
 	{}
 
 	//--------------------------------------------------------------
-	void Gui::setup(BaseTheme* theme_)
 	Gui::~Gui()
 	{
 		exit();
 	}
+
+	//--------------------------------------------------------------
+	void Gui::setup(BaseTheme* theme_, bool autoDraw_)
 	{
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
@@ -40,7 +42,8 @@ namespace ofxImGui
 		engine = new EngineGLFW();
 #endif
 
-		engine->setup();
+		autoDraw = autoDraw_;
+		engine->setup(autoDraw);
 
 		if (theme_)
 		{
@@ -193,6 +196,11 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
+	void Gui::draw()
 	{
+		if (!autoDraw)
+		{
+			engine->draw();
+		}
 	}
 }

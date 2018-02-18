@@ -11,7 +11,7 @@ namespace ofxImGui
 	GLuint EngineGLFW::g_FontTexture = 0;
 
 	//--------------------------------------------------------------
-	void EngineGLFW::setup()
+	void EngineGLFW::setup(bool autoDraw)
 	{
 		if (isSetup) return;
 
@@ -39,13 +39,16 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
 		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-		if (ofIsGLProgrammableRenderer())
+		if (autoDraw)
 		{
-			io.RenderDrawListsFn = programmableRenderDrawLists;
-		}
-		else
-		{
-			io.RenderDrawListsFn = fixedRenderDrawLists;
+			if (ofIsGLProgrammableRenderer())
+			{
+				io.RenderDrawListsFn = programmableDrawData;
+			}
+			else
+			{
+				io.RenderDrawListsFn = fixedDrawData;
+			}
 		}
 
 		io.SetClipboardTextFn = &BaseEngine::setClipboardString;
@@ -89,7 +92,20 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void remapToGLFWConvention(int& button)
+	void EngineGLFW::draw()
+	{
+		if (ofIsGLProgrammableRenderer())
+		{
+			programmableDrawData(ImGui::GetDrawData());
+		}
+		else
+		{
+			fixedDrawData(ImGui::GetDrawData());
+		}
+	}
+
+	//--------------------------------------------------------------
+	void EngineGLFW::remapToGLFWConvention(int& button)
 	{
 		switch (button)
 		{
@@ -124,7 +140,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::programmableRenderDrawLists(ImDrawData * draw_data)
+	void EngineGLFW::programmableDrawData(ImDrawData * draw_data)
 	{
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
 		ImGuiIO& io = ImGui::GetIO();
@@ -229,7 +245,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::fixedRenderDrawLists(ImDrawData * draw_data)
+	void EngineGLFW::fixedDrawData(ImDrawData * draw_data)
 	{
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
 		ImGuiIO& io = ImGui::GetIO();
@@ -324,7 +340,8 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::onKeyPressed(ofKeyEventArgs& event) {
+	void EngineGLFW::onKeyPressed(ofKeyEventArgs& event)
+	{
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
