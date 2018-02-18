@@ -9,7 +9,7 @@ namespace ofxImGui
 	ofShader EngineOpenGLES::g_Shader;
 
 	//--------------------------------------------------------------
-	void EngineOpenGLES::setup()
+	void EngineOpenGLES::setup(bool autoDraw)
 	{
 		if (isSetup) return;
 
@@ -29,8 +29,11 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
 		io.KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
 
-		io.RenderDrawListsFn = rendererDrawLists;
-
+		if (autoDraw)
+		{
+			io.RenderDrawListsFn = rendererDrawData;
+		}
+		
 		io.SetClipboardTextFn = &BaseEngine::setClipboardString;
 		io.GetClipboardTextFn = &BaseEngine::getClipboardString;
 
@@ -193,7 +196,13 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
+	void EngineOpenGLES::draw()
+	{
+		rendererDrawData(ImGui::GetDrawData());
+	}
+
+	//--------------------------------------------------------------
+	void EngineOpenGLES::rendererDrawData(ImDrawData * draw_data)
 	{
 		GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);

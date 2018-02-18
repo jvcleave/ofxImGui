@@ -17,10 +17,12 @@ namespace ofxImGui
 		virtual ~BaseEngine()
 		{}
 
-		virtual void setup() = 0;
+		virtual void setup(bool autoDraw) = 0;
 		virtual void exit() = 0;
 		virtual bool createDeviceObjects() = 0;
 		virtual void invalidateDeviceObjects() = 0;
+
+		virtual void draw() {};
 
 		virtual void onMouseDragged(ofMouseEventArgs& event);
 		virtual void onMousePressed(ofMouseEventArgs& event);
@@ -39,17 +41,17 @@ namespace ofxImGui
 		static int g_VertHandle;
 		static int g_FragHandle;
 
-		static int g_UniformLocationTex;
-		static int g_UniformLocationProjMtx;
+		static int g_AttribLocationTex;
+		static int g_AttribLocationProjMtx;
 		static int g_AttribLocationPosition;
 		static int g_AttribLocationUV;
 		static int g_AttribLocationColor;
 
 		static unsigned int g_VboHandle;
+		static unsigned int g_VaoHandle;
 		static unsigned int g_ElementsHandle;
 
 		bool mousePressed[5] = { false };
-		bool mouseReleased = true;
 
 	protected:
 		bool isSetup;
