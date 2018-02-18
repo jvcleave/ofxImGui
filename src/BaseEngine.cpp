@@ -55,6 +55,7 @@ namespace ofxImGui
 	void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 	{
 		ImGuiIO& io = ImGui::GetIO();
+		io.MouseWheelH = event.scrollX;
 		io.MouseWheel = event.scrollY;
 	}
 
