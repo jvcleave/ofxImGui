@@ -34,6 +34,8 @@ namespace ofxImGui
 
 	static WindowOpen windowOpen;
 
+	bool IsMouseOverGui();
+
 	const char * GetUniqueName(ofAbstractParameter& parameter);
 	const char * GetUniqueName(const std::string& candidate);
 

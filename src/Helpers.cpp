@@ -9,6 +9,11 @@ ofxImGui::Settings::Settings()
     , treeLevel(0)
 {}
 
+bool ofxImGui::IsMouseOverGui()
+{
+	return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+}
+
 //--------------------------------------------------------------
 const char * ofxImGui::GetUniqueName(ofAbstractParameter& parameter)
 {
