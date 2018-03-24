@@ -77,11 +77,11 @@ namespace ofxImGui
 	bool EngineOpenGLES::createDeviceObjects()
 	{
 #if defined(TARGET_RASPBERRY_PI)
-		string header = "";
+		std::string header = "";
 #else
-		string header = "precision highp float; \n";
+		std::string header = "precision highp float; \n";
 #endif
-		string vertex_shader = header + R"(
+		std::string vertex_shader = header + R"(
     
     uniform mat4 ProjMat;
     
@@ -101,7 +101,7 @@ namespace ofxImGui
     
     )";
 
-		string fragment_shader = header + R"(
+		std::string fragment_shader = header + R"(
     
     uniform sampler2D Texture;
     
