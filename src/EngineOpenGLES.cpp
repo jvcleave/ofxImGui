@@ -3,6 +3,7 @@
 #if defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
 
 #include "ofAppRunner.h"
+#include "ofGLProgrammableRenderer.h"
 
 namespace ofxImGui
 {
@@ -76,11 +77,11 @@ namespace ofxImGui
 
 	bool EngineOpenGLES::createDeviceObjects()
 	{
-#if defined(TARGET_RASPBERRY_PI)
-		std::string header = "";
-#else
+//#if defined(TARGET_RASPBERRY_PI)
+//		std::string header = "";
+//#else
 		std::string header = "precision highp float; \n";
-#endif
+//#endif
 		std::string vertex_shader = header + R"(
     
     uniform mat4 ProjMat;
