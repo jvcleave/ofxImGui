@@ -41,8 +41,8 @@ namespace ofxImGui
 		static int g_VertHandle;
 		static int g_FragHandle;
 
-		static int g_AttribLocationTex;
-		static int g_AttribLocationProjMtx;
+		static int g_UniformLocationTex;
+		static int g_UniformLocationProjMtx;
 		static int g_AttribLocationPosition;
 		static int g_AttribLocationUV;
 		static int g_AttribLocationColor;
