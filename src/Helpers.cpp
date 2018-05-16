@@ -4,6 +4,7 @@
 ofxImGui::Settings::Settings()
 	: windowPos(kImGuiMargin, kImGuiMargin)
 	, windowSize(ofVec2f::zero())
+	, lockPosition(false)
 	, windowBlock(false)
 	, mouseOverGui(false)
     , treeLevel(0)
@@ -71,9 +72,9 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool col
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowCollapsed(collapse, ImGuiSetCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
 }
 
@@ -91,9 +92,9 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, ImGuiWin
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiSetCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, flags);
 }
 
