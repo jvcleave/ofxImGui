@@ -13,7 +13,12 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineGLFW::setup()
 	{
+		totalCount();
+
 		if (isSetup) return;
+
+		ctx = ImGui::CreateContext();
+		ImGui::SetCurrentContext(ctx);
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -81,7 +86,20 @@ namespace ofxImGui
 		ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
 		ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 
+		ImGui::SetCurrentContext(ctx);
+
 		invalidateDeviceObjects();
+
+		// Shutdown can not be done on every instance.
+		// it has to be done only once,
+		// when the last instance is being destroyed
+		if (totalCount() == 1) {
+			destroyFontTextures();
+//			cout << "Shutdown ImGui" << endl;
+			ImGui::Shutdown();
+		}
+
+		ImGui::DestroyContext(ctx);
 
 		isSetup = false;
 	}
@@ -112,6 +130,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineGLFW::onMousePressed(ofMouseEventArgs& event)
 	{
+		ImGui::SetCurrentContext(ctx);
 		int button = event.button;
 		if (button >= 0 && button < 5)
 		{
@@ -295,6 +314,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineGLFW::onKeyReleased(ofKeyEventArgs& event)
 	{
+		ImGui::SetCurrentContext(ctx);
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
@@ -306,7 +326,9 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::onKeyPressed(ofKeyEventArgs& event) {
+	void EngineGLFW::onKeyPressed(ofKeyEventArgs& event) 
+	{
+		ImGui::SetCurrentContext(ctx);
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
@@ -457,7 +479,10 @@ namespace ofxImGui
 			glDeleteProgram(g_ShaderHandle);
 			g_ShaderHandle = 0;
 		}
-
+	}
+	//--------------------------------------------------------------
+	void EngineGLFW::destroyFontTextures()
+	{
 		if (g_FontTexture)
 		{
 			glDeleteTextures(1, &g_FontTexture);
