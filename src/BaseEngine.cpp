@@ -65,13 +65,13 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	const char* BaseEngine::getClipboardString()
+	const char* BaseEngine::getClipboardString(void* usr)
 	{
 		return &ofGetWindowPtr()->getClipboardString()[0];
 	}
 
 	//--------------------------------------------------------------
-	void BaseEngine::setClipboardString(const char * text)
+	void BaseEngine::setClipboardString(void* usr, const char * text)
 	{
 		ofGetWindowPtr()->setClipboardString(text);
 	}

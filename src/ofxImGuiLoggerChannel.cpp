@@ -9,7 +9,7 @@ ImGuiTextBuffer& ofxImGui::LoggerChannel::getBuffer(){
 
 //--------------------------------------------------------------
 void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module, const std::string & message ){
-	getBuffer().append( "[%s] %s: %s\n", ofGetLogLevelName( level, true ).c_str(), module.c_str(), message.c_str() );
+	getBuffer().appendf( "[%s] %s: %s\n", ofGetLogLevelName( level, true ).c_str(), module.c_str(), message.c_str() );
 }
 
 void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module, const char* format, ... ){
@@ -20,8 +20,8 @@ void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module,
 }
 
 void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module, const char* format, va_list args ){
-	getBuffer().append( "[%s] %s: %s", ofGetLogLevelName( level, true ).c_str(), module.c_str() );
-	getBuffer().appendv( format, args );
+	getBuffer().appendf( "[%s] %s: %s", ofGetLogLevelName( level, true ).c_str(), module.c_str() );
+	getBuffer().appendfv( format, args );
 }
 
 

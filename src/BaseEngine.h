@@ -32,8 +32,8 @@ namespace ofxImGui
 
 		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
-		static const char* getClipboardString();
-		static void setClipboardString(const char * text);
+		static const char* getClipboardString(void* usr);
+		static void setClipboardString(void* usr, const char * text);
 
 		static int g_ShaderHandle;
 		static int g_VertHandle;
