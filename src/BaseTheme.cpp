@@ -78,9 +78,6 @@ namespace ofxImGui
 		style->Colors[ImGuiCol_ResizeGrip] = ImVec4(col_win_popup, 0.04f);
 		style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(col_main_head, 0.78f);
 		style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(col_main_head, 1.00f);
-		style->Colors[ImGuiCol_CloseButton] = ImVec4(col_main_text, 0.16f);
-		style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(col_main_text, 0.39f);
-		style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(col_main_text, 1.00f);
 		style->Colors[ImGuiCol_PlotLines] = ImVec4(col_main_text, 0.63f);
 		style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(col_main_head, 1.00f);
 		style->Colors[ImGuiCol_PlotHistogram] = ImVec4(col_main_text, 0.63f);

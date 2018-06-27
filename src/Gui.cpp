@@ -17,7 +17,9 @@ namespace ofxImGui
 		: lastTime(0.0f)
 		, engine(nullptr)
 		, theme(nullptr)
-	{}
+	{
+		ImGui::CreateContext();
+	}
 
 	//--------------------------------------------------------------
 	void Gui::setup(BaseTheme* theme_)
@@ -189,6 +191,6 @@ namespace ofxImGui
 	Gui::~Gui()
 	{
 		close();
-		ImGui::Shutdown();
+		ImGui::DestroyContext();
 	}
 }
