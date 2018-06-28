@@ -20,7 +20,7 @@ void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module,
 }
 
 void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module, const char* format, va_list args ){
-	getBuffer().appendf( "[%s] %s: %s", ofGetLogLevelName( level, true ).c_str(), module.c_str() );
+	getBuffer().appendf( "[%s] %s: ", ofGetLogLevelName( level, true ).c_str(), module.c_str() );
 	getBuffer().appendfv( format, args );
 }
 

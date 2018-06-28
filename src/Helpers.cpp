@@ -413,7 +413,7 @@ bool ofxImGui::AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha)
 //--------------------------------------------------------------
 bool ofxImGui::AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns)
 {
-	ImGui::Text(parameter.getName().c_str());
+	ImGui::Text("%s", parameter.getName().c_str());
 	auto result = false;
 	auto tmpRef = parameter.get();
 	ImGui::PushID(parameter.getName().c_str());
