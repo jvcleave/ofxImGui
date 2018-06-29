@@ -213,7 +213,7 @@ bool ofApp::imGui()
 					}
 				}
 
-				static const vector<string> labels = { "None", "Color", "Texture" };
+				static const std::vector<std::string> labels = { "None", "Color", "Texture" };
 
 				ofxImGui::AddRadio(this->fillMode, labels, 3);
 				ofxImGui::AddRadio(this->strokeMode, labels, 3);

@@ -33,7 +33,7 @@ namespace ofxImGui
 
 	//--------------------------------------------------------------
 	
-	void EngineVk::setup()
+	void EngineVk::setup(bool autoDraw)
 	{
 		if (isSetup) return;
 

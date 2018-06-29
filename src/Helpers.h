@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ofGLBaseTypes.h"
 #include "ofParameter.h"
 #include "ofRectangle.h"
 #include "ofTexture.h"
@@ -64,10 +65,15 @@ namespace ofxImGui
 
 	bool AddParameter(ofParameter<ofFloatColor>& parameter, bool alpha = true);
 
+	bool AddParameter(ofParameter<std::string>& parameter, size_t maxChars = 255, bool multiline = false);
+
+	bool AddParameter(ofParameter<void>& parameter);
+
 	template<typename ParameterType>
 	bool AddParameter(ofParameter<ParameterType>& parameter);
 
 	bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
+	bool AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels);
 	bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
 
 	bool AddRange(const std::string& name, ofParameter<int>& parameterMin, ofParameter<int>& parameterMax, int speed = 1);
@@ -97,14 +103,10 @@ namespace ofxImGui
 
 	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
 	void AddImage(ofTexture& texture, const ofVec2f& size);
-
-
-} // end namespace ofxImgui
-
+}
 
 
 //--------------------------------------------------------------
-
 template<typename ParameterType>
 bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 {

@@ -55,20 +55,20 @@ ImVec4(const ofVec4f& f) { x = f.x; y = f.y; z = f.z; w = f.w; }																
 operator ofVec4f() const { return ofVec4f(x,y,z,w); }																						\
 ImVec4(const glm::vec4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }																			\
 operator glm::vec4() const { return glm::vec4(x,y,z,w); }																					\
-ImVec4(ofColor& color, float alpha) { static const float sc = 1.0f/255.0f; x = color.r*sc; y = color.g*sc; z = color.b*sc; w = alpha; }		\
+ImVec4(const ofColor& color, float alpha) { static const float sc = 1.0f/255.0f; x = color.r*sc; y = color.g*sc; z = color.b*sc; w = alpha; }		\
 ImVec4(const ofColor& f) { static const float sc = 1.0f/255.0f; x = f.r*sc; y = f.g*sc; z = f.b*sc; w = f.a*sc; }							\
 operator ofColor() const { return ofColor((int) (x*255.0f+0.5f), (int) (y*255.0f+0.5f), (int) (z*255.0f+0.5f), (int) (w*255.0f+0.5f)); }	\
-ImVec4(ofFloatColor& color, float alpha) { x = color.r; y = color.g; z = color.b; w = alpha; }												\
+ImVec4(const ofFloatColor& color, float alpha) { x = color.r; y = color.g; z = color.b; w = alpha; }												\
 ImVec4(const ofFloatColor& f) { x = f.r; y = f.g; z = f.b; w = f.a; }																		\
 operator ofFloatColor() const { return ofFloatColor(x, y, z, w); }
 #else
 #define IM_VEC4_CLASS_EXTRA																													\
 ImVec4(const ofVec4f& f) { x = f.x; y = f.y; z = f.z; w = f.w; }																			\
 operator ofVec4f() const { return ofVec4f(x,y,z,w); }																						\
-ImVec4(ofColor& color, float alpha) { static const float sc = 1.0f/255.0f; x = color.r*sc; y = color.g*sc; z = color.b*sc; w = alpha; }		\
+ImVec4(const ofColor& color, float alpha) { static const float sc = 1.0f/255.0f; x = color.r*sc; y = color.g*sc; z = color.b*sc; w = alpha; }		\
 ImVec4(const ofColor& f) { static const float sc = 1.0f/255.0f; x = f.r*sc; y = f.g*sc; z = f.b*sc; w = f.a*sc; }							\
 operator ofColor() const { return ofColor((int) (x*255.0f+0.5f), (int) (y*255.0f+0.5f), (int) (z*255.0f+0.5f), (int) (w*255.0f+0.5f)); }	\
-ImVec4(ofFloatColor& color, float alpha) { x = color.r; y = color.g; z = color.b; w = alpha; }												\
+ImVec4(const ofFloatColor& color, float alpha) { x = color.r; y = color.g; z = color.b; w = alpha; }												\
 ImVec4(const ofFloatColor& f) { x = f.r; y = f.g; z = f.b; w = f.a; }																		\
 operator ofFloatColor() const { return ofFloatColor(x, y, z, w); }
 #endif

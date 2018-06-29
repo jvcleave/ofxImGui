@@ -17,10 +17,12 @@ namespace ofxImGui
 		virtual ~BaseEngine()
 		{}
 
-		virtual void setup() = 0;
+		virtual void setup(bool autoDraw) = 0;
 		virtual void exit() = 0;
 		virtual bool createDeviceObjects() = 0;
 		virtual void invalidateDeviceObjects() = 0;
+
+		virtual void draw() {};
 
 		virtual void onMouseDragged(ofMouseEventArgs& event);
 		virtual void onMousePressed(ofMouseEventArgs& event);
@@ -32,24 +34,24 @@ namespace ofxImGui
 
 		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
-		static const char* getClipboardString(void* usr);
-		static void setClipboardString(void* usr, const char * text);
+		static const char* getClipboardString(void * userData);
+		static void setClipboardString(void * userData, const char * text);
 
 		static int g_ShaderHandle;
 		static int g_VertHandle;
 		static int g_FragHandle;
 
-		static int g_UniformLocationTex;
-		static int g_UniformLocationProjMtx;
+		static int g_AttribLocationTex;
+		static int g_AttribLocationProjMtx;
 		static int g_AttribLocationPosition;
 		static int g_AttribLocationUV;
 		static int g_AttribLocationColor;
 
 		static unsigned int g_VboHandle;
+		static unsigned int g_VaoHandle;
 		static unsigned int g_ElementsHandle;
 
 		bool mousePressed[5] = { false };
-		bool mouseReleased = true;
 
 	protected:
 		bool isSetup;

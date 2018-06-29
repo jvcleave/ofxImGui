@@ -15,18 +15,16 @@ namespace ofxImGui
 		Gui();
 		~Gui();
 
-		void setup(BaseTheme* theme = nullptr);
+		void setup(BaseTheme* theme = nullptr, bool autoDraw = true);
+		void exit();
+
 		void begin();
 		void end();
-		void close();
 
-		BaseEngine* engine;
-		float lastTime;
+		void draw();
 
 		void setTheme(BaseTheme* theme);
 		void openThemeColorWindow();
-
-		BaseTheme* theme;
 
 		GLuint loadImage(ofImage& image);
 		GLuint loadImage(const std::string& imagePath);
@@ -36,6 +34,14 @@ namespace ofxImGui
 
 		GLuint loadTexture(const std::string& imagePath);
 		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
+
+	private:
+		BaseEngine* engine;
+
+		float lastTime;
+		bool autoDraw;
+
+		BaseTheme* theme;
 
 		std::vector<ofTexture*> loadedTextures;
 	};

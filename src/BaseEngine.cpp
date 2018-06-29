@@ -1,5 +1,6 @@
 #include "BaseEngine.h"
 
+#include "ofAppBaseWindow.h"
 #include "ofAppRunner.h"
 #include "imgui.h"
 
@@ -9,14 +10,14 @@ namespace ofxImGui
 	int BaseEngine::g_VertHandle = 0;
 	int BaseEngine::g_FragHandle = 0;
 
-	int BaseEngine::g_UniformLocationTex = 0;
-	int BaseEngine::g_UniformLocationProjMtx = 0;
+	int BaseEngine::g_AttribLocationTex = 0;
+	int BaseEngine::g_AttribLocationProjMtx = 0;
 	int BaseEngine::g_AttribLocationUV = 0;
-
 	int BaseEngine::g_AttribLocationPosition = 0;
 	int BaseEngine::g_AttribLocationColor = 0;
 
 	unsigned int BaseEngine::g_VboHandle = 0;
+	unsigned int BaseEngine::g_VaoHandle = 0;
 	unsigned int BaseEngine::g_ElementsHandle = 0;
 
 	//--------------------------------------------------------------
@@ -31,7 +32,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseDragged(ofMouseEventArgs& event)
 	{
-		mouseReleased = false;
+
 	}
 
 	//--------------------------------------------------------------
@@ -40,20 +41,23 @@ namespace ofxImGui
 		if (event.button >= 0 && event.button < 5)
 		{
 			mousePressed[event.button] = true;
-			mouseReleased = false;
 		}
 	}
 
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseReleased(ofMouseEventArgs& event)
 	{
-		mouseReleased = true;
+		if (event.button >= 0 && event.button < 5)
+		{
+			mousePressed[event.button] = false;
+		}
 	}
 
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 	{
 		ImGuiIO& io = ImGui::GetIO();
+		io.MouseWheelH = event.scrollX;
 		io.MouseWheel = event.scrollY;
 	}
 
@@ -65,13 +69,13 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	const char* BaseEngine::getClipboardString(void* usr)
+	const char* BaseEngine::getClipboardString(void * userData)
 	{
 		return &ofGetWindowPtr()->getClipboardString()[0];
 	}
 
 	//--------------------------------------------------------------
-	void BaseEngine::setClipboardString(void* usr, const char * text)
+	void BaseEngine::setClipboardString(void * userData, const char * text)
 	{
 		ofGetWindowPtr()->setClipboardString(text);
 	}

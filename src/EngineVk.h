@@ -32,7 +32,7 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup() override;
+		void setup(bool autoDraw) override;
 		void exit() override;
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
