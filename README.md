@@ -5,7 +5,13 @@ ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [op
 ### Compatibility
 Master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
 
-Release versions tested with OF 0.9.x on
+Release versions for OF 0.10.x (1.62 and up) tested on
+ - Raspberry Pi 3
+ - Mac OS 10.13, Xcode 9
+ - Linux Desktop (Ubuntu)
+ - Windows 10, Visual Studio 2017
+ 
+Release versions for OF 0.9.x (1.53 and earlier) tested on
  - Raspberry Pi 1 and 2
  - Mac OS 10.11, Xcode 7
  - iOS 9.2 and 8.1.2, Xcode 7
