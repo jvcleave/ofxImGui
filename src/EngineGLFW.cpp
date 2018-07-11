@@ -361,7 +361,8 @@ namespace ofxImGui
 		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
 		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
-		if (key < GLFW_KEY_ESCAPE)
+		bool isNumericalKey = (key >= GLFW_KEY_KP_0) && (key <= GLFW_KEY_KP_EQUAL);
+		if (key < GLFW_KEY_ESCAPE || isNumericalKey)
 		{
 			io.AddInputCharacter((unsigned short)event.codepoint);
 		}

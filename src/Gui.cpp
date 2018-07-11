@@ -17,7 +17,9 @@ namespace ofxImGui
 		: lastTime(0.0f)
 		, engine(nullptr)
 		, theme(nullptr)
-	{}
+	{
+		ImGui::CreateContext();
+	}
 
 	//--------------------------------------------------------------
 	Gui::~Gui()
