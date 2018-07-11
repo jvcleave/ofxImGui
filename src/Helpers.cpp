@@ -142,13 +142,13 @@ bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
 bool ofxImGui::BeginTree(const std::string& name, Settings& settings)
 {
 	bool result;
+	ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
 	if (settings.treeLevel == 0)
 	{
 		result = ImGui::CollapsingHeader(GetUniqueName(name));
 	}
 	else
 	{
-		ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
 		result = ImGui::TreeNode(GetUniqueName(name));
 	}
 	if (result)
