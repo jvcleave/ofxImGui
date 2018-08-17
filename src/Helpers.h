@@ -11,6 +11,10 @@ static const int kImGuiMargin = 10;
 
 namespace ofxImGui
 {
+    
+    bool VectorCombo(const char* label, int* currIndex, std::vector<std::string>& values);
+
+    
 	struct WindowOpen
 	{
 		std::stack<std::vector<std::string>> usedNames;
