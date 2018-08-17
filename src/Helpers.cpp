@@ -773,3 +773,9 @@ bool ofxImGui::VectorCombo(const char* label, int* currIndex, std::vector<std::s
                         static_cast<void*>(&values), values.size());
 }
 
+bool ofxImGui::VectorListBox(const char* label, int* currIndex, std::vector<std::string>& values)
+{
+    if (values.empty()) { return false; }
+    return ImGui::ListBox(label, currIndex, vector_getter,
+                   static_cast<void*>(&values), values.size());
+}
