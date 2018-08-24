@@ -142,13 +142,13 @@ bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
 bool ofxImGui::BeginTree(const std::string& name, Settings& settings)
 {
 	bool result;
+	ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
 	if (settings.treeLevel == 0)
 	{
-		result = ImGui::CollapsingHeader(GetUniqueName(name));
+		result = ImGui::TreeNodeEx(GetUniqueName(name), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_NoAutoOpenOnLog);
 	}
 	else
 	{
-		ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
 		result = ImGui::TreeNode(GetUniqueName(name));
 	}
 	if (result)
@@ -164,11 +164,8 @@ bool ofxImGui::BeginTree(const std::string& name, Settings& settings)
 //--------------------------------------------------------------
 void ofxImGui::EndTree(Settings& settings)
 {
-	if (settings.treeLevel > 1)
-	{
-		ImGui::TreePop();
-	}
-
+	ImGui::TreePop();
+	
 	settings.treeLevel = std::max(0, settings.treeLevel - 1);
 
 	// Clear the list of names from the stack.
