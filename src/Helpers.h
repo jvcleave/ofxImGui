@@ -128,6 +128,13 @@ static ImTextureID GetImTextureID(ofBaseHasTexture& hasTexture)
     return GetImTextureID(hasTexture.getTexture());
 }
 
+static ImTextureID GetImTextureID(GLuint glID)
+{
+    
+    return (ImTextureID)(uintptr_t)glID;
+
+}
+
 //--------------------------------------------------------------
 template<typename ParameterType>
 bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
