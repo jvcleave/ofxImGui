@@ -9,6 +9,9 @@
 
 static const int kImGuiMargin = 10;
 
+
+
+
 namespace ofxImGui
 {
     
@@ -114,6 +117,16 @@ namespace ofxImGui
 	void AddImage(ofTexture& texture, const ofVec2f& size);
 }
 
+static ImTextureID GetImTextureID(ofTexture& texture)
+{
+    return (ImTextureID)(uintptr_t)texture.texData.textureID;
+}
+
+static ImTextureID GetImTextureID(ofBaseHasTexture& hasTexture)
+{
+    
+    return GetImTextureID(hasTexture.getTexture());
+}
 
 //--------------------------------------------------------------
 template<typename ParameterType>

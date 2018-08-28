@@ -753,7 +753,7 @@ void ofxImGui::AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size)
 //--------------------------------------------------------------
 void ofxImGui::AddImage(ofTexture& texture, const ofVec2f& size)
 {
-	ImTextureID textureID = (ImTextureID)(uintptr_t)texture.texData.textureID;
+	ImTextureID textureID = GetImTextureID(texture);
 	ImGui::Image(textureID, size);
 }
 
@@ -779,3 +779,4 @@ bool ofxImGui::VectorListBox(const char* label, int* currIndex, std::vector<std:
     return ImGui::ListBox(label, currIndex, vector_getter,
                    static_cast<void*>(&values), values.size());
 }
+
