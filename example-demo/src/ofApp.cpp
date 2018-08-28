@@ -36,6 +36,14 @@ void ofApp::setup()
     //textureSourceID = gui.loadTexture("of_upside_down.png");
 
     ofLogVerbose() << "textureSourceID: " << textureSourceID;
+    
+    ofDirectory dataDirectory(ofToDataPath("", true));
+    
+    files = dataDirectory.getFiles();
+    for(size_t i=0; i<files.size(); i++)
+    {
+        fileNames.push_back(files[i].getFileName());
+    }
 }
 
 bool doSetTheme = false;
@@ -101,12 +109,38 @@ void ofApp::draw(){
         ImGui::ShowDemoWindow(&show_test_window);
     }
     
+    if(!fileNames.empty())
+    {
+        
+        //ofxImGui::VectorListBox allows for the use of a vector<string> as a data source
+        static int currentListBoxIndex = 0;
+        if(ofxImGui::VectorListBox("VectorListBox", &currentListBoxIndex, fileNames))
+        {
+            ofLog() << " VectorListBox FILE PATH: "  << files[currentListBoxIndex].getAbsolutePath();
+        }
+        
+        //ofxImGui::VectorCombo allows for the use of a vector<string> as a data source
+        static int currentFileIndex = 0;
+        if(ofxImGui::VectorCombo("VectorCombo", &currentFileIndex, fileNames))
+        {
+            ofLog() << "VectorCombo FILE PATH: "  << files[currentFileIndex].getAbsolutePath();
+        }
+    }
+
     
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
     
+    //GetImTextureID is a static function define in Helpers.h that accepts ofTexture, ofImage, or GLuint
+    if(ImGui::ImageButton(GetImTextureID(imageButtonID), ImVec2(200, 200)))
+    {
+           ofLog() << "PRESSED";
+    }
     
+    //or do it manually
+    ImGui::Image((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+
+    ImGui::Image(GetImTextureID(pixelsButtonID), ImVec2(200, 200));
+
+   
     if(doThemeColorsWindow)
     {
         gui.openThemeColorWindow();
@@ -116,10 +150,6 @@ void ofApp::draw(){
     //required to call this at end
     gui.end();
     
-    if(textureSource.isAllocated())
-    {
-        //textureSource.draw(ofRandom(200), ofRandom(200));
-    }
 }
 
 //--------------------------------------------------------------

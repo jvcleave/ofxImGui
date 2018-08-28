@@ -36,4 +36,6 @@ public:
     ofTexture textureSource;
     GLuint textureSourceID;
     
+    std::vector<std::string> fileNames;
+    std::vector<ofFile> files;
 };
