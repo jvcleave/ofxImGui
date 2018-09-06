@@ -114,3 +114,8 @@ Desktop.ini
 #########################
 
 .mailmap
+DerivedData
+Makefile
+config.make
+openFrameworks-Info.plist
+Project.xcconfig
