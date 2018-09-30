@@ -36,11 +36,14 @@ namespace ofxImGui
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
+		if (engine)
+			delete engine;
+
 #if defined(TARGET_OPENGLES)
 		engine = new EngineOpenGLES();
 #elif defined (OF_TARGET_API_VULKAN) 
 		engine = new EngineVk();
-#else 
+#else
 		engine = new EngineGLFW();
 #endif
 
