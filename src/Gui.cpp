@@ -37,7 +37,10 @@ namespace ofxImGui
 		io.MouseDrawCursor = false;
 
 		if (engine)
-			delete engine;
+        {
+            delete engine;
+            engine = nullptr;
+        }
 
 #if defined(TARGET_OPENGLES)
 		engine = new EngineOpenGLES();
