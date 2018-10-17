@@ -2,20 +2,13 @@
 
 #include "ofAppRunner.h"
 
-#if defined(TARGET_OPENGLES)
-#include "EngineOpenGLES.h"
-#elif defined (OF_TARGET_API_VULKAN)
-#include "EngineVk.h"
-#else
-#include "EngineGLFW.h"
-#endif
+
 
 namespace ofxImGui
 {
 	//--------------------------------------------------------------
 	Gui::Gui()
 		: lastTime(0.0f)
-		, engine(nullptr)
 		, theme(nullptr)
 	{
 		ImGui::CreateContext();
@@ -36,22 +29,10 @@ namespace ofxImGui
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
-		if (engine)
-        {
-            delete engine;
-            engine = nullptr;
-        }
 
-#if defined(TARGET_OPENGLES)
-		engine = new EngineOpenGLES();
-#elif defined (OF_TARGET_API_VULKAN) 
-		engine = new EngineVk();
-#else
-		engine = new EngineGLFW();
-#endif
 
 		autoDraw = autoDraw_;
-		engine->setup(autoDraw);
+		engine.setup(autoDraw);
 
 		if (theme_)
 		{
@@ -66,16 +47,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::exit()
 	{
-		if (engine)
-		{
-			delete engine;
-			engine = nullptr;
-		}
-		//if(io)
-		//{
-		//    io->Fonts->TexID = 0;
-		//    io = nullptr;
-		//}
+     
 		if (theme)
 		{
 			delete theme;
@@ -83,7 +55,11 @@ namespace ofxImGui
 		}
 		for (size_t i = 0; i < loadedTextures.size(); i++)
 		{
-			delete loadedTextures[i];
+            if(loadedTextures[i])
+            {
+                delete loadedTextures[i];
+                loadedTextures[i] = NULL;
+            }
 		}
 		loadedTextures.clear();
 
@@ -112,13 +88,12 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(ofPixels& pixels)
 	{
-		return engine->loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
+		return engine.loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
 	}
 
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(const std::string& imagePath)
 	{
-		if (!engine) return -1;
 		ofPixels pixels;
 		ofLoadImage(pixels, imagePath);
 		return loadPixels(pixels);
@@ -127,7 +102,6 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadImage(ofImage& image)
 	{
-		if (!engine) return -1;
 		return loadPixels(image.getPixels());
 	}
 
@@ -167,11 +141,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::begin()
 	{
-		if (!engine)
-		{
-			ofLogError(__FUNCTION__) << "setup() call required, calling it for you";
-			setup();
-		}
+		
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -189,7 +159,7 @@ namespace ofxImGui
 		// Update settings
 		io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
 		for (int i = 0; i < 5; i++) {
-			io.MouseDown[i] = engine->mousePressed[i];
+			io.MouseDown[i] = engine.mousePressed[i];
 		}
 		ImGui::NewFrame();
 	}
@@ -205,7 +175,7 @@ namespace ofxImGui
 	{
 		if (!autoDraw)
 		{
-			engine->draw();
+			engine.draw();
 		}
 	}
 }

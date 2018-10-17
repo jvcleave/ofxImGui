@@ -4,7 +4,14 @@
 #include "ofPixels.h"
 #include "ofTexture.h"
 
-#include "BaseEngine.h"
+#if defined(TARGET_OPENGLES)
+#include "EngineOpenGLES.h"
+#elif defined (OF_TARGET_API_VULKAN)
+#include "EngineVk.h"
+#else
+#include "EngineGLFW.h"
+#endif
+
 #include "BaseTheme.h"
 
 namespace ofxImGui
@@ -35,9 +42,15 @@ namespace ofxImGui
 		GLuint loadTexture(const std::string& imagePath);
 		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
 
-	private:
-		BaseEngine* engine;
-
+	private:        
+#if defined(TARGET_OPENGLES)
+        EngineOpenGLES engine;
+#elif defined (OF_TARGET_API_VULKAN) 
+        EngineVk engine;
+#else
+        EngineGLFW engine;
+#endif
+        
 		float lastTime;
 		bool autoDraw;
 

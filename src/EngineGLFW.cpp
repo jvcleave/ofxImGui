@@ -70,22 +70,24 @@ namespace ofxImGui
 		isSetup = true;
 	}
 
+    
+    
 	//--------------------------------------------------------------
 	void EngineGLFW::exit()
 	{
 		if (!isSetup) return;
-
-		// Override listeners
-		ofRemoveListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
-		ofRemoveListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
-		ofRemoveListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
-		ofRemoveListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
-
-		// Base class listeners
-		ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
-		ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
-		ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
-
+        
+        // Override listeners
+        ofRemoveListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
+        ofRemoveListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
+        ofRemoveListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
+        ofRemoveListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
+        
+        // Base class listeners
+        ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
+        ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
+        ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
+        
 		invalidateDeviceObjects();
 
 		isSetup = false;
@@ -506,7 +508,8 @@ namespace ofxImGui
 		if (g_FontTexture)
 		{
 			glDeleteTextures(1, &g_FontTexture);
-			ImGui::GetIO().Fonts->TexID = 0;
+            //JVC: This is causing an error
+			//ImGui::GetIO().Fonts->TexID = 0;
 			g_FontTexture = 0;
 		}
 	}
