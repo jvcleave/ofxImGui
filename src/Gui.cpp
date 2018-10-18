@@ -47,7 +47,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::exit()
 	{
-     
+        engine.exit();
 		if (theme)
 		{
 			delete theme;
