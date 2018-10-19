@@ -2,36 +2,27 @@
 
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks).
 
+![Screenshot](images/Screenshot.png)
+
 ### Compatibility
 Master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
 
-Release versions for OF 0.10.x (1.62 and up) tested on
- - Raspberry Pi 3
- - Mac OS 10.13, Xcode 9
+#### Test Platforms
+ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requirements](https://openframeworks.cc/download/). These are typically:
+
+ - Mac OSX, Xcode
+ - Windows 10, Visual Studio
+ - Raspberry Pi
  - Linux Desktop (Ubuntu)
- - Windows 10, Visual Studio 2017
- 
-Release versions for OF 0.9.x (1.53 and earlier) tested on
- - Raspberry Pi 1 and 2
- - Mac OS 10.11, Xcode 7
- - iOS 9.2 and 8.1.2, Xcode 7
- - Linux Desktop
- - Windows 10, Visual Studio 2015
 
-
-
-#### Upgrade Notes
-Versions 1.50 and higher use the keyword `ofxImGui` as a namespace for all classes in the addon, while previous versions just had a class called `ofxImGui`. If you're upgrading from a previous version, make sure to replace all instances of class `ofxImGui` with `ofxImGui::Gui`.
 
 ### Examples
 
-![Screenshot](images/Screenshot.png)
-
 #### example-demo    
-Works on Desktop, uses imgui demo windows.
+imgui demo windows with some OF sepcific image loading
 
 #### example-helpers
-Works on Desktop, uses ofxImGui helper functions for interfacing with `ofParameter`.
+ofxImGui helper functions for interfacing with `ofParameter`.
 
 #### example-ios  
 iOS specific with keyboard input helper.
