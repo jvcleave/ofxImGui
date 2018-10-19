@@ -3,6 +3,17 @@
 
 int main()
 {
-    ofSetupOpenGL(1280, 720, OF_WINDOW);
-    ofRunApp( new ofApp());
+
+#if defined(TARGET_OPENGLES)
+  ofGLESWindowSettings settings;
+  settings.setSize(1280, 720);
+  settings.setGLESVersion(2);
+  ofCreateWindow(settings);
+#else
+  ofSetupOpenGL(1280, 720, OF_WINDOW);
+#endif
+
+ofRunApp( new ofApp());
+
 }
+
