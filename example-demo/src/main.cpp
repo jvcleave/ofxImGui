@@ -13,7 +13,7 @@ int main()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
 #if defined(TARGET_OPENGLES)
-    #if (OF_VERSION_MINOR == 9)
+    #if (OF_VERSION_MINOR >= 9)
         ofGLESWindowSettings settings;
 		settings.setSize(1280, 720);
         settings.setGLESVersion(2);
