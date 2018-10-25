@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxImGui.h"
-#include "ThemeTest.h"
+#include "MyTheme.h"
 
 class ofApp : public ofBaseApp{
 public:

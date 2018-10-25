@@ -46,20 +46,13 @@ void ofApp::setup()
     }
 }
 
-bool doSetTheme = false;
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    if(doSetTheme)
-    {
-        doSetTheme = false;
-        gui.setTheme(new ThemeTest());
-        
-    }
+    
     
     
 }
-bool doThemeColorsWindow = false;
 //--------------------------------------------------------------
 void ofApp::draw(){
     
@@ -91,6 +84,19 @@ void ofApp::draw(){
             
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        
+        if (ImGui::Button("CUSTOM THEME"))
+        {
+            gui.setTheme(new MyTheme());
+            
+        }ImGui::SameLine();
+        
+        if (ImGui::Button("DEFAULT THEME"))
+        {
+            gui.setTheme(new ofxImGui::DefaultTheme());
+            
+        }
+        
     }
     // 2. Show another window, this time using an explicit ImGui::Begin and ImGui::End
     if (show_another_window)
@@ -141,11 +147,9 @@ void ofApp::draw(){
     ImGui::Image(GetImTextureID(pixelsButtonID), ImVec2(200, 200));
 
    
-    if(doThemeColorsWindow)
-    {
-        gui.openThemeColorWindow();
-        
-    }
+    
+    
+
     
     //required to call this at end
     gui.end();
@@ -158,16 +162,7 @@ void ofApp::keyPressed(int key){
     ofLogVerbose(__FUNCTION__) << key;
     switch (key)
     {
-        case 't' :
-        {
-            doThemeColorsWindow = !doThemeColorsWindow;
-            break;
-        }
-        case 'c' :
-        {
-            doSetTheme = !doSetTheme;
-            break;
-        }
+
         case 's':
         {
             break;
