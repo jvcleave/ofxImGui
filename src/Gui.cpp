@@ -40,7 +40,8 @@ namespace ofxImGui
 		}
 		else
 		{
-			setTheme(new BaseTheme());
+            DefaultTheme* defaultTheme = new DefaultTheme();
+			setTheme((BaseTheme*)defaultTheme);
 		}
 	}
 
@@ -75,15 +76,10 @@ namespace ofxImGui
 			theme = nullptr;
 		}
 		theme = theme_;
-		theme->updateColors();
 		theme->setup();
 	}
 
-	//--------------------------------------------------------------
-	void Gui::openThemeColorWindow()
-	{
-		theme->themeColorsWindow(true);
-	}
+
 
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(ofPixels& pixels)

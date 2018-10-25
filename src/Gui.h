@@ -12,7 +12,7 @@
 #include "EngineGLFW.h"
 #endif
 
-#include "BaseTheme.h"
+#include "DefaultTheme.h"
 
 namespace ofxImGui
 {
@@ -31,7 +31,6 @@ namespace ofxImGui
 		void draw();
 
 		void setTheme(BaseTheme* theme);
-		void openThemeColorWindow();
 
 		GLuint loadImage(ofImage& image);
 		GLuint loadImage(const std::string& imagePath);
