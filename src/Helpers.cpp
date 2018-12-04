@@ -638,7 +638,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec2<int>>& 
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderInt2(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragInt2(GetUniqueName(iname), glm::value_ptr(values[i]));
+		}
+		else
+		{
+			result |= ImGui::SliderInt2(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -650,7 +657,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec3<int>>& 
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderInt3(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragInt3(GetUniqueName(iname), glm::value_ptr(values[i]));
+		}
+		else
+		{
+			result |= ImGui::SliderInt3(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -662,7 +676,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec4<int>>& 
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderInt4(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragInt4(GetUniqueName(iname), glm::value_ptr(values[i]));
+		}
+		else
+		{
+			result |= ImGui::SliderInt4(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -674,7 +695,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec2>& values
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderFloat2(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragFloat2(GetUniqueName(iname), glm::value_ptr(values[i]));
+		}
+		else
+		{
+			result |= ImGui::SliderFloat2(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -686,7 +714,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec3>& values
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderFloat3(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragFloat3(GetUniqueName(iname), glm::value_ptr(values[i]));
+		}
+		else
+		{
+			result |= ImGui::SliderFloat3(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -698,7 +733,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec4>& values
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderFloat4(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragFloat4(GetUniqueName(iname), glm::value_ptr(values[i]));
+		}
+		else
+		{
+			result |= ImGui::SliderFloat4(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -712,7 +754,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec2f>& values, 
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderFloat2(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragFloat2(GetUniqueName(iname), values[i].getPtr());
+		}
+		else
+		{
+			result |= ImGui::SliderFloat2(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -724,7 +773,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec3f>& values, 
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderFloat3(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragFloat3(GetUniqueName(iname), values[i].getPtr());
+		}
+		else
+		{
+			result |= ImGui::SliderFloat3(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
+		}
 	}
 	return result;
 }
@@ -736,7 +792,14 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec4f>& values, 
 	for (int i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
-		result |= ImGui::SliderFloat4(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
+		if (minValue == 0 && maxValue == 0)
+		{
+			result |= ImGui::DragFloat4(GetUniqueName(iname), values[i].getPtr());
+		}
+		else
+		{
+			result |= ImGui::SliderFloat4(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
+		}
 	}
 	return result;
 }

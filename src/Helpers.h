@@ -89,18 +89,18 @@ namespace ofxImGui
 #endif
 
 #if OF_VERSION_MINOR >= 10
-	bool AddValues(const std::string& name, std::vector<glm::ivec2>& values, int minValue, int maxValue);
-	bool AddValues(const std::string& name, std::vector<glm::ivec3>& values, int minValue, int maxValue);
-	bool AddValues(const std::string& name, std::vector<glm::ivec4>& values, int minValue, int maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::ivec2>& values, int minValue = 0, int maxValue = 0);
+	bool AddValues(const std::string& name, std::vector<glm::ivec3>& values, int minValue = 0, int maxValue = 0);
+	bool AddValues(const std::string& name, std::vector<glm::ivec4>& values, int minValue = 0, int maxValue = 0);
 
-	bool AddValues(const std::string& name, std::vector<glm::vec2>& values, float minValue, float maxValue);
-	bool AddValues(const std::string& name, std::vector<glm::vec3>& values, float minValue, float maxValue);
-	bool AddValues(const std::string& name, std::vector<glm::vec4>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<glm::vec2>& values, float minValue = 0, float maxValue = 0);
+	bool AddValues(const std::string& name, std::vector<glm::vec3>& values, float minValue = 0, float maxValue = 0);
+	bool AddValues(const std::string& name, std::vector<glm::vec4>& values, float minValue = 0, float maxValue = 0);
 #endif
 
-	bool AddValues(const std::string& name, std::vector<ofVec2f>& values, float minValue, float maxValue);
-	bool AddValues(const std::string& name, std::vector<ofVec3f>& values, float minValue, float maxValue);
-	bool AddValues(const std::string& name, std::vector<ofVec4f>& values, float minValue, float maxValue);
+	bool AddValues(const std::string& name, std::vector<ofVec2f>& values, float minValue = 0, float maxValue = 0);
+	bool AddValues(const std::string& name, std::vector<ofVec3f>& values, float minValue = 0, float maxValue = 0);
+	bool AddValues(const std::string& name, std::vector<ofVec4f>& values, float minValue = 0, float maxValue = 0);
 
 	template<typename DataType>
 	bool AddValues(const std::string& name, std::vector<DataType>& values, DataType minValue, DataType maxValue);
