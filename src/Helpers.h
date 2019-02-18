@@ -9,8 +9,16 @@
 
 static const int kImGuiMargin = 10;
 
+
+
+
 namespace ofxImGui
 {
+    
+    bool VectorCombo(const char* label, int* currIndex, std::vector<std::string>& values);
+    bool VectorListBox(const char* label, int* currIndex, std::vector<std::string>& values);
+
+    
 	struct WindowOpen
 	{
 		std::stack<std::vector<std::string>> usedNames;
@@ -109,6 +117,23 @@ namespace ofxImGui
 	void AddImage(ofTexture& texture, const ofVec2f& size);
 }
 
+static ImTextureID GetImTextureID(ofTexture& texture)
+{
+    return (ImTextureID)(uintptr_t)texture.texData.textureID;
+}
+
+static ImTextureID GetImTextureID(ofBaseHasTexture& hasTexture)
+{
+    
+    return GetImTextureID(hasTexture.getTexture());
+}
+
+static ImTextureID GetImTextureID(GLuint glID)
+{
+    
+    return (ImTextureID)(uintptr_t)glID;
+
+}
 
 //--------------------------------------------------------------
 template<typename ParameterType>
