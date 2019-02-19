@@ -805,18 +805,34 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec4f>& values, 
 }
 
 //--------------------------------------------------------------
-void ofxImGui::AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size)
+void ofxImGui::AddImage(const ofBaseHasTexture& hasTexture, const ofVec2f& size)
 {
 	ofxImGui::AddImage(hasTexture.getTexture(), size);
 }
 
 //--------------------------------------------------------------
-void ofxImGui::AddImage(ofTexture& texture, const ofVec2f& size)
+void ofxImGui::AddImage(const ofTexture& texture, const ofVec2f& size)
 {
 	ImTextureID textureID = GetImTextureID(texture);
 	ImGui::Image(textureID, size);
 }
 
+#if OF_VERSION_MINOR >= 10
+
+//--------------------------------------------------------------
+void ofxImGui::AddImage(const ofBaseHasTexture& hasTexture, const glm::vec2& size)
+{
+    ofxImGui::AddImage(hasTexture.getTexture(), size);
+}
+
+//--------------------------------------------------------------
+void ofxImGui::AddImage(const ofTexture& texture, const glm::vec2& size)
+{
+    ImTextureID textureID = GetImTextureID(texture);
+    ImGui::Image(textureID, size);
+}
+
+#endif
 
 static auto vector_getter = [](void* vec, int idx, const char** out_text)
 {

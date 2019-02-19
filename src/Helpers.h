@@ -113,16 +113,20 @@ namespace ofxImGui
 	template<typename DataType>
 	bool AddValues(const std::string& name, std::vector<DataType>& values, DataType minValue, DataType maxValue);
 
-	void AddImage(ofBaseHasTexture& hasTexture, const ofVec2f& size);
-	void AddImage(ofTexture& texture, const ofVec2f& size);
+	void AddImage(const ofBaseHasTexture& hasTexture, const ofVec2f& size);
+	void AddImage(const ofTexture& texture, const ofVec2f& size);
+#if OF_VERSION_MINOR >= 10
+    void AddImage(const ofBaseHasTexture& hasTexture, const glm::vec2& size);
+    void AddImage(const ofTexture& texture, const glm::vec2& size);
+#endif
 }
 
-static ImTextureID GetImTextureID(ofTexture& texture)
+static ImTextureID GetImTextureID(const ofTexture& texture)
 {
     return (ImTextureID)(uintptr_t)texture.texData.textureID;
 }
 
-static ImTextureID GetImTextureID(ofBaseHasTexture& hasTexture)
+static ImTextureID GetImTextureID(const ofBaseHasTexture& hasTexture)
 {
     
     return GetImTextureID(hasTexture.getTexture());
