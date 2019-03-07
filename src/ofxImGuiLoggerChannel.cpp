@@ -1,10 +1,19 @@
 #include "ofxImGuiLoggerChannel.h"
+#include <streambuf>
 
 //--------------------------------------------------------------
+std::stringstream ofxImGui::LoggerChannel::buffer;
+std::streambuf * ofxImGui::LoggerChannel::old = NULL;
 
 ImGuiTextBuffer& ofxImGui::LoggerChannel::getBuffer(){
 	static ImGuiTextBuffer sLogBuffer; // static log buffer for logger channel
-	return sLogBuffer;
+    if ( ! buffer.str().empty() )
+    {
+        sLogBuffer.appendf("%s", buffer.str().c_str());
+        buffer.clear();
+        buffer.str(std::string());
+    }
+    return sLogBuffer;
 };
 
 //--------------------------------------------------------------
@@ -24,5 +33,8 @@ void ofxImGui::LoggerChannel::log( ofLogLevel level, const std::string & module,
 	getBuffer().appendfv( format, args );
 }
 
-
+void ofxImGui::LoggerChannel::capture_stdout()
+{
+    old = std::cout.rdbuf(buffer.rdbuf());
+}
 //--------------------------------------------------------------
