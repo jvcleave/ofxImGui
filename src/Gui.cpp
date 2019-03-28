@@ -11,7 +11,7 @@ namespace ofxImGui
 		: lastTime(0.0f)
 		, theme(nullptr)
 	{
-		ImGui::CreateContext();
+		context = ImGui::CreateContext();
 	}
 
 	//--------------------------------------------------------------
@@ -23,7 +23,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::setup(BaseTheme* theme_, bool autoDraw_)
 	{
-		ImGui::CreateContext();
+		ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
@@ -64,7 +64,7 @@ namespace ofxImGui
 		}
 		loadedTextures.clear();
 
-		ImGui::DestroyContext();
+		ImGui::DestroyContext(context);
 	}
 
 	//--------------------------------------------------------------
@@ -138,7 +138,7 @@ namespace ofxImGui
 	void Gui::begin()
 	{
 		
-
+		ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
 
 		float currentTime = ofGetElapsedTimef();
