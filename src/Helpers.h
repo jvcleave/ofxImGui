@@ -55,11 +55,11 @@ namespace ofxImGui
 	bool BeginWindow(const std::string& name, Settings& settings, ImGuiWindowFlags flags, bool * open = nullptr);
 	void EndWindow(Settings& settings);
 
-	bool BeginTree(ofAbstractParameter& parameter, Settings& settings);
+	/*bool BeginTree(ofAbstractParameter& parameter, Settings& settings);
 	bool BeginTree(const std::string& name, Settings& settings);
 	void EndTree(Settings& settings);
 
-	void AddGroup(ofParameterGroup& group, Settings& settings);
+	void AddGroup(ofParameterGroup& group, Settings& settings);*/
 
 #if OF_VERSION_MINOR >= 10
 	bool AddParameter(ofParameter<glm::ivec2>& parameter);

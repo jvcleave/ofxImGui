@@ -30,6 +30,9 @@ namespace ofxImGui
 
 		void draw();
 
+    void SetDefaultFont(int indexAtlasFont);
+    int addFont(const std::string & fontPath, float fontSize = 13.0f);
+
 		void setTheme(BaseTheme* theme);
 
 		GLuint loadImage(ofImage& image);
