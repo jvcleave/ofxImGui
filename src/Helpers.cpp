@@ -133,154 +133,154 @@ void ofxImGui::EndWindow(Settings& settings)
 }
 
 //--------------------------------------------------------------
-//bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
-//{
-//	return ofxImGui::BeginTree(parameter.getName(), settings);
-//}
-//
-////--------------------------------------------------------------
-//bool ofxImGui::BeginTree(const std::string& name, Settings& settings)
-//{
-//	bool result;
-//	ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
-//	if (settings.treeLevel == 0)
-//	{
-//		result = ImGui::TreeNodeEx(GetUniqueName(name), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_NoAutoOpenOnLog);
-//	}
-//	else
-//	{
-//		result = ImGui::TreeNode(GetUniqueName(name));
-//	}
-//	if (result)
-//	{
-//		settings.treeLevel += 1;
-//
-//		// Push a new list of names onto the stack.
-//		windowOpen.usedNames.push(std::vector<std::string>());
-//	}
-//	return result;
-//}
-//
-////--------------------------------------------------------------
-//void ofxImGui::EndTree(Settings& settings)
-//{
-//	ImGui::TreePop();
-//	
-//	settings.treeLevel = std::max(0, settings.treeLevel - 1);
-//
-//	// Clear the list of names from the stack.
-//	windowOpen.usedNames.pop();
-//}
-//
-////--------------------------------------------------------------
-//void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
-//{
-//	bool prevWindowBlock = settings.windowBlock;
-//	if (settings.windowBlock)
-//	{
-//		if (!ofxImGui::BeginTree(group, settings))
-//		{
-//			return;
-//		}
-//	}
-//	else
-//	{
-//		if (!ofxImGui::BeginWindow(group.getName().c_str(), settings))
-//		{
-//			ofxImGui::EndWindow(settings);
-//			return;
-//		}
-//	}
-//
-//	for (auto parameter : group)
-//	{
-//		// Group.
-//		auto parameterGroup = std::dynamic_pointer_cast<ofParameterGroup>(parameter);
-//		if (parameterGroup)
-//		{
-//			// Recurse through contents.
-//			ofxImGui::AddGroup(*parameterGroup, settings);
-//			continue;
-//		}
-//
-//		// Parameter, try everything we know how to handle.
-//#if OF_VERSION_MINOR >= 10
-//		auto parameterVec2f = std::dynamic_pointer_cast<ofParameter<glm::vec2>>(parameter);
-//		if (parameterVec2f)
-//		{
-//			ofxImGui::AddParameter(*parameterVec2f);
-//			continue;
-//		}
-//		auto parameterVec3f = std::dynamic_pointer_cast<ofParameter<glm::vec3>>(parameter);
-//		if (parameterVec3f)
-//		{
-//			ofxImGui::AddParameter(*parameterVec3f);
-//			continue;
-//		}
-//		auto parameterVec4f = std::dynamic_pointer_cast<ofParameter<glm::vec4>>(parameter);
-//		if (parameterVec4f)
-//		{
-//			ofxImGui::AddParameter(*parameterVec4f);
-//			continue;
-//		}
-//#endif
-//		auto parameterOfVec2f = std::dynamic_pointer_cast<ofParameter<ofVec2f>>(parameter);
-//		if (parameterOfVec2f)
-//		{
-//			ofxImGui::AddParameter(*parameterOfVec2f);
-//			continue;
-//		}
-//		auto parameterOfVec3f = std::dynamic_pointer_cast<ofParameter<ofVec3f>>(parameter);
-//		if (parameterOfVec3f)
-//		{
-//			ofxImGui::AddParameter(*parameterOfVec3f);
-//			continue;
-//		}
-//		auto parameterOfVec4f = std::dynamic_pointer_cast<ofParameter<ofVec4f>>(parameter);
-//		if (parameterOfVec4f)
-//		{
-//			ofxImGui::AddParameter(*parameterOfVec4f);
-//			continue;
-//		}
-//		auto parameterFloatColor = std::dynamic_pointer_cast<ofParameter<ofFloatColor>>(parameter);
-//		if (parameterFloatColor)
-//		{
-//			ofxImGui::AddParameter(*parameterFloatColor);
-//			continue;
-//		}
-//		auto parameterFloat = std::dynamic_pointer_cast<ofParameter<float>>(parameter);
-//		if (parameterFloat)
-//		{
-//			ofxImGui::AddParameter(*parameterFloat);
-//			continue;
-//		}
-//		auto parameterInt = std::dynamic_pointer_cast<ofParameter<int>>(parameter);
-//		if (parameterInt)
-//		{
-//			ofxImGui::AddParameter(*parameterInt);
-//			continue;
-//		}
-//		auto parameterBool = std::dynamic_pointer_cast<ofParameter<bool>>(parameter);
-//		if (parameterBool)
-//		{
-//			ofxImGui::AddParameter(*parameterBool);
-//			continue;
-//		}
-//
-//		ofLogWarning(__FUNCTION__) << "Could not create GUI element for parameter " << parameter->getName();
-//	}
-//
-//	if (settings.windowBlock && !prevWindowBlock)
-//	{
-//		// End window if we created it.
-//		ofxImGui::EndWindow(settings);
-//	}
-//	else
-//	{
-//		// End tree.
-//		ofxImGui::EndTree(settings);
-//	}
-//}
+bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
+{
+	return ofxImGui::BeginTree(parameter.getName(), settings);
+}
+
+//--------------------------------------------------------------
+bool ofxImGui::BeginTree(const std::string& name, Settings& settings)
+{
+	bool result;
+	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+	if (settings.treeLevel == 0)
+	{
+		result = ImGui::TreeNodeEx(GetUniqueName(name), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_NoAutoOpenOnLog);
+	}
+	else
+	{
+		result = ImGui::TreeNode(GetUniqueName(name));
+	}
+	if (result)
+	{
+		settings.treeLevel += 1;
+
+		// Push a new list of names onto the stack.
+		windowOpen.usedNames.push(std::vector<std::string>());
+	}
+	return result;
+}
+
+//--------------------------------------------------------------
+void ofxImGui::EndTree(Settings& settings)
+{
+	ImGui::TreePop();
+	
+	settings.treeLevel = std::max(0, settings.treeLevel - 1);
+
+	// Clear the list of names from the stack.
+	windowOpen.usedNames.pop();
+}
+
+//--------------------------------------------------------------
+void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
+{
+	bool prevWindowBlock = settings.windowBlock;
+	if (settings.windowBlock)
+	{
+		if (!ofxImGui::BeginTree(group, settings))
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (!ofxImGui::BeginWindow(group.getName().c_str(), settings))
+		{
+			ofxImGui::EndWindow(settings);
+			return;
+		}
+	}
+
+	for (auto parameter : group)
+	{
+		// Group.
+		auto parameterGroup = std::dynamic_pointer_cast<ofParameterGroup>(parameter);
+		if (parameterGroup)
+		{
+			// Recurse through contents.
+			ofxImGui::AddGroup(*parameterGroup, settings);
+			continue;
+		}
+
+		// Parameter, try everything we know how to handle.
+#if OF_VERSION_MINOR >= 10
+		auto parameterVec2f = std::dynamic_pointer_cast<ofParameter<glm::vec2>>(parameter);
+		if (parameterVec2f)
+		{
+			ofxImGui::AddParameter(*parameterVec2f);
+			continue;
+		}
+		auto parameterVec3f = std::dynamic_pointer_cast<ofParameter<glm::vec3>>(parameter);
+		if (parameterVec3f)
+		{
+			ofxImGui::AddParameter(*parameterVec3f);
+			continue;
+		}
+		auto parameterVec4f = std::dynamic_pointer_cast<ofParameter<glm::vec4>>(parameter);
+		if (parameterVec4f)
+		{
+			ofxImGui::AddParameter(*parameterVec4f);
+			continue;
+		}
+#endif
+		auto parameterOfVec2f = std::dynamic_pointer_cast<ofParameter<ofVec2f>>(parameter);
+		if (parameterOfVec2f)
+		{
+			ofxImGui::AddParameter(*parameterOfVec2f);
+			continue;
+		}
+		auto parameterOfVec3f = std::dynamic_pointer_cast<ofParameter<ofVec3f>>(parameter);
+		if (parameterOfVec3f)
+		{
+			ofxImGui::AddParameter(*parameterOfVec3f);
+			continue;
+		}
+		auto parameterOfVec4f = std::dynamic_pointer_cast<ofParameter<ofVec4f>>(parameter);
+		if (parameterOfVec4f)
+		{
+			ofxImGui::AddParameter(*parameterOfVec4f);
+			continue;
+		}
+		auto parameterFloatColor = std::dynamic_pointer_cast<ofParameter<ofFloatColor>>(parameter);
+		if (parameterFloatColor)
+		{
+			ofxImGui::AddParameter(*parameterFloatColor);
+			continue;
+		}
+		auto parameterFloat = std::dynamic_pointer_cast<ofParameter<float>>(parameter);
+		if (parameterFloat)
+		{
+			ofxImGui::AddParameter(*parameterFloat);
+			continue;
+		}
+		auto parameterInt = std::dynamic_pointer_cast<ofParameter<int>>(parameter);
+		if (parameterInt)
+		{
+			ofxImGui::AddParameter(*parameterInt);
+			continue;
+		}
+		auto parameterBool = std::dynamic_pointer_cast<ofParameter<bool>>(parameter);
+		if (parameterBool)
+		{
+			ofxImGui::AddParameter(*parameterBool);
+			continue;
+		}
+
+		ofLogWarning(__FUNCTION__) << "Could not create GUI element for parameter " << parameter->getName();
+	}
+
+	if (settings.windowBlock && !prevWindowBlock)
+	{
+		// End window if we created it.
+		ofxImGui::EndWindow(settings);
+	}
+	else
+	{
+		// End tree.
+		ofxImGui::EndTree(settings);
+	}
+}
 
 #if OF_VERSION_MINOR >= 10
 
