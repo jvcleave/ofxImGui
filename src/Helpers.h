@@ -61,6 +61,10 @@ namespace ofxImGui
 
 	void AddGroup(ofParameterGroup& group, Settings& settings, bool collapse = true);
 
+  void ParamWindow(ofParameterGroup& group);
+
+  void AddParamsGroup(ofParameterGroup& group);
+
 #if OF_VERSION_MINOR >= 10
 	bool AddParameter(ofParameter<glm::ivec2>& parameter);
 	bool AddParameter(ofParameter<glm::ivec3>& parameter);
