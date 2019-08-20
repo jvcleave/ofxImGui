@@ -173,7 +173,7 @@ void ofxImGui::EndTree(Settings& settings)
 }
 
 //--------------------------------------------------------------
-void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
+void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings, bool collapse)
 {
 	bool prevWindowBlock = settings.windowBlock;
 	if (settings.windowBlock)
@@ -185,7 +185,7 @@ void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 	}
 	else
 	{
-		if (!ofxImGui::BeginWindow(group.getName().c_str(), settings))
+		if (!ofxImGui::BeginWindow(group.getName().c_str(), settings, collapse))
 		{
 			ofxImGui::EndWindow(settings);
 			return;
