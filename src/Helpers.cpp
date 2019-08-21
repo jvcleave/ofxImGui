@@ -72,11 +72,11 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool col
   // Push a new list of names onto the stack.
   windowOpen.usedNames.push(std::vector<std::string>());
 
-  ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-  ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-  ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
-  //return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
-  return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
+	/*ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);*/
+	//return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
+	return ImGui::Begin(name.c_str(), open);
 }
 
 //--------------------------------------------------------------
@@ -93,10 +93,10 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, ImGuiWin
   // Push a new list of names onto the stack.
   windowOpen.usedNames.push(std::vector<std::string>());
 
-  ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-  ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-  ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
-  return ImGui::Begin(name.c_str(), open, flags);
+	/*ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);*/
+	return ImGui::Begin(name.c_str(), open, flags);
 }
 
 //--------------------------------------------------------------
@@ -176,22 +176,22 @@ void ofxImGui::EndTree(Settings& settings)
 //--------------------------------------------------------------
 void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings, bool collapse)
 {
-  bool prevWindowBlock = settings.windowBlock;
-  if (settings.windowBlock)
-  {
-    if (!ofxImGui::BeginTree(group, settings))
-    {
-      return;
-    }
-  }
-  else
-  {
-    if (!ofxImGui::BeginWindow(group.getName().c_str(), settings, collapse))
-    {
-      ofxImGui::EndWindow(settings);
-      return;
-    }
-  }
+	bool prevWindowBlock = settings.windowBlock;
+	if (settings.windowBlock)
+	{
+		if (!ofxImGui::BeginTree(group, settings))
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (!ofxImGui::BeginWindow(group.getName().c_str(), settings, collapse))
+		{
+			ofxImGui::EndWindow(settings);
+			return;
+		}
+	}
 
   for (auto parameter : group)
   {
@@ -282,6 +282,49 @@ void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings, bool collap
     ofxImGui::EndTree(settings);
   }
 }
+
+void ofxImGui::ParamWindow(ofParameterGroup& group)
+{
+  ImGui::Begin(group.getName().c_str());
+
+  AddParamsGroup(group);
+
+  ImGui::End();
+}
+
+void ofxImGui::AddParamsGroup(ofParameterGroup& group)
+{
+  for (auto& parameter : group)
+  {
+    auto parameterGroup = std::dynamic_pointer_cast<ofParameterGroup>(parameter);
+    if (parameterGroup)
+    {
+      // Recurse through contents.
+      AddParamsGroup(*parameterGroup);
+      continue;
+    }
+    auto parameterFloat = std::dynamic_pointer_cast<ofParameter<float>>(parameter);
+    if (parameterFloat)
+    {
+      ofxImGui::AddParameter(*parameterFloat);
+      continue;
+    }
+    auto parameterInt = std::dynamic_pointer_cast<ofParameter<int>>(parameter);
+    if (parameterInt)
+    {
+      ofxImGui::AddParameter(*parameterInt);
+      continue;
+    }
+    auto parameterBool = std::dynamic_pointer_cast<ofParameter<bool>>(parameter);
+    if (parameterBool)
+    {
+      ofxImGui::AddParameter(*parameterBool);
+      continue;
+    }
+
+  }
+}
+
 
 #if OF_VERSION_MINOR >= 10
 

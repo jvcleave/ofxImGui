@@ -59,7 +59,11 @@ namespace ofxImGui
   bool BeginTree(const std::string& name, Settings& settings);
   void EndTree(Settings& settings);
 
-  void AddGroup(ofParameterGroup& group, Settings& settings, bool collapse = true);
+	void AddGroup(ofParameterGroup& group, Settings& settings, bool collapse = true);
+
+  void ParamWindow(ofParameterGroup& group);
+
+  void AddParamsGroup(ofParameterGroup& group);
 
 #if OF_VERSION_MINOR >= 10
   bool AddParameter(ofParameter<glm::ivec2>& parameter);
