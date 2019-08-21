@@ -39,8 +39,6 @@ namespace ofxImGui
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
-
-
 		autoDraw = autoDraw_;
 		engine.setup(autoDraw);
 
