@@ -91,6 +91,7 @@ namespace ofxImGui
   bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
   bool AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels);
   bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
+  bool AddKnob(ofParameter<float>& parameter);
 
   bool AddRange(const std::string& name, ofParameter<int>& parameterMin, ofParameter<int>& parameterMax, int speed = 1);
   bool AddRange(const std::string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed = 0.01f);
