@@ -1164,6 +1164,66 @@ void ImGui::Bullet()
     SameLine(0, style.FramePadding.x * 2.0f);
 }
 
+bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, float radius, bool filledNeedle, int valuePrecision)
+{
+  ImGuiIO& io = ImGui::GetIO();
+  ImGuiStyle& style = ImGui::GetStyle();
+
+  float radius_outer = radius;
+  ImVec2 pos = ImGui::GetCursorScreenPos(); // get top left of current widget
+  float line_height = ImGui::GetTextLineHeight();
+  float space_height = line_height * 0.1; // to add between top, text, knob, value and bottom
+  float space_width = radius * 0.1; // to add on left and right to diameter of knob
+  ImVec4 widgetRec = ImVec4(pos.x, pos.y, radius*2.0f + space_width * 2.0f, space_height*4.0f + radius * 2.0f + line_height * 2.0f);
+  ImVec2 labelLength = ImGui::CalcTextSize(label);
+
+  ImVec2 center = ImVec2(pos.x + space_width + radius, pos.y + space_height * 2 + line_height + radius);
+
+  ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+  float ANGLE_MIN = 3.141592f * 0.75f;
+  float ANGLE_MAX = 3.141592f * 2.25f;
+
+  ImGui::InvisibleButton(label, ImVec2(widgetRec.z, widgetRec.w));
+  bool value_changed = false;
+  bool is_active = ImGui::IsItemActive();
+  bool is_hovered = ImGui::IsItemActive();
+  if (is_active && io.MouseDelta.x != 0.0f)
+  {
+    float step = (v_max - v_min) / 400.0f;
+    *p_value += io.MouseDelta.x * step;
+    if (*p_value < v_min) *p_value = v_min;
+    if (*p_value > v_max) *p_value = v_max;
+    value_changed = true;
+  }
+
+  float t = (*p_value - v_min) / (v_max - v_min);
+  float angle = ANGLE_MIN + (ANGLE_MAX - ANGLE_MIN) * t;
+  float angle_cos = cosf(angle), angle_sin = sinf(angle);
+  float radius_inner = radius_outer * 0.40f;
+
+  //draw label
+  float texPos = pos.x + ((widgetRec.z - labelLength.x) * 0.5f);
+  draw_list->AddText(ImVec2(texPos, pos.y + space_height), ImGui::GetColorU32(ImGuiCol_Text), label);
+  // draw knob
+  draw_list->AddCircleFilled(center, radius_outer, ImGui::GetColorU32(ImGuiCol_FrameBg), 16);
+  draw_list->AddLine(ImVec2(center.x + angle_cos * radius_inner, center.y + angle_sin * radius_inner), ImVec2(center.x + angle_cos * (radius_outer - 2), center.y + angle_sin * (radius_outer - 2)), ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f);
+  draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), 16);
+
+  // draw value
+
+  /*std::stringstream ss;
+  ss << std::setprecision(valuePrecision) << std::fixed << *p_value;*/
+  char temp_buf[64];
+  sprintf(temp_buf, "%.2f", *p_value);
+  labelLength = ImGui::CalcTextSize(temp_buf);
+  texPos = pos.x + ((widgetRec.z - labelLength.x) * 0.5f);
+
+  draw_list->AddText(ImVec2(texPos, pos.y + space_height * 3 + line_height + radius * 2), ImGui::GetColorU32(ImGuiCol_Text), temp_buf);
+
+  return value_changed;
+}
+
 //-------------------------------------------------------------------------
 // [SECTION] Widgets: Low-level Layout helpers
 //-------------------------------------------------------------------------
