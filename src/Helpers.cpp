@@ -500,6 +500,7 @@ bool ofxImGui::AddCombo(ofParameter<int>& parameter, std::vector<std::string> la
 	}
 	if (result)
 	{
+    //ofLogNotice() << "Set combo to " << tmpRef << "\n";
 		parameter.set(tmpRef);
 	}
 	return result;
