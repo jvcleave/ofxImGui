@@ -72,10 +72,11 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool col
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-	ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
-	return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
+  /*ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+  ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+  ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);*/
+  //return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
+  return ImGui::Begin(name.c_str(), open);
 }
 
 //--------------------------------------------------------------
@@ -92,10 +93,10 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, ImGuiWin
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
-	return ImGui::Begin(name.c_str(), open, flags);
+  /*ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+  ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+  ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);*/
+  return ImGui::Begin(name.c_str(), open, flags);
 }
 
 //--------------------------------------------------------------
@@ -514,6 +515,17 @@ bool ofxImGui::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
 		return true;
 	}
 	return false;
+}
+
+bool ofxImGui::AddKnob(ofParameter<float>& parameter)
+{
+  auto tmpRef = parameter.get();
+  if (ImGui::Knob(GetUniqueName(parameter), &tmpRef, parameter.getMin(), parameter.getMax()))
+  {
+    parameter.set(tmpRef);
+    return true;
+  }
+  return false;
 }
 
 //--------------------------------------------------------------
