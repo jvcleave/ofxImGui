@@ -419,7 +419,7 @@ namespace ImGui
     IMGUI_API bool          RadioButton(const char* label, int* v, int v_button);           // shortcut to handle the above pattern when value is an integer
     IMGUI_API void          ProgressBar(float fraction, const ImVec2& size_arg = ImVec2(-1,0), const char* overlay = NULL);
     IMGUI_API void          Bullet();                                                       // draw a small circle and keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
-    IMGUI_API bool          Knob(const char* label, float* p_value, float v_min, float v_max, float radius = 25.0f, bool filledNeedle = false, int valuePrecision = 2); // draw knob
+    IMGUI_API bool          Knob(const char* label, float* p_value, float v_min, float v_max, float radius = 25.0f, bool filledNeedle = false, float incPrecision = 400); // draw knob
 
     // Widgets: Combo Box
     // - The new BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it, by creating e.g. Selectable() items.

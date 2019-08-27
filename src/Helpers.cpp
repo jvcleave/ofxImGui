@@ -478,23 +478,24 @@ bool ofxImGui::AddRadio(ofParameter<int>& parameter, std::vector<std::string> la
 //--------------------------------------------------------------
 bool ofxImGui::AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels)
 {
-	auto result = false;
-	auto tmpRef = parameter.get();
-	if (ImGui::BeginCombo(GetUniqueName(parameter), labels.at(parameter.get()).c_str()))
-	{
-		for (int i = 0; i < labels.size(); ++i)
-		{
-			bool selected = (i == tmpRef);
-			if (ImGui::Selectable(labels[i].c_str(), selected))
-			{
-				tmpRef = i;
-				result = true;
-			}
-			if (selected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
+  auto result = false;
+  auto tmpRef = parameter.get();
+  if (ImGui::BeginCombo(GetUniqueName(parameter), labels.at(parameter.get()).c_str()))
+  {
+    for (int i = 0; i < labels.size(); ++i)
+    {
+      bool selected = (i == tmpRef);
+      if (ImGui::Selectable(labels[i].c_str(), selected))
+      {
+        tmpRef = i;
+        ofLogNotice() << "New wave form selected " << i << "\n";
+        result = true;
+      }
+      if (selected)
+      {
+        ImGui::SetItemDefaultFocus();
+      }
+    }
 
 		ImGui::EndCombo();
 	}
