@@ -84,6 +84,9 @@ namespace ofxImGui
 	template<typename ParameterType>
 	bool AddParameter(ofParameter<ParameterType>& parameter);
 
+	template<typename ParameterType>
+	bool AddText(ofParameter<ParameterType>& parameter);
+
 	bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
 	bool AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels);
 	bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
@@ -175,6 +178,14 @@ bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 
 	ofLogWarning(__FUNCTION__) << "Could not create GUI element for type " << info.name();
 	return false;
+}
+
+//--------------------------------------------------------------
+template<typename ParameterType>
+bool ofxImGui::AddText(ofParameter<ParameterType>& parameter)
+{
+	ImGui::LabelText(parameter.getName().c_str(), ofToString(parameter.get()).c_str());
+	return true;
 }
 
 //--------------------------------------------------------------
