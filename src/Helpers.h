@@ -85,7 +85,7 @@ namespace ofxImGui
 	bool AddParameter(ofParameter<ParameterType>& parameter);
 
 	template<typename ParameterType>
-	bool AddText(ofParameter<ParameterType>& parameter);
+	bool AddText(ofParameter<ParameterType>& parameter, bool label = true);
 
 	bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
 	bool AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels);
@@ -182,9 +182,16 @@ bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 
 //--------------------------------------------------------------
 template<typename ParameterType>
-bool ofxImGui::AddText(ofParameter<ParameterType>& parameter)
+bool ofxImGui::AddText(ofParameter<ParameterType>& parameter, bool label)
 {
-	ImGui::LabelText(parameter.getName().c_str(), ofToString(parameter.get()).c_str());
+	if (label)
+	{
+		ImGui::LabelText(parameter.getName().c_str(), ofToString(parameter.get()).c_str());
+	}
+	else
+	{
+		ImGui::Text(ofToString(parameter.get()).c_str());
+	}
 	return true;
 }
 
