@@ -488,7 +488,6 @@ bool ofxImGui::AddCombo(ofParameter<int>& parameter, std::vector<std::string> la
       if (ImGui::Selectable(labels[i].c_str(), selected))
       {
         tmpRef = i;
-        ofLogNotice() << "New wave form selected " << i << "\n";
         result = true;
       }
       if (selected)
