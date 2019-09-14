@@ -540,6 +540,28 @@ bool ofxImGui::AddKnob(std::string label, ofParameter<float>& parameter)
   return false;
 }
 
+bool ofxImGui::AddVSlider(ofParameter<float>& parameter)
+{
+  auto tmpRef = parameter.get();
+  if (ImGui::VSliderFloat(GetUniqueName(parameter), &tmpRef, parameter.getMin(), parameter.getMax()))
+  {
+    parameter.set(tmpRef);
+    return true;
+  }
+  return false;
+}
+
+bool ofxImGui::AddVSlider(std::string label, ofParameter<float>& parameter)
+{
+  auto tmpRef = parameter.get();
+  if (ImGui::VSliderFloat(GetUniqueName(label), &tmpRef, parameter.getMin(), parameter.getMax()))
+  {
+    parameter.set(tmpRef);
+    return true;
+  }
+  return false;
+}
+
 //--------------------------------------------------------------
 bool ofxImGui::AddRange(const std::string& name, ofParameter<int>& parameterMin, ofParameter<int>& parameterMax, int speed)
 {
