@@ -90,9 +90,9 @@ namespace ofxImGui
   bool AddKnob(ofParameter<float>& parameter);
   bool AddKnob(std::string label, ofParameter<float>& parameter);
 
-  bool AddVSlider(ofParameter<float>& parameter);
+  bool AddVSlider(ofParameter<float>& parameter, ImVec2 &size);
 
-  bool AddVSlider(std::string label, ofParameter<float>& parameter);
+  bool AddVSlider(std::string label, ofParameter<float>& parameter, ImVec2 &size);
 
 	bool AddRange(const std::string& name, ofParameter<int>& parameterMin, ofParameter<int>& parameterMax, int speed = 1);
 	bool AddRange(const std::string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed = 0.01f);

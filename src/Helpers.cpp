@@ -540,10 +540,10 @@ bool ofxImGui::AddKnob(std::string label, ofParameter<float>& parameter)
   return false;
 }
 
-bool ofxImGui::AddVSlider(ofParameter<float>& parameter)
+bool ofxImGui::AddVSlider(ofParameter<float>& parameter, ImVec2& size)
 {
   auto tmpRef = parameter.get();
-  if (ImGui::VSliderFloat(GetUniqueName(parameter), &tmpRef, parameter.getMin(), parameter.getMax()))
+  if (ImGui::VSliderFloat(GetUniqueName(parameter), size, &tmpRef, parameter.getMin(), parameter.getMax()))
   {
     parameter.set(tmpRef);
     return true;
@@ -551,10 +551,10 @@ bool ofxImGui::AddVSlider(ofParameter<float>& parameter)
   return false;
 }
 
-bool ofxImGui::AddVSlider(std::string label, ofParameter<float>& parameter)
+bool ofxImGui::AddVSlider(std::string label, ofParameter<float>& parameter, ImVec2& size)
 {
   auto tmpRef = parameter.get();
-  if (ImGui::VSliderFloat(GetUniqueName(label), &tmpRef, parameter.getMin(), parameter.getMax()))
+  if (ImGui::VSliderFloat(GetUniqueName(label), size, &tmpRef, parameter.getMin(), parameter.getMax()))
   {
     parameter.set(tmpRef);
     return true;
