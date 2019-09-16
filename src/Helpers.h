@@ -84,15 +84,20 @@ namespace ofxImGui
 	template<typename ParameterType>
 	bool AddParameter(ofParameter<ParameterType>& parameter);
 
-  bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
-  bool AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels);
-  bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
-  bool AddKnob(ofParameter<float>& parameter);
-  bool AddKnob(std::string label, ofParameter<float>& parameter);
+	template<typename ParameterType>
+	bool AddParameter(std::string overridelabel, ofParameter<ParameterType>& parameter);
 
-  bool AddVSlider(ofParameter<float>& parameter, ImVec2 &size);
 
-  bool AddVSlider(std::string label, ofParameter<float>& parameter, ImVec2 &size);
+	bool AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns = 1);
+	bool AddCombo(ofParameter<int>& parameter, std::vector<std::string> labels);
+	bool AddCombo(std::string overrideLabel, ofParameter<int>& parameter, std::vector<std::string> labels);
+	bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
+	bool AddKnob(ofParameter<float>& parameter);
+	bool AddKnob(std::string label, ofParameter<float>& parameter);
+
+	bool AddVSlider(ofParameter<float>& parameter, ImVec2 &size);
+
+	bool AddVSlider(std::string label, ofParameter<float>& parameter, ImVec2 &size);
 
 	bool AddRange(const std::string& name, ofParameter<int>& parameterMin, ofParameter<int>& parameterMax, int speed = 1);
 	bool AddRange(const std::string& name, ofParameter<float>& parameterMin, ofParameter<float>& parameterMax, float speed = 0.01f);
@@ -168,6 +173,43 @@ bool ofxImGui::AddParameter(ofParameter<ParameterType>& parameter)
 	if (info == typeid(bool))
 	{
 		if (ImGui::Checkbox(GetUniqueName(parameter), (bool *)&tmpRef))
+		{
+			parameter.set(tmpRef);
+			return true;
+		}
+		return false;
+	}
+
+	ofLogWarning(__FUNCTION__) << "Could not create GUI element for type " << info.name();
+	return false;
+}
+
+template<typename ParameterType>
+bool ofxImGui::AddParameter(std::string overridelabel, ofParameter<ParameterType>& parameter)
+{
+	auto tmpRef = parameter.get();
+	const auto& info = typeid(ParameterType);
+	if (info == typeid(float))
+	{
+		if (ImGui::SliderFloat(GetUniqueName(overridelabel), (float *)&tmpRef, parameter.getMin(), parameter.getMax()))
+		{
+			parameter.set(tmpRef);
+			return true;
+		}
+		return false;
+	}
+	if (info == typeid(int))
+	{
+		if (ImGui::SliderInt(GetUniqueName(overridelabel), (int *)&tmpRef, parameter.getMin(), parameter.getMax()))
+		{
+			parameter.set(tmpRef);
+			return true;
+		}
+		return false;
+	}
+	if (info == typeid(bool))
+	{
+		if (ImGui::Checkbox(GetUniqueName(overridelabel), (bool *)&tmpRef))
 		{
 			parameter.set(tmpRef);
 			return true;

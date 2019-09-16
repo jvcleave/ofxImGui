@@ -506,6 +506,36 @@ bool ofxImGui::AddCombo(ofParameter<int>& parameter, std::vector<std::string> la
 	return result;
 }
 
+bool ofxImGui::AddCombo(std::string overrideLabel, ofParameter<int>& parameter, std::vector<std::string> labels)
+{
+	auto result = false;
+	auto tmpRef = parameter.get();
+	if (ImGui::BeginCombo(GetUniqueName(overrideLabel), labels.at(parameter.get()).c_str()))
+	{
+		for (int i = 0; i < labels.size(); ++i)
+		{
+			bool selected = (i == tmpRef);
+			if (ImGui::Selectable(labels[i].c_str(), selected))
+			{
+				tmpRef = i;
+				result = true;
+			}
+			if (selected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+
+		ImGui::EndCombo();
+	}
+	if (result)
+	{
+		//ofLogNotice() << "Set combo to " << tmpRef << "\n";
+		parameter.set(tmpRef);
+	}
+	return result;
+}
+
 //--------------------------------------------------------------
 bool ofxImGui::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
 {
