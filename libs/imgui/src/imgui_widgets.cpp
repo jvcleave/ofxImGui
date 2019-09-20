@@ -1164,7 +1164,7 @@ void ImGui::Bullet()
     SameLine(0, style.FramePadding.x * 2.0f);
 }
 
-bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, float radius, bool filledNeedle, float incPrecision)
+bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, float radius, bool needleTrail, float incPrecision)
 {
   ImGuiIO& io = ImGui::GetIO();
   ImGuiStyle& style = ImGui::GetStyle();
@@ -1186,7 +1186,7 @@ bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, fl
   ImGui::InvisibleButton(label, ImVec2(widgetRec.z, widgetRec.w));
   bool value_changed = false;
   bool is_active = ImGui::IsItemActive();
-  bool is_hovered = ImGui::IsItemActive();
+  bool is_hovered = ImGui::IsItemHovered();
   if (is_active && io.MouseDelta.x != 0.0f)
   {
     float step = (v_max - v_min) / incPrecision;
@@ -1205,9 +1205,18 @@ bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, fl
   float texPos = pos.x + ((widgetRec.z - labelLength.x) * 0.5f);
   draw_list->AddText(ImVec2(texPos, pos.y + space_height), ImGui::GetColorU32(ImGuiCol_Text), label);
   // draw knob
-  draw_list->AddCircleFilled(center, radius, ImGui::GetColorU32(ImGuiCol_FrameBg), 16);
-  draw_list->AddLine(ImVec2(center.x + angle_cos * radius_inner, center.y + angle_sin * radius_inner), ImVec2(center.x + angle_cos * (radius - 2), center.y + angle_sin * (radius - 2)), ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f);
-  draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), 16);
+  draw_list->AddCircleFilled(center, radius, ImGui::GetColorU32(ImGuiCol_FrameBg), 16); // draw outer knob
+  draw_list->AddLine(ImVec2(center.x + angle_cos * radius_inner, center.y + angle_sin * radius_inner), 
+					 ImVec2(center.x + angle_cos * (radius), center.y + angle_sin * (radius)), 
+					 ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f ); // draw needle
+  if (needleTrail)
+  {
+	  draw_list->PathArcTo(center, radius - 2.6f, ANGLE_MIN, angle, 4 * (angle - ANGLE_MIN)); // draw needle trail
+	  draw_list->PathStroke(ImGui::GetColorU32(ImGuiCol_SliderGrabActive), false, 5.0f);
+  }
+  
+  //draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), 16); // draw inner knob
+  draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_SliderGrabActive : ImGuiCol_FrameBg), 16); // draw inner knob
 
   // draw value
   char temp_buf[64];
