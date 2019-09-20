@@ -1,16 +1,14 @@
-# I Add
+# I have added
+## Docking (in docking branch)
 
-## Docking
-In docking branch only, that allow to use docking with ImGui 1.72b.
+A branch docking, that allow to use docking with ofxImGui.
 
 ![Docking](images/docking.png)
 
+## A Knob Widget 
+Also in docking branch I think.
 
-## A Knob Widget
-
-![Knob](images/knob.png)
-
-
+![Docking](images/knob.png)
 
 # ofxImGui
 
