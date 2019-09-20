@@ -3,7 +3,7 @@
 
 Allow to use docking with ofxImGui.
 
-To activate docking if ofApp::Setup() : 
+To activate docking in ofApp::Setup() : 
 
 ```C++
   // Init ImGui with docking
