@@ -1,12 +1,20 @@
 # I have added
 ## Docking (in docking branch)
 
-A branch docking, that allow to use docking with ofxImGui.
+Allow to use docking with ofxImGui.
+
+To activate docking if ofApp::Setup() : 
+
+```C++
+  // Init ImGui with docking
+  gui.enableDocking();
+  gui.setup();
+```
 
 ![Docking](images/docking.png)
 
 ## A Knob Widget 
-Also in docking branch I think.
+Also in docking branch I think, need to cleen a bit :-)
 
 ![Docking](images/knob.png)
 
