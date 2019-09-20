@@ -1199,7 +1199,7 @@ bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, fl
   float t = (*p_value - v_min) / (v_max - v_min);
   float angle = ANGLE_MIN + (ANGLE_MAX - ANGLE_MIN) * t;
   float angle_cos = cosf(angle), angle_sin = sinf(angle);
-  float radius_inner = radius * 0.45f;
+  float radius_inner = radius * 0.35f;
 
   //draw label
   float texPos = pos.x + ((widgetRec.z - labelLength.x) * 0.5f);
@@ -1211,8 +1211,8 @@ bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, fl
 					 ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f ); // draw needle
   if (needleTrail)
   {
-	  draw_list->PathArcTo(center, radius - 3.8f, ANGLE_MIN, angle, 2+ (4 * (angle - ANGLE_MIN))); // draw needle trail
-	  draw_list->PathStroke(ImGui::GetColorU32(ImGuiCol_SliderGrabActive), false, 8.0f);
+	  draw_list->PathArcTo(center, radius - 2.8f, ANGLE_MIN, angle, 2+ (4 * (angle - ANGLE_MIN))); // draw needle trail
+	  draw_list->PathStroke(ImGui::GetColorU32(ImGuiCol_SliderGrabActive), false, 6.0f);
   }
   
   //draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), 16); // draw inner knob
