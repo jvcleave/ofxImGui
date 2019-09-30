@@ -1205,7 +1205,13 @@ bool ImGui::Knob(const char* label, float* p_value, float v_min, float v_max, fl
 	float texPos = pos.x + ((widgetRec.z - labelLength.x) * 0.5f);
 	draw_list->AddText(ImVec2(texPos, pos.y + space_height), ImGui::GetColorU32(ImGuiCol_Text), label);
 	// draw knob
-	draw_list->AddCircleFilled(center, radius, ImGui::GetColorU32(ImGuiCol_FrameBg), 16); // draw outer knob
+	if (style.FrameBorderSize > 0.0f)
+	{
+		draw_list->AddCircleFilled(center, radius+ style.FrameBorderSize + 1.0f, ImGui::GetColorU32(ImGuiCol_BorderShadow), 32);
+		draw_list->AddCircleFilled(center, radius + style.FrameBorderSize, ImGui::GetColorU32(ImGuiCol_Border), 32);
+	}
+	draw_list->AddCircleFilled(center, radius, ImGui::GetColorU32(ImGuiCol_FrameBg), 32); // draw outer knob
+
 	draw_list->AddLine(ImVec2(center.x + angle_cos * radius_inner, center.y + angle_sin * radius_inner),
 		ImVec2(center.x + angle_cos * (radius), center.y + angle_sin * (radius)),
 		ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f); // draw needle

@@ -34,8 +34,16 @@ namespace ofxImGui
     colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
     colors[ImGuiCol_CheckMark] = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
     colors[ImGuiCol_SliderGrab] = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.64f, 0.64f, 0.64f, 1.00f);
-    colors[ImGuiCol_Button] = ImVec4(0.54f, 0.54f, 0.54f, 0.35f);
+    //colors[ImGuiCol_SliderGrabActive] = ImVec4(0.64f, 0.64f, 0.64f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.321f, 0.870f, 0.592f, 1.00f); // vert pal 1
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.494f, 0.403f, 1.00f); // saumon 1
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.858f, 0.458f, 0.772f, 1.00f); // mauve 0
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.752f, 1.0f, 0.701f, 1.00f); // vert claire 2
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.235f, 0.615f, 0.607f, 1.00f); // vert 
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.956f, 0.349f, 0.019f, 1.00f); // orange 
+
+    
+	colors[ImGuiCol_Button] = ImVec4(0.54f, 0.54f, 0.54f, 0.35f);
     colors[ImGuiCol_ButtonHovered] = ImVec4(0.52f, 0.52f, 0.52f, 0.59f);
     colors[ImGuiCol_ButtonActive] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
     colors[ImGuiCol_Header] = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
