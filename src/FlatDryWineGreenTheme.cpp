@@ -1,11 +1,11 @@
-#include "CorporateOrangeTheme.h"
+#include "FlatDryWineGreenTheme.h"
 
 namespace ofxImGui
 {
-  void CorporateOrangeTheme::setup()
+  void FlatDryWineGreenTheme::setup()
   {
-    // Apply the called CorporateGrey theme from
-  /// https://github.com/ocornut/imgui/issues/707#issuecomment-468798935
+    // Mix CorporateGrey theme and https://digitalsynopsis.com/wp-content/uploads/2018/06/flat-color-palettes-2.png
+    // https://github.com/ocornut/imgui/issues/707#issuecomment-468798935
 
     ImGuiStyle & style = ImGui::GetStyle();
     ImVec4 * colors = style.Colors;
@@ -14,11 +14,11 @@ namespace ofxImGui
     /// 1 = MORE "3D" LOOK
     int is3D = 1.0f;
 
-    colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 0.65f);
+    colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 0.75f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-    colors[ImGuiCol_ChildBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-    colors[ImGuiCol_WindowBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-    colors[ImGuiCol_PopupBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    colors[ImGuiCol_ChildBg] = ImVec4(0.46f, 0.36f, 0.41f, 1.00f);
+    colors[ImGuiCol_WindowBg] = ImVec4(0.46f, 0.36f, 0.41f, 1.00f);
+    colors[ImGuiCol_PopupBg] = ImVec4(0.46f, 0.36f, 0.41f, 1.00f);
     colors[ImGuiCol_Border] = ImVec4(0.12f, 0.12f, 0.12f, 0.71f);
     colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
     colors[ImGuiCol_FrameBg] = ImVec4(0.42f, 0.42f, 0.42f, 0.54f);
@@ -33,8 +33,7 @@ namespace ofxImGui
     colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
     colors[ImGuiCol_CheckMark] = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
-    //colors[ImGuiCol_SliderGrab] = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-	colors[ImGuiCol_SliderGrab] = ImVec4(0.956f, 0.349f, 0.019f, 0.75f);
+    colors[ImGuiCol_SliderGrab] = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
     //colors[ImGuiCol_SliderGrabActive] = ImVec4(0.64f, 0.64f, 0.64f, 1.00f);
     colors[ImGuiCol_SliderGrabActive] = ImVec4(0.321f, 0.870f, 0.592f, 1.00f); // vert pal 1
     colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.494f, 0.403f, 1.00f); // saumon 1
@@ -45,9 +44,9 @@ namespace ofxImGui
 
     
 	colors[ImGuiCol_Button] = ImVec4(0.54f, 0.54f, 0.54f, 0.35f);
-	colors[ImGuiCol_Button] = ImVec4(0.956f, 0.349f, 0.019f, 0.55f);
+	colors[ImGuiCol_Button] = ImVec4(0.956f, 0.349f, 0.019f, 0.35f);
     colors[ImGuiCol_ButtonHovered] = ImVec4(0.52f, 0.52f, 0.52f, 0.59f);
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.956f, 0.349f, 0.019f, 0.75f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.956f, 0.349f, 0.019f, 0.59f);
     colors[ImGuiCol_ButtonActive] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
     colors[ImGuiCol_ButtonActive] = ImVec4(0.956f, 0.349f, 0.019f, 1.00f);
 
