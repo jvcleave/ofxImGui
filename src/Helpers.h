@@ -93,7 +93,9 @@ namespace ofxImGui
 	bool AddCombo(std::string overrideLabel, ofParameter<int>& parameter, std::vector<std::string> labels);
 	bool AddStepper(ofParameter<int>& parameter, int step = 1, int stepFast = 100);
 	bool AddKnob(ofParameter<float>& parameter);
+	bool AddKnob(ofParameter<float>& parameter, float zeroRef);
 	bool AddKnob(std::string label, ofParameter<float>& parameter);
+	bool AddKnob(std::string label, ofParameter<float>& parameter, float zeroRef);
 
 	bool AddVSlider(ofParameter<float>& parameter, ImVec2 &size);
 

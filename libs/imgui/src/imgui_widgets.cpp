@@ -1276,6 +1276,10 @@ bool ImGui::KnobNeedleTrail(const char* label, float* p_value, float v_min, floa
 	float angle_cos = cosf(angle), angle_sin = sinf(angle);
 	float radius_inner = radius * 0.35f;
 
+	float refZeroTrailVal = (trailZero - v_min) / (v_max - v_min);
+	float refZeroTrailAngle = ANGLE_MIN + (ANGLE_MAX - ANGLE_MIN) * refZeroTrailVal;
+
+
 	//draw label
 	float texPos = pos.x + ((widgetRec.z - labelLength.x) * 0.5f);
 	draw_list->AddText(ImVec2(texPos, pos.y + space_height), ImGui::GetColorU32(ImGuiCol_Text), label);
@@ -1294,7 +1298,14 @@ bool ImGui::KnobNeedleTrail(const char* label, float* p_value, float v_min, floa
 		ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f);
 
 	// draw needle trail
-	draw_list->PathArcTo(center, radius - 2.8f, ANGLE_MIN, angle, 2 + (4 * (angle - ANGLE_MIN))); // draw needle trail
+	if (refZeroTrailAngle < angle)
+	{
+		draw_list->PathArcTo(center, radius - 2.8f, refZeroTrailAngle, angle, 2 + (4 * (angle - refZeroTrailAngle))); // draw needle trail
+	}
+	else {
+		draw_list->PathArcTo(center, radius - 2.8f, angle, refZeroTrailAngle, 2 + (4 * (refZeroTrailAngle - angle))); // draw needle trail
+	}
+
 	draw_list->PathStroke(ImGui::GetColorU32(ImGuiCol_SliderGrabActive), false, 6.0f);
 
 	//draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), 16); // draw inner knob

@@ -551,7 +551,7 @@ bool ofxImGui::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
 bool ofxImGui::AddKnob(ofParameter<float>& parameter)
 {
   auto tmpRef = parameter.get();
-  if (ImGui::Knob(GetUniqueName(parameter), &tmpRef, parameter.getMin(), parameter.getMax()))
+  if (ImGui::KnobNeedleTrail(GetUniqueName(parameter), &tmpRef, parameter.getMin(), parameter.getMax(), parameter.getMin()))
   {
     parameter.set(tmpRef);
     return true;
@@ -559,15 +559,37 @@ bool ofxImGui::AddKnob(ofParameter<float>& parameter)
   return false;
 }
 
+bool ofxImGui::AddKnob(ofParameter<float>& parameter, float zeroRef)
+{
+	auto tmpRef = parameter.get();
+	if (ImGui::KnobNeedleTrail(GetUniqueName(parameter), &tmpRef, parameter.getMin(), parameter.getMax(), zeroRef))
+	{
+		parameter.set(tmpRef);
+		return true;
+	}
+	return false;
+}
+
 bool ofxImGui::AddKnob(std::string label, ofParameter<float>& parameter)
 {
   auto tmpRef = parameter.get();
-  if (ImGui::Knob(GetUniqueName(label), &tmpRef, parameter.getMin(), parameter.getMax()))
+  if (ImGui::KnobNeedleTrail(GetUniqueName(label), &tmpRef, parameter.getMin(), parameter.getMax(), parameter.getMin()))
   {
     parameter.set(tmpRef);
     return true;
   }
   return false;
+}
+
+bool ofxImGui::AddKnob(std::string label, ofParameter<float>& parameter, float zeroRef)
+{
+	auto tmpRef = parameter.get();
+	if (ImGui::KnobNeedleTrail(GetUniqueName(label), &tmpRef, parameter.getMin(), parameter.getMax(), zeroRef))
+	{
+		parameter.set(tmpRef);
+		return true;
+	}
+	return false;
 }
 
 bool ofxImGui::AddVSlider(ofParameter<float>& parameter, ImVec2& size)
