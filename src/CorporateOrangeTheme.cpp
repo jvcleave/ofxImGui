@@ -1,8 +1,8 @@
-#include "CorporateAquaTheme.h"
+#include "CorporateOrangeTheme.h"
 
 namespace ofxImGui
 {
-  void CorporateAquaTheme::setup()
+  void CorporateOrangeTheme::setup()
   {
     // Apply the called CorporateGrey theme from
   /// https://github.com/ocornut/imgui/issues/707#issuecomment-468798935
@@ -14,7 +14,7 @@ namespace ofxImGui
     /// 1 = MORE "3D" LOOK
     int is3D = 1.0f;
 
-    colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 0.75f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
     colors[ImGuiCol_ChildBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
     colors[ImGuiCol_WindowBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
@@ -44,11 +44,20 @@ namespace ofxImGui
 
     
 	colors[ImGuiCol_Button] = ImVec4(0.54f, 0.54f, 0.54f, 0.35f);
+	colors[ImGuiCol_Button] = ImVec4(0.956f, 0.349f, 0.019f, 0.35f);
     colors[ImGuiCol_ButtonHovered] = ImVec4(0.52f, 0.52f, 0.52f, 0.59f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.956f, 0.349f, 0.019f, 0.59f);
     colors[ImGuiCol_ButtonActive] = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.956f, 0.349f, 0.019f, 1.00f);
+
     colors[ImGuiCol_Header] = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
+    //colors[ImGuiCol_Header] = ImVec4(0.09f, 0.498f, 0.459f, 0.35f);
     colors[ImGuiCol_HeaderHovered] = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
+    //colors[ImGuiCol_HeaderHovered] = ImVec4(0.09f, 0.498f, 0.459f, 0.59f);
     colors[ImGuiCol_HeaderActive] = ImVec4(0.76f, 0.76f, 0.76f, 0.77f);
+    //colors[ImGuiCol_HeaderActive] = ImVec4(0.09f, 0.498f, 0.459f, 1.0f);
+
+
     colors[ImGuiCol_Separator] = ImVec4(0.000f, 0.000f, 0.000f, 0.137f);
     colors[ImGuiCol_SeparatorHovered] = ImVec4(0.700f, 0.671f, 0.600f, 0.290f);
     colors[ImGuiCol_SeparatorActive] = ImVec4(0.702f, 0.671f, 0.600f, 0.674f);

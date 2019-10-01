@@ -3,7 +3,7 @@
 
 namespace ofxImGui
 {
-  class CorporateAquaTheme : public ofxImGui::BaseTheme
+  class CorporateOrangeTheme : public ofxImGui::BaseTheme
   {
   public:
 
