@@ -408,7 +408,8 @@ namespace ImGui
     IMGUI_API void          LabelTextV(const char* label, const char* fmt, va_list args)    IM_FMTLIST(2);
     IMGUI_API void          BulletText(const char* fmt, ...)                                IM_FMTARGS(1); // shortcut for Bullet()+Text()
     IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
-	IMGUI_API bool          Knob(const char* label, float* p_value, float v_min, float v_max, float radius = 25.0f, bool needleTrail = true, float incPrecision = 400); // draw knob
+	IMGUI_API bool          Knob(const char* label, float* p_value, float v_min, float v_max, float radius = 25.0f, float incPrecision = 400); // draw knob
+	IMGUI_API bool          KnobNeedleTrail(const char* label, float* p_value, float v_min, float v_max, float trailZero, float radius = 25.0f, float incPrecision = 400); // draw knob
 
     // Widgets: Main
     // - Most widgets return true when the value has been changed or when pressed/selected
