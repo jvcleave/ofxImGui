@@ -26,3 +26,6 @@ ofxImGui helper functions for interfacing with `ofParameter`.
 
 #### example-ios  
 iOS specific with keyboard input helper.
+
+
+[![Build status](https://travis-ci.org/jvcleave/ofxImGui.svg?branch=master)](https://travis-ci.org/jvcleave/ofxImGui)
