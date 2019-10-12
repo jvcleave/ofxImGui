@@ -49,6 +49,8 @@ matrix:
 
 # OSX, OF master
   - os: osx
+    #osx_image: xcode8
+    #compiler: clang
     env: TARGET="osx" OF_BRANCH="master"
 
 # OSX, OF stable:  Not supported yet
