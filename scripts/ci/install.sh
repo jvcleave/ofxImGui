@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
+echo -e  "using local script"
 
-rm -Rf /home/travis/openFrameworks/addons/ofxImGui/example-ios
+rm -Rfv /home/travis/openFrameworks/addons/ofxImGui/example-ios
