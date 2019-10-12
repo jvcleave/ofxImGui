@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-if [ "$TARGET" == "ios" ]; then
-echo -e  "using local script"
-fi
+echo "using local script"
+
 
 
 #rm -Rfv /home/travis/openFrameworks/addons/ofxImGui/example-ios
