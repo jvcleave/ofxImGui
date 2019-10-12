@@ -3,4 +3,4 @@ set -e
 
 echo "REMOVING IOS EXAMPLE"
 
-rm -Rfv /home/travis/openFrameworks/addons/ofxImGui/example-ios
+rm -rfv example-ios/
