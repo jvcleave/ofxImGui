@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-echo "using local script"
+echo "REMOVING IOS EXAMPLE"
 
-
-
-#rm -Rfv /home/travis/openFrameworks/addons/ofxImGui/example-ios
+rm -Rfv /home/travis/openFrameworks/addons/ofxImGui/example-ios
