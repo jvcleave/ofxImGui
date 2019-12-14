@@ -939,6 +939,20 @@ enum ImGuiKey_
     ImGuiKey_X,         // for text edit CTRL+X: cut
     ImGuiKey_Y,         // for text edit CTRL+Y: redo
     ImGuiKey_Z,         // for text edit CTRL+Z: undo
+    ImGuiKey_F,         // for text find CTRL+F: find
+    ImGuiKey_H,         // for text replace CTRL+F: replace
+    ImGuiKey_F1,
+    ImGuiKey_F2,
+    ImGuiKey_F3,
+    ImGuiKey_F4,
+    ImGuiKey_F5,
+    ImGuiKey_F6,
+    ImGuiKey_F7,
+    ImGuiKey_F8,
+    ImGuiKey_F9,
+    ImGuiKey_F10,
+    ImGuiKey_F11,
+    ImGuiKey_F12,
     ImGuiKey_COUNT
 };
 
