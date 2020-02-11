@@ -459,7 +459,7 @@ bool ofxImGui::AddRadio(ofParameter<int>& parameter, std::vector<std::string> la
 	ImGui::PushID(uniqueName);
 	{
 		ImGui::Columns(columns);
-		for (int i = 0; i < labels.size(); ++i)
+		for (size_t i = 0; i < labels.size(); ++i)
 		{
 			result |= ImGui::RadioButton(GetUniqueName(labels[i]), &tmpRef, i);
 			ImGui::NextColumn();
@@ -481,7 +481,7 @@ bool ofxImGui::AddCombo(ofParameter<int>& parameter, std::vector<std::string> la
 	auto tmpRef = parameter.get();
 	if (ImGui::BeginCombo(GetUniqueName(parameter), labels.at(parameter.get()).c_str()))
 	{
-		for (int i = 0; i < labels.size(); ++i)
+		for (size_t i = 0; i < labels.size(); ++i)
 		{
 			bool selected = (i == tmpRef);
 			if (ImGui::Selectable(labels[i].c_str(), selected))
@@ -635,7 +635,7 @@ bool ofxImGui::AddRange(const std::string& name, ofParameter<glm::vec4>& paramet
 bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec2<int>>& values, int minValue, int maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderInt2(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
@@ -647,7 +647,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec2<int>>& 
 bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec3<int>>& values, int minValue, int maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderInt3(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
@@ -659,7 +659,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec3<int>>& 
 bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec4<int>>& values, int minValue, int maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderInt4(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
@@ -671,7 +671,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::tvec4<int>>& 
 bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec2>& values, float minValue, float maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderFloat2(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
@@ -683,7 +683,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec2>& values
 bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec3>& values, float minValue, float maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderFloat3(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
@@ -695,7 +695,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec3>& values
 bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec4>& values, float minValue, float maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderFloat4(GetUniqueName(iname), glm::value_ptr(values[i]), minValue, maxValue);
@@ -709,7 +709,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<glm::vec4>& values
 bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec2f>& values, float minValue, float maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderFloat2(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
@@ -721,7 +721,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec2f>& values, 
 bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec3f>& values, float minValue, float maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderFloat3(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
@@ -733,7 +733,7 @@ bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec3f>& values, 
 bool ofxImGui::AddValues(const std::string& name, std::vector<ofVec4f>& values, float minValue, float maxValue)
 {
 	auto result = false;
-	for (int i = 0; i < values.size(); ++i)
+	for (size_t i = 0; i < values.size(); ++i)
 	{
 		const auto iname = name + " " + ofToString(i);
 		result |= ImGui::SliderFloat4(GetUniqueName(iname), values[i].getPtr(), minValue, maxValue);
