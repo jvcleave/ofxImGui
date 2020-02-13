@@ -60,10 +60,10 @@ matrix:
 #    env: TARGET="osx" OF_BRANCH="stable"
 
 # Linux ARM6, OF master: Uncomment following lines to enable 
-  - os: linux
-    sudo: required
-    dist: trusty
-    env: TARGET="linuxarmv6l" OF_BRANCH="master"
+#  - os: linux
+#    sudo: required
+#    dist: trusty
+#   env: TARGET="linuxarmv6l" OF_BRANCH="master"
 
 
 # Linux ARM6, OF stable:  Not supported yet
