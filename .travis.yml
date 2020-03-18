@@ -20,18 +20,18 @@ matrix:
   # relative order of sudo and env is important so that addons: is recognized
 
 # Linux 64bit, OF master
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: TARGET="linux64" OF_BRANCH="master"
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - gcc-4.9
-          - g++-4.9
-          - gdb
+#  - os: linux
+#    dist: trusty
+#    sudo: required
+#    env: TARGET="linux64" OF_BRANCH="master"
+#    addons:
+#      apt:
+#        sources:
+#          - ubuntu-toolchain-r-test
+#        packages:
+#          - gcc-4.9
+#          - g++-4.9
+#          - gdb
 
 # Linux 64bit, OF stable:  Not supported yet
 #  - os: linux
@@ -63,7 +63,7 @@ matrix:
 #  - os: linux
 #    sudo: required
 #    dist: trusty
-#    env: TARGET="linuxarmv6l" OF_BRANCH="master"
+#   env: TARGET="linuxarmv6l" OF_BRANCH="master"
 
 
 # Linux ARM6, OF stable:  Not supported yet
