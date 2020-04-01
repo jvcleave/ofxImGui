@@ -22,7 +22,7 @@ namespace ofxImGui
 		Gui();
 		~Gui();
 
-		void setup(BaseTheme* theme = nullptr, bool autoDraw = true);
+        void setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None);
 		void exit();
 
 		void begin();

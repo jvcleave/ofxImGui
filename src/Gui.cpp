@@ -21,11 +21,12 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void Gui::setup(BaseTheme* theme_, bool autoDraw_)
+    void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_)
 	{
         ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
 
+        io.ConfigFlags |= customFlags_;
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
