@@ -52,6 +52,7 @@ namespace ofxImGui
         
 		float lastTime;
 		bool autoDraw;
+        bool isRenderingManualFrame = false;
 
 		BaseTheme* theme;
 

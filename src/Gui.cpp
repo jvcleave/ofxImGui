@@ -138,6 +138,9 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::begin()
     {
+        // Only initialise once per frame
+        if(!autoDraw && isRenderingManualFrame) return;
+
         ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -158,12 +161,17 @@ namespace ofxImGui
 			io.MouseDown[i] = engine.mousePressed[i];
 		}
 		ImGui::NewFrame();
+        isRenderingManualFrame = true;
 	}
 
 	//--------------------------------------------------------------
 	void Gui::end()
 	{
-		ImGui::Render();
+        // Only render in autodraw mode.
+        // This allows calling end() and begin() multiple times per frame until we render, while ensuring auto mode works.
+        if(autoDraw){
+            ImGui::Render();
+        }
 	}
 
 	//--------------------------------------------------------------
@@ -171,7 +179,9 @@ namespace ofxImGui
 	{
 		if (!autoDraw)
 		{
-			engine.draw();
+            //engine.draw();
+            ImGui::Render();
+            isRenderingManualFrame = false;
 		}
 	}
 }
