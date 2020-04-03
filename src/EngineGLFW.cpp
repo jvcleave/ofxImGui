@@ -53,7 +53,7 @@ namespace ofxImGui
         io.KeyMap[ImGuiKey_F11] = GLFW_KEY_F11;
         io.KeyMap[ImGuiKey_F12] = GLFW_KEY_F12;
 
-		if (autoDraw)
+        //if (autoDraw)
 		{
 			if (ofIsGLProgrammableRenderer())
 			{
