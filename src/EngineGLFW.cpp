@@ -38,7 +38,7 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
 		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
 		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-        io.KeyMap[ImGuiKey_F] = GLFW_KEY_F;
+        /*io.KeyMap[ImGuiKey_F] = GLFW_KEY_F;
         io.KeyMap[ImGuiKey_H] = GLFW_KEY_H;
         io.KeyMap[ImGuiKey_F1] = GLFW_KEY_F1;
         io.KeyMap[ImGuiKey_F2] = GLFW_KEY_F2;
@@ -51,7 +51,7 @@ namespace ofxImGui
         io.KeyMap[ImGuiKey_F9] = GLFW_KEY_F9;
         io.KeyMap[ImGuiKey_F10] = GLFW_KEY_F10;
         io.KeyMap[ImGuiKey_F11] = GLFW_KEY_F11;
-        io.KeyMap[ImGuiKey_F12] = GLFW_KEY_F12;
+        io.KeyMap[ImGuiKey_F12] = GLFW_KEY_F12;*/
 
         //if (autoDraw)
 		{
