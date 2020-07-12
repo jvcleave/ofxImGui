@@ -56,5 +56,7 @@ namespace ofxImGui
 		BaseTheme* theme;
 
 		std::vector<ofTexture*> loadedTextures;
+
+		ImGuiContext* context;//tweak multicontext
 	};
 }

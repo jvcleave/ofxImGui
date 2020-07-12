@@ -11,7 +11,8 @@ namespace ofxImGui
 		: lastTime(0.0f)
 		, theme(nullptr)
 	{
-		ImGui::CreateContext();
+		//ImGui::CreateContext();
+		context = ImGui::CreateContext();//tweak multicontext
 	}
 
 	//--------------------------------------------------------------
@@ -23,7 +24,8 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::setup(BaseTheme* theme_, bool autoDraw_)
 	{
-		ImGui::CreateContext();
+		//ImGui::CreateContext();
+		ImGui::SetCurrentContext(context);//tweak multicontext
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
@@ -64,7 +66,8 @@ namespace ofxImGui
 		}
 		loadedTextures.clear();
 
-		ImGui::DestroyContext();
+		//ImGui::DestroyContext();
+		ImGui::DestroyContext(context);//tweak multicontext
 	}
 
 	//--------------------------------------------------------------
