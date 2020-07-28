@@ -517,6 +517,18 @@ bool ofxImGui::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
 }
 
 //--------------------------------------------------------------
+bool ofxImGui::AddSlider(ofParameter<float>& parameter, const char* format, float power)
+{
+	auto tmpRef = parameter.get();
+	if (ImGui::SliderFloat(GetUniqueName(parameter), (float*)&tmpRef, parameter.getMin(), parameter.getMax(), format, power))
+	{
+		parameter.set(tmpRef);
+		return true;
+	}
+	return false;
+}
+
+//--------------------------------------------------------------
 bool ofxImGui::AddRange(const std::string& name, ofParameter<int>& parameterMin, ofParameter<int>& parameterMax, int speed)
 {
 	auto tmpRefMin = parameterMin.get();
