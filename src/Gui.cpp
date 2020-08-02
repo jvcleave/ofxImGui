@@ -141,16 +141,7 @@ namespace ofxImGui
 
 		ImGuiIO& io = ImGui::GetIO();
 
-		float currentTime = ofGetElapsedTimef();
-		if (lastTime > 0.f)
-		{
-			io.DeltaTime = currentTime - lastTime;
-		}
-		else
-		{
-			io.DeltaTime = 1.0f / 60.f;
-		}
-		lastTime = currentTime;
+        io.DeltaTime = ofGetLastFrameTime();
 
 		// Update settings
 		io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
