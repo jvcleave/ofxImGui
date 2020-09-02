@@ -439,9 +439,9 @@ bool ofxImGui::AddParameter(ofParameter<std::string>& parameter, size_t maxChars
 }
 
 //--------------------------------------------------------------
-bool ofxImGui::AddParameter(ofParameter<void>& parameter)
+bool ofxImGui::AddParameter(ofParameter<void>& parameter, float width)
 {
-	if (ImGui::Button(GetUniqueName(parameter)))
+	if (ImGui::Button(GetUniqueName(parameter), glm::vec2(width, 0.0f)))
 	{
 		parameter.trigger();
 		return true;
