@@ -120,3 +120,6 @@ config.make
 openFrameworks-Info.plist
 Project.xcconfig
 /libs/imgui-1.75
+
+**/build-example-demo-Desktop-Debug/
+**/build-example-demo-Desktop-Release/
