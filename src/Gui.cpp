@@ -183,25 +183,16 @@ namespace ofxImGui
         if(!autoDraw && isRenderingManualFrame) return;
 
         ImGui::SetCurrentContext(context);
-		ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO();
 
-		float currentTime = ofGetElapsedTimef();
-		if (lastTime > 0.f)
-		{
-			io.DeltaTime = currentTime - lastTime;
-		}
-		else
-		{
-			io.DeltaTime = 1.0f / 60.f;
-		}
-		lastTime = currentTime;
+        io.DeltaTime = ofGetLastFrameTime();
 
-		// Update settings
-		io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
-		for (int i = 0; i < 5; i++) {
-			io.MouseDown[i] = engine.mousePressed[i];
-		}
-		ImGui::NewFrame();
+        // Update settings
+        io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+        for (int i = 0; i < 5; i++) {
+            io.MouseDown[i] = engine.mousePressed[i];
+        }
+        ImGui::NewFrame();
         isRenderingManualFrame = true;
 	}
 
