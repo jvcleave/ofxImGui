@@ -63,6 +63,20 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
 		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
 		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+		io.KeyMap[ImGuiKey_F] = GLFW_KEY_F;
+		io.KeyMap[ImGuiKey_H] = GLFW_KEY_H;
+		io.KeyMap[ImGuiKey_F1] = GLFW_KEY_F1;
+		io.KeyMap[ImGuiKey_F2] = GLFW_KEY_F2;
+		io.KeyMap[ImGuiKey_F3] = GLFW_KEY_F3;
+		io.KeyMap[ImGuiKey_F4] = GLFW_KEY_F4;
+		io.KeyMap[ImGuiKey_F5] = GLFW_KEY_F5;
+		io.KeyMap[ImGuiKey_F6] = GLFW_KEY_F6;
+		io.KeyMap[ImGuiKey_F7] = GLFW_KEY_F7;
+		io.KeyMap[ImGuiKey_F8] = GLFW_KEY_F8;
+		io.KeyMap[ImGuiKey_F9] = GLFW_KEY_F9;
+		io.KeyMap[ImGuiKey_F10] = GLFW_KEY_F10;
+		io.KeyMap[ImGuiKey_F11] = GLFW_KEY_F11;
+		io.KeyMap[ImGuiKey_F12] = GLFW_KEY_F12;
 
 		io.RenderDrawListsFn = render;
 

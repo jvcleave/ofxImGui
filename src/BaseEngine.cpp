@@ -73,6 +73,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	const char* BaseEngine::getClipboardString(void * userData)
 	{
+		//return &ofGetWindowPtr()->getClipboardString()[0];
 		g_ClipboardText = ofGetWindowPtr()->getClipboardString();
 		return g_ClipboardText.c_str();
 	}
@@ -80,6 +81,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::setClipboardString(void * userData, const char * text)
 	{
+		//ofGetWindowPtr()->setClipboardString(text); // Not sure if this is needed
 		g_ClipboardText = ofToString(text);
 		ofGetWindowPtr()->setClipboardString(g_ClipboardText);
 	}

@@ -30,7 +30,7 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
 		io.KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
 
-		if (autoDraw)
+		//if (autoDraw)
 		{
 			io.RenderDrawListsFn = rendererDrawData;
 		}

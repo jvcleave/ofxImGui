@@ -6,6 +6,7 @@
 #include "ofTexture.h"
 #include "ofGLBaseTypes.h"
 #include "imgui.h"
+#include <stack> // Needed for Arch Linux
 
 static const int kImGuiMargin = 10;
 

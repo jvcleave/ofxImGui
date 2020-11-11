@@ -61,6 +61,7 @@
 
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
+// Note: ofVec3 can cast to ImVec2 by ignoring z axis too.
 #include "ofVectorMath.h"
 #include "ofColor.h"
 
@@ -69,11 +70,15 @@
 ImVec2(const ofVec2f& f) { x = f.x; y = f.y; }        \
 operator ofVec2f() const { return ofVec2f(x, y); }    \
 ImVec2(const glm::vec2& f) { x = f.x; y = f.y; }    \
-operator glm::vec2() const { return glm::vec2(x, y); }
+operator glm::vec2() const { return glm::vec2(x, y); } \
+ \
+ImVec2(const ofVec3f& f) { x = f.x; y = f.y; }        \
+ImVec2(const glm::vec3& f) { x = f.x; y = f.y; }
 #else
 #define IM_VEC2_CLASS_EXTRA                            \
 ImVec2(const ofVec2f& f) { x = f.x; y = f.y; }        \
-operator ofVec2f() const { return ofVec2f(x, y); }
+operator ofVec2f() const { return ofVec2f(x, y); } \
+ImVec2(const ofVec3f& f) { x = f.x; y = f.y; }
 #endif
 
 #if OF_VERSION_MINOR >= 10

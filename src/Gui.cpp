@@ -11,7 +11,7 @@ namespace ofxImGui
 		: lastTime(0.0f)
 		, theme(nullptr)
 	{
-		ImGui::CreateContext();
+		context = ImGui::CreateContext();
 	}
 
 	//--------------------------------------------------------------
@@ -21,11 +21,12 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void Gui::setup(BaseTheme* theme_, bool autoDraw_)
+	void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_)
 	{
-		ImGui::CreateContext();
+		ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
 
+		io.ConfigFlags |= customFlags_;
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
@@ -64,7 +65,48 @@ namespace ofxImGui
 		}
 		loadedTextures.clear();
 
-		ImGui::DestroyContext();
+		ImGui::DestroyContext(context);
+	}
+
+  //--------------------------------------------------------------
+  void Gui::SetDefaultFont(int indexAtlasFont) {
+	ImGuiIO& io = ImGui::GetIO();
+	if (indexAtlasFont < io.Fonts->Fonts.size()) {
+	  io.FontDefault = io.Fonts->Fonts[indexAtlasFont];
+	}
+	else {
+	  io.FontDefault = io.Fonts->Fonts[0];
+	}
+  }
+
+  //--------------------------------------------------------------
+  int Gui::addFont(const std::string & fontPath, float fontSize) {
+
+	//ImFontConfig structure allows you to configure oversampling.
+	//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
+	//than necessary, so you may reduce that to 1.
+
+		static const ImWchar polishCharRanges[] =
+		{
+			0x0020, 0x00FF, // Basic Latin + Latin Supplement
+			0x0100, 0x01FF, // Polish characters
+			0,
+		};
+
+		ImGuiIO& io = ImGui::GetIO();
+		std::string filePath = ofFilePath::getAbsolutePath(fontPath);
+
+		char charFontPath[256];
+		strcpy(charFontPath, filePath.c_str());
+		//io.Fonts->AddFontFromFileTTF(fontPath, fontSize, NULL, io.Fonts->GetGlyphRangesDefault());
+		ImFont* font = io.Fonts->AddFontFromFileTTF(charFontPath, fontSize, NULL, polishCharRanges);
+
+		if (io.Fonts->Fonts.size() > 0) {
+			return io.Fonts->Fonts.size() - 1;
+		}
+		else {
+			return 0;
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -137,8 +179,10 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::begin()
 	{
-		
+		// Only initialise once per frame
+		if(!autoDraw && isRenderingManualFrame) return;
 
+		ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
 
         io.DeltaTime = ofGetLastFrameTime();
@@ -149,12 +193,17 @@ namespace ofxImGui
 			io.MouseDown[i] = engine.mousePressed[i];
 		}
 		ImGui::NewFrame();
+		isRenderingManualFrame = true;
 	}
 
 	//--------------------------------------------------------------
 	void Gui::end()
 	{
-		ImGui::Render();
+		// Only render in autodraw mode.
+		// This allows calling end() and begin() multiple times per frame until we render, while ensuring auto mode works.
+		if(autoDraw){
+			ImGui::Render();
+		}
 	}
 
 	//--------------------------------------------------------------
@@ -162,7 +211,9 @@ namespace ofxImGui
 	{
 		if (!autoDraw)
 		{
-			engine.draw();
+			//engine.draw();
+			ImGui::Render();
+			isRenderingManualFrame = false;
 		}
 	}
 }
