@@ -180,7 +180,7 @@ void ofApp::keyReleased(int key){
 }
 
 
-void ofApp::mouseScrolled(float x, float y)
+void ofApp::mouseScrolled(int x, int y, float scrollX, float scrollY)
 {
     ofLogVerbose(__FUNCTION__) << "x: " << x << " y: " << y;
 }

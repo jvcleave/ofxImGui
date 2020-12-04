@@ -19,7 +19,7 @@ public:
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
-    void mouseScrolled(float x, float y);
+    void mouseScrolled(int x, int y, float scrollX, float scrollY);
     
     ofxImGui::Gui gui;
     ImVec4 backgroundColor;
