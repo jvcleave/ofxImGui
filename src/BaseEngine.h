@@ -19,10 +19,14 @@ namespace ofxImGui
 
 		virtual void setup(bool autoDraw) = 0;
 		virtual void exit() = 0;
-		virtual bool createDeviceObjects() = 0;
-		virtual void invalidateDeviceObjects() = 0;
 
-		virtual void draw() {};
+        virtual void newFrame() {};
+        virtual void endFrame() {};
+        virtual void render() {};
+
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        virtual bool createDeviceObjects() = 0;
+        virtual void invalidateDeviceObjects() = 0;
 
 		virtual void onMouseDragged(ofMouseEventArgs& event);
 		virtual void onMousePressed(ofMouseEventArgs& event);
@@ -31,9 +35,11 @@ namespace ofxImGui
 		virtual void onKeyPressed(ofKeyEventArgs& event);
 		virtual void onKeyReleased(ofKeyEventArgs& event) = 0;
 		virtual void onWindowResized(ofResizeEventArgs& window);
+#endif
 
 		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
 		static const char* getClipboardString(void * userData);
 		static void setClipboardString(void * userData, const char * text);
 
@@ -54,6 +60,7 @@ namespace ofxImGui
 		static std::string g_ClipboardText;
 
 		bool mousePressed[5] = { false };
+#endif
 
 	protected:
 		bool isSetup;

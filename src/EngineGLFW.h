@@ -23,12 +23,16 @@ namespace ofxImGui
 		// BaseEngine required
 		void setup(bool autoDraw) override;
 		void exit() override;
-		bool createDeviceObjects() override;
-		void invalidateDeviceObjects() override;
 
-		void draw() override;
+        void newFrame() override;
+        void endFrame() override;
+        void render() override;
 
 		bool createFontsTexture();
+
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        bool createDeviceObjects() override;
+        void invalidateDeviceObjects() override;
 
 		void onKeyReleased(ofKeyEventArgs& event) override;
 		void onKeyPressed(ofKeyEventArgs& event) override;
@@ -38,6 +42,7 @@ namespace ofxImGui
 		// Custom 
 		static void programmableDrawData(ImDrawData * draw_data);
 		static void fixedDrawData(ImDrawData * draw_data);
+#endif
 
 		static GLuint g_FontTexture;
 	};

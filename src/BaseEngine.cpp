@@ -6,6 +6,7 @@
 
 namespace ofxImGui
 {
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
 	int BaseEngine::g_ShaderHandle = 0;
 	int BaseEngine::g_VertHandle = 0;
 	int BaseEngine::g_FragHandle = 0;
@@ -66,8 +67,19 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onWindowResized(ofResizeEventArgs& window)
 	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2((float)window.width, (float)window.height);
+        // Note : Within event callbacks, the ImGui context is not set to that of the current window.
+        //        The OfGetWindowPtr() functions works as axpected.
+        //        std::cout << "onWindowResized() in ctx= " << ImGui::GetCurrentContext() << ", win=" << ofGetWindowPtr()->getWindowContext() << std::endl;
+
+        //ImGuiIO& io = ImGui::GetIO();
+        // Not needed anymore, overruled by imgui_glfw_newframe() via gui.begin()
+        //io.DisplaySize = ImVec2((float)window.width, (float)window.height); // Not needed anymore ?
+
+        //GLFWwindow* curWindow=(GLFWwindow*)ofGetWindowPtr()->getWindowContext();
+        if (ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle( (void*)ofGetWindowPtr()->getWindowContext() )){
+            viewport->PlatformRequestResize = true;
+        }
+        // todo: onWindowMove() for viewport->PlatformRequestMove = true;
 	}
 
 	//--------------------------------------------------------------
@@ -81,10 +93,11 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::setClipboardString(void * userData, const char * text)
 	{
-		//ofGetWindowPtr()->setClipboardString(text); // Not sure if this is needed
+        //ofGetWindowPtr()->setClipboardString(text); // Commented, looks like a useless call
 		g_ClipboardText = ofToString(text);
 		ofGetWindowPtr()->setClipboardString(g_ClipboardText);
 	}
+#endif
 
 	//--------------------------------------------------------------
 	GLuint BaseEngine::loadTextureImage2D(unsigned char * pixels, int width, int height)

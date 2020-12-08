@@ -5,6 +5,11 @@
 #include "ofAppGLFWWindow.h"
 #include "ofGLProgrammableRenderer.h"
 #include "GLFW/glfw3.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_opengl2.h"
+
+
 
 namespace ofxImGui
 {
@@ -13,74 +18,161 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineGLFW::setup(bool autoDraw)
 	{
-		if (isSetup) return;
+        if (isSetup){
+#ifdef OFXIMGUI_DEBUG
+            ofLogNotice("EngineGLFW::setup()") << "Ignoring glfw setup, already bound." << std::endl;
+#endif
+            return;
+        }
+#ifdef OFXIMGUI_DEBUG
+        else ofLogNotice("EngineGLFW::setup()") << "Setting up GLFW in oF window size " << ImGui::GetIO().DisplaySize << std::endl;
+#endif
 
-		ImGuiIO& io = ImGui::GetIO();
 
-		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-		io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-		io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-		io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-		io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-		io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-		io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-		io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-		io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-		io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-		io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-		io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-		io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
 
-		/*io.KeyMap[ImGuiKey_F] = GLFW_KEY_F;
-		io.KeyMap[ImGuiKey_H] = GLFW_KEY_H;
-		io.KeyMap[ImGuiKey_F1] = GLFW_KEY_F1;
-		io.KeyMap[ImGuiKey_F2] = GLFW_KEY_F2;
-		io.KeyMap[ImGuiKey_F3] = GLFW_KEY_F3;
-		io.KeyMap[ImGuiKey_F4] = GLFW_KEY_F4;
-		io.KeyMap[ImGuiKey_F5] = GLFW_KEY_F5;
-		io.KeyMap[ImGuiKey_F6] = GLFW_KEY_F6;
-		io.KeyMap[ImGuiKey_F7] = GLFW_KEY_F7;
-		io.KeyMap[ImGuiKey_F8] = GLFW_KEY_F8;
-		io.KeyMap[ImGuiKey_F9] = GLFW_KEY_F9;
-		io.KeyMap[ImGuiKey_F10] = GLFW_KEY_F10;
-		io.KeyMap[ImGuiKey_F11] = GLFW_KEY_F11;
-		io.KeyMap[ImGuiKey_F12] = GLFW_KEY_F12;*/
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        ImGuiIO& io = ImGui::GetIO();
 
-		//if (autoDraw)
-		{
-			if (ofIsGLProgrammableRenderer())
-			{
-				io.RenderDrawListsFn = programmableDrawData;
-			}
-			else
-			{
-				io.RenderDrawListsFn = fixedDrawData;
-			}
-		}
+        io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 
-		io.SetClipboardTextFn = &BaseEngine::setClipboardString;
-		io.GetClipboardTextFn = &BaseEngine::getClipboardString;
+        // We only map the keys that ImGui needs for its UI
+        io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
+        io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
+        io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+        io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
+        io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
+        io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
+        io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
+        io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
+        io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
+        io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
+        io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
+        io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
+        io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
+        io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
+        io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
+        io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
+        io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
+        io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
+        io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
+        io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
+        io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+        // Note: No idea where these come from, they were commented anyways
+        //io.KeyMap[ImGuiKey_F] = GLFW_KEY_F;
+        //io.KeyMap[ImGuiKey_H] = GLFW_KEY_H;
+        //io.KeyMap[ImGuiKey_F1] = GLFW_KEY_F1;
+        //io.KeyMap[ImGuiKey_F2] = GLFW_KEY_F2;
+        //io.KeyMap[ImGuiKey_F3] = GLFW_KEY_F3;
+        //io.KeyMap[ImGuiKey_F4] = GLFW_KEY_F4;
+        //io.KeyMap[ImGuiKey_F5] = GLFW_KEY_F5;
+        //io.KeyMap[ImGuiKey_F6] = GLFW_KEY_F6;
+        //io.KeyMap[ImGuiKey_F7] = GLFW_KEY_F7;
+        //io.KeyMap[ImGuiKey_F8] = GLFW_KEY_F8;
+        //io.KeyMap[ImGuiKey_F9] = GLFW_KEY_F9;
+        //io.KeyMap[ImGuiKey_F10] = GLFW_KEY_F10;
+        //io.KeyMap[ImGuiKey_F11] = GLFW_KEY_F11;
+        //io.KeyMap[ImGuiKey_F12] = GLFW_KEY_F12;
 
-		createDeviceObjects();
+        // Init renderer
+        //if (autoDraw)
+        {
+            // These seem not needed anymore (depreciated). Caled manually in render() now.
+//            if (ofIsGLProgrammableRenderer())
+//            {
+//                io.RenderDrawListsFn = programmableDrawData;
+//            }
+//            else
+//            {
+//                io.RenderDrawListsFn = fixedDrawData;
+//            }
+        }
 
-		// Override listeners
-		ofAddListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
-		ofAddListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
-		ofAddListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
-		ofAddListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
+        io.SetClipboardTextFn = &BaseEngine::setClipboardString;
+        io.GetClipboardTextFn = &BaseEngine::getClipboardString;
 
-		// BaseEngine listeners
-		ofAddListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
-		ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
-		ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
+        createDeviceObjects();
+
+        // Override listeners
+        ofAddListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
+        ofAddListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
+        ofAddListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
+        ofAddListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
+
+        // BaseEngine listeners
+        ofAddListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
+        ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
+        ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
+
+#else // Use regular imgui bindings
+
+        // Init window
+        GLFWwindow* curWin = (GLFWwindow*)ofGetWindowPtr()->getWindowContext();
+        ImGui_ImplGlfw_InitForOpenGL( curWin, true );
+
+        // Seems unnecessary (only needed for popped-out windows?)
+        //glfwSetWindowPosCallback(   curWin, ImGui_ImplGlfw_WindowPosCallback);
+        //glfwSetWindowSizeCallback(  curWin, ImGui_ImplGlfw_WindowSizeCallback);
+
+        // Init renderer
+        if( ofIsGLProgrammableRenderer() ){
+            int minor; int major;
+            glfwGetVersion(&minor, &major, nullptr);
+            //ofGetGLRenderer()->getGLVersionMajor(); alternative way
+
+            // See imgui_impl_opengl3.cpp
+            //----------------------------------------
+            // OpenGL    GLSL      GLSL
+            // version   version   string
+            //----------------------------------------
+            //  2.0       110       "#version 110"
+            //  2.1       120       "#version 120"
+            //  3.0       130       "#version 130"
+            //  3.1       140       "#version 140"
+            //  3.2       150       "#version 150"
+            //  3.3       330       "#version 330 core"
+            //  4.0       400       "#version 400 core"
+            //  4.1       410       "#version 410 core"
+            //  4.2       420       "#version 410 core"
+            //  4.3       430       "#version 430 core"
+            //  ES 2.0    100       "#version 100"      = WebGL 1.0
+            //  ES 3.0    300       "#version 300 es"   = WebGL 2.0
+            //----------------------------------------
+
+            const char* glsl_version = NULL; // default version empty --> use imgui backend's default
+            if( major==3 ){
+                if( minor==0 )      glsl_version="#version 130";
+                else if( minor==1 ) glsl_version="#version 140";
+                else if( minor==2 ) glsl_version="#version 150";
+                else if( minor==3 ) glsl_version="#version 330 core";
+            }
+            else if( major==4 ){
+                if( minor==0 )      glsl_version="#version 400 core";
+                else if( minor==1 ) glsl_version="#version 410 core";
+                else if( minor==2 ) glsl_version="#version 420 core";
+                else if( minor==3 ) glsl_version="#version 430 core";
+            }
+
+            ImGui_ImplOpenGL3_Init(glsl_version); // Called by the function below, but needed with these arguments
+            ImGui_ImplOpenGL3_CreateDeviceObjects();
+            //ImGui_ImplOpenGL3_CreateFontsTexture(); // called by the above function
+        }
+        else
+        {
+            ImGui_ImplOpenGL2_Init();
+            ImGui_ImplOpenGL2_CreateDeviceObjects();
+        }
+
+        // These are currently called by the imgui backend.
+        //GLFWwindow* curWindow=(GLFWwindow*)ofGetWindowPtr()->getWindowContext();
+        //glfwSetMouseButtonCallback( curWindow, ImGui_ImplGlfw_MouseButtonCallback);
+        //glfwSetScrollCallback(      curWindow, ImGui_ImplGlfw_ScrollCallback);
+        //glfwSetKeyCallback(         curWindow, ImGui_ImplGlfw_KeyCallback);
+        //glfwSetCharCallback(        curWindow, ImGui_ImplGlfw_CharCallback);
+        //glfwSetWindowCloseCallback( curWindow, ImGui_ImplGlfw_WindowCloseCallback);
+        //glfwSetWindowPosCallback(   curWindow, ImGui_ImplGlfw_WindowPosCallback);
+        //glfwSetWindowSizeCallback(  curWindow, ImGui_ImplGlfw_WindowSizeCallback);
+
+#endif // IMGUI BACKEND binding
 
 		isSetup = true;
 	}
@@ -92,34 +184,139 @@ namespace ofxImGui
 	{
 		if (!isSetup) return;
         
-        // Override listeners
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        // Unregister listeners
         ofRemoveListener(ofEvents().mousePressed, this, &EngineGLFW::onMousePressed);
         ofRemoveListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseReleased);
         ofRemoveListener(ofEvents().keyReleased, this, &EngineGLFW::onKeyReleased);
         ofRemoveListener(ofEvents().keyPressed, this, &EngineGLFW::onKeyPressed);
         
-        // Base class listeners
         ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
         ofRemoveListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
         ofRemoveListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
-        
-		invalidateDeviceObjects();
+
+        invalidateDeviceObjects();
+ #else
+        if (ofIsGLProgrammableRenderer()){
+            //ImGui_ImplOpenGL3_DestroyFontsTexture(); // called by function below
+            //ImGui_ImplOpenGL3_DestroyDeviceObjects(); // Called below
+            ImGui_ImplOpenGL3_Shutdown(); // called by ImGuiDestroyContext() later ?
+        }
+        else {
+            //ImGui_ImplOpenGL2_DestroyFontsTexture(); // called by function below
+            //ImGui_ImplOpenGL2_DestroyDeviceObjects(); // Called below
+            ImGui_ImplOpenGL2_Shutdown();
+        }
+        ImGui_ImplGlfw_Shutdown();
+#endif
 
 		isSetup = false;
 	}
 
+    //--------------------------------------------------------------
+    void EngineGLFW::newFrame()
+    {
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+
+        // New: better set display every frame instead of waiting for the resize() callback. (smoother)
+        ImGuiIO& io = ImGui::GetIO();
+        io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+#else
+        if (ofIsGLProgrammableRenderer()){
+            ImGui_ImplOpenGL3_NewFrame();
+        }
+        else{
+            ImGui_ImplOpenGL2_NewFrame();
+        }
+        ImGui_ImplGlfw_NewFrame();
+#endif
+    }
+
+    //--------------------------------------------------------------
+    void EngineGLFW::endFrame()
+    {
+#ifdef OFXIMGUI_MULTIWINDOW_IMPL
+        //ImGuiIO& io = ImGui::GetIO();
+        //if(  )
+        //ImGui::Render();
+
+//        if (ofIsGLProgrammableRenderer()){
+//            //std::cout << "isProgramable!" << std::endl;
+//            //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//            programmableDrawData(ImGui::GetDrawData());
+//        }
+//        else{
+//            //std::cout << "isNotProgramable!" << std::endl;
+//            //ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+//            fixedDrawData(ImGui::GetDrawData());
+//        }
+#endif
+    }
+
 	//--------------------------------------------------------------
-	void EngineGLFW::draw()
+    void EngineGLFW::render()
 	{
-		if (ofIsGLProgrammableRenderer())
-		{
-			programmableDrawData(ImGui::GetDrawData());
-		}
-		else
-		{
-			fixedDrawData(ImGui::GetDrawData());
-		}
+
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        //ImGui::Render(); // also calls ImGui::EndFrame()
+
+        if (ofIsGLProgrammableRenderer()) {
+            int display_w, display_h;
+            glfwGetFramebufferSize(window, &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            programmableDrawData(ImGui::GetDrawData());
+        }
+        else {
+            fixedDrawData(ImGui::GetDrawData());
+        }
+//        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+//        {
+//            //           GLFWwindow* backup_current_context = glfwGetCurrentContext();
+//            ImGui::UpdatePlatformWindows();
+//            ImGui::RenderPlatformWindowsDefault();
+//            //           glfwMakeContextCurrent(backup_current_context);
+//        }
+#else
+
+        if (ofIsGLProgrammableRenderer()) {
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        }
+        else {
+            ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+        }
+#endif
 	}
+
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+    //--------------------------------------------------------------
+    bool EngineGLFW::createFontsTexture()
+    {
+        // Build texture atlas
+        ImGuiIO& io = ImGui::GetIO();
+        unsigned char* pixels;
+        int width, height;
+        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+
+        // Upload texture to graphics system
+        GLint last_texture;
+        glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+        glGenTextures(1, &g_FontTexture);
+        glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+        // Store our identifier
+        io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
+
+        // Restore state
+        glBindTexture(GL_TEXTURE_2D, last_texture);
+
+        return true;
+    }
 
 	//--------------------------------------------------------------
 	void remapToGLFWConvention(int& button)
@@ -470,33 +667,6 @@ namespace ofxImGui
 		}
 	}
 
-	//--------------------------------------------------------------
-	bool EngineGLFW::createFontsTexture()
-	{
-		// Build texture atlas
-		ImGuiIO& io = ImGui::GetIO();
-		unsigned char* pixels;
-		int width, height;
-		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
-		
-		// Upload texture to graphics system
-		GLint last_texture;
-		glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-		glGenTextures(1, &g_FontTexture);
-		glBindTexture(GL_TEXTURE_2D, g_FontTexture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-		
-		// Store our identifier
-		io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
-		
-		// Restore state
-		glBindTexture(GL_TEXTURE_2D, last_texture);
-		
-		return true;
-	}
 
 	//--------------------------------------------------------------
 	void EngineGLFW::invalidateDeviceObjects()
@@ -528,6 +698,7 @@ namespace ofxImGui
 			g_FontTexture = 0;
 		}
 	}
+#endif // OFXIMGUI_ENABLE_OF_BINDINGS
 }
 
 #endif
