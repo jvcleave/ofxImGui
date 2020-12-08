@@ -67,7 +67,7 @@ namespace ofxImGui
         style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(col_main_head, 1.00f);
         style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(col_main_head, 0.43f);
         style->Colors[ImGuiCol_PopupBg] = ImVec4(col_win_backg, 0.92f);
-        style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(col_main_area, 0.73f);
+        style->Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(col_main_area, 0.73f);
         
     }
 }
