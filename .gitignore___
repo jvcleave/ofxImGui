@@ -1,0 +1,146 @@
+*.xcodeproj
+example*/bin/data
+example*/bin/libs/
+example*/bin/*
+!example*/bin/data/.gitkeep
+!example*/bin/data/*.png
+
+
+#########################
+# openFrameworks patterns
+#########################
+
+# build files
+openFrameworks.a
+openFrameworksDebug.a
+openFrameworksUniversal.a
+libs/openFrameworksCompiled/lib/*/*
+!libs/openFrameworksCompiled/lib/*/.gitkeep
+
+# apothecary
+scripts/apothecary/build
+
+# rule to avoid non-official addons going into git
+# see addons/.gitignore
+addons/*
+
+# rule to avoid non-official apps going into git
+# see apps/.gitignore
+apps/*
+
+# also, see examples/.gitignore
+
+#########################
+# general
+#########################
+
+[Bb]uild/
+[Oo]bj/
+*.o
+[Dd]ebug*/
+[Rr]elease*/
+*.mode*
+*.app/
+*.pyc
+.svn/
+*.log
+*.cpp.eep
+*.cpp.elf
+*.cpp.hex
+
+#########################
+# IDE
+#########################
+
+# XCode
+*.pbxuser
+*.perspective
+*.perspectivev3
+*.mode1v3
+*.mode2v3
+# XCode 4
+xcuserdata
+*.xcworkspace
+
+# Code::Blocks
+*.depend
+*.layout
+
+# Visual Studio
+*.sdf
+*.opensdf
+*.suo
+*.pdb
+*.ilk
+*.aps
+ipch/
+*.db
+*.opendb
+
+# Eclipse
+.metadata
+local.properties
+.externalToolBuilders
+
+#########################
+# operating system
+#########################
+
+# Linux
+*~
+# KDE
+.directory
+.AppleDouble
+
+# OSX
+.DS_Store
+*.swp
+*~.nib
+# Thumbnails
+._*
+
+# Windows
+# Windows image file caches
+Thumbs.db
+# Folder config file
+Desktop.ini
+
+# Android
+.csettings
+/libs/openFrameworksCompiled/project/android/paths.make
+
+#########################
+# miscellaneous
+#########################
+
+.mailmap
+DerivedData
+Makefile
+config.make
+openFrameworks-Info.plist
+Project.xcconfig
+/libs/imgui-1.75
+
+**/build-example-demo-Desktop-Debug/
+**/build-example-demo-Desktop-Release/
+example-multiwindow/example-multiwindow.vcxproj.user
+example-multiwindow/example-multiwindow.vcxproj.filters
+example-multiwindow/example-multiwindow.vcxproj
+example-multiwindow/example-multiwindow.sln
+example-helpers/example-helpers.vcxproj.user
+example-helpers/example-helpers.vcxproj.filters
+example-helpers/example-helpers.vcxproj
+example-helpers/example-helpers.sln
+example-demo/example-demo.vcxproj.user
+example-demo/example-demo.vcxproj.filters
+example-demo/example-demo.vcxproj
+example-demo/example-demo.sln
+example-demo/icon.rc
+example-helpers/icon.rc
+example-multiwindow/icon.rc
+example-demo/addons.make
+example-helpers/addons.make
+example-multiwindow/addons.make
+example-multiwindow/addons.make
+example-helpers/addons.make
+example-demo/addons.make
