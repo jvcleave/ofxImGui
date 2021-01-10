@@ -7,9 +7,7 @@
 namespace ofxImGui
 {
 	//--------------------------------------------------------------
-	Gui::Gui()
-		: lastTime(0.0f)
-		, theme(nullptr)
+    Gui::Gui()
 	{
         // This performs an ImGui version check (asserts on fail)
         // Probably of interest for DLL code that needs to draw to ImGui.
@@ -26,64 +24,57 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-    void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool allowChaining_)
+    void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_)
 	{
 #ifdef OFXIMGUI_DEBUG
         ofLogNotice("Gui::setup()") << "Setting up ofxImGui in window " << ofGetWindowPtr();
 #endif
+        // Instance already setup ?
+        if(context!=nullptr){
+#ifdef OFXIMGUI_DEBUG
+            ofLogWarning("Gui::setup()") << "This Gui instance is already setup, you are calling it twice !";
+#endif
+            return;
+        }
 
-        // Skip window and context setup if another instance already enabled chaining
-        if(!chainingMode){
+        // Check for existing context in current oF window.
+        ofAppBaseWindow* curWindow = ofGetWindowPtr();
+        if( imguiContexts.find( curWindow ) != imguiContexts.end() ){
+            context = imguiContexts[curWindow];//ImGui::GetCurrentContext();
+            ownedContext = false;
+            sharedModes[context] = true; // tells master that the context is shared
 
-            // Only setup once
-            if(context != nullptr){
-                ofLogWarning("ofxImGui") << "Warning, you are calling setup multiple times. Ignoring this second call. Maybe you'd like to enable chaining ?" << std::endl;
-                return;
+            // Enable listener if autoDraw is on
+            // To be fully tested. It might be problematic that it's registering to the slave instance here.
+            if(autoDraw){
+                listener.unsubscribe();
+                listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
             }
 
-            // Check if context exists
-            if( !hasContext() ){
-
-                ofAppBaseWindow* curWindow = ofGetWindowPtr();
-
-                // Window has no context, create new context.
-                context = ImGui::CreateContext(); // Todo : pass shared fontatlas instance ?
-                ownedContext = true;
-
-#if defined(OFXIMGUI_MULTIWINDOW_IMPL)
-                ofAppBaseWindow* curWindow = ofGetWindowPtr();
-                imguiContexts[curWindow] = context;
+#ifdef OFXIMGUI_DEBUG
+            ofLogNotice("Gui::setup()") << "Context "<< context << " already exists in window " << curWindow << ", using the existing context as a shared one." << std::endl;
+            if(!autoDraw) ofLogWarning("Gui::setup()") << "You are using manual rendering. This might cause a crash; to fix, ensure that you call the render function after all ofxImGui::Gui instances have send ImGui commands.";
+            else ofLogNotice("Gui::setup()") << "Autodraw now happens after ofApp:draw() instead of when ofxImGui::end() is called." << std::endl;
 #endif
+        }
+        // Create context for this window
+        else {
+            context = ImGui::CreateContext(); // Todo : pass shared fontatlas instance ?
+            ownedContext = true;
+            imguiContexts[curWindow] = context;
 
-                //ImGuiViewport* vp = ImGui::FindViewportByPlatformHandle( (GLFWwindow*) curWindow );
-                //if(vp) std::cout << "Context viewport = " << vp->GetWorkSize() << std::endl;
-                chainingMode = allowChaining_;
-
-                // Note: only the first instance's setup() can set autodraw
-                autoDraw = autoDraw_;
+            // Note: only the first instance's setup() can set settings
+            autoDraw = autoDraw_;
+            sharedModes[context] = false;
 
 //#ifndef OFXIMGUI_ENABLE_OF_BINDINGS
-                if( autoDraw && chainingMode && curWindow!=nullptr ){
-                    listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
-                }
+            if( autoDraw && curWindow!=nullptr ){
+                listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
+            }
 //#endif
 #ifdef OFXIMGUI_DEBUG
-                ofLogNotice("Gui::setup()") << "Created context "<< context << " in window " << ofGetWindowPtr();
+            ofLogNotice("Gui::setup()") << "Created context "<< context << " in window " << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
 #endif
-            }
-            else {
-                // Use the already-available context in this window
-                context = ImGui::GetCurrentContext();
-                ownedContext = false;
-#ifdef OFXIMGUI_DEBUG
-                ofLogNotice("Gui::setup()") << "Context "<< context << " already exists in window " << ofGetWindowPtr() << ", using the existing context.";
-#endif
-            }
-
-        }
-        else {
-            context = ImGui::GetCurrentContext();
-            ownedContext = false;
         }
 
         ImGui::SetCurrentContext(context);
@@ -91,8 +82,8 @@ namespace ofxImGui
 
         // Note : In chaining mode, additional flags can still be set.
 		io.ConfigFlags |= customFlags_;
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // tmp !
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // tmp !
+        //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // tmp !
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // tmp !
         io.MouseDrawCursor = false;
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS
@@ -160,15 +151,19 @@ namespace ofxImGui
 
         // Destroy context
         if(ownedContext){
-#if defined(OFXIMGUI_MULTIWINDOW_IMPL)
             auto it = imguiContexts.begin();
             while( it != imguiContexts.end() && it->second != context ) it++;
             if( it != imguiContexts.end() ) imguiContexts.erase(it);
-#endif
+
+            auto frameEntry = isRenderingFrame.find(context);
+            if( frameEntry != isRenderingFrame.end()){
+                isRenderingFrame.erase(frameEntry);
+            }
+
             ImGui::DestroyContext(context);
-            context = nullptr;
             ownedContext = false;
         }
+        context = nullptr;
 		
 	}
 
@@ -294,14 +289,20 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::begin()
 	{
-        ImGui::SetCurrentContext(context);
-
-#ifndef OFXIMGUI_MULTIWINDOW_IMPL
-        // Only initialise once per frame
-        if(chainingMode && isRenderingManualFrame){
+        if(context==nullptr){
+#ifdef OFXIMGUI_DEBUG
+            ofLogWarning("Gui::begin()") << "Context is not set. Please call setup() first !";
+#endif
             return;
         }
-#endif
+
+        // Ignore 2nd call to begin(), to allow chaining
+        if( sharedModes.find(context) != sharedModes.end() && sharedModes[context] && isRenderingFrame.find(context) != isRenderingFrame.end() && isRenderingFrame[context] == true ){
+            // Already began context
+            return;
+        }
+
+        ImGui::SetCurrentContext(context);
 
 #if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 //        ImGuiIO& io = ImGui::GetIO();
@@ -321,37 +322,49 @@ namespace ofxImGui
         ImGui::NewFrame();
         //ImGui::AddUpdateViewport();
 
-#ifndef OFXIMGUI_MULTIWINDOW_IMPL
-        isRenderingManualFrame = true;
-#endif
+        isRenderingFrame[context] = true;
 	}
 
 	//--------------------------------------------------------------
 	void Gui::end()
     {
-#ifndef OFXIMGUI_MULTIWINDOW_IMPL
-        // Disable/ignore in chaining mode
-        if(chainingMode){
-            // This allows calling end() and begin() multiple times per frame until we render manually, while ensuring auto mode works.
-
+        if(context==nullptr){
+#ifdef OFXIMGUI_DEBUG
+            ofLogWarning("Gui::end()") << "Context is not set. Please call setup() first !";
+#endif
             return;
         }
+
+        if( sharedModes[context]==true ){
+#ifdef OFXIMGUI_DEBUG
+            if( !isRenderingFrame[context] ){
+                ofLogWarning("Gui::end()") << "The Gui already rendered, or forgot to call Gui::Begin() ! Please ensure you render the gui after other instances have rendered.";
+            }
 #endif
+            return;
+        }
+
 
         // Only render in autodraw mode.
         if(autoDraw){
             render();
         }
-        // Otherwise end the frame. User chooses when to render later with Gui::draw()
+        // Otherwise end the frame. User chooses when to render (later) using Gui::draw()
         // Note: You cannot resume using ImGui::NewFrame() without flushing the pipeline.
         else {
-            engine.endFrame();
+            if( !isRenderingFrame[context] ){
+                return;
+            }
+
+            engine.endFrame(); // (Does nothing...)
             ImGui::EndFrame();
         }
     }
 
     //--------------------------------------------------------------
     void Gui::render(){
+        if( context==nullptr ) return;
+
         ImGui::SetCurrentContext(context);
         ImGui::Render();
         engine.render();
@@ -365,13 +378,13 @@ namespace ofxImGui
             ImGui::RenderPlatformWindowsDefault();
             //glfwMakeContextCurrent(backup_current_context);
         }
-        isRenderingManualFrame = false;
+        isRenderingFrame[context] = false;
     }
 
 	//--------------------------------------------------------------
     void Gui::draw()
 	{
-		if (!autoDraw)
+        if (!autoDraw && context && isRenderingFrame[context]==true)
 		{
             render();
 		}
@@ -381,30 +394,17 @@ namespace ofxImGui
     void Gui::afterDraw( ofEventArgs& ){
 
         // This function is registered after ofApp::draw() to honor autodraw in chaining mode.
-        if(autoDraw && chainingMode && isRenderingManualFrame){
-            render();
+        if(context && isRenderingFrame[context] ){
+            // Autodraw renders here if sharedMode is on
+            if( (autoDraw && sharedModes[context]==true) ) render();
+            // Render if manual render was forgotten ?
+            else if( sharedModes[context]==false ) render();
         };
     }
 
-    // Returns if a context is setup (in current window with mutiwindow)
-    bool Gui::hasContext(){
-#if defined(OFXIMGUI_MULTIWINDOW_IMPL)
-        ofAppBaseWindow* curWindow = ofGetWindowPtr();
-        if( curWindow == nullptr ) return false;
-        auto windowContext = imguiContexts.find(curWindow);
-        return ( windowContext == imguiContexts.end() ) ? false : true;
-#else
-        return (context != nullptr);
-#endif
-    }
-
-    bool Gui::chainingMode=false;
-    bool Gui::isRenderingManualFrame=false;
-
-    // Context singleton
-    //ImGuiContext* Gui::context = nullptr;
-#if defined(OFXIMGUI_MULTIWINDOW_IMPL)
+    // Initialise statics
     std::map< ofAppBaseWindow*, ImGuiContext* > Gui::imguiContexts = {};
-#endif
+    std::map< ImGuiContext*, bool > Gui::isRenderingFrame = {};
+    std::map< ImGuiContext*, bool > Gui::sharedModes = {};
 }
 

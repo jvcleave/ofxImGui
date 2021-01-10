@@ -25,7 +25,7 @@ namespace ofxImGui
             return;
         }
 #ifdef OFXIMGUI_DEBUG
-        else ofLogNotice("EngineGLFW::setup()") << "Setting up GLFW in oF window size " << ImGui::GetIO().DisplaySize << std::endl;
+        else ofLogNotice("EngineGLFW::setup()") << "Setting up GLFW in oF window size " << ImGui::GetIO().DisplaySize << " // Ptr=" << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]" << std::endl;
 #endif
 
 

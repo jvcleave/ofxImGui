@@ -4,9 +4,7 @@
 #include "ofPixels.h"
 #include "ofTexture.h"
 
-#ifdef OFXIMGUI_MULTIWINDOW_IMPL
 #include <map>
-#endif
 
 #if defined(TARGET_OPENGLES)
 #include "EngineOpenGLES.h"
@@ -26,7 +24,7 @@ namespace ofxImGui
 		Gui();
 		~Gui();
 
-        void setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool allowChaining_=false);
+        void setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None);
 		void exit();
 
 		void begin();
@@ -51,8 +49,6 @@ namespace ofxImGui
         void afterDraw(ofEventArgs& _args); // Listener
 
     private:
-        //ImGuiContext* makeContext();
-        bool hasContext();
         void render();
 
 #if defined(TARGET_OPENGLES)
@@ -63,24 +59,22 @@ namespace ofxImGui
         EngineGLFW engine;
 #endif
         
-		float lastTime;
-		bool autoDraw;
-        static bool isRenderingManualFrame;
-        static bool chainingMode; // Allows calling gui.begin() & gui.end() multiple times per frame.
+        float lastTime=0.f;
+        bool autoDraw=true;
         ofEventListener listener;
 
-		BaseTheme* theme;
+        BaseTheme* theme=nullptr;
 
 		std::vector<ofTexture*> loadedTextures;
 
         // Static context instance. All Gui instances share the same context.
         // If you're dealing with dynamic libraries, you might need to pass this over to another ImGui instance.
-        //static ImGuiContext* context;
-
         ImGuiContext* context = nullptr; // Short-hand value, same as stored in the map
+        // todo: rename to ownsContext
         bool ownedContext = false; // Copy of context, set when it needs destruction
-#ifdef OFXIMGUI_MULTIWINDOW_IMPL
+
         static std::map< ofAppBaseWindow*, ImGuiContext* > imguiContexts; // Holds all available ImGui instances per window.
-#endif
+        static std::map< ImGuiContext*, bool > isRenderingFrame; // isRenderingFrame, per context
+        static std::map< ImGuiContext*, bool > sharedModes; // Shared mode, per context
 	};
 }
