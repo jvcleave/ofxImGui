@@ -28,9 +28,10 @@ namespace ofxImGui
         void endFrame() override;
         void render() override;
 
-		bool createFontsTexture();
+        bool updateFontsTexture() override;
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        bool createFontsTexture();
         bool createDeviceObjects() override;
         void invalidateDeviceObjects() override;
 

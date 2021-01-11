@@ -32,8 +32,9 @@ namespace ofxImGui
 
 		void draw();
 
-        void SetDefaultFont(int indexAtlasFont);
-        int addFont(const std::string & fontPath, float fontSize = 13.0f);
+        bool setDefaultFont(int indexAtlasFont);
+        bool setDefaultFont(ImFont* _atlasFont);
+        ImFont* addFont(const std::string & fontPath, float fontSize = 13.0f, const ImFontConfig* _fontConfig = nullptr, const ImWchar* _glyphRanges = nullptr );
 
 		void setTheme(BaseTheme* theme);
 

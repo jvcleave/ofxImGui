@@ -697,8 +697,21 @@ namespace ofxImGui
 			ImGui::GetIO().Fonts->TexID = 0;
 			g_FontTexture = 0;
 		}
-	}
+	}   
 #endif // OFXIMGUI_ENABLE_OF_BINDINGS
+
+    bool EngineGLFW::updateFontsTexture(){
+#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+        return createFontsTexture();
+#else
+        if (ofIsGLProgrammableRenderer()) {
+            return ImGui_ImplOpenGL3_CreateFontsTexture();
+        }
+        else {
+            return ImGui_ImplOpenGL2_CreateFontsTexture();
+        }
+#endif
+    }
 }
 
 #endif

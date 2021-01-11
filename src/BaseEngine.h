@@ -20,9 +20,11 @@ namespace ofxImGui
 		virtual void setup(bool autoDraw) = 0;
 		virtual void exit() = 0;
 
-        virtual void newFrame() {};
-        virtual void endFrame() {};
-        virtual void render() {};
+        virtual void newFrame() = 0;
+        virtual void endFrame() = 0; // todo: remove ?
+        virtual void render() = 0;
+
+        virtual bool updateFontsTexture() = 0;
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS
         virtual bool createDeviceObjects() = 0;

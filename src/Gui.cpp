@@ -167,54 +167,88 @@ namespace ofxImGui
 		
 	}
 
-  //--------------------------------------------------------------
-  void Gui::SetDefaultFont(int indexAtlasFont) {
-    ImGui::SetCurrentContext(context);
-	ImGuiIO& io = ImGui::GetIO();
-    if( indexAtlasFont < 0 ){
-        io.FontDefault = NULL; // default value, uses 0
+    //--------------------------------------------------------------
+    bool Gui::setDefaultFont(int indexAtlasFont) {
+        if(context==nullptr){
+            ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
+            return false;
+        }
+
+        ImGui::SetCurrentContext(context);
+        ImGuiIO& io = ImGui::GetIO();
+        if( indexAtlasFont < 0 ){
+            io.FontDefault = NULL; // default value, uses 0
+        }
+        else if (indexAtlasFont < io.Fonts->Fonts.size()) {
+            io.FontDefault = io.Fonts->Fonts[indexAtlasFont];
+            return true;
+        }
+        else {
+            io.FontDefault = io.Fonts->Fonts[0];
+        }
+        return false;
     }
-    else if (indexAtlasFont < io.Fonts->Fonts.size()) {
-	  io.FontDefault = io.Fonts->Fonts[indexAtlasFont];
-	}
-	else {
-	  io.FontDefault = io.Fonts->Fonts[0];
-	}
-  }
+
+    bool Gui::setDefaultFont(ImFont* _atlasFont){
+        if(context==nullptr){
+            ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
+            return false;
+        }
+
+        ImGui::SetCurrentContext(context);
+        ImGuiIO& io = ImGui::GetIO();
+
+        if( _atlasFont == nullptr ){
+            io.FontDefault = NULL; // default value, uses 0
+        }
+        else {
+            for(int i=0; i<io.Fonts->Fonts.size(); ++i){
+                if(io.Fonts->Fonts[i] == _atlasFont){
+                    // Set font
+                    io.FontDefault = _atlasFont;
+                    return true; // break;
+                }
+            }
+
+            // None found --> set default
+            io.FontDefault = NULL;
+        }
+        return false;
+    }
 
   //--------------------------------------------------------------
-  int Gui::addFont(const std::string & fontPath, float fontSize) {
+  ImFont* Gui::addFont(const std::string & fontPath, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges ) {
+
+      if(context==nullptr){
+          ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
+          return nullptr;
+      }
 
 	//ImFontConfig structure allows you to configure oversampling.
 	//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
 	//than necessary, so you may reduce that to 1.
 
-		static const ImWchar polishCharRanges[] =
-		{
-			0x0020, 0x00FF, // Basic Latin + Latin Supplement
-			0x0100, 0x01FF, // Polish characters
-			0,
-		};
-
-
         ImGui::SetCurrentContext(context);
 		ImGuiIO& io = ImGui::GetIO();
         std::string filePath = ofFilePath::getAbsolutePath(fontPath);
 
-		char charFontPath[256];
-		strcpy(charFontPath, filePath.c_str());
-        // ensure default font gets loaded
+        // ensure default font gets loaded once
         if(io.Fonts->Fonts.size()==0) io.Fonts->AddFontDefault();
-        ImFont* font = io.Fonts->AddFontFromFileTTF(charFontPath, fontSize, NULL, io.Fonts->GetGlyphRangesDefault());
-        //ImFont* font = io.Fonts->AddFontFromFileTTF(charFontPath, fontSize, NULL, polishCharRanges);
+
+        ImFont* font = io.Fonts->AddFontFromFileTTF(filePath.c_str(), fontSize, _fontConfig, _glyphRanges);
 
 		if (io.Fonts->Fonts.size() > 0) {
             io.Fonts->Build();
-			return io.Fonts->Fonts.size() - 1;
+            if( engine.updateFontsTexture() ){
+                return font;
+            }
+            else return nullptr;
 		}
 		else {
-            return -1; // Fixed: now returns -1 to differentiate a fail from 0-value key
+            return nullptr;
 		}
+
+
 	}
 
 	//--------------------------------------------------------------
