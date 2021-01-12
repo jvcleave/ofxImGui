@@ -6,7 +6,7 @@
 
 namespace ofxImGui
 {
-#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
 	int BaseEngine::g_ShaderHandle = 0;
 	int BaseEngine::g_VertHandle = 0;
 	int BaseEngine::g_FragHandle = 0;

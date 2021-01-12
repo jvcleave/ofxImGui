@@ -12,9 +12,11 @@ int main() {
     settings.enableHardwareOrientation = true; // enables native view orientation.
     settings.enableHardwareOrientationAnimation = false; // enables native orientation changes to be animated.
     settings.glesVersion = OFXIOS_RENDERER_ES2; // type of renderer to use, ES1, ES2, ES3
+	settings.windowControllerType = GL_KIT;
     settings.windowMode = OF_FULLSCREEN;
-    settings.width = 1024;
-    settings.height = 768;
+    //settings.width = 1024;
+    //settings.height = 768;
+	settings.setSize(1024, 768);
     settings.setupOrientation = OF_ORIENTATION_90_LEFT;
     ofCreateWindow(settings);
     

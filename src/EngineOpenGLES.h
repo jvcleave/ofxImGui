@@ -21,17 +21,24 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup(bool autoDraw) override;
-		void exit() override;
+		virtual void setup(bool autoDraw) override;
+		virtual void exit() override;
+		
+		virtual void render() override;
+		virtual void newFrame() override{};
+		virtual void endFrame() override{};
+		
+		virtual bool updateFontsTexture() override{ return false; };
+		
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
-
-		void draw() override;
-
+		
 		void onKeyReleased(ofKeyEventArgs& event) override;
 
 		// Custom 
 		static void rendererDrawData(ImDrawData * draw_data);
+#endif
 
 		static ofShader g_Shader;
 	};

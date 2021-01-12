@@ -20,10 +20,10 @@ class InputTextButton
     
 public:
     InputTextButton();
-    void setup(string initialString);
+	void setup(std::string initialString);
     void draw();
-    void onTextEdit(string);
+	void onTextEdit(std::string);
     UITextField* textField;
     TextFieldDelegate* textFieldDelegate;
-    string text;
+    std::string text;
 };

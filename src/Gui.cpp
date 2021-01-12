@@ -339,16 +339,16 @@ namespace ofxImGui
         ImGui::SetCurrentContext(context);
 
 #if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
-//        ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO();
 
-//        io.DeltaTime = ofGetLastFrameTime();
-//        io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+        io.DeltaTime = ofGetLastFrameTime();
+        io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 
-//        // Update mouse
-//        io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
-//        for (int i = 0; i < 5; i++) {
-//            io.MouseDown[i] = engine.mousePressed[i];
-//        }
+        // Update mouse
+        io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+        for (int i = 0; i < 5; i++) {
+            io.MouseDown[i] = engine.mousePressed[i];
+        }
 #endif
 
         //std::cout << "New Frame in context " << context << " in window " << ofGetWindowPtr() << " (" << ofGetWindowPtr()->getWindowSize().x << ")" << std::endl;

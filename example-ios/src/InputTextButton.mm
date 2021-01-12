@@ -23,7 +23,7 @@
 @end
 
 
-void InputTextButton::onTextEdit(string s)
+void InputTextButton::onTextEdit(std::string s)
 {
     text = [textField.text UTF8String];
     if(text.empty())
@@ -38,7 +38,7 @@ InputTextButton::InputTextButton()
     textFieldDelegate = [[TextFieldDelegate alloc] init];
 };
 
-void InputTextButton::setup(string initialString)
+void InputTextButton::setup(std::string initialString)
 {
     text = initialString;
     
