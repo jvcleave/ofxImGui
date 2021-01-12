@@ -44,6 +44,8 @@ void ofApp::draw(){
     // Start imgui
     gui.begin();
 
+    ImGui::SetNextWindowPos(ImVec2(5,5), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(600-10,600-10), ImGuiCond_Once);
     ImGui::Begin("Font Examples");
     
     ImGui::Spacing();
