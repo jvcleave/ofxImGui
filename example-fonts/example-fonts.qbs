@@ -18,7 +18,7 @@ Project{
         ]
 
         of.addons: [
-            'ofxImGuiWIP',
+            'ofxImGui',
         ]
 
         // additional flags for the project. the of module sets some

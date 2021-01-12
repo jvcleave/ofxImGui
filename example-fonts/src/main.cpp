@@ -6,7 +6,7 @@ int main()
 
 #if defined(TARGET_OPENGLES)
     ofGLESWindowSettings settings;
-    settings.setGLESVersion(4,3);
+    settings.setGLESVersion(2);
 #else
     ofGLFWWindowSettings settings;
     settings.setGLVersion(3, 2);
