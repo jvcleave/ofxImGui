@@ -24,7 +24,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-    void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_)
+    void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
 	{
 #ifdef OFXIMGUI_DEBUG
         ofLogNotice("Gui::setup()") << "Setting up ofxImGui in window " << ofGetWindowPtr();
@@ -84,7 +84,6 @@ namespace ofxImGui
 		io.ConfigFlags |= customFlags_;
         //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // tmp !
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // tmp !
-        io.MouseDrawCursor = false;
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS
         io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
@@ -92,6 +91,12 @@ namespace ofxImGui
 
         // Already-setup contexts exit early
         if( !ownedContext ) return;
+
+        // Mouse cursor drawing (disabled by default, oF uses the system mouse)
+        io.MouseDrawCursor = _showImGuiMouseCursor;
+
+        // Handle gui state saving
+        if(!_restoreGuiState) io.IniFilename = nullptr;
 
         engine.setup(autoDraw);
 
