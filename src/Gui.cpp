@@ -399,6 +399,7 @@ namespace ofxImGui
         // Otherwise end the frame. User chooses when to render (later) using Gui::draw()
         // Note: You cannot resume using ImGui::NewFrame() without flushing the pipeline.
         else {
+            // Protection : don't endFrame() twice.
             if( !isRenderingFrame[context] ){
                 return;
             }

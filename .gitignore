@@ -3,7 +3,16 @@
 #########################
 
 # Imgui save files
-#*.ini
+*.ini
+
+# Ensure to exclude generated project files in examples
+example-*.qbs
+example-*/config.make
+example-*/Makefile
+example-*/*.xcconfig
+example-*/*-Info.plist
+example-*/mediaAssets
+build-example-*
 
 
 #########################
