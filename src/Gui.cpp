@@ -217,7 +217,7 @@ namespace ofxImGui
     }
 
   //--------------------------------------------------------------
-  ImFont* Gui::addFont(const std::string & fontPath, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges ) {
+  ImFont* Gui::addFont(const std::string & fontPath, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
 
       if(context==nullptr){
           ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
@@ -240,6 +240,7 @@ namespace ofxImGui
 		if (io.Fonts->Fonts.size() > 0) {
             io.Fonts->Build();
             if( engine.updateFontsTexture() ){
+                if(_setAsDefaultFont) setDefaultFont(font);
                 return font;
             }
             else return nullptr;
