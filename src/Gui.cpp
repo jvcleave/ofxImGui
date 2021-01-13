@@ -27,12 +27,12 @@ namespace ofxImGui
     void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
 	{
 #ifdef OFXIMGUI_DEBUG
-        ofLogNotice("Gui::setup()") << "Setting up ofxImGui in window " << ofGetWindowPtr();
+        ofLogVerbose("Gui::setup()") << "Setting up ofxImGui [" << this << "] in window " << ofGetWindowPtr();
 #endif
         // Instance already setup ?
         if(context!=nullptr){
 #ifdef OFXIMGUI_DEBUG
-            ofLogWarning("Gui::setup()") << "This Gui instance is already setup, you are calling it twice !";
+            ofLogWarning("Gui::setup()") << "This Gui instance is already setup, you are calling it twice ! (ignoring this 2nd call)";
 #endif
             return;
         }
@@ -52,7 +52,7 @@ namespace ofxImGui
             }
 
 #ifdef OFXIMGUI_DEBUG
-            ofLogNotice("Gui::setup()") << "Context "<< context << " already exists in window " << curWindow << ", using the existing context as a shared one." << std::endl;
+            ofLogVerbose("Gui::setup()") << "Context "<< context << " already exists in window " << curWindow << ", using the existing context as a shared one." << std::endl;
             if(!autoDraw) ofLogWarning("Gui::setup()") << "You are using manual rendering. This might cause a crash; to fix, ensure that you call the render function after all ofxImGui::Gui instances have send ImGui commands.";
             else ofLogNotice("Gui::setup()") << "Autodraw now happens after ofApp:draw() instead of when ofxImGui::end() is called." << std::endl;
 #endif
@@ -73,7 +73,7 @@ namespace ofxImGui
             }
 //#endif
 #ifdef OFXIMGUI_DEBUG
-            ofLogNotice("Gui::setup()") << "Created context "<< context << " in window " << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
+            ofLogVerbose("Gui::setup()") << "Created context "<< context << " in window " << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
 #endif
         }
 
@@ -171,6 +171,13 @@ namespace ofxImGui
         context = nullptr;
 		
 	}
+
+    //--------------------------------------------------------------
+    // In some rare cases you might wish to enable this manually. (in most cases it's automatic)
+    void Gui::forceSharedMode(bool _sharedMmode) {
+        if(!context) return;
+        sharedModes[context]=_sharedMmode;
+    }
 
     //--------------------------------------------------------------
     bool Gui::setDefaultFont(int indexAtlasFont) {
