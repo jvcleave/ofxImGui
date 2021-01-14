@@ -287,6 +287,17 @@ namespace ofxImGui
             ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
         }
 #endif
+        // Handle multi-viewports
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+
+            // Restore context so we can continue to render with oF
+            glfwMakeContextCurrent(backup_current_context);
+        }
 	}
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS

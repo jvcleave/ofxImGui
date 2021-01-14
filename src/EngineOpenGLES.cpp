@@ -229,6 +229,21 @@ namespace ofxImGui
 #else
 		// todo
 #endif
+        // Handle viewports
+        // todo: check if this works
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            // This line has to be ported to GLES
+            //GLFWwindow* backup_current_context = glfwGetCurrentContext();
+
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+
+            // Restore context so we can continue to render with oF
+            // This line has to be ported to GLES
+            //glfwMakeContextCurrent(backup_current_context);
+        }
 	}
 #if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
 	//--------------------------------------------------------------
