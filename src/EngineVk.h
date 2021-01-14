@@ -6,6 +6,9 @@
 
 #if defined(OF_TARGET_API_VULKAN)
 
+#pragma GCC error "The Vulkan implementation has not been updated yet ! (needs to be implemented)"
+#pragma message "Try to compile with OFXIMGUI_ENABLE_OF_BINDINGS defined to use the legacy version."
+
 #include "BaseEngine.h"
 
 #include "ofEvents.h"

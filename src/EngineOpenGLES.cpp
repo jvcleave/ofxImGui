@@ -2,6 +2,9 @@
 
 #if defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
 
+#pragma GCC error "The OpenGLES implementation might be broken ! (needs testing)"
+#pragma message "Try to compile with OFXIMGUI_ENABLE_OF_BINDINGS defined."
+
 //#include "ofAppiOSWindow.h"
 //#include "imgui_impl_osx.h"
 //#include "imgui_impl_opengl3.h"
