@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxImGui.h"
+#include "RandomTheme.h"
 
 void FxTestBed(bool*); // Forward declared
 
@@ -26,7 +27,45 @@ class ofApp : public ofBaseApp{
 
         void setup() {
             // Enable viewports, enable state saving
-            gui.setup(nullptr, false, ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable, true);
+            gui.setup(nullptr, false, ImGuiConfigFlags_ViewportsEnable, true);
+            //ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+            // The backgroundColor is stored as an ImVec4 type but can handle ofColor
+            backgroundColor = ofColor(114, 144, 154);
+
+            show_test_window = true;
+            show_another_window = false;
+
+            // Load your own ofImage
+            imageButtonSource.load("of.png");
+            imageButtonID = gui.loadImage(imageButtonSource);
+
+            // Or have the loading done for you if you don't need the ofImage reference
+            //imageButtonID = gui.loadImage("of.png");
+
+            // You can also use ofPixels in same manner
+            ofLoadImage(pixelsButtonSource, "of_upside_down.png");
+            pixelsButtonID = gui.loadPixels(pixelsButtonSource);
+
+            //pass in your own texture reference if you want to keep it
+            textureSourceID = gui.loadTexture(textureSource, "of_upside_down.png");
+
+            //or just pass a path
+            //textureSourceID = gui.loadTexture("of_upside_down.png");
+
+            ofLogVerbose() << "textureSourceID: " << textureSourceID;
+
+            ofDirectory dataDirectory(ofToDataPath("", true));
+
+            files = dataDirectory.getFiles();
+            for(size_t i=0; i<files.size(); i++){
+                fileNames.push_back(files[i].getFileName());
+
+                // Create texture ID
+                GLuint texID = gui.loadPixels(files[i].getFileName());
+                fileTextures.push_back(texID);
+            }
+            imageButtonID = fileTextures.front();
 		}
 
 		void draw() {
@@ -41,6 +80,9 @@ class ofApp : public ofBaseApp{
             }
             realFPS[plotSize-1]=ofGetFrameRate();
             avgFPS=(avgFPS+realFPS[plotSize-1])/plotSize;
+
+            //backgroundColor is stored as an ImVec4 type but is converted to ofColor automatically
+            ofSetBackgroundColor(backgroundColor);
 
             // Start drawing to ImGui (newFrame)
 			gui.begin();
@@ -63,6 +105,11 @@ class ofApp : public ofBaseApp{
 
                 ImGui::Separator();
                 ImGui::Checkbox("Draw lines", &drawLines);
+                ImGui::SameLine(); HelpMarker("An example of how to control your ofApp with ofxImGui.");
+
+                ImGui::Separator();
+                ImGui::Checkbox("Show Sample Window", &showSampleWindow);
+                ImGui::SameLine(); HelpMarker("Demonstrates some advanced use cases of imgui.");
 
                 // Submenu
                 ImGui::Separator();
@@ -220,6 +267,72 @@ class ofApp : public ofBaseApp{
                 ImGui::End();
             }
 
+            if(showSampleWindow){
+                if(ImGui::Begin("Sample Window", &showSampleWindow)){
+                    if (ImGui::Button("Another Window"))
+                    {
+                        //bitwise OR
+                        show_another_window ^= 1;
+                    }
+
+                    ImGui::Dummy(ImVec2(10,10));
+                    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+                    ImGui::Dummy(ImVec2(10,10));
+                    if (ImGui::Button("CUSTOM THEME")){
+                        gui.setTheme(new RandomTheme());
+
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("DEFAULT THEME")){
+                        gui.setTheme(new ofxImGui::DefaultTheme());
+                    }
+
+                    //ImGui::ShowStyleEditor();
+                    //ImGui::ShowFontSelector("label4FontSelector");
+
+                    // Texture loading
+                    ImGui::Dummy(ImVec2(10,10));
+                    if(!fileNames.empty()){
+                        //ofxImGui::VectorListBox allows for the use of a vector<string> as a data source
+                        static int currentListBoxIndex = 0;
+                        if(ofxImGui::VectorListBox("VectorListBox", &currentListBoxIndex, fileNames)){
+                            ofLog() << " VectorListBox FILE PATH: "  << files[currentListBoxIndex].getAbsolutePath();
+                            imageButtonID = fileTextures[currentListBoxIndex];
+                        }
+
+                        //ofxImGui::VectorCombo allows for the use of a vector<string> as a data source
+                        static int currentFileIndex = 0;
+                        if(ofxImGui::VectorCombo("VectorCombo", &currentFileIndex, fileNames)){
+                            ofLog() << "VectorCombo FILE PATH: "  << files[currentFileIndex].getAbsolutePath();
+                            pixelsButtonID = fileTextures[currentFileIndex];
+                        }
+                    }
+
+                    //GetImTextureID is a static function define in Helpers.h that accepts ofTexture, ofImage, or GLuint
+                    ImGui::Dummy(ImVec2(10,10));
+                    if(ImGui::ImageButton(GetImTextureID(imageButtonID), ImVec2(200, 200))){
+                           ofLog() << "PRESSED";
+                    }
+                    //or do it manually
+                    ImGui::SameLine();
+                    ImGui::Image(GetImTextureID(pixelsButtonID), ImVec2(200, 200));
+
+                    ImGui::Image((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+                }
+                ImGui::End();
+            }
+
+
+            // Show another window, this time using an explicit ImGui::Begin and ImGui::End
+            if (show_another_window){
+                //note: ofVec2f and ImVec2f are interchangeable
+                ImGui::SetNextWindowSize(ofVec2f(200,100), ImGuiCond_FirstUseEver);
+                ImGui::Begin("Another Window", &show_another_window);
+                ImGui::Text("Hello");
+                ImGui::End();
+            }
+
             if(showMetrics){
                 ImGui::SetNextWindowPos(ImVec2(ofGetWindowPositionX()+ofGetWidth()-350,ofGetWindowPositionY()+30), ImGuiCond_FirstUseEver );
                 ImGui::ShowMetricsWindow( &showMetrics );
@@ -295,13 +408,56 @@ class ofApp : public ofBaseApp{
 
         }
 
+        //--------------------------------------------------------------
+        void keyPressed(int key){
+
+            ofLogVerbose(__FUNCTION__) << key;
+            switch (key) {
+
+                case 's':
+                {
+                    break;
+                }
+            }
+        }
+
+        //--------------------------------------------------------------
+        void keyReleased(int key){
+            ofLogVerbose(__FUNCTION__) << key;
+        }
+
+        void mouseScrolled(int x, int y, float scrollX, float scrollY){
+            ofLogVerbose(__FUNCTION__) << "x: " << x << " y: " << y;
+        }
+        //--------------------------------------------------------------
+        void mouseMoved(int, int){}
+
+        //--------------------------------------------------------------
+        void mouseDragged(int , int , int){}
+
+        //--------------------------------------------------------------
+        void mousePressed(int, int, int){}
+
+        //--------------------------------------------------------------
+        void mouseReleased(int, int, int){}
+
+        //--------------------------------------------------------------
+        void windowResized(int, int){}
+
+        //--------------------------------------------------------------
+        void gotMessage(ofMessage){}
+
+        //--------------------------------------------------------------
+        void dragEvent(ofDragInfo){}
+
 	private:
         ofxImGui::Gui gui;
 
         // Variables exposed to ImGui
-        bool showMetrics = true;
-        bool showDemo = false;
-        bool showFX = true;
+        bool showMetrics      = true;
+        bool showDemo         = false;
+        bool showFX           = false;
+        bool showSampleWindow = true;
 
         float v = 0;
 
@@ -309,4 +465,20 @@ class ofApp : public ofBaseApp{
         float linesSpacing  = 0.02f;
         float lineThickness = 0.8f;
         bool  drawLines     = false;
+
+        ImVec4 backgroundColor;
+
+        bool   show_test_window;
+        bool   show_another_window;
+
+        ofImage   imageButtonSource;
+        GLuint    imageButtonID;
+        ofPixels  pixelsButtonSource;
+        GLuint    pixelsButtonID;
+        ofTexture textureSource;
+        GLuint    textureSourceID;
+
+        std::vector<std::string> fileNames;
+        std::vector<ofFile> files;
+        std::vector<GLuint> fileTextures;
 };

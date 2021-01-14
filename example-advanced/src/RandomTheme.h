@@ -3,7 +3,7 @@
 #include "BaseTheme.h"
 #include "ofMain.h"
 
-class MyTheme: public ofxImGui::BaseTheme
+class RandomTheme: public ofxImGui::BaseTheme
 {
 public:
 

@@ -1,12 +1,11 @@
-#include "MyTheme.h"
-
+#include "RandomTheme.h"
 
 ofColor getRandomColor()
 {
     return ofColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255), 255);    
 }
 
-void MyTheme::setup()
+void RandomTheme::setup()
 {
     ImGuiStyle* style = &ImGui::GetStyle();
     
@@ -24,7 +23,6 @@ void MyTheme::setup()
     style->GrabRounding = 0.0f;
     style->ScrollbarSize = 12.0f;
     style->ScrollbarRounding = 0.0f;
-    
     
     style->Colors[ImGuiCol_Text] = ImVec4(getRandomColor(), 1.00f);
     style->Colors[ImGuiCol_TextDisabled] = ImVec4(getRandomColor(), 0.58f);
@@ -64,6 +62,5 @@ void MyTheme::setup()
     style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(getRandomColor(), 1.00f);
     style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(getRandomColor(), 0.43f);
     style->Colors[ImGuiCol_PopupBg] = ImVec4(getRandomColor(), 0.92f);
-    style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(getRandomColor(), 0.73f);
-    
+    style->Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(getRandomColor(), 0.73f);
 }
