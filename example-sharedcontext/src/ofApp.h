@@ -34,25 +34,57 @@ class ofApp : public ofBaseApp{
 
 		void draw() {
 			// [...] some code
-            gui1.begin(); //   <-- First call = Normal behaviour
+            gui1.begin(); //   <-- First call = Normal behaviour in sharedMode
+
+            ImGui::BeginMainMenuBar();
+            if(ImGui::BeginMenu("Gui 1")){
+                ImGui::MenuItem( "Something Gui 1" );
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+
 			ImGui::SliderFloat("slider1", &v1, 0.f, 10.f); //....
 			ImGui::SliderFloat("slider2", &v2, 0.f, 10.f); //....
+
             gui1.end(); //     <-- Does nothing with sharedMode on
 
-            ImGui::PushID("###Sandbox"); // <-- if you want to ensure a sandbox between both
+            ImGui::PushID("###Sandbox"); // <-- if you want to ensure a sandbox between both (fails with sharedMode off)
 
             { // scope = called plugin code that you can't change
 
                 #ifndef ALTERNATIVE_IMPLEMENTATION
                 gui2.begin(); // <-- Does nothing with sharedMode on
+                #else
+                gui2->begin();
+                #endif
+
+                // You can add gui widgets to the default (demo) window
+                ImGui::SliderFloat("Gui2 slider1", &v3, 0.f, 10.f); //....
+                ImGui::SliderFloat("Gui2 slider2", &v4, 0.f, 10.f); //....
+
+                // Or create a new window
+                ImGui::Begin("Gui2 window");
                 ImGui::SliderFloat("slider1", &v3, 0.f, 10.f); //....
                 ImGui::SliderFloat("slider2", &v4, 0.f, 10.f); //....
+                ImGui::End();
+
+                // Add menu entry
+                ImGui::BeginMainMenuBar();
+                if(ImGui::BeginMenu("Gui 2")){
+                    ImGui::MenuItem( "Something Gui 2" );
+                    ImGui::EndMenu();
+                }
+
+                // You can even append your menu items to gui 1
+                if(ImGui::BeginMenu("Gui 1")){
+                    ImGui::MenuItem( "Something Gui 2" );
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+
+                #ifndef ALTERNATIVE_IMPLEMENTATION
                 gui2.end(); //   <-- Does nothing with sharedMode on
                 #else
-
-                gui2->begin(); // <-- Does nothing with sharedMode on
-                ImGui::SliderFloat("slider1", &v3, 0.f, 10.f); //....
-                ImGui::SliderFloat("slider2", &v4, 0.f, 10.f); //....
                 gui2->end(); //   <-- Does nothing with sharedMode on
                 #endif
 			}
