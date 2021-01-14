@@ -22,9 +22,9 @@ class ofApp : public ofBaseApp{
             ImGui::Begin("ofxImGui example-simple");
 
             // Method 1 - Passing variables to ImGui
-            // In ImGui examples, you'll often find static (stack) variables, as below.
+            // In ImGui code, you'll often find static (stack) variables, as below.
             // They are created once in a stack and remain accessible there, unlike non-static variables which get destructed once the stack closes.
-            // Many arguments that you pass to ImGui functions need to remain valid between frames. (they are passed by reference [&])
+            // Many arguments you pass to ImGui functions need to remain valid between frames. (they are passed by reference [&])
             static bool staticBool = false;
             ImGui::Checkbox("Checkbox", &staticBool);
 
