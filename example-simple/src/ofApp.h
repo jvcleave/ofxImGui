@@ -3,13 +3,20 @@
 #include "ofMain.h"
 #include "ofxImGui.h"
 
+// Comment below to use manual drawing
+#define USE_AUTODRAW
+
 class ofApp : public ofBaseApp{
 
 	public:
         ofApp() {}
 
 		void setup() {
+            #ifdef USE_AUTODRAW
+            gui.setup(nullptr, true);
+            #else
             gui.setup(nullptr, false);
+            #endif
 		}
 
 		void draw() {
@@ -45,19 +52,26 @@ class ofApp : public ofBaseApp{
             // Close the main window
             ImGui::End();
 
-            // End our ImGui Frame. Also Renders in autoDraw mode.
-            gui.end();
-
             // The GUI hasn't been rendered yet : we can still draw below it
             if(drawLines){
                 auto halfWidth = ofGetWidth()*.5f;
                 auto halfHeight = ofGetHeight()*.5f;
                 ofDrawLine( halfWidth+ofRandomf()*halfWidth, halfHeight+ofRandomf()*halfHeight, halfWidth+ofRandomf()*halfWidth, halfHeight+ofRandomf()*halfHeight );
             }
+            ofDrawBitmapStringHighlight( ofToString(v1), 10, 20);
 
-            gui.draw(); // <-- In manual mode, you can choose to render imgui at a given moment in your pipeline
+            // End our ImGui Frame.
+            // Also Renders if using autoDraw AND non-shared mode
+            gui.end();
 
-            ofDrawBitmapStringHighlight( ofToString(v1), 10, 20); // <-- This text will be drawn over the layout
+            #ifdef USE_AUTODRAW
+            ofDrawBitmapStringHighlight( "I'm over the Gui !", 10, 40); // <-- This text will be over below the gui, except in shared mode
+            #else
+            gui.draw(); // <-- In manual mode, you can choose to render imgui at a given moment in your rendering pipeline
+            ofDrawBitmapStringHighlight( "I'm over the Gui thanks to manual draw !", 10, 40); // <-- This text will be drawn over the gui
+            #endif
+
+            // If shared mode is on together with autodraw, rendering will happen after this scope, using the ofApp::draw callback.
 		}
 
         void update(){
