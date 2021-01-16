@@ -95,6 +95,19 @@ ImGui has a huge community and is growing fast. There are a lot of plugins avail
 - After updating: Check ofxImGui's source code for obsolete function usage. See [`IMGUI_DISABLE_OBSOLETE_FUNCTIONS`](#updating-ofximgui) below.
 
 - *Note:* Currently, **oF0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. [Change 3300 to 3310](https://github.com/ocornut/imgui/blob/dd4ca70b0d612038edadcf37bf601c0f21206d28/backends/imgui_impl_glfw.cpp#L62). This change disables some optional imgui features, related to viewport behaviour, and available mouse cursors. Alternatively, you can update GLFW within oF.
+````bash
+cd OF/scripts
+# Only if you don't have apothecary :
+git clone https://github.com/openframeworks/apothecary.git
+# Manually edit `apothecary/apothecary/apothecary/formulas/glfw.sh`, change to :
+# - `VER=3.3-stable` (for gfwf 3.3.x)
+# - `VER=master` (for gfwf 3.4.x, recommended)
+# - `GIT_URL=https://github.com/glfw/glfw.git`
+# Manually delete `apothecary/apothecary/build/glfw if it exists
+# Update
+./apothecary/apothecary/apothecary -t osx -j 4 update glfw
+# Manually copy ./apothecary/glfw to OF/libs/ & recompile oF
+````
 
 #### Updating ofxImGui
 - `git pull && git submodule update`

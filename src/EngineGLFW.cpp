@@ -116,8 +116,9 @@ namespace ofxImGui
         // Init renderer
         if( ofIsGLProgrammableRenderer() ){
             int minor; int major;
-            glfwGetVersion(&minor, &major, nullptr);
-            //ofGetGLRenderer()->getGLVersionMajor(); alternative way
+            //glfwGetVersion(&minor, &major, nullptr); // Old way, seems to return maximal version with GLFW 3.4
+            major = ofGetGLRenderer()->getGLVersionMajor();
+            minor = ofGetGLRenderer()->getGLVersionMinor();
 
             // See imgui_impl_opengl3.cpp
             //----------------------------------------
@@ -151,6 +152,10 @@ namespace ofxImGui
                 else if( minor==2 ) glsl_version="#version 420 core";
                 else if( minor==3 ) glsl_version="#version 430 core";
             }
+
+#ifdef OFXIMGUI_DEBUG
+            ofLogNotice(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL " << major << "." << minor << " and version string «" << glsl_version << "»";
+#endif
 
             ImGui_ImplOpenGL3_Init(glsl_version); // Called by the function below, but needed with these arguments
             ImGui_ImplOpenGL3_CreateDeviceObjects();
