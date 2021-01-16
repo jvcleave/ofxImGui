@@ -19,8 +19,6 @@ class ofApp : public ofBaseApp{
 
             ofSetBackgroundAuto(false);
             ofEnableAlphaBlending();
-            ofSetRectMode(OF_RECTMODE_CENTER);
-
         }
 
 		void draw() {
@@ -29,7 +27,9 @@ class ofApp : public ofBaseApp{
             ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
             ofFill();
             ofSetColor(200, 200, 200, 2);
+            ofSetRectMode(OF_RECTMODE_CENTER);
             ofDrawRectangle(ofGetWidth()*.5f, ofGetHeight()*.5f, ofGetWidth()+20, ofGetHeight()+20);
+            ofSetRectMode(OF_RECTMODE_CORNER);
             ofPopStyle();
 
             ofPushStyle();
@@ -64,6 +64,7 @@ class ofApp : public ofBaseApp{
                     if(ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable ) viewCenter = viewCenter - ImVec2(ofGetWindowPositionX(),ofGetWindowPositionY());
 
                     ofPushStyle();
+                    ofSetRectMode(OF_RECTMODE_CENTER);
                     ofSetColor(255,0,0,2);
                     ofNoFill();
 
@@ -81,6 +82,7 @@ class ofApp : public ofBaseApp{
                                 (availableSpace.GetSize().x-20)*fmodf(abs(sin(ofGetElapsedTimef())),1.f),
                                 (availableSpace.GetSize().y-20)*fmodf(abs(sin(ofGetElapsedTimef())),1.f)
                     );
+                    ofSetRectMode(OF_RECTMODE_CORNER);
                     ofPopStyle();
                 }
             }
