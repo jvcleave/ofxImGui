@@ -87,7 +87,7 @@ class ofApp : public ofBaseApp{
 
             // Draw a few windows
             // ImGuiWindowFlags_DockNodeHost => prevents hosting other windows, but still can be docked into another one.
-            drawWindow("Dockable Tabs",     50,     100, ImGuiWindowFlags_None          );
+            drawWindow("Dockable Window",   50,     100, ImGuiWindowFlags_None          );
             drawWindow("Window 1",          300,    100, ImGuiWindowFlags_DockNodeHost  );
             drawWindow("Window 2",          50,     350, ImGuiWindowFlags_DockNodeHost  );
             drawWindow("Window 3",          300,    350, ImGuiWindowFlags_DockNodeHost  );
@@ -101,6 +101,19 @@ class ofApp : public ofBaseApp{
 
             // Show FPS
             ofDrawBitmapStringHighlight( ofToString(ofGetFrameRate() ), 10, 50, ofColor(0,60), ofColor(255,128)); // <-- This text will be drawn over the layout
+
+            if(!dockNode || !ImGui::DockBuilderGetCentralNode(dockNodeID)->IsEmpty()){
+                static int posX=1, posY=1, velX=1, velY=1;
+                ofDrawBitmapStringHighlight("No empty dock space, nowhere to draw for oF !", posX, posY);
+                posX+=velX*3;
+                posY+=velY*3;
+                ofBitmapFont f;
+                ofRectangle strSize = f.getBoundingBox("No empty dock space, nowhere to draw for oF !",posX,posY);
+                if(posX <= 0) velX=1;
+                if(posY <= strSize.height) velY=1;
+                if(posX >= ofGetWidth()-strSize.width) velX=-1;
+                if(posY >= ofGetHeight()) velY=-1;
+            }
 		}
 
     private:
