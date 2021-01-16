@@ -50,13 +50,17 @@ class ofApp : public ofBaseApp{
 			gui.begin();
 
             // Define the ofWindow as a docking space
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(0,0,0,0)); // Fixes imgui to expected behaviour. Otherwise add in ImGui::DockSpace() [±line 14505] : if (flags & ImGuiDockNodeFlags_PassthruCentralNode) window_flags |= ImGuiWindowFlags_NoBackground;
             ImGuiID dockNodeID = ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
+            ImGui::PopStyleColor();
 
             ImGuiDockNode* dockNode = ImGui::DockBuilderGetNode(dockNodeID);
             if(dockNode){
+                ImGuiDockNode* centralNode = ImGui::DockBuilderGetCentralNode(dockNodeID);
                 // Verifies if the central node is empty (visible empty space for oF)
-                if(ImGui::DockBuilderGetCentralNode(dockNodeID)->IsEmpty()){
-                    ImRect availableSpace = ImGui::DockBuilderGetCentralNode(dockNodeID)->Rect();
+                if( centralNode && centralNode->IsEmpty() ){
+                    ImRect availableSpace = centralNode->Rect();
+                    //availableSpace.Max = availableSpace.Min + ImGui::GetContentRegionAvail();
                     ImGui::GetForegroundDrawList()->AddRect(availableSpace.GetTL()+ImVec2(8,8), availableSpace.GetBR()-ImVec2(8,8), IM_COL32(255,50,50,255));
 
                     ImVec2 viewCenter = availableSpace.GetCenter();
@@ -104,7 +108,7 @@ class ofApp : public ofBaseApp{
             // Show FPS
             ofDrawBitmapStringHighlight( ofToString(ofGetFrameRate() ), 10, 50, ofColor(0,60), ofColor(255,128)); // <-- This text will be drawn over the layout
 
-            if(!dockNode || !ImGui::DockBuilderGetCentralNode(dockNodeID)->IsEmpty()){
+            if(!dockNode || !ImGui::DockBuilderGetCentralNode(dockNodeID) || !ImGui::DockBuilderGetCentralNode(dockNodeID)->IsEmpty()){
                 static int posX=1, posY=1, velX=1, velY=1;
                 ofDrawBitmapStringHighlight("No empty dock space, nowhere to draw for oF !", posX, posY);
                 posX+=velX*3;
