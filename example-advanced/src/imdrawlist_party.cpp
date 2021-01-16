@@ -38,7 +38,7 @@
 
 // Insert your code in fx.inl
 // This is the file which size we are measuring, and should be kept <1024 bytes
-#include "fx.cpp"
+#include "fx.inl"
 
 // Shared testbed
 void FxTestBed(bool* _pOpen=nullptr)
