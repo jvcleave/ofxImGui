@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofConstants.h"
-#if defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
+#if defined(TARGET_OPENGLES) && !defined (OF_TARGET_API_VULKAN) && (!defined(TARGET_RASPBERRY_PI) || !defined(TARGET_GLFW_WINDOW))
 
 #include "BaseEngine.h"
 
@@ -30,7 +30,7 @@ namespace ofxImGui
 		
 		virtual bool updateFontsTexture() override{ return false; };
 		
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
 		

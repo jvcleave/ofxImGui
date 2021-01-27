@@ -1,6 +1,6 @@
 #include "EngineGLFW.h"
 
-#if !defined(TARGET_OPENGLES) && !defined(OF_TARGET_API_VULKAN)
+#if ( !defined(OF_TARGET_API_VULKAN) && (!defined(TARGET_RASPBERRY_PI) || (defined(TARGET_GLFW_WINDOW) && !defined(TARGET_RASPBERRY_PI_LEGACY)) ))
 
 #include "ofAppGLFWWindow.h"
 #include "ofGLProgrammableRenderer.h"
@@ -26,11 +26,24 @@ namespace ofxImGui
         }
 #ifdef OFXIMGUI_DEBUG
         else ofLogNotice("EngineGLFW::setup()") << "Setting up GLFW in oF window size " << ImGui::GetIO().DisplaySize << " // Ptr=" << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]" << std::endl;
-#endif
 
-
+        #if defined(OFXIMGUI_DEBUG) && defined(TARGET_OPENGLES) && defined(TARGET_RASPBERRY_PI)
+            // oF 0.11 related warnings
+            #if defined(TARGET_RASPBERRY_PI_LEGACY)
+                #pragma message "ofxImGui detected that you use the RPI in LEGACY mode. Make sure that you use the Legacy Video driver."
+            #else
+                #pragma message "You are using the new Rpi GLFW binding. Please ensure that your raspi-config doesn't use the Legacy video drivers."
+            #endif
+        #endif // rpi gles
+        #endif // debug
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS
+
+        #ifdef OFXIMGUI_DEBUG
+        ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with oF bingings (OFXIMGUI_ENABLE_OF_BINDINGS)";
+        #pragma message "ofxImGui compiling GLFW with wull oF bindings. (ofxImGui Legacy mode)"
+        #endif
+
         ImGuiIO& io = ImGui::GetIO();
 
         io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
@@ -76,15 +89,14 @@ namespace ofxImGui
         // Init renderer
         //if (autoDraw)
         {
-            // These seem not needed anymore (depreciated). Caled manually in render() now.
-//            if (ofIsGLProgrammableRenderer())
-//            {
-//                io.RenderDrawListsFn = programmableDrawData;
-//            }
-//            else
-//            {
-//                io.RenderDrawListsFn = fixedDrawData;
-//            }
+            if (ofIsGLProgrammableRenderer())
+            {
+                io.RenderDrawListsFn = programmableDrawData;
+            }
+            else
+            {
+                io.RenderDrawListsFn = fixedDrawData;
+            }
         }
 
         io.SetClipboardTextFn = &BaseEngine::setClipboardString;
@@ -104,6 +116,11 @@ namespace ofxImGui
         ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 
 #else // Use regular imgui bindings
+
+    #ifdef OFXIMGUI_DEBUG
+        #pragma message "ofxImGui compiling with the new native imgui backend."
+        ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with native ImGui GLFW backend";
+    #endif
 
         // Init window
         GLFWwindow* curWin = (GLFWwindow*)ofGetWindowPtr()->getWindowContext();
@@ -139,7 +156,16 @@ namespace ofxImGui
             //  ES 3.0    300       "#version 300 es"   = WebGL 2.0
             //----------------------------------------
 
-            const char* glsl_version = NULL; // default version empty --> use imgui backend's default
+            // default version empty --> use imgui backend's default
+            const char* glsl_version = NULL;
+
+            // Override imgui versions to fit oF versions
+#ifdef TARGET_OPENGLES
+            if( major==2 )
+                glsl_version = "#version 100";
+            if( major==3 ) // Note: not yet available in oF !!!
+                glsl_version = "#version 300 es";
+#else
             if( major==3 ){
                 if( minor==0 )      glsl_version="#version 130";
                 else if( minor==1 ) glsl_version="#version 140";
@@ -152,9 +178,14 @@ namespace ofxImGui
                 else if( minor==2 ) glsl_version="#version 420 core";
                 else if( minor==3 ) glsl_version="#version 430 core";
             }
+#endif
 
 #ifdef OFXIMGUI_DEBUG
-            ofLogNotice(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL " << major << "." << minor << " and version string «" << glsl_version << "»";
+    #ifdef TARGET_OPENGLES
+            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with programmable OpenGL ES " << major << "." << minor << " and version string «" << glsl_version << "»";
+    #else
+            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with programmable OpenGL " << major << "." << minor << " and version string «" << glsl_version << "»";
+    #endif
 #endif
 
             ImGui_ImplOpenGL3_Init(glsl_version); // Called by the function below, but needed with these arguments
@@ -163,6 +194,13 @@ namespace ofxImGui
         }
         else
         {
+#ifdef OFXIMGUI_DEBUG
+    #ifdef TARGET_OPENGLES
+            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL ES and ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0");
+    #else
+            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL2 and ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0");
+    #endif
+#endif
             ImGui_ImplOpenGL2_Init();
             ImGui_ImplOpenGL2_CreateDeviceObjects();
         }
@@ -255,6 +293,9 @@ namespace ofxImGui
 //            //ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 //            fixedDrawData(ImGui::GetDrawData());
 //        }
+        if(!autoDraw){
+            this->render();
+        }
 #endif
     }
 
@@ -289,9 +330,15 @@ namespace ofxImGui
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
         else {
+            // GLint last_program;
+            // glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+            // glUseProgram(0);
+            //There are potentially many more states you could need to clear/setup that we can't access from default headers.
+            //e.g. glBindBuffer(GL_ARRAY_BUFFER, 0), glDisable(GL_TEXTURE_CUBE_MAP).
             ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+            //glUseProgram(last_program);
         }
-#endif
+
         // Handle multi-viewports
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
@@ -303,6 +350,7 @@ namespace ofxImGui
             // Restore context so we can continue to render with oF
             glfwMakeContextCurrent(backup_current_context);
         }
+#endif
 	}
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS

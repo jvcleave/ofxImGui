@@ -51,6 +51,7 @@ common:
 	# to include files in different places or a different set of files per platform
 	# they can be specified here
 	# ADDON_SOURCES =
+	ADDON_SOURCES_EXCLUDE = src/EngineVk.cpp
 	
 	# some addons need resources to be copied to the bin/data folder of the project
 	# specify here any files that need to be copied, you can use wildcards like * and ?
@@ -65,12 +66,20 @@ linux64:
 linux:
 
 linuxarmv6l:
-	#TODO needs EngineGLFW.cpp exclude 
+	#ADDON_CFLAGS += -DOFXIMGUI_DEBUG
+	#ADDON_CFLAGS += -DOFXIMGUI_ENABLE_OF_BINDINGS
+	ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES2
+	#ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES3
+	#ADDON_CFLAGS += -DUSE_PI_LEGACY
 
 	
 linuxarmv7l:
-	#TODO needs EngineGLFW.cpp exclude 
-	
+	#ADDON_CFLAGS += -DOFXIMGUI_DEBUG
+	#ADDON_CFLAGS += -DOFXIMGUI_ENABLE_OF_BINDINGS
+	ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES2
+	#ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES3
+	#ADDON_CFLAGS += -DUSE_PI_LEGACY
+
 msys2:
 
 android/armeabi:	

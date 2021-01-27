@@ -51,6 +51,15 @@
 #if defined(__APPLE__)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
+// Rpi GLES 1.1 fixes. Makes the fixed renderer compatible with GL ES 1.
+#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) //&& defined(IMGUI_IMPL_OPENGL_ES1)
+#pragma message "You are using a fixed GL ES 1 renderer pipeline on the Rpi. Although this port should work, it's recommended to use GL ES 2 instead."
+#include <GLES/gl.h>
+#define glOrtho glOrthof
+#define glPolygonMode( X, Y )  // no alternative !
+#define glPushAttrib( X ) // no alternative !
+#define glPopAttrib( X ) // no alternative !
+#define GL_POLYGON_MODE GL_LINES
 #else
 #include <GL/gl.h>
 #endif

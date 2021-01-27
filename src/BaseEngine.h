@@ -26,7 +26,7 @@ namespace ofxImGui
 
         virtual bool updateFontsTexture() = 0;
 
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
         virtual bool createDeviceObjects() = 0;
         virtual void invalidateDeviceObjects() = 0;
 
@@ -41,7 +41,7 @@ namespace ofxImGui
 
 		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 		static const char* getClipboardString(void * userData);
 		static void setClipboardString(void * userData, const char * text);
 

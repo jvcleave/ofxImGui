@@ -2,7 +2,8 @@
 
 #include "ofConstants.h"
 
-#if !defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
+// Exclude Vulkan and RPI in LEGACY mode
+#if (!defined(OF_TARGET_API_VULKAN) && (!defined(TARGET_RASPBERRY_PI) || (defined(TARGET_GLFW_WINDOW) && !defined(TARGET_RASPBERRY_PI_LEGACY)) ))
 #include "GLFW/glfw3.h"
 
 #include "BaseEngine.h"

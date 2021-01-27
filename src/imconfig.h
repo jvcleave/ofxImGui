@@ -13,6 +13,9 @@
 
 #pragma once
 
+// USE the OF GL loader (GLEW), otherwise it will autodetect the system glew headers
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "GL/glew.h"
+
 //---- Define assertion handler. Defaults to calling assert().
 // If your macro uses multiple statements, make sure is enclosed in a 'do { .. } while (0)' block so it can be used as a single statement.
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)

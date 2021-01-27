@@ -89,8 +89,10 @@ namespace ofxImGui
         io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 #endif
 
+#ifndef OFXIMGUI_ENABLE_OF_BINDINGS
         // Already-setup contexts exit early
         if( !ownedContext ) return;
+#endif
 
         // Mouse cursor drawing (disabled by default, oF uses the system mouse)
         io.MouseDrawCursor = _showImGuiMouseCursor;

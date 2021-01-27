@@ -1,9 +1,7 @@
 #include "EngineOpenGLES.h"
 
-#if defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
-
-#pragma GCC error "The OpenGLES implementation might be broken ! (needs testing)"
-#pragma message "Try to compile with OFXIMGUI_ENABLE_OF_BINDINGS defined."
+// Since the new backends, the GLES renderer is not used anymore, and rpis use the glfw backend with GLES shaders handled by the opengl2 backend.
+#if defined(TARGET_OPENGLES) && !defined (OF_TARGET_API_VULKAN) && (!defined(TARGET_RASPBERRY_PI) || !defined(TARGET_GLFW_WINDOW))
 
 //#include "ofAppiOSWindow.h"
 //#include "imgui_impl_osx.h"
@@ -46,9 +44,12 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_X] = 'x';
 		io.KeyMap[ImGuiKey_Y] = 'y';
 		io.KeyMap[ImGuiKey_Z] = 'z';
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 
-
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#ifdef OFXIMGUI_DEBUG
+        ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLES with oF bingings (OFXIMGUI_ENABLE_OF_BINDINGS)";
+        #pragma message "ofxImGui compiling with GLES renderer and OFXIMGUI_ENABLE_OF_BINDINGS enabled."
+#endif
 		//if (autoDraw)
 		{
 			io.RenderDrawListsFn = rendererDrawData;
@@ -70,6 +71,10 @@ namespace ofxImGui
 		ofAddListener(ofEvents().mouseScrolled, (BaseEngine*)this, &BaseEngine::onMouseScrolled);
 		ofAddListener(ofEvents().windowResized, (BaseEngine*)this, &BaseEngine::onWindowResized);
 #else
+    #ifdef OFXIMGUI_DEBUG
+        ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLES with native imgui bindings";
+        #pragma message "ofxImGui compiling with GLES renderer and native imgui bindings."
+    #endif
 		// TODO
 		// Init window
 		//ofAppiOSWindow* curWin = (ofAppiOSWindow*)ofGetWindowPtr()->getWindowContext();
@@ -84,7 +89,7 @@ namespace ofxImGui
 	{
 		if (!isSetup) return;
 
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 		// Override listeners
 		ofRemoveListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyReleased);
 
@@ -102,7 +107,7 @@ namespace ofxImGui
 		isSetup = false;
 	}
 
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 	bool EngineOpenGLES::createDeviceObjects()
 	{
 //#if defined(TARGET_RASPBERRY_PI)
@@ -227,7 +232,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineOpenGLES::render()
 	{
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 		rendererDrawData(ImGui::GetDrawData());
 #else
 		// todo
@@ -248,7 +253,7 @@ namespace ofxImGui
             //glfwMakeContextCurrent(backup_current_context);
         }
 	}
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS) || defined(TARGET_OPENGLES)
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 	//--------------------------------------------------------------
 	void EngineOpenGLES::rendererDrawData(ImDrawData * draw_data)
 	{
