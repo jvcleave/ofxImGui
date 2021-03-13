@@ -62,6 +62,9 @@ namespace ofxImGui
 
 	void AddGroup(ofParameterGroup& group, Settings& settings);
 
+	//NEW: add flags and clean all the old settings
+	void AddGroup(ofParameterGroup& group, ImGuiWindowFlags flags);
+
 #if OF_VERSION_MINOR >= 10
 	bool AddParameter(ofParameter<glm::ivec2>& parameter);
 	bool AddParameter(ofParameter<glm::ivec3>& parameter);

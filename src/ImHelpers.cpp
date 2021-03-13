@@ -170,6 +170,102 @@ void ofxImGui::EndTree(Settings& settings)
 	windowOpen.usedNames.pop();
 }
 
+//NEW: add flags and clean all the old settings
+//--------------------------------------------------------------
+void ofxImGui::AddGroup(ofParameterGroup& group, ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse)
+{
+	//not used but for reuse old methods
+	ofxImGui::Settings settings = ofxImGui::Settings();
+
+	if (ImGui::CollapsingHeader(group.getName().c_str(), flags))
+	{
+		for (auto parameter : group)
+		{
+			// Group.
+			auto parameterGroup = std::dynamic_pointer_cast<ofParameterGroup>(parameter);
+			if (parameterGroup)
+			{
+				// Recurse through contents.
+				ofxImGui::AddGroup(*parameterGroup, settings);
+				continue;
+			}
+
+			// Parameter, try everything we know how to handle.
+#if OF_VERSION_MINOR >= 10
+			auto parameterVec2f = std::dynamic_pointer_cast<ofParameter<glm::vec2>>(parameter);
+			if (parameterVec2f)
+			{
+				ofxImGui::AddParameter(*parameterVec2f);
+				continue;
+			}
+			auto parameterVec3f = std::dynamic_pointer_cast<ofParameter<glm::vec3>>(parameter);
+			if (parameterVec3f)
+			{
+				ofxImGui::AddParameter(*parameterVec3f);
+				continue;
+			}
+			auto parameterVec4f = std::dynamic_pointer_cast<ofParameter<glm::vec4>>(parameter);
+			if (parameterVec4f)
+			{
+				ofxImGui::AddParameter(*parameterVec4f);
+				continue;
+			}
+#endif
+			auto parameterOfVec2f = std::dynamic_pointer_cast<ofParameter<ofVec2f>>(parameter);
+			if (parameterOfVec2f)
+			{
+				ofxImGui::AddParameter(*parameterOfVec2f);
+				continue;
+			}
+			auto parameterOfVec3f = std::dynamic_pointer_cast<ofParameter<ofVec3f>>(parameter);
+			if (parameterOfVec3f)
+			{
+				ofxImGui::AddParameter(*parameterOfVec3f);
+				continue;
+			}
+			auto parameterOfVec4f = std::dynamic_pointer_cast<ofParameter<ofVec4f>>(parameter);
+			if (parameterOfVec4f)
+			{
+				ofxImGui::AddParameter(*parameterOfVec4f);
+				continue;
+			}
+			auto parameterFloatColor = std::dynamic_pointer_cast<ofParameter<ofFloatColor>>(parameter);
+			if (parameterFloatColor)
+			{
+				ofxImGui::AddParameter(*parameterFloatColor);
+				continue;
+			}
+			auto parameterFloat = std::dynamic_pointer_cast<ofParameter<float>>(parameter);
+			if (parameterFloat)
+			{
+				ofxImGui::AddParameter(*parameterFloat);
+				continue;
+			}
+			auto parameterInt = std::dynamic_pointer_cast<ofParameter<int>>(parameter);
+			if (parameterInt)
+			{
+				ofxImGui::AddParameter(*parameterInt);
+				continue;
+			}
+			auto parameterBool = std::dynamic_pointer_cast<ofParameter<bool>>(parameter);
+			if (parameterBool)
+			{
+				ofxImGui::AddParameter(*parameterBool);
+				continue;
+			}
+			auto parameterString = std::dynamic_pointer_cast<ofParameter<std::string>>(parameter);
+			if (parameterString)
+			{
+				ofxImGui::AddParameter(*parameterString);
+				continue;
+			}
+
+			ofLogWarning(__FUNCTION__) << "Could not create GUI element for parameter " << parameter->getName();
+		}
+	}
+}
+
+//OLD
 //--------------------------------------------------------------
 void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 {
