@@ -6,7 +6,6 @@ ofxImGui::Settings::Settings()
 	, windowSize(ofVec2f::zero())
 	, lockPosition(false)
 	, windowBlock(false)
-	, mouseOverGui(false)
     , treeLevel(0)
 {}
 
@@ -92,9 +91,9 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, ImGuiWin
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
+	//ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+	//ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	//ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, flags);
 }
 
@@ -111,7 +110,6 @@ void ofxImGui::EndWindow(Settings& settings)
 
 	settings.windowPos = ImGui::GetWindowPos();
 	settings.windowSize = ImGui::GetWindowSize();
-	settings.mouseOverGui |= ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 	ImGui::End();
 
 	// Unlink the referenced ofParameter.
@@ -264,6 +262,12 @@ void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
 		if (parameterBool)
 		{
 			ofxImGui::AddParameter(*parameterBool);
+			continue;
+		}
+		auto parameterString = std::dynamic_pointer_cast<ofParameter<std::string>>(parameter);
+		if (parameterString)
+		{
+			ofxImGui::AddParameter(*parameterString);
 			continue;
 		}
 
