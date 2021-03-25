@@ -52,7 +52,7 @@ protected:
 
 	// Parameters
 	ofParameter<ofFloatColor> background{ "Background", ofFloatColor::black };
-	ofParameter<ofFloatColor> foreground{ "Foreground", ofFloatColor::crimson };
+	ofParameter<ofColor> foreground{ "Foreground", ofColor::crimson };
 	ofParameterGroup colors{ "Colors", background, foreground };
 
 	ofParameter<bool> enabled{ "Enabled", true };
