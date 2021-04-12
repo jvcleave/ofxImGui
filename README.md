@@ -23,7 +23,7 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 #### GLSL Support Table
 
 | OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2.0 |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|
 | Windows | [x] | [x] | [x] | Unknown | Unknown |
 | Mac OsX | [x] | [x] | [x] |  *Unavailable* | *Unavailable* |
 | Linux | [x] | [x] | [x] | [x] | [x] |
