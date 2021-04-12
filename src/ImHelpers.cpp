@@ -236,7 +236,8 @@ void ofxImGui::AddGroup(ofParameterGroup& group, ImGuiWindowFlags flags = ImGuiW
 				continue;
 			}
 			auto parameterColor = std::dynamic_pointer_cast<ofParameter<ofColor>>(parameter);
-			{
+            if (parameterColor)
+            {
 				ofxImGui::AddParameter(*parameterColor);
 				continue;
 			}
