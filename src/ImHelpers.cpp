@@ -171,12 +171,11 @@ void ofxImGui::EndTree(Settings& settings)
 }
 
 //NEW: add flags and clean all the old settings
-//BUG: BROKEN: crashes..
 //--------------------------------------------------------------
-void ofxImGui::AddGroup(ofParameterGroup& group, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None)
+void ofxImGui::AddGroup(ofParameterGroup& group, ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse)
 {
 	//not used but for reuse old methods
-	//ofxImGui::Settings settings = ofxImGui::Settings();
+	ofxImGui::Settings settings = ofxImGui::Settings();
 
 	if (ImGui::CollapsingHeader(group.getName().c_str(), flags))
 	{
@@ -187,8 +186,7 @@ void ofxImGui::AddGroup(ofParameterGroup& group, ImGuiTreeNodeFlags flags = ImGu
 			if (parameterGroup)
 			{
 				// Recurse through contents.
-				ofxImGui::AddGroup(*parameterGroup, flags);
-				//ofxImGui::AddGroup(*parameterGroup, settings);
+				ofxImGui::AddGroup(*parameterGroup, settings);
 				continue;
 			}
 
