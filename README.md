@@ -7,7 +7,7 @@ Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipe
 ![Screenshot](images/Screenshot.png)
 
 ### Compatibility
-The master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
+The master branch may not be tested on all platforms. See [Releases](https://github.com/daandelange/ofxImGui/releases/) for more extensively tested versions.
 
 #### Test Platforms
 ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requirements](https://openframeworks.cc/download/). These are typically:
@@ -22,7 +22,7 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 
 #### GLSL Support Table
 
-|OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2.0 |
+| OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2.0 |
 |---|---|---|---|---|---|---|
 | Windows | [x] | [x] | [x] | Unknown | Unknown |
 | Mac OsX | [x] | [x] | [x] |  *Unavailable* | *Unavailable* |
@@ -152,4 +152,4 @@ git clone https://github.com/openframeworks/apothecary.git
 - `git pull && git submodule update`
 - After updating: Add `#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS` in your `imconfig.h` file to make sure you are not using to-be-obsoleted symbols. Update any if needed.
 
-[![Build status](https://travis-ci.org/jvcleave/ofxImGui.svg?branch=master)](https://travis-ci.org/jvcleave/ofxImGui)
+
