@@ -7,18 +7,45 @@ Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipe
 ![Screenshot](images/Screenshot.png)
 
 ### Compatibility
-Master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
+The master branch may not be tested on all platforms. See [Releases](https://github.com/jvcleave/ofxImGui/releases/) for more extensively tested versions.
 
 #### Test Platforms
 ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requirements](https://openframeworks.cc/download/). These are typically:
 
  - Mac OSX, Xcode
- - Windows 10, Visual Studio *(to be tested with latest version)*
- - Raspberry Pi *(to be tested with latest version)*
- - Linux Desktop (Tested : Ubuntu, Mint 16-20)
+ - Windows 10, Visual Studio
+ - Raspberry Pi
+ - Linux Desktop
 
  Please note that using ofxImGui in multiwindow openframworks applications is not yet supported, future versions of ImGui might allow this.
  Also, the iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends.
+
+#### GLSL Support Table
+
+|OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2.0 |
+|---|---|---|---|---|---|---|
+| Windows | [x] | [x] | [x] | Unknown | Unknown |
+| Mac OsX | [x] | [x] | [x] |  *Unavailable* | *Unavailable* |
+| Linux | [x] | [x] | [x] | [x] | [x] |
+| iOS | *Unavailable* | *Unavailable* | *Unavailable* | Unknown | Unknown |
+| Rpi3 | Unknown | Unknown | Unknown | [x]  (with Legacy driver and `OFXIMGUI_ENABLE_OF_BINDINGS`) | [x] KMS and Legacy driver |
+| Rpi4 | Unknown | Should (with KMS driver) | Should (with KMS driver) | Should | Should |
+| iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should |
+
+#### oF & ImGui Support Table
+
+| ofxImGui version | Embedded ImGui version | Supported oF version |
+|----- |-------| ------ |
+| 1.?? | 1.??* | 0.11.x |
+| 1.75 | 1.75  | 0.11.x |
+| 1.62 | 1.62  | 0.10.x | 
+| 1.50 | 1.50 WIP | 0.10.x |
+| 1.49 | 1.49  | 0.10.x |
+| 1.47 | 1.47  | 0.10.x |
+| 0.90 | 1.45 WIP | 0.9.x |
+
+New ImGui versions bring changes and new API features, sometimes depreciations.  
+__*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docking, gamepad control, and more.
 
 ### Usage
 In the setup, you can choose to automatically render, or choose to manually render the gui, if you need more precise control of when it's drawn to the screen.
@@ -86,15 +113,27 @@ In ImGui, everything is documented in the source code. Resolve a symbol in your 
 ImGui has a huge community and is growing fast. There are a lot of plugins available. You can easily add some to your project, they should normally load into ofxImGui. See `example-advanced` and `example-imguizmo`.
 
 #### ofxImGui compilation flags
-- `#define OFXIMGUI_DEBUG` : Set to `cout` some information of how ofxImGui runs. Also gives some hints if you're implementing it wrong.
-- `#define OFXIMGUI_ENABLE_OF_BINDINGS` to use ofxImGui's legacy way of binding platform windows. (not recommended, some features might be missing) (might be required for iOS / Vulkan usage)
+- `#define OFXIMGUI_DEBUG` : Set to print some information on how ofxImGui runs. Also gives some hints if you're implementing it wrong.
+- `#define OFXIMGUI_ENABLE_OF_BINDINGS` to use ofxImGui's legacy way of binding platform windows. Needed for any oF project that doesn't use GLFW windows (the most widely used oF windowing system) or any oF version prior to 0.11. Disables some optional ImGui features and binds to ofEvents. (might be required for iOS / Vulkan usage)
 
 #### Updating ImGui
 - Go to the [official ImGui](https://github.com/ocornut/imgui/tree/docking/) repo and get the `glfw` and `opengl 2+3` header and source files from and into the `backends` folders. Beware that we're using the `docking` branch of imgui, until it gets merges in the master.
 - Similarly, header and source file from the `imgui root` go into `ofxImGui/libs/imgui/src`.
 - After updating: Check ofxImGui's source code for obsolete function usage. See [`IMGUI_DISABLE_OBSOLETE_FUNCTIONS`](#updating-ofximgui) below.
 
-- *Note:* Currently, **oF0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. [Change 3300 to 3310](https://github.com/ocornut/imgui/blob/dd4ca70b0d612038edadcf37bf601c0f21206d28/backends/imgui_impl_glfw.cpp#L62). This change disables some optional imgui features, related to viewport behaviour, and available mouse cursors. Alternatively, you can update GLFW within oF.
+- Make some changes
+	- To support GL ES 1 on Rpi, you need to add these lines below `#include <OpenGL/gl.h>` in `imgui_impl_opengl2.cpp`.  
+	````cpp
+// Rpi GLES 1.1 fixes
+#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) //&& defined(IMGUI_IMPL_OPENGL_ES1)
+#include <GLES/gl.h>
+#define glOrtho glOrthof // Fixes rendering
+#define glPolygonMode( X, Y )  // no alternative !
+#define glPushAttrib( X ) // no alternative !
+#define glPopAttrib( X ) // no alternative !
+#define GL_POLYGON_MODE GL_LINES
+	````
+- *Note:* Currently, **oF0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. [Change `3300` to `3310`](https://github.com/ocornut/imgui/blob/dd4ca70b0d612038edadcf37bf601c0f21206d28/backends/imgui_impl_glfw.cpp#L62). This change disables some optional imgui features, related to viewport behaviour, and available mouse cursors. Alternatively, you can update GLFW within oF.
 ````bash
 cd OF/scripts
 # Only if you don't have apothecary :
