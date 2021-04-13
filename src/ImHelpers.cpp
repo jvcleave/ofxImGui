@@ -24,10 +24,13 @@ const char * ofxImGui::GetUniqueName(ofAbstractParameter& parameter)
 const char * ofxImGui::GetUniqueName(const std::string& candidate)
 {
 	std::string result = candidate;
-	while (std::find(windowOpen.usedNames.top().begin(), windowOpen.usedNames.top().end(), result) != windowOpen.usedNames.top().end())
-	{
-		result += " ";
-	}
+    if( !windowOpen.usedNames.empty()) {
+        while (std::find(windowOpen.usedNames.top().begin(), windowOpen.usedNames.top().end(), result) != windowOpen.usedNames.top().end())
+        {
+            // Note: Add a space to (invisibly) differenciate the parameter name from another one with the same name
+            result += " ";
+        }
+    }
 	windowOpen.usedNames.top().push_back(result);
 	return windowOpen.usedNames.top().back().c_str();
 }
