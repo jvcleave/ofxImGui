@@ -24,6 +24,9 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
+    // Must be called from the oF window that's gonna display the gui.
+    // Creates 1 imgui context per oF window (glfw context).
+    // Links the context handle to the correct window's imguicontext.
     void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
 	{
 #ifdef OFXIMGUI_DEBUG
@@ -175,10 +178,17 @@ namespace ofxImGui
 	}
 
     //--------------------------------------------------------------
-    // In some rare cases you might wish to enable this manually. (in most cases it's automatic)
-    void Gui::forceSharedMode(bool _sharedMmode) {
+    // In some rare cases you might wish to enable or disable this manually. (in most cases it's automatic)
+    void Gui::setSharedMode(bool _sharedMode) {
         if(!context) return;
-        sharedModes[context]=_sharedMmode;
+        sharedModes[context]=_sharedMode;
+    }
+    // Returns true if the context is setup and in shared mode.
+    bool Gui::isInSharedMode() const {
+        if( !context ) return false;
+        auto ret = sharedModes.find(context);
+        if( ret == sharedModes.end()) return false; // Should never happen
+        return ret->second;
     }
 
     //--------------------------------------------------------------

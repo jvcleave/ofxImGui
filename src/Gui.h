@@ -26,7 +26,9 @@ namespace ofxImGui
 
         void setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool _restoreGuiState = false, bool _showImGuiMouseCursor = false );
 		void exit();
-        void forceSharedMode(bool _sharedMmode=true);
+
+        void setSharedMode(bool _sharedMode=true);
+        bool isInSharedMode() const;
 
 		void begin();
 		void end();

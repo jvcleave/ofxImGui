@@ -15,6 +15,10 @@ Project{
             'src/main.cpp',
             'src/ofApp.cpp',
             'src/ofApp.h',
+            'src/myAddonClass.cpp',
+            'src/myAddonClass.h',
+            'src/privateAddonClass.cpp',
+            'src/privateAddonClass.h'
         ]
 
         of.addons: [
