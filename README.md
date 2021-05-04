@@ -7,8 +7,7 @@ Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipe
 ![Screenshot](images/Screenshot.png)
 
 ### Fork info
-ofxImGui is a fork of the original [jvcleave/ofxImGui](https://github.com/jvcleave/ofxImGui), which cannot be updated anymore to newer versions of ImGui [since january 2020](https://github.com/ocornut/imgui/releases/tag/v1.80), and has been relying on depreciated functions for a few years.  
-Compared to ofxImGui, ofxImGui comes with most of the new ImGui features (viewports, docking, tables, custom fonts, etc.) and uses the official backend, which means it's connected to oF in a different way.  
+ofxImGui is a fork of the original [jvcleave/ofxImGui](https://github.com/jvcleave/ofxImGui), which cannot be updated anymore to newer versions of ImGui [since january 2020](https://github.com/ocornut/imgui/releases/tag/v1.80), and has been relying on depreciated functions for a few years.   
 
 ### Branches
 | Branch   | Description |
@@ -69,7 +68,7 @@ cd /path/to/of/addons && git clone https://github.com/Daandelange/ofxImGui.git
 ````
 
 #### Optional
-Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developper.md).
+Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md).
 
 ### Setup
 In the setup, you can choose to automatically render, or choose to manually render the gui if you need more precise control of when it's drawn to the screen.  
@@ -92,7 +91,7 @@ Most of these advanced options are explained in the `imgui_demo.cpp` source code
 There are several example projects, covering from the simplest use case to more advanced ones : [Examples.md](./Examples.md).
 
 ### Developper info
-Useful dev info and how to get familiar with DearImGui : [Developper.md](./Developper.md).
+Useful dev info and how to get familiar with DearImGui : [Developper.md](./Developpers.md).
 
 ### Updating ofxImGui
 - `cd /path/to/ofxImGui && git pull && git submodule update`
