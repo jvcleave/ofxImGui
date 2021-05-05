@@ -46,17 +46,16 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 | iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should |
 
 #### oF & ImGui Support Table
-| ofxImGui version       | ImGui version | Supported oF version |
-|-----------------------:|---------------|----------------------|
-| ofxImGui 1.82      | 1.82*         | 0.11.2 |
-| ofxImGui 1.79      | 1.79*         | 0.11.1 |
-| d3cod3/ofxImGui 1.??   | 1.??*         | 0.11.x |
-| jvcleave/ofxImGui 1.75 | 1.75          | 0.11.x |
-| jvcleave/ofxImGui 1.62 | 1.62          | 0.10.x | 
-| jvcleave/ofxImGui 1.50 | 1.50 WIP      | 0.10.x |
-| jvcleave/ofxImGui 1.49 | 1.49          | 0.10.x |
-| jvcleave/ofxImGui 1.47 | 1.47          | 0.10.x |
-| jvcleave/ofxImGui 0.90 | 1.45 WIP      | 0.9.x  |
+| ofxImGui version  | ImGui version | Supported oF version |
+|------------------:|---------------|----------------------|
+| ofxImGui 1.82     | 1.82*         | 0.11.2 |
+| ofxImGui 1.79     | 1.79*         | 0.11.1 |
+| ofxImGui 1.75     | 1.75          | 0.11.x |
+| ofxImGui 1.62     | 1.62          | 0.10.x | 
+| ofxImGui 1.50     | 1.50 WIP      | 0.10.x |
+| ofxImGui 1.49     | 1.49          | 0.10.x |
+| ofxImGui 1.47     | 1.47          | 0.10.x |
+| ofxImGui 0.90     | 1.45 WIP      | 0.9.x  |
 
 New ImGui versions bring changes and new API features, sometimes depreciations.  
 __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docking, gamepad control, and more.
@@ -74,28 +73,27 @@ Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even mo
 ### Setup
 In the setup, you can choose to automatically render, or choose to manually render the gui if you need more precise control of when it's drawn to the screen.  
 ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp. Note: Only the fist call to `gui.setup()` has full control over the settings; the next ones setup as slaves.
-
-#### Auto
-Automatically renders the gui then you call `gui.end()` (non-shared mode), or right after your `ofApp::draw()` using a callback.
-
-#### Manual
+- **Auto**  
+Automatically renders the gui right after your `ofApp::draw()` using a callback.
+- **Manual**  
 Allows to precisely control when your gui is rendered, within your oF rendering pipeline.
-
-#### Shared Context
+- **Shared Context**  
 Automatically enabled when 2 `ofxImGui::Gui` instances share the same platform window context. Ensures that the gui renders **after** al instances have sent their gui elements to imgui.
 
 #### Advanced setup : ImGui config flags.
-ofxImGui provides a simple way to interface imgui, but it's a big library providing lots of different options to suit your precise needs.
-Most of these advanced options are explained in the `imgui_demo.cpp` source code. Checkout `example-dockingandviewports` and `example-advanced`.
+ofxImGui provides a simple way to interface imgui, but it's a huge library providing lots of different options to suit your precise needs.  
+Most of these advanced options are explained in the `imgui_demo.cpp` source code. Also checkout `example-dockingandviewports` and `example-advanced`.
 
-### Examples
+- - - -
+
+## Examples
 There are several example projects, covering from the simplest use case to more advanced ones : [Examples.md](./Examples.md).
 
-### Developper info
+## Developper info
 Useful dev info and how to get familiar with DearImGui : [Developper.md](./Developpers.md).
 
-### Updating ofxImGui
+## Updating ofxImGui
 - `cd /path/to/ofxImGui && git pull && git submodule update`
-- After updating: Add `#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS` in your `imconfig.h` file to make sure you are not using to-be-obsoleted symbols. Update any if needed.
+- (*optional*) After updating: Add `#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS` in your `imconfig.h` file to make sure you are not using to-be-obsoleted symbols. Update any if needed.
 
 

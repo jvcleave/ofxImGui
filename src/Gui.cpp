@@ -404,7 +404,16 @@ namespace ofxImGui
 
         // Only render in autodraw mode.
         if(autoDraw){
-            render();
+            // Protection : don't endFrame() twice.
+            if( !isRenderingFrame[context] ){
+                return;
+            }
+
+            // End submitting to ImGui
+            engine.endFrame();
+            ImGui::EndFrame();
+
+            //render(); // Now called after ofApp::draw() using a callback.
         }
         // Otherwise end the frame. User chooses when to render (later) using Gui::draw()
         // Note: You cannot resume using ImGui::NewFrame() without flushing the pipeline.
@@ -420,6 +429,7 @@ namespace ofxImGui
     }
 
     //--------------------------------------------------------------
+    // Note: render() is private, never called by the end user.
     void Gui::render(){
         if( context==nullptr ) return;
 

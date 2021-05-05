@@ -19,7 +19,8 @@ namespace ofxImGui
 		if (isSetup) return;
 
 		ImGuiIO& io = ImGui::GetIO();
-		
+
+#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 
 		// Only keys used by imgui have to be mapped
@@ -44,7 +45,7 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_X] = 'x';
 		io.KeyMap[ImGuiKey_Y] = 'y';
 		io.KeyMap[ImGuiKey_Z] = 'z';
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
+
 
 #ifdef OFXIMGUI_DEBUG
         ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLES with oF bingings (OFXIMGUI_ENABLE_OF_BINDINGS)";
@@ -79,6 +80,7 @@ namespace ofxImGui
 		// Init window
 		//ofAppiOSWindow* curWin = (ofAppiOSWindow*)ofGetWindowPtr()->getWindowContext();
 		//ImGui_ImplIOS_Init();
+
 #endif
 		
 		isSetup = true;
