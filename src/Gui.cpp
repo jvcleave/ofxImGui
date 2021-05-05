@@ -84,9 +84,7 @@ namespace ofxImGui
 		ImGuiIO& io = ImGui::GetIO();
 
         // Note : In chaining mode, additional flags can still be set.
-		io.ConfigFlags |= customFlags_;
-        //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // tmp !
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // tmp !
+        io.ConfigFlags |= customFlags_;
 
 #ifdef OFXIMGUI_ENABLE_OF_BINDINGS
         io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());

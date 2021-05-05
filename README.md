@@ -29,8 +29,9 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
  - Raspberry Pi
  - Linux Desktop
 
- Please note that using ofxImGui in multiwindow OpenFrameworks applications is not yet supported, future versions of ImGui might allow this.
- Also, the iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends.
+ Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**. For now, one ImGui instance is created per oF window, without any communication in between them (cross-docking won't work). Hopefully DearImGui will introduce something to handle "multiple host viewports".
+
+ Currently, **ofxImGui only works on GLFW-based openFrameworks applications**. Thus, the RPI_LEGACY, iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends.
 
 #### GLSL Support Table
 

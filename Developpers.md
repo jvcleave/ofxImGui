@@ -29,6 +29,21 @@ Here are some instructions for updating DearImGui within ofxImGui:
 
 ## Platform specific hacks
 
+- *For multiwindow support* (until the backend evolves towards multi context support or other).  
+In `imgui_impl_gflw`, add this right below the first `IM_ASSERT`s in `ImGui_ImplGlfw_NewFrame(){}` :  
+````cpp
+	// Custom hack : switch g_Window too !
+	#ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
+        IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
+    #endif
+````  
+This issue is that some globals are hardcoded. Switching context is possible, but the `g_Window` global variable isn't switched.  
+Related issues:  
+ - [Does GLFW implementation only handle one GLFWindow?](https://discourse.dearimgui.org/t/does-glfw-implementation-only-handle-one-glfwindow/305)
+ - [Add support for multiple GLFW contexts](https://github.com/ocornut/imgui/pull/3934)
+ - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
+ - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
+ - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
 - *Note:* Currently, **oF 0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. (_this has been applied in the master branch already, only when updating DearImGui_)  
 Update: oF 0.11.1 [uses GLFW 3.3-stable](https://github.com/openframeworks/apothecary/commit/68a0ec866341a8487d5c555311f3d5975bd62436) and doesn't need this hack.
 Update: [oF 0.11.3 will use glfw pre-3.3.0 again](https://github.com/openframeworks/apothecary/pull/197).
@@ -45,5 +60,8 @@ git clone https://github.com/openframeworks/apothecary.git
 # Manually delete `apothecary/apothecary/build/glfw if it exists
 # Update
 ./apothecary/apothecary/apothecary -t osx -j 4 update glfw
-# Manually copy ./apothecary/glfw to OF/libs/ & recompile oF
+# Copy ./apothecary/glfw to OF/libs/
+./apothecary/apothecary/apothecary -t osx -j 4 copy glfw
+# Recompile oF (github installs, not releases)
+# cd ./osx && ./compileOF.sh -j3
 ````

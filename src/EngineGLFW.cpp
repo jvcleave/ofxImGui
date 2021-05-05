@@ -265,6 +265,8 @@ namespace ofxImGui
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 #else
+        ImGuiIO& io = ImGui::GetIO();
+        io.BackendPlatformUserData = (void*) (GLFWwindow*) ofGetWindowPtr()->getWindowContext();
         if (ofIsGLProgrammableRenderer()){
             ImGui_ImplOpenGL3_NewFrame();
         }

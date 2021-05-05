@@ -17,6 +17,9 @@ class ofApp : public ofBaseApp{
             // Gives a better user experience, matter of opinion.
             //ImGui::GetIO().ConfigDockingWithShift=true;
 
+            // Uncomment below to "force" all imgui windows to be standalone
+            //ImGui::GetIO().ConfigViewportsNoAutoMerge=true;
+
             ofSetBackgroundAuto(false);
             ofEnableAlphaBlending();
         }
@@ -45,14 +48,25 @@ class ofApp : public ofBaseApp{
                         );
             ofPopStyle();
 
+            // Todo: draw something behind docked windows
 
             // Start drawing to ImGui (newFrame)
 			gui.begin();
 
+            // Make windows transparent, to demonstrate drawing behind them.
+            ImGui::PushStyleColor(ImGuiCol_WindowBg , IM_COL32(200,200,200,128)); // This styles the docked windows
+
+            ImGuiDockNodeFlags dockingFlags = ImGuiDockNodeFlags_PassthruCentralNode; // Make the docking space transparent
+            // Fixes imgui to expected behaviour, having a transparent central node in passthru mode.
+            // Alternative: Otherwise add in ImGui::DockSpace() [±line 14505] : if (flags & ImGuiDockNodeFlags_PassthruCentralNode) window_flags |= ImGuiWindowFlags_NoBackground;
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(0,0,0,0));
+
+            //dockingFlags |= ImGuiDockNodeFlags_NoDockingInCentralNode; // Uncomment to always keep an empty "central node" (a visible oF space)
+            //dockingFlags |= ImGuiDockNodeFlags_NoTabBar; // Uncomment to disable creating tabs in the main view
+
             // Define the ofWindow as a docking space
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(0,0,0,0)); // Fixes imgui to expected behaviour. Otherwise add in ImGui::DockSpace() [±line 14505] : if (flags & ImGuiDockNodeFlags_PassthruCentralNode) window_flags |= ImGuiWindowFlags_NoBackground;
-            ImGuiID dockNodeID = ImGui::DockSpaceOverViewport(NULL, ImGuiDockNodeFlags_PassthruCentralNode);
-            ImGui::PopStyleColor();
+            ImGuiID dockNodeID = ImGui::DockSpaceOverViewport(NULL, dockingFlags); // Also draws the docked windows
+            ImGui::PopStyleColor(2);
 
             ImGuiDockNode* dockNode = ImGui::DockBuilderGetNode(dockNodeID);
             if(dockNode){
@@ -92,13 +106,14 @@ class ofApp : public ofBaseApp{
             }
 
             // Draw a few windows
-            // ImGuiWindowFlags_DockNodeHost => prevents hosting other windows, but still can be docked into another one.
-            drawWindow("Dockable Window",   50,     100, ImGuiWindowFlags_None          );
-            drawWindow("Window 1",          300,    100, ImGuiWindowFlags_DockNodeHost  );
-            drawWindow("Window 2",          50,     350, ImGuiWindowFlags_DockNodeHost  );
-            drawWindow("Window 3",          300,    350, ImGuiWindowFlags_DockNodeHost  );
-            drawWindow("Window 4",          550,    100, ImGuiWindowFlags_DockNodeHost  );
-            drawWindow("Window 5",          550,    350, ImGuiWindowFlags_DockNodeHost  );
+            static int val0=0, val1=0,val2=0,val3=0,val4=0,val5=0;
+            drawWindow("Dockable Window",   val0,   50,     100, ImGuiWindowFlags_None  );
+            drawWindow("Window 1",          val1,   300,    100, ImGuiWindowFlags_None  );
+            drawWindow("Window 2",          val2,   50,     350, ImGuiWindowFlags_None  );
+            drawWindow("Window 3",          val3,   300,    350, ImGuiWindowFlags_None  );
+            drawWindow("Window 4",          val4,   550,    100, ImGuiWindowFlags_None  );
+            ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID); // Attach a window to a viewport = prevent popping it out
+            drawWindow("Stuck in main window", val5, 550,    350, ImGuiWindowFlags_None  );
 
             // End our ImGui Frame. Also Renders in autoDraw mode.
             gui.end();
@@ -124,14 +139,14 @@ class ofApp : public ofBaseApp{
 
     private:
 
-        void drawWindow(const char* _title, int _x=300, int _y=300, ImGuiWindowFlags _flags=ImGuiWindowFlags_None ){
+        void drawWindow(const char* _title, int& _value, int _x=300, int _y=300, ImGuiWindowFlags _flags=ImGuiWindowFlags_None ){
             ImGui::SetNextWindowSize(ImVec2(200,200), ImGuiCond_Once);
             ImGui::SetNextWindowPos(ImVec2(_x+ofGetWindowPositionX(),_y+ofGetWindowPositionY()), ImGuiCond_Once);
             ImGui::Begin(_title, NULL, _flags );
-            static int v = 0;
-            ImGui::InputInt("InputInt", &v);
-            ImGui::SliderInt("SliderInt", &v, 0, 10);
-            ImGui::DragInt("DragInt", &v);
+
+            ImGui::InputInt("InputInt", &_value);
+            ImGui::SliderInt("SliderInt", &_value, 0, 10);
+            ImGui::DragInt("DragInt", &_value);
             ImGui::End();
         }
 

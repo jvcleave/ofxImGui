@@ -7,6 +7,7 @@
 
 //========================================================================
 int main( ){
+    ofSetLogLevel( OF_LOG_VERBOSE );
 
 	ofGLFWWindowSettings settings;
     settings.setSize(300, 400);
@@ -26,8 +27,8 @@ int main( ){
     // WARNING : settings.setGLVersion(2, 1);
     // For now, both GL versions must be the same for ImGui to work in a multiwindow context.
     auto window2 = ofCreateWindow(settings);
-    std::cout << "Window 1 = " << window1.get() << " // " << (ofAppGLFWWindow*) window1.get() << std::endl;
-    std::cout << "Window 2 = " << window2.get() << " // " << (ofAppGLFWWindow*) window2.get() << std::endl;
+    std::cout << "Window 1 = " << window1.get() << " // " << (ofAppGLFWWindow*) window1.get() << " // " << ((ofAppGLFWWindow*) window1.get())->getGLFWWindow() << std::endl;
+    std::cout << "Window 2 = " << window2.get() << " // " << (ofAppGLFWWindow*) window2.get() << " // " << ((ofAppGLFWWindow*) window2.get())->getGLFWWindow() << std::endl;
     auto app1 = std::make_shared<ofApp>();
     auto app2 = std::make_shared<ofApp>();
 

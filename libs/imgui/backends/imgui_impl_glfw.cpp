@@ -470,6 +470,10 @@ void ImGui_ImplGlfw_NewFrame()
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer backend. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
 
+    #ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
+        IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
+    #endif
+
     // Setup display size (every frame to accommodate for window resizing)
     int w, h;
     int display_w, display_h;
