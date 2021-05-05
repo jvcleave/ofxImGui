@@ -1,5 +1,5 @@
 // dear imgui: Platform Backend for GLFW
-// This needs to be used along with a Renderer (e.g. OpenGL3, Vulkan..)
+// This needs to be used along with a Renderer (e.g. OpenGL3, Vulkan, WebGPU..)
 // (Info: GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 // (Requires: GLFW 3.1+. Prefer GLFW 3.3+ for full feature support.)
 
@@ -59,8 +59,7 @@
 #define GLFW_HAS_VULKAN               (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3200) // 3.2+ glfwCreateWindowSurface
 #define GLFW_HAS_FOCUS_WINDOW         (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3200) // 3.2+ glfwFocusWindow
 #define GLFW_HAS_FOCUS_ON_SHOW        (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3300) // 3.3+ GLFW_FOCUS_ON_SHOW
-#define GLFW_HAS_MONITOR_WORK_AREA    (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3310) // 3.3+ glfwGetMonitorWorkarea
-//#define GLFW_HAS_MONITOR_WORK_AREA    (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3300) // 3.3+ glfwGetMonitorWorkarea
+#define GLFW_HAS_MONITOR_WORK_AREA    (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3300) // 3.3+ glfwGetMonitorWorkarea
 #define GLFW_HAS_OSX_WINDOW_POS_FIX   (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 + GLFW_VERSION_REVISION * 10 >= 3310) // 3.3.1+ Fixed: Resizing window repositions it on MacOS #1553
 #ifdef GLFW_RESIZE_NESW_CURSOR        // Let's be nice to people who pulled GLFW between 2019-04-16 (3.4 define) and 2019-11-29 (cursors defines) // FIXME: Remove when GLFW 3.4 is released?
 #define GLFW_HAS_NEW_CURSORS          (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3400) // 3.4+ GLFW_RESIZE_ALL_CURSOR, GLFW_RESIZE_NESW_CURSOR, GLFW_RESIZE_NWSE_CURSOR, GLFW_NOT_ALLOWED_CURSOR
@@ -180,7 +179,7 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
 #endif
     io.BackendPlatformName = "imgui_impl_glfw";
 
-    // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
+    // Keyboard mapping. Dear ImGui will use those indices to peek into the io.KeysDown[] array.
     io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
     io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
     io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
@@ -272,6 +271,11 @@ bool ImGui_ImplGlfw_InitForOpenGL(GLFWwindow* window, bool install_callbacks)
 bool ImGui_ImplGlfw_InitForVulkan(GLFWwindow* window, bool install_callbacks)
 {
     return ImGui_ImplGlfw_Init(window, install_callbacks, GlfwClientApi_Vulkan);
+}
+
+bool ImGui_ImplGlfw_InitForOther(GLFWwindow* window, bool install_callbacks)
+{
+    return ImGui_ImplGlfw_Init(window, install_callbacks, GlfwClientApi_Unknown);
 }
 
 void ImGui_ImplGlfw_Shutdown()
@@ -407,22 +411,22 @@ static void ImGui_ImplGlfw_UpdateGamepads()
     int axes_count = 0, buttons_count = 0;
     const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axes_count);
     const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttons_count);
-    MAP_BUTTON(ImGuiNavInput_Activate,   GLFW_GAMEPAD_BUTTON_A);     // Cross / A
-    MAP_BUTTON(ImGuiNavInput_Cancel,     GLFW_GAMEPAD_BUTTON_B);     // Circle / B
-    MAP_BUTTON(ImGuiNavInput_Menu,       GLFW_GAMEPAD_BUTTON_X);     // Square / X
-    MAP_BUTTON(ImGuiNavInput_Input,      GLFW_GAMEPAD_BUTTON_Y);     // Triangle / Y
-    MAP_BUTTON(ImGuiNavInput_DpadLeft,   13);//GLFW_GAMEPAD_BUTTON_DPAD_LEFT);    // D-Pad Left
-    MAP_BUTTON(ImGuiNavInput_DpadRight,  14);//GLFW_GAMEPAD_BUTTON_DPAD_RIGHT);    // D-Pad Right
-    MAP_BUTTON(ImGuiNavInput_DpadUp,     GLFW_GAMEPAD_BUTTON_DPAD_UP);    // D-Pad Up
-    MAP_BUTTON(ImGuiNavInput_DpadDown,   12);//GLFW_GAMEPAD_BUTTON_DPAD_DOWN);    // D-Pad Down
-    MAP_BUTTON(ImGuiNavInput_FocusPrev,  GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);     // L1 / LB
-    MAP_BUTTON(ImGuiNavInput_FocusNext,  GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);    // R1 / RB
-    MAP_BUTTON(ImGuiNavInput_TweakSlow,  GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);      // L2 / LT
-    MAP_BUTTON(ImGuiNavInput_TweakFast,  GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);     // R2 / RT
-    MAP_ANALOG(ImGuiNavInput_LStickLeft, GLFW_GAMEPAD_AXIS_LEFT_X,  -0.3f,  -0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickRight,GLFW_GAMEPAD_AXIS_LEFT_X,  +0.3f,  +0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickUp,   GLFW_GAMEPAD_AXIS_LEFT_Y,  -0.3f,  -0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickDown, GLFW_GAMEPAD_AXIS_LEFT_Y,  +0.3f,  +0.9f);
+    MAP_BUTTON(ImGuiNavInput_Activate,   0);     // Cross / A
+    MAP_BUTTON(ImGuiNavInput_Cancel,     1);     // Circle / B
+    MAP_BUTTON(ImGuiNavInput_Menu,       2);     // Square / X
+    MAP_BUTTON(ImGuiNavInput_Input,      3);     // Triangle / Y
+    MAP_BUTTON(ImGuiNavInput_DpadLeft,   13);    // D-Pad Left
+    MAP_BUTTON(ImGuiNavInput_DpadRight,  11);    // D-Pad Right
+    MAP_BUTTON(ImGuiNavInput_DpadUp,     10);    // D-Pad Up
+    MAP_BUTTON(ImGuiNavInput_DpadDown,   12);    // D-Pad Down
+    MAP_BUTTON(ImGuiNavInput_FocusPrev,  4);     // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_FocusNext,  5);     // R1 / RB
+    MAP_BUTTON(ImGuiNavInput_TweakSlow,  4);     // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_TweakFast,  5);     // R1 / RB
+    MAP_ANALOG(ImGuiNavInput_LStickLeft, 0,  -0.3f,  -0.9f);
+    MAP_ANALOG(ImGuiNavInput_LStickRight,0,  +0.3f,  +0.9f);
+    MAP_ANALOG(ImGuiNavInput_LStickUp,   1,  +0.3f,  +0.9f);
+    MAP_ANALOG(ImGuiNavInput_LStickDown, 1,  -0.3f,  -0.9f);
     #undef MAP_BUTTON
     #undef MAP_ANALOG
     if (axes_count > 0 && buttons_count > 0)
@@ -470,6 +474,7 @@ void ImGui_ImplGlfw_NewFrame()
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built! It is generally built by the renderer backend. Missing call to renderer _NewFrame() function? e.g. ImGui_ImplOpenGL3_NewFrame().");
 
+    // Custom hack : switch g_Window too !
     #ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
         IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
     #endif
@@ -567,7 +572,7 @@ static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
     glfwWindowHint(GLFW_VISIBLE, false);
     glfwWindowHint(GLFW_FOCUSED, false);
 #if GLFW_HAS_FOCUS_ON_SHOW
-     glfwWindowHint(GLFW_FOCUS_ON_SHOW, false);
+    glfwWindowHint(GLFW_FOCUS_ON_SHOW, false);
  #endif
     glfwWindowHint(GLFW_DECORATED, (viewport->Flags & ImGuiViewportFlags_NoDecoration) ? false : true);
 #if GLFW_HAS_WINDOW_TOPMOST
@@ -773,7 +778,7 @@ static void ImGui_ImplGlfw_SwapBuffers(ImGuiViewport* viewport, void*)
 //--------------------------------------------------------------------------------------------------------
 
 // We provide a Win32 implementation because this is such a common issue for IME users
-#if defined(_WIN32) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS) && !defined(IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS) && !defined(__GNUC__)
+#if defined(_WIN32) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS) && !defined(IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS)
 #define HAS_WIN32_IME   1
 #include <imm.h>
 #ifdef _MSC_VER

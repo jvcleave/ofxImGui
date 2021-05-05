@@ -25,7 +25,9 @@ DearImGui has a fast update scheme and changes frequently. ofxImGui rather tries
 Here are some instructions for updating DearImGui within ofxImGui:
 - Go to the [official ImGui](https://github.com/ocornut/imgui/tree/docking/) repo and get the `glfw` and `opengl 2+3` header and source files from and into the `backends` folders. Beware that we're using the `docking` branch of imgui, until it gets merges in the master.
 - Similarly, put the `*.h` and `*.cpp` files from the `imgui root` go into `ofxImGui/libs/imgui/src`.
-- After updating: Check ofxImGui's source code for obsolete function usage. See [`IMGUI_DISABLE_OBSOLETE_FUNCTIONS`](#updating-ofximgui) below.
+- Manually compare `ofxImGui/src/imconfig.h` with the new `ofxImGui/libs/imgui/src/imconfig.h`, merge new changes if needed, then delete `ofxImGui/libs/imgui/src/imconfig.h`.
+- Apply hacks listed below.
+- After updating: Check ofxImGui's source code for detecting obsolete API functions usage.
 
 ## Platform specific hacks
 

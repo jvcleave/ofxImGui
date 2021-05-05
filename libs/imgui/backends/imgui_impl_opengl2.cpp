@@ -51,15 +51,6 @@
 #if defined(__APPLE__)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
-// Rpi GLES 1.1 fixes. Makes the fixed renderer compatible with GL ES 1.
-#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) //&& defined(IMGUI_IMPL_OPENGL_ES1)
-#pragma message "You are using a fixed GL ES 1 renderer pipeline on the Rpi. Although this port should work, it's recommended to use GL ES 2 instead."
-#include <GLES/gl.h>
-#define glOrtho glOrthof
-#define glPolygonMode( X, Y )  // no alternative !
-#define glPushAttrib( X ) // no alternative !
-#define glPopAttrib( X ) // no alternative !
-#define GL_POLYGON_MODE GL_LINES
 #else
 #include <GL/gl.h>
 #endif
@@ -101,6 +92,7 @@ static void ImGui_ImplOpenGL2_SetupRenderState(ImDrawData* draw_data, int fb_wid
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers, polygon fill.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // In order to composite our output buffer we need to preserve alpha
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -247,7 +239,7 @@ bool ImGui_ImplOpenGL2_CreateFontsTexture()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // Store our identifier
-    io.Fonts->TexID = (ImTextureID)(intptr_t)g_FontTexture;
+    io.Fonts->SetTexID((ImTextureID)(intptr_t)g_FontTexture);
 
     // Restore state
     glBindTexture(GL_TEXTURE_2D, last_texture);
@@ -261,7 +253,7 @@ void ImGui_ImplOpenGL2_DestroyFontsTexture()
     {
         ImGuiIO& io = ImGui::GetIO();
         glDeleteTextures(1, &g_FontTexture);
-        io.Fonts->TexID = 0;
+        io.Fonts->SetTexID(0);
         g_FontTexture = 0;
     }
 }
