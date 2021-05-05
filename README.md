@@ -4,7 +4,7 @@ ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [op
 
 Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)) paradigm rather then being OOP. In other words, every frame you rebuild the whole GUI, executing only the necessary parts, and ImGui is surprisingly fast at that ! This makes the Gui closer to the OpenGL api as to the inner oF logic (`update()`, `draw()`, `begin()`, `end()`, `push()`, `pop()`, etc.).
 
-![Screenshot](images/Screenshot.png)
+![Screenshot](images/ofxImGui.gif)
 
 ### Fork info
 ofxImGui is a fork of the original [jvcleave/ofxImGui](https://github.com/jvcleave/ofxImGui), which cannot be updated anymore to newer versions of ImGui [since january 2020](https://github.com/ocornut/imgui/releases/tag/v1.80), and has been relying on depreciated functions for a few years.   
