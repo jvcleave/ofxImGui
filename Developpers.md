@@ -18,7 +18,6 @@ ImGui has a huge community and is growing fast. There are a lot of plugins avail
 
 ### ofxDearImGui compilation flags
 - `#define OFXIMGUI_DEBUG` : Set to print some information on how ofxDearImGui runs. Also gives some hints if you're implementing it wrong.
-- `#define OFXIMGUI_ENABLE_OF_BINDINGS` to use ofxImGui's legacy way of binding platform windows. Needed for any oF project that doesn't use GLFW windows (the most widely used oF windowing system) or any oF version prior to 0.11. Disables some optional ImGui features and binds to ofEvents. (might be required for iOS / Vulkan usage)
 
 ## Updating ImGui
 DearImGui has a fast update scheme and changes frequently. ofxImGui rather tries to follow the slower openFrameworks update scheme.  

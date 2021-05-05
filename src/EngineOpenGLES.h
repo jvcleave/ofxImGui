@@ -1,7 +1,12 @@
 #pragma once
 
 #include "ofConstants.h"
+
+// Note : this implementation is broken, the file is kept for reference, if ported.
+
 #if defined(TARGET_OPENGLES) && !defined (OF_TARGET_API_VULKAN) && (!defined(TARGET_RASPBERRY_PI) || !defined(TARGET_GLFW_WINDOW))
+
+#pragma GCC error "The OpenGLES implementation has not been updated yet ! (needs to be implemented)"
 
 #include "BaseEngine.h"
 
@@ -29,16 +34,6 @@ namespace ofxImGui
 		virtual void endFrame() override{};
 		
 		virtual bool updateFontsTexture() override{ return false; };
-		
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
-		bool createDeviceObjects() override;
-		void invalidateDeviceObjects() override;
-		
-		void onKeyReleased(ofKeyEventArgs& event) override;
-
-		// Custom 
-		static void rendererDrawData(ImDrawData * draw_data);
-#endif
 
 		static ofShader g_Shader;
 	};

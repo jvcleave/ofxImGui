@@ -1,7 +1,7 @@
 
 # Changelog
 
-## ofxImGui 1.?
+## ofxImGui 1.82
 
 This is a major ofxImGui update. Prior to this version, ofxImGui was bound to openFrameworks using a "custom backend code".
 DearImGui has grown considerably over time, but some of the new (optional) features require an advanced backend code, which is now provided by ImGui. For this reason, ImGui now needs to be bound to the OS windowing framework (GLFW). Luckily this is the same as most OpenFrameworks projects, and other popular windowing frameworks are also covered in case OpenFrameworks moves away from GLFW.

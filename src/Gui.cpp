@@ -70,11 +70,10 @@ namespace ofxImGui
             autoDraw = autoDraw_;
             sharedModes[context] = false;
 
-//#ifndef OFXIMGUI_ENABLE_OF_BINDINGS
             if( autoDraw && curWindow!=nullptr ){
                 listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
             }
-//#endif
+
 #ifdef OFXIMGUI_DEBUG
             ofLogVerbose("Gui::setup()") << "Created context "<< context << " in window " << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
 #endif
@@ -86,14 +85,8 @@ namespace ofxImGui
         // Note : In chaining mode, additional flags can still be set.
         io.ConfigFlags |= customFlags_;
 
-#ifdef OFXIMGUI_ENABLE_OF_BINDINGS
-        io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
-#endif
-
-#ifndef OFXIMGUI_ENABLE_OF_BINDINGS
         // Already-setup contexts exit early
         if( !ownedContext ) return;
-#endif
 
         // Mouse cursor drawing (disabled by default, oF uses the system mouse)
         io.MouseDrawCursor = _showImGuiMouseCursor;
@@ -128,10 +121,8 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::exit()
 	{
-//#ifndef OFXIMGUI_ENABLE_OF_BINDINGS
         // Unregister the afterDraw() callback (if used)
         listener.unsubscribe();
-//#endif
 
         // Exit engine
         if(ownedContext){
@@ -360,19 +351,6 @@ namespace ofxImGui
         }
 
         ImGui::SetCurrentContext(context);
-
-#if defined(OFXIMGUI_ENABLE_OF_BINDINGS)
-        ImGuiIO& io = ImGui::GetIO();
-
-        io.DeltaTime = ofGetLastFrameTime();
-        io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
-
-        // Update mouse
-        io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
-        for (int i = 0; i < 5; i++) {
-            io.MouseDown[i] = engine.mousePressed[i];
-        }
-#endif
 
         //std::cout << "New Frame in context " << context << " in window " << ofGetWindowPtr() << " (" << ofGetWindowPtr()->getWindowSize().x << ")" << std::endl;
         engine.newFrame();

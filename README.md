@@ -41,7 +41,7 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 | Mac OsX | Yes | Yes | Yes |  *Unavailable* | *Unavailable* |
 | Linux | Yes | Yes | Yes | Yes | Yes |
 | iOS | *Unavailable* | *Unavailable* | *Unavailable* | Unknown | Unknown |
-| Rpi3 | Unknown | Unknown | Unknown | Yes (with Legacy driver and `OFXIMGUI_ENABLE_OF_BINDINGS`) | Yes (KMS and Legacy driver) |
+| Rpi3 | Unknown | Unknown | Unknown | Unknown (Yes for ofxImGui prior to 1.80) | Yes (KMS and Legacy driver) |
 | Rpi4 | Unknown | Should (with KMS driver) | Should (with KMS driver) | Should | Should |
 | iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should |
 
