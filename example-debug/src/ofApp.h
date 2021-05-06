@@ -265,8 +265,9 @@ class ofApp : public ofBaseApp {
             // GLFW info
 //#if defined(TARGET_GLFW)
             if( ofAppGLFWWindow* glfwWin = dynamic_cast< ofAppGLFWWindow* >(ofGetCurrentWindow().get()) ){
-                ImGui::Text("getPixelScreenCoordScale = %i", glfwWin->getPixelScreenCoordScale());
                 if( ImGui::CollapsingHeader("GLFW Info", ImGuiTreeNodeFlags_DefaultOpen) ){
+                    ImGui::Text("Your oF window seems to be a GLFW window.");
+                    ImGui::Text("getPixelScreenCoordScale = %i", glfwWin->getPixelScreenCoordScale());
                     ofGLFWWindowSettings GLFWsettings = glfwWin->getSettings();
                     if( auto GLESsettings = dynamic_cast< ofGLESWindowSettings* >( &GLFWsettings ) ){
                         #ifdef TARGET_OPENGLES
@@ -275,7 +276,7 @@ class ofApp : public ofBaseApp {
                         ImGui::Text("OpenGL ES version = (unknown)");
                         #endif
                     }
-//#else
+
                     if( dynamic_cast< ofGLWindowSettings* >( &GLFWsettings ) ){
                         #ifndef TARGET_OPENGLES
                         ImGui::Text("OpenGL version = %i.%i", GLFWsettings.glVersionMajor, GLFWsettings.glVersionMinor) ;
@@ -283,7 +284,7 @@ class ofApp : public ofBaseApp {
                         ImGui::Text("OpenGL version = (unknown)");
                         #endif
                     }
-//#endif
+
                     // Add GLFW versions and check against pre-3.3, 3.3 or 3.4
                     ImGui::Text("GLFW version : %i.%i rev %i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
                     if( GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR == 3 ){
@@ -292,7 +293,8 @@ class ofApp : public ofBaseApp {
                             // See https://github.com/openframeworks/apothecary/commit/68a0ec866341a8487d5c555311f3d5975bd62436
                             // See https://github.com/openframeworks/apothecary/pull/197
                             if( OF_VERSION_PATCH <=0 || OF_VERSION_PATCH >=3 ){
-                                ImGui::TextWrapped("Warning, your oF version shipped with a pre-3.3 GLFW version, missing some optional imgui features, mostly related to cursors.");
+                                ImGui::TextColored(ImVec4(255,0,0,255), "Warning !");
+                                ImGui::TextWrapped("Your oF version shipped with a pre-3.3 GLFW version, missing some optional imgui features, mostly related to cursors.");
                                 if( ImGui::IsItemHovered() ){
                                     ImGui::BeginTooltip();
                                     ImGui::Dummy(ImVec2(400, 1));
