@@ -2,6 +2,9 @@
 #include "ofApp.h"
 //#include "ofAppGLFWWindow.h"
 
+// Uncomment to force GLES for testing
+//#define FORCE_GLES
+
 //========================================================================
 int main( ){
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -9,7 +12,7 @@ int main( ){
     int windowWidth = 900;
     int windowHeight = 900;
 	
-#ifndef TARGET_OPENGLES
+#if defined ( TARGET_OPENGLES ) || defined ( FORCE_GLES )
     ofGLESWindowSettings settings;
     settings.setSize(windowWidth, windowHeight);
     settings.setGLESVersion(2);
@@ -23,7 +26,6 @@ int main( ){
     //settings.setGLESVersion(2);
 #endif
 
-
 	settings.title="ofxImGui Example Debug";
 	settings.setSize(windowWidth, windowHeight);
 
@@ -32,14 +34,4 @@ int main( ){
 
     ofRunApp(window1, app1);
 	ofRunMainLoop();
-
-	//ofSetupOpenGL(800,600,OF_WINDOW);			// <-------- setup the GL context
-
-	// this kicks off the running of my app
-	// can be OF_WINDOW or OF_FULLSCREEN
-	// pass in width and height too:
-	//ofRunApp(new ofApp());
-
-    //ofRunApp(window1, app1);
-	//ofRunMainLoop();
 }

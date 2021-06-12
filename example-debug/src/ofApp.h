@@ -227,9 +227,9 @@ class ofApp : public ofBaseApp {
         #endif
     #endif
 #elif defined(TARGET_OSX)
-            ImGui::Text("You are on OSX using GLFW bindings.");
+            ImGui::Text("You are on OSX, probably using GLFW bindings.");
 #elif defined(TARGET_WIN32)
-            ImGui::Text("You are on Windows using GLFW bindings.");
+            ImGui::Text("You are on Windows, probably using GLFW bindings.");
 #elif defined(TARGET_ANDROID)
             ImGui::Text("You are on Android.");
 #elif defined(TARGET_IOS)
@@ -647,9 +647,12 @@ class ofApp : public ofBaseApp {
 #ifndef USE_AUTODRAW
             gui.draw(); // <-- In manual mode, you can choose to render imgui at a given moment in your rendering pipeline
 #endif
-            ofDrawBitmapStringHighlight( "I should be over the Gui !", 10, 60); // <-- This text will be over below the gui, except in shared mode
 
-            // If shared mode is on together with autodraw, rendering will happen after this scope, using the ofApp::draw callback.
+#ifdef USE_AUTODRAW
+            ofDrawBitmapStringHighlight( "In autodraw mode, you don't have rendering-order control...", 10, 60); // <-- This text will be over below the gui as ofxImGui renders after your ofApp::draw
+#else
+            ofDrawBitmapStringHighlight( "I should be over the Gui ! (autoDraw is off)", 10, 60); // <-- This text will be over over the gui
+#endif
 		}
 
         void update(){
