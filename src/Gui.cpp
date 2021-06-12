@@ -370,6 +370,7 @@ namespace ofxImGui
             return;
         }
 
+        // Let context open in shared mode.
         if( sharedModes[context]==true ){
 #ifdef OFXIMGUI_DEBUG
             if( !isRenderingFrame[context] ){
@@ -421,8 +422,14 @@ namespace ofxImGui
 	//--------------------------------------------------------------
     void Gui::draw()
 	{
-        if (!autoDraw && context && isRenderingFrame[context]==true)
-		{
+        if(!context) return;
+
+        // Just for clarity, we require draw() not to be used in autoDraw mode.
+        if( autoDraw ){
+            ofLogWarning("ofxImGui::Gui::draw()") << "Please don't call draw() in autoDraw mode.";
+            return;
+        }
+        else if(isRenderingFrame[context]==true){
             render();
 		}
 	}
@@ -434,7 +441,7 @@ namespace ofxImGui
         if(context && isRenderingFrame[context] ){
             // Autodraw renders here if sharedMode is on
             if( (autoDraw && sharedModes[context]==true) ) render();
-            // Render if manual render was forgotten ?
+            // Render if manual render was forgotten (do we want this to happen??)
             else if( sharedModes[context]==false ) render();
         };
     }
