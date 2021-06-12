@@ -13,14 +13,14 @@ class ofApp : public ofBaseApp{
 
 		void setup() {
             #ifdef USE_AUTODRAW
-            gui.setup(nullptr, true);
+            gui.setup(nullptr, true, ImGuiConfigFlags_None, true );
             #else
             gui.setup(nullptr, false);
             #endif
 		}
 
 		void draw() {
-            ofSetBackgroundColor(backGroundColor[0]*255, backGroundColor[1]*255, backGroundColor[2]*255);
+            ofSetBackgroundColor(backGroundColor[0]*100, backGroundColor[1]*100, backGroundColor[2]*100);
 
             // Start drawing to ImGui (newFrame)
 			gui.begin();
@@ -58,14 +58,13 @@ class ofApp : public ofBaseApp{
                 auto halfHeight = ofGetHeight()*.5f;
                 ofDrawLine( halfWidth+ofRandomf()*halfWidth, halfHeight+ofRandomf()*halfHeight, halfWidth+ofRandomf()*halfWidth, halfHeight+ofRandomf()*halfHeight );
             }
-            ofDrawBitmapStringHighlight( ofToString(v1), 10, 20);
+            ofDrawBitmapStringHighlight( "Float value used in oF: " +ofToString(v1), 10, 20);
 
             // End our ImGui Frame.
-            // Also Renders if using autoDraw AND non-shared mode
             gui.end();
 
             #ifdef USE_AUTODRAW
-            ofDrawBitmapStringHighlight( "I'm over the Gui !", 10, 40); // <-- This text will be over below the gui, except in shared mode
+            ofDrawBitmapStringHighlight( "I'm below the Gui !", 10, 40); // <-- This text will be over below the gui, except in shared mode
             #else
             gui.draw(); // <-- In manual mode, you can choose to render imgui at a given moment in your rendering pipeline
             ofDrawBitmapStringHighlight( "I'm over the Gui thanks to manual draw !", 10, 40); // <-- This text will be drawn over the gui
@@ -77,6 +76,7 @@ class ofApp : public ofBaseApp{
         void update(){
             // Gui variables are also accessible outside of the draw() loop.
             int v1copy = v1;
+            v1copy*=1;// silence "unused variable" warning !
         }
 
     private:
