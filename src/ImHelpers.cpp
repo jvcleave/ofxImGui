@@ -5,8 +5,9 @@ ofxImGui::Settings::Settings()
 	: windowPos(kImGuiMargin, kImGuiMargin)
 	, windowSize(ofVec2f::zero())
 	, lockPosition(false)
+	, mouseOverGui(false)
 	, windowBlock(false)
-    , treeLevel(0)
+	, treeLevel(0)
 {}
 
 bool ofxImGui::IsMouseOverGui()
@@ -24,17 +25,17 @@ const char * ofxImGui::GetUniqueName(ofAbstractParameter& parameter)
 const char * ofxImGui::GetUniqueName(const std::string& candidate)
 {
 	std::string result = candidate;
-    if( !windowOpen.usedNames.empty() ) {
-        while (std::find(windowOpen.usedNames.top().begin(), windowOpen.usedNames.top().end(), result) != windowOpen.usedNames.top().end())
-        {
-            // Note: Add a space to (invisibly) differenciate the parameter name from another one with the same name
-            result += " ";
-        }
-    }
-    else {
-        // Create top-level stack in window-less zones. See issue #6.
-        windowOpen.usedNames.push(std::vector<std::string>());
-    }
+	if( !windowOpen.usedNames.empty() ) {
+		while (std::find(windowOpen.usedNames.top().begin(), windowOpen.usedNames.top().end(), result) != windowOpen.usedNames.top().end())
+		{
+			// Note: Add a space to (invisibly) differenciate the parameter name from another one with the same name
+			result += " ";
+		}
+	}
+	else {
+		// Create top-level stack in window-less zones. See issue #6.
+		windowOpen.usedNames.push(std::vector<std::string>());
+	}
 	windowOpen.usedNames.top().push_back(result);
 	return windowOpen.usedNames.top().back().c_str();
 }
@@ -98,9 +99,9 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, ImGuiWin
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	//ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-	//ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-	//ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, flags);
 }
 
@@ -117,6 +118,7 @@ void ofxImGui::EndWindow(Settings& settings)
 
 	settings.windowPos = ImGui::GetWindowPos();
 	settings.windowSize = ImGui::GetWindowSize();
+	settings.mouseOverGui |= ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 	ImGui::End();
 
 	// Unlink the referenced ofParameter.
@@ -147,7 +149,7 @@ bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
 bool ofxImGui::BeginTree(const std::string& name, Settings& settings)
 {
 	bool result;
-    ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+	ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 	if (settings.treeLevel == 0)
 	{
 		result = ImGui::TreeNodeEx(GetUniqueName(name), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_NoAutoOpenOnLog);
@@ -177,110 +179,8 @@ void ofxImGui::EndTree(Settings& settings)
 	windowOpen.usedNames.pop();
 }
 
-//NEW: add flags and clean all the old settings
 //--------------------------------------------------------------
-void ofxImGui::AddGroup(ofParameterGroup& group, ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse)
-{
-	//not used but for reuse old methods
-	ofxImGui::Settings settings = ofxImGui::Settings();
-
-	if (ImGui::CollapsingHeader(group.getName().c_str(), flags))
-	{
-		for (auto parameter : group)
-		{
-			// Group.
-			auto parameterGroup = std::dynamic_pointer_cast<ofParameterGroup>(parameter);
-			if (parameterGroup)
-			{
-				// Recurse through contents.
-				ofxImGui::AddGroup(*parameterGroup, settings);
-				continue;
-			}
-
-			// Parameter, try everything we know how to handle.
-#if OF_VERSION_MINOR >= 10
-			auto parameterVec2f = std::dynamic_pointer_cast<ofParameter<glm::vec2>>(parameter);
-			if (parameterVec2f)
-			{
-				ofxImGui::AddParameter(*parameterVec2f);
-				continue;
-			}
-			auto parameterVec3f = std::dynamic_pointer_cast<ofParameter<glm::vec3>>(parameter);
-			if (parameterVec3f)
-			{
-				ofxImGui::AddParameter(*parameterVec3f);
-				continue;
-			}
-			auto parameterVec4f = std::dynamic_pointer_cast<ofParameter<glm::vec4>>(parameter);
-			if (parameterVec4f)
-			{
-				ofxImGui::AddParameter(*parameterVec4f);
-				continue;
-			}
-#endif
-			auto parameterOfVec2f = std::dynamic_pointer_cast<ofParameter<ofVec2f>>(parameter);
-			if (parameterOfVec2f)
-			{
-				ofxImGui::AddParameter(*parameterOfVec2f);
-				continue;
-			}
-			auto parameterOfVec3f = std::dynamic_pointer_cast<ofParameter<ofVec3f>>(parameter);
-			if (parameterOfVec3f)
-			{
-				ofxImGui::AddParameter(*parameterOfVec3f);
-				continue;
-			}
-			auto parameterOfVec4f = std::dynamic_pointer_cast<ofParameter<ofVec4f>>(parameter);
-			if (parameterOfVec4f)
-			{
-				ofxImGui::AddParameter(*parameterOfVec4f);
-				continue;
-			}
-			auto parameterFloatColor = std::dynamic_pointer_cast<ofParameter<ofFloatColor>>(parameter);
-			if (parameterFloatColor)
-			{
-				ofxImGui::AddParameter(*parameterFloatColor);
-				continue;
-			}
-			auto parameterColor = std::dynamic_pointer_cast<ofParameter<ofColor>>(parameter);
-            if (parameterColor)
-            {
-				ofxImGui::AddParameter(*parameterColor);
-				continue;
-			}
-			auto parameterFloat = std::dynamic_pointer_cast<ofParameter<float>>(parameter);
-			if (parameterFloat)
-			{
-				ofxImGui::AddParameter(*parameterFloat);
-				continue;
-			}
-			auto parameterInt = std::dynamic_pointer_cast<ofParameter<int>>(parameter);
-			if (parameterInt)
-			{
-				ofxImGui::AddParameter(*parameterInt);
-				continue;
-			}
-			auto parameterBool = std::dynamic_pointer_cast<ofParameter<bool>>(parameter);
-			if (parameterBool)
-			{
-				ofxImGui::AddParameter(*parameterBool);
-				continue;
-			}
-			auto parameterString = std::dynamic_pointer_cast<ofParameter<std::string>>(parameter);
-			if (parameterString)
-			{
-				ofxImGui::AddParameter(*parameterString);
-				continue;
-			}
-
-			ofLogWarning(__FUNCTION__) << "Could not create GUI element for parameter " << parameter->getName();
-		}
-	}
-}
-
-//OLD
-//--------------------------------------------------------------
-void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings)
+void ofxImGui::AddGroup(ofParameterGroup& group, Settings& settings )
 {
 	bool prevWindowBlock = settings.windowBlock;
 	if (settings.windowBlock)
@@ -602,7 +502,7 @@ bool ofxImGui::AddParameter(ofParameter<void>& parameter, float width)
 bool ofxImGui::AddRadio(ofParameter<int>& parameter, std::vector<std::string> labels, int columns)
 {
 	auto uniqueName = GetUniqueName(parameter);
-    ImGui::Text("%s", uniqueName);
+	ImGui::Text("%s", uniqueName);
 	auto result = false;
 	auto tmpRef = parameter.get();
 	ImGui::PushID(uniqueName);
@@ -983,37 +883,37 @@ void ofxImGui::AddImage(const ofTexture& texture, const ofVec2f& size)
 //--------------------------------------------------------------
 void ofxImGui::AddImage(const ofBaseHasTexture& hasTexture, const glm::vec2& size)
 {
-    ofxImGui::AddImage(hasTexture.getTexture(), size);
+	ofxImGui::AddImage(hasTexture.getTexture(), size);
 }
 
 //--------------------------------------------------------------
 void ofxImGui::AddImage(const ofTexture& texture, const glm::vec2& size)
 {
-    ImTextureID textureID = GetImTextureID(texture);
-    ImGui::Image(textureID, size);
+	ImTextureID textureID = GetImTextureID(texture);
+	ImGui::Image(textureID, size);
 }
 
 #endif
 
 static auto vector_getter = [](void* vec, int idx, const char** out_text)
 {
-    auto& vector = *static_cast<std::vector<std::string>*>(vec);
-    if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
-    *out_text = vector.at(idx).c_str();
-    return true;
+	auto& vector = *static_cast<std::vector<std::string>*>(vec);
+	if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+	*out_text = vector.at(idx).c_str();
+	return true;
 };
 
 bool ofxImGui::VectorCombo(const char* label, int* currIndex, std::vector<std::string>& values)
 {
-    if (values.empty()) { return false; }
-    return ImGui::Combo(label, currIndex, vector_getter,
-                        static_cast<void*>(&values), values.size());
+	if (values.empty()) { return false; }
+	return ImGui::Combo(label, currIndex, vector_getter,
+						static_cast<void*>(&values), values.size());
 }
 
 bool ofxImGui::VectorListBox(const char* label, int* currIndex, std::vector<std::string>& values)
 {
-    if (values.empty()) { return false; }
-    return ImGui::ListBox(label, currIndex, vector_getter,
-                   static_cast<void*>(&values), values.size());
+	if (values.empty()) { return false; }
+	return ImGui::ListBox(label, currIndex, vector_getter,
+				   static_cast<void*>(&values), values.size());
 }
 
