@@ -42,6 +42,15 @@ namespace ofxImGui
 
         // Check for existing context in current oF window.
         ofAppBaseWindow* curWindow = ofGetWindowPtr();
+
+        // Curwindow cannot be null
+        if(curWindow==nullptr){
+            #ifdef OFXIMGUI_DEBUG
+                ofLogVerbose("Gui::setup()") << "You have to call me within an active oF window context !" << std::endl;
+            #endif
+            return;
+        }
+
         if( imguiContexts.find( curWindow ) != imguiContexts.end() ){
             context = imguiContexts[curWindow];//ImGui::GetCurrentContext();
             ownedContext = false;
@@ -55,9 +64,9 @@ namespace ofxImGui
             }
 
 #ifdef OFXIMGUI_DEBUG
-            ofLogVerbose("Gui::setup()") << "Context "<< context << " already exists in window " << curWindow << ", using the existing context as a shared one." << std::endl;
+            ofLogVerbose("Gui::setup()") << "Context " << context << " already exists in window " << curWindow << ", using the existing context as a shared one." << std::endl;
             if(!autoDraw) ofLogWarning("Gui::setup()") << "You are using manual rendering. This might cause a crash; to fix, ensure that you call the render function after all ofxImGui::Gui instances have send ImGui commands.";
-            else ofLogNotice("Gui::setup()") << "Autodraw now happens after ofApp:draw() instead of when ofxImGui::end() is called." << std::endl;
+            //else ofLogNotice("Gui::setup()") << "Autodraw now happens after ofApp:draw() instead of when ofxImGui::end() is called." << std::endl;
 #endif
         }
         // Create context for this window
@@ -422,11 +431,13 @@ namespace ofxImGui
 	//--------------------------------------------------------------
     void Gui::draw()
 	{
-        if(!context) return;
+		if(!context) return;
 
         // Just for clarity, we require draw() not to be used in autoDraw mode.
         if( autoDraw ){
+#ifdef OFXIMGUI_DEBUG
             ofLogWarning("ofxImGui::Gui::draw()") << "Please don't call draw() in autoDraw mode.";
+#endif
             return;
         }
         else if(isRenderingFrame[context]==true){
@@ -437,7 +448,7 @@ namespace ofxImGui
 
     void Gui::afterDraw( ofEventArgs& ){
 
-        // This function is registered after ofApp::draw() to honor autodraw in chaining mode.
+        // This function is registered after ofApp::draw() to honor autodraw in shared context mode.
         if(context && isRenderingFrame[context] ){
             // Autodraw renders here if sharedMode is on
             if( (autoDraw && sharedModes[context]==true) ) render();
