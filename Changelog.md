@@ -2,7 +2,6 @@
 # Changelog
 
 ## ofxImGui 1.82
-
 This is a major update for ofxImGui. Prior to this version, DearImGui was bound to openFrameworks using a "custom backend code".
 DearImGui has grown considerably over time, but some of the new (optional but nice) features require an advanced backend code, which is now provided by ImGui. For these features, DearImGui now needs to be bound to the OS' windowing framework (GLFW). Luckily this is the same as most OpenFrameworks projects, and other popular windowing frameworks are also covered in case OpenFrameworks moves away from GLFW.
 
@@ -19,9 +18,12 @@ For more exhaustive information, refer to [Daandelange/ofxImGui#1](https://githu
 - Share ofxImGui instances within the same ofApp. _By enabling a shared mode, any ofxImGui instance will act as a singleton so multiple instances can seamlessly let eachother know when to render.
 - Multi-window support **beta**. _Any feedback is appreciated_.
 - Helpers :
-  - ...
+  - AddGroup() can now receive treenode flags.
+  - New: ofColor and std::string parameters
 - Main features introduced by the DearImGui update:
   - Navigation support : Control the GUI with a gamepad or a keyboard !
   - Viewports : The Gui can seamlessly move out of your ofApp !
   - Docking : Awesome layout engine to make your own workspaces !
   - Tables : Display tables !
+
+  For more details on how to use them, please refer to the repo's readme and the examples' code.

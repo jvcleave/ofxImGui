@@ -71,16 +71,20 @@ cd /path/to/of/addons && git clone https://github.com/Daandelange/ofxImGui.git
 Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md).
 
 ### Setup
-In the setup, you can choose to automatically render, or choose to manually render the gui if you need more precise control of when it's drawn to the screen.  
-ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp. Note: Only the fist call to `gui.setup()` has full control over the settings; the next ones setup as slaves.
-- **Auto**  
-Automatically renders the gui right after your `ofApp::draw()` using a callback.
-- **Manual**  
-Allows to precisely control when your gui is rendered, within your oF rendering pipeline.
-- **Shared Context**  
-Automatically enabled when 2 `ofxImGui::Gui` instances share the same platform window context. Ensures that the gui renders **after** al instances have sent their gui elements to imgui.
+Calling `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs.  
+ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp (use the addon within multiple addons). This feature (shared context) is automatically enabled when a second `ofxImGui::Gui` instance is created within the same application's platform window context. See example-sharedContext for more tweaks.  
+_Note: Only the fist call to `gui.setup()` has full control over the settings (master); the next ones setup as slaves._  
+_Note: Any call to `setup()` has to be done from a valid ofWindow, `ofGetWindowPtr()` is used internally._  
+- **theme** : `nullptr` (use default theme, default), `BaseTheme*` (pointer to you theme instance))
+- **autoDraw** : `true` (automatic, sets up a listener on `ofApp::afterDraw()`, default) / `false` (manual, allows more precise control over the oF rendering pipeline, you have to call `myGui.draw()` )
+- **customFlags** : `ImGuiConfigFlags` ( set custom ImGui config flags, default: `ImGuiConfigFlags_None`)
+- **restoreGuiState** : `true` (enabled) or `false` (disabled, default).  
+Helper for enabling ImGui's layout saving/restoring feature. Creates `imgui.ini` next to your app binary to save some GUI parameters.
+- **showImGuiMouseCursor** : `true` (use the imgui mouse cursor) or `false` (use default system mouse cursor, default).
 
-#### Advanced setup : ImGui config flags.
+You might occasionaly want to enable `OFXIMGUI_DEBUG`, it provides some general warnings on mistakes and logs some important setup steps.
+
+#### Advanced setup : ImGui config flags & ImGui::GetIO().
 ofxImGui provides a simple way to interface imgui, but it's a huge library providing lots of different options to suit your precise needs.  
 Most of these advanced options are explained in the `imgui_demo.cpp` source code. Also checkout `example-dockingandviewports` and `example-advanced`.
 
