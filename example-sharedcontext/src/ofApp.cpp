@@ -126,7 +126,6 @@ void ofApp::setup()
     // First call to setup() for your main application menu (master).
     // Any next call to setup() will setup ofxImGui as a slave.
     ofAppGui.setup(nullptr, false, ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable , true);
-    //ofAppGui.setup(nullptr, true); // Note: it's also possible to use autodraw
 
     // There's 2 ways of achieving multi context.
     // By default, it's automatically enabled when a 2nd ofxImGui instance is created in the same ofApp.
@@ -136,8 +135,8 @@ void ofApp::setup()
     ofAppGui.setSharedMode(true); // Force shared context
 
     // Setup addon guis in shared mode
-    myAddonObject.setup( ofAppGui ); // Preferred method : share the menu handle
-    privateAddonObject.setup();
+    myAddonObject.setup( ofAppGui ); // Preferred method : share the menu handle; when you can modify myAddonClass
+    privateAddonObject.setup(); // Calls Gui::setup() after `setSharedMode`, which grabs a single
 }
 
 //--------------------------------------------------------------

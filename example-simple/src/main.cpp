@@ -6,6 +6,7 @@
 int main( ){
     ofGLESWindowSettings settings;
     settings.title="ofxImGui Example Simple";
+    settings.setGLESVersion(2);
 
 	auto window1 = ofCreateWindow(settings);
 	auto app1 = std::make_shared<ofApp>();

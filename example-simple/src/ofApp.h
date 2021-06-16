@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxImGui.h"
+#include "glfw3.h"
 
 // Comment below to use manual drawing
 #define USE_AUTODRAW
@@ -48,6 +49,7 @@ class ofApp : public ofBaseApp{
             ImGui::Checkbox("Draw lines", &drawLines);
             ImGui::ColorEdit3("Background color", &backGroundColor[0]);
             ImGui::SliderFloat("Float Slider", &v1, -10.f, 10.f);
+            ImGui::Text("GLFW version : %i%i%i0", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION );
 
             // Close the main window
             ImGui::End();

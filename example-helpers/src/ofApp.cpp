@@ -12,7 +12,8 @@ void ofApp::setup()
 	this->stepper = 0.0f;
 
 	// Gui
-	this->gui.setup();
+    //this->gui.setup();
+    gui.setup(nullptr, true, ImGuiConfigFlags_DockingEnable, true, true);
 	this->guiVisible = true;
 }
 
@@ -180,7 +181,9 @@ bool ofApp::imGui()
 
 	this->gui.begin();
 	{
-		if (ofxImGui::BeginWindow("Helpers", mainSettings, false))
+        static bool bCollapse = false;
+        //if (ImGui::Begin("Helpers", &bshow))
+        if (ofxImGui::BeginWindow("Helpers", mainSettings, ImGuiWindowFlags_NoCollapse, &bCollapse))
 		{
 			ImGui::Text("%.1f FPS (%.3f ms/frame)", ofGetFrameRate(), 1000.0f / ImGui::GetIO().Framerate);
 
@@ -225,8 +228,13 @@ bool ofApp::imGui()
 
 				ofxImGui::EndTree(mainSettings);
 			}
+
+			// Some work has yet to be done on the Helpers.
+			// For example, the line below causes a crash
+			// ofxImGui::AddGroup(this->render, mainSettings);
 		}
-		ofxImGui::EndWindow(mainSettings);
+        ofxImGui::EndWindow(mainSettings);
+        //ImGui::End();
 
 		if (this->preview)
 		{
