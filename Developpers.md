@@ -45,6 +45,77 @@ Related issues:
  - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
  - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
  - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
+- *Cleaner backend code* : `GLFW_GAMEPAD_BUTTON_A` ... `GLFW_GAMEPAD_BUTTON_LAST` are hardcoded in the imgui backend while GLFW provides macros so they are easier to read. You can replace them with the following lines of code.
+````cpp
+    MAP_BUTTON(ImGuiNavInput_Activate,   GLFW_GAMEPAD_BUTTON_A);     // Cross / A
+    MAP_BUTTON(ImGuiNavInput_Cancel,     GLFW_GAMEPAD_BUTTON_B);     // Circle / B
+    MAP_BUTTON(ImGuiNavInput_Menu,       GLFW_GAMEPAD_BUTTON_X);     // Square / X
+    MAP_BUTTON(ImGuiNavInput_Input,      GLFW_GAMEPAD_BUTTON_Y);     // Triangle / Y
+    MAP_BUTTON(ImGuiNavInput_DpadLeft,   13);//GLFW_GAMEPAD_BUTTON_DPAD_LEFT);    // D-Pad Left
+    MAP_BUTTON(ImGuiNavInput_DpadRight,  14);//GLFW_GAMEPAD_BUTTON_DPAD_RIGHT);    // D-Pad Right
+    MAP_BUTTON(ImGuiNavInput_DpadUp,     GLFW_GAMEPAD_BUTTON_DPAD_UP);    // D-Pad Up
+    MAP_BUTTON(ImGuiNavInput_DpadDown,   12);//GLFW_GAMEPAD_BUTTON_DPAD_DOWN);    // D-Pad Down
+    MAP_BUTTON(ImGuiNavInput_FocusPrev,  GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);     // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_FocusNext,  GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);    // R1 / RB
+    MAP_BUTTON(ImGuiNavInput_TweakSlow,  GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);      // L2 / LT
+    MAP_BUTTON(ImGuiNavInput_TweakFast,  GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);     // R2 / RT
+    MAP_ANALOG(ImGuiNavInput_LStickLeft, GLFW_GAMEPAD_AXIS_LEFT_X,  -0.3f,  -0.9f);
+    MAP_ANALOG(ImGuiNavInput_LStickRight,GLFW_GAMEPAD_AXIS_LEFT_X,  +0.3f,  +0.9f);
+    MAP_ANALOG(ImGuiNavInput_LStickUp,   GLFW_GAMEPAD_AXIS_LEFT_Y,  -0.3f,  -0.9f);
+    MAP_ANALOG(ImGuiNavInput_LStickDown, GLFW_GAMEPAD_AXIS_LEFT_Y,  +0.3f,  +0.9f);
+````
+But then the raspberry pi might have an old GLFW implementation, please add these lines to ensure cross platform compatibility.
+````cpp
+// Custom code (needed for RPi)
+#ifndef GLFW_GAMEPAD_BUTTON_A
+#define GLFW_GAMEPAD_BUTTON_A               0
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_B
+#define GLFW_GAMEPAD_BUTTON_B               1
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_X
+#define GLFW_GAMEPAD_BUTTON_X               2
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_Y
+#define GLFW_GAMEPAD_BUTTON_Y               3
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_LEFT_BUMPER
+#define GLFW_GAMEPAD_BUTTON_LEFT_BUMPER     4
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER
+#define GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER    5
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_BACK
+#define GLFW_GAMEPAD_BUTTON_BACK            6
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_START
+#define GLFW_GAMEPAD_BUTTON_START           7
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_GUIDE
+#define GLFW_GAMEPAD_BUTTON_GUIDE           8
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_LEFT_THUMB
+#define GLFW_GAMEPAD_BUTTON_LEFT_THUMB      9
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_RIGHT_THUMB
+#define GLFW_GAMEPAD_BUTTON_RIGHT_THUMB     10
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_DPAD_UP
+#define GLFW_GAMEPAD_BUTTON_DPAD_UP         11
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_DPAD_RIGHT
+#define GLFW_GAMEPAD_BUTTON_DPAD_RIGHT      12
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_DPAD_DOWN
+#define GLFW_GAMEPAD_BUTTON_DPAD_DOWN       13
+#endif
+#ifndef GLFW_GAMEPAD_BUTTON_DPAD_LEFT
+#define GLFW_GAMEPAD_BUTTON_DPAD_LEFT       14
+#endif
+#ifndef GLFW_JOYSTICK_1
+#define GLFW_JOYSTICK_1                     0
+#endif
+````
 - *Note:* Currently, **oF 0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. (_this has been applied in the master branch already, only when updating DearImGui_)  
 Update: oF 0.11.1 [uses GLFW 3.3-stable](https://github.com/openframeworks/apothecary/commit/68a0ec866341a8487d5c555311f3d5975bd62436) and doesn't need this hack.
 Update: [oF 0.11.3 will use glfw pre-3.3.0 again](https://github.com/openframeworks/apothecary/pull/197).

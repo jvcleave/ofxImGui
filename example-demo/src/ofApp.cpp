@@ -6,7 +6,7 @@ void ofApp::setup()
     ofSetLogLevel(OF_LOG_VERBOSE);
     
     //required call
-    gui.setup(nullptr, ImGuiConfigFlags_ViewportsEnable );
+    gui.setup(nullptr, true, ImGuiConfigFlags_ViewportsEnable );
 
     //backgroundColor is stored as an ImVec4 type but can handle ofColor
     backgroundColor = ofColor(114, 144, 154);

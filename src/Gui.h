@@ -6,10 +6,10 @@
 
 #include <map>
 
-#if ( defined(TARGET_OPENGLES) && !defined(OF_TARGET_API_VULKAN) && !defined(TARGET_GLFW_WINDOW) )
-#include "EngineOpenGLES.h"
-#elif defined (OF_TARGET_API_VULKAN)
+#if defined (OF_TARGET_API_VULKAN)
 #include "EngineVk.h"
+#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+#include "EngineOpenGLES.h"
 #else
 #include "EngineGLFW.h"
 #endif
@@ -55,10 +55,10 @@ namespace ofxImGui
     private:
         void render();
 
-#if ( defined(TARGET_OPENGLES) && !defined(OF_TARGET_API_VULKAN) && !defined(TARGET_GLFW_WINDOW) )
-        EngineOpenGLES engine;
-#elif defined (OF_TARGET_API_VULKAN) 
+#if defined (OF_TARGET_API_VULKAN)
         EngineVk engine;
+#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+        EngineOpenGLES engine;
 #else
         EngineGLFW engine;
 #endif

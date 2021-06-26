@@ -51,6 +51,19 @@
 #if defined(__APPLE__)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
+// --- CUSTOM MODIFICATION
+// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
+#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) // && defined(IMGUI_IMPL_OPENGL_ES1)
+#pragma message "RPI + GLES !"
+//#include <GLES/gl.h>
+#include <GLES3/gl3.h>
+#define glOrtho glOrthof // Different function name
+#define glPolygonMode // No alternative, but seems not to affect rendering
+#define glPushAttrib( X ) // No alternative, but seems not to affect rendering
+#define GL_POLYGON_MODE GL_LINES
+//#define GL_FILL
+#define glPopAttrib( X )
+// --- END CUSTOM MODIFICATION
 #else
 #include <GL/gl.h>
 #endif

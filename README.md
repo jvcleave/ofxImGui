@@ -35,20 +35,22 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 
 #### GLSL Support Table
 
-| OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2.0 |
+| OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2 | GL ES 3 |
 |---|---|---|---|---|---|
-| Windows | Yes | Yes | Yes | Unknown | Unknown |
-| Mac OsX | Yes | Yes | Yes |  *Unavailable* | *Unavailable* |
+| Windows | Yes | Yes | Yes | Unknown | Unknown | Unknown |
+| Mac OsX | Yes | Yes | Yes |  *Unavailable* | *Unavailable* | *Unavailable* |
 | Linux | Yes | Yes | Yes | Yes | Yes |
-| iOS | *Unavailable* | *Unavailable* | *Unavailable* | Unknown | Unknown |
-| Rpi3 | Unknown | Unknown | Unknown | Unknown (Yes for ofxImGui prior to 1.80) | Yes (KMS and Legacy driver) |
-| Rpi4 | Unknown | Should (with KMS driver) | Should (with KMS driver) | Should | Should |
-| iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should |
+| Rpi3 | Unknown | Unknown | Unknown | Yes | Yes | Yes |
+| Rpi4 | Unknown | Should | Should | Should | Should | Should |
+| iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should | Should |
+
+*Note: This support table does not take into account software emulated support for graphics APIs.*  
+*Notes for Rpi support: Only tested with GLFW windows as this seems to become the new standard. For non-GLFW windows, please use ofxImGui version `< 1.80`. Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one, but they both work.* 
 
 #### oF & ImGui Support Table
 | ofxImGui version  | ImGui version | Supported oF version |
 |------------------:|---------------|----------------------|
-| ofxImGui 1.82     | 1.82*         | 0.11.2 |
+| ofxImGui 1.82     | 1.82*         | 0.11 -> 0.11.2 |
 | ofxImGui 1.79     | 1.79*         | 0.11.1 |
 | ofxImGui 1.75     | 1.75          | 0.11.x |
 | ofxImGui 1.62     | 1.62          | 0.10.x | 
@@ -67,8 +69,13 @@ __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docki
 cd /path/to/of/addons && git clone https://github.com/Daandelange/ofxImGui.git
 ````
 
-#### Optional
+### Optional
 Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md).
+
+### Compilation flags
+ofxImGui tries to match your project's settings. If your projects needs to force a GL configuration, you can set some native imgui compilation flags to match your project settings :
+ - `IMGUI_IMPL_OPENGL_ES2`
+ - `IMGUI_IMPL_OPENGL_ES3`
 
 ### Setup
 Calling `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs.  

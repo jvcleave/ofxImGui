@@ -93,6 +93,10 @@ class ofApp : public ofBaseApp {
             gui.setup(nullptr, false, flags);
             #endif
 
+#ifndef TARGET_OPENGLES
+            ofEnableGLDebugLog();
+#endif
+
             ofLogNotice("Renderer Type") << ofGetCurrentRenderer()->getType().c_str();
             ofLogNotice("Window Context") << ofGetCurrentWindow()->getWindowContext();
             auto window = ofGetCurrentWindow();
@@ -130,8 +134,6 @@ class ofApp : public ofBaseApp {
 		}
 
 		void draw() {
-            ofSetBackgroundColor(backGroundColor[0]*255, backGroundColor[1]*255, backGroundColor[2]*255);
-
             // Start drawing to ImGui (newFrame)
 			gui.begin();
 
@@ -249,13 +251,13 @@ class ofApp : public ofBaseApp {
                 renderer = (char*)glGetString(GL_RENDERER);
 
                 ImGui::Text("version =  %s\nvendor =   %s\nrenderer = %s\n", version, vendor, renderer);
-                //ImGui::Text("openframeworks renderer type = %s", ofGetCurrentRenderer()->getType().c_str());
             }
 
             // oF info
             if( ImGui::CollapsingHeader("oF environment", ImGuiTreeNodeFlags_DefaultOpen) ){
                 ImGui::Text("OpenFrameworks version : %s", ofGetVersionInfo().c_str() );
                 ImGui::Text("Renderer type = %s", ofGetCurrentRenderer()->getType().c_str() );
+                ImGui::Text("Renderer = %s", glGetString(GL_VERSION) );
                 ImGui::Text("Screen = %i, %i", ofGetScreenWidth(), ofGetScreenHeight());
                 auto viewport = ofGetCurrentViewport();
                 ImGui::Text("Window = %F, %F", ofGetCurrentWindow()->getWindowSize().x, ofGetCurrentWindow()->getWindowSize().y );
@@ -637,8 +639,8 @@ class ofApp : public ofBaseApp {
             ImGui::End();
 
             // The GUI hasn't been rendered yet : we can still draw below it
-            ofDrawBitmapStringHighlight( ofToString("Render order test") + ofToString(v1), 10, 20);
-            ofDrawBitmapStringHighlight( ofToString("I'm below the GUI : ") + ofToString(v1), 10, 40);
+            ofDrawBitmapStringHighlight( ofToString("Render order test :"), 10, 20);
+            ofDrawBitmapStringHighlight( ofToString(" - I'm below the GUI"), 10, 40);
 
             // End our ImGui Frame.
             // Also Renders if using autoDraw AND non-shared mode
@@ -649,9 +651,9 @@ class ofApp : public ofBaseApp {
 #endif
 
 #ifdef USE_AUTODRAW
-            ofDrawBitmapStringHighlight( "In autodraw mode, you don't have rendering-order control...", 10, 60); // <-- This text will be over below the gui as ofxImGui renders after your ofApp::draw
+            ofDrawBitmapStringHighlight( " - In autodraw mode, you don't have rendering-order control...", 10, 60); // <-- This text will be below the gui as ofxImGui renders after your ofApp::draw
 #else
-            ofDrawBitmapStringHighlight( "I should be over the Gui ! (autoDraw is off)", 10, 60); // <-- This text will be over over the gui
+            ofDrawBitmapStringHighlight( " - I should be over the Gui ! (autoDraw is off)", 10, 60); // <-- This text will be over the gui
 #endif
 		}
 
@@ -661,8 +663,4 @@ class ofApp : public ofBaseApp {
 
     private:
         ofxImGui::Gui gui;
-
-        // Variables exposed to ImGui
-        float v1 = 0;
-        float backGroundColor[3] = {1,1,1};
 };

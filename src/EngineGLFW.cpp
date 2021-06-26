@@ -1,6 +1,6 @@
 #include "EngineGLFW.h"
 
-#if ( !defined(OF_TARGET_API_VULKAN) && (!defined(TARGET_RASPBERRY_PI) || (defined(TARGET_GLFW_WINDOW) && !defined(TARGET_RASPBERRY_PI_LEGACY)) ))
+#if ( !defined(OF_TARGET_API_VULKAN) )
 
 #include "ofAppGLFWWindow.h"
 #include "ofGLProgrammableRenderer.h"
@@ -32,8 +32,13 @@ namespace ofxImGui
             #if defined(TARGET_RASPBERRY_PI_LEGACY)
                 #pragma message "ofxImGui detected that you use the RPI in LEGACY mode. Make sure that you use the Legacy Video driver."
             #else
-                #pragma message "You are using the new Rpi GLFW binding. Please ensure that your raspi-config doesn't use the Legacy video drivers."
+                #pragma message "You are using the new Rpi GLFW binding. Please ensure that your raspi-config doesn't use the Legacy video drivers or define USE_PI_LEGACY while compiling."
             #endif
+
+            // Warn for GL ES 1 usage (unsupported by imgui)
+            if( !ofIsGLProgrammableRenderer() ){
+                ofLogWarning(__FUNCTION__) << "ofxImGui has not been tested with GL ES 1.0. Try compiling with USE_PI_LEGACY and try to change the rpi video driver.";
+            }
         #endif // rpi gles
         #endif // debug
 
@@ -201,7 +206,7 @@ namespace ofxImGui
         // Handle multi-viewports
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            GLFWwindow* backup_current_context = glfwGetCurrentContext(); // Tocheck, maybe not possible on rpi ?
 
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();

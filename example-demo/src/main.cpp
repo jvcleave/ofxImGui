@@ -5,12 +5,18 @@ int main(){
 
 #if defined(TARGET_OPENGLES)
     ofGLESWindowSettings settings;
-    settings.setSize(1280, 720);
-    settings.setGLESVersion(4,3);
-    ofCreateWindow(settings);
+    #if defined(TARGET_RASPBERRY_PI)
+    settings.setGLESVersion(2);
+    #else
+    settings.setGLESVersion(3);
+    #endif
+
 #else
-    ofSetupOpenGL(1280, 720, OF_WINDOW);
+    ofGLESWindowSettings settings;
+    settings.setGLVersion(3,2);
 #endif
+    settings.setSize(1280, 720);
+    ofCreateWindow(settings);
 
     ofRunApp( new ofApp());
 

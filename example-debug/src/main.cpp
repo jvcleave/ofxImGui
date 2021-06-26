@@ -14,7 +14,7 @@ int main( ){
 	
 #if defined ( TARGET_OPENGLES ) || defined ( FORCE_GLES )
     ofGLESWindowSettings settings;
-    settings.setSize(windowWidth, windowHeight);
+    //settings.setSize(windowWidth, windowHeight);
     settings.setGLESVersion(2);
 #else
     //ofGLFWWindowSettings settings;
