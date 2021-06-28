@@ -66,55 +66,8 @@ Related issues:
 ````
 But then the raspberry pi might have an old GLFW implementation, please add these lines to ensure cross platform compatibility.
 ````cpp
-// Custom code (needed for RPi)
-#ifndef GLFW_GAMEPAD_BUTTON_A
-#define GLFW_GAMEPAD_BUTTON_A               0
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_B
-#define GLFW_GAMEPAD_BUTTON_B               1
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_X
-#define GLFW_GAMEPAD_BUTTON_X               2
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_Y
-#define GLFW_GAMEPAD_BUTTON_Y               3
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_LEFT_BUMPER
-#define GLFW_GAMEPAD_BUTTON_LEFT_BUMPER     4
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER
-#define GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER    5
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_BACK
-#define GLFW_GAMEPAD_BUTTON_BACK            6
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_START
-#define GLFW_GAMEPAD_BUTTON_START           7
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_GUIDE
-#define GLFW_GAMEPAD_BUTTON_GUIDE           8
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_LEFT_THUMB
-#define GLFW_GAMEPAD_BUTTON_LEFT_THUMB      9
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_RIGHT_THUMB
-#define GLFW_GAMEPAD_BUTTON_RIGHT_THUMB     10
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_DPAD_UP
-#define GLFW_GAMEPAD_BUTTON_DPAD_UP         11
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_DPAD_RIGHT
-#define GLFW_GAMEPAD_BUTTON_DPAD_RIGHT      12
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_DPAD_DOWN
-#define GLFW_GAMEPAD_BUTTON_DPAD_DOWN       13
-#endif
-#ifndef GLFW_GAMEPAD_BUTTON_DPAD_LEFT
-#define GLFW_GAMEPAD_BUTTON_DPAD_LEFT       14
-#endif
-#ifndef GLFW_JOYSTICK_1
-#define GLFW_JOYSTICK_1                     0
-#endif
+// Custom modification : Add support for older GLFW versions (<3.2) (on Rpi Stretch for example)
+#include "glfwCompatibilityHacks.h"
 ````
 - *Note:* Currently, **oF 0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. (_this has been applied in the master branch already, only when updating DearImGui_)  
 Update: oF 0.11.1 [uses GLFW 3.3-stable](https://github.com/openframeworks/apothecary/commit/68a0ec866341a8487d5c555311f3d5975bd62436) and doesn't need this hack.
