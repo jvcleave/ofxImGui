@@ -31,7 +31,9 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 
  Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**. For now, one ImGui instance is created per oF window, without any communication in between them (cross-docking won't work). Hopefully DearImGui will introduce something to handle "multiple host viewports".
 
- Currently, **ofxImGui only works on GLFW-based openFrameworks applications**. Thus, the RPI_LEGACY, iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends.
+ Currently, **ofxImGui only works on GLFW-based openFrameworks applications**, this seems to become the new oF standard. Thus, the `RPI_LEGACY`, iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends. For non-GLFW windows, please use ofxImGui version `< 1.80`.
+
+*Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with RaspBian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
 
 #### GLSL Support Table
 
@@ -45,7 +47,6 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 | iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should | Should |
 
 *Note: This support table does not take into account software emulated support for graphics APIs.*  
-*Notes for Rpi support: Only tested with GLFW windows as this seems to become the new standard. For non-GLFW windows, please use ofxImGui version `< 1.80`. Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one, but they both work.* 
 
 #### oF & ImGui Support Table
 | ofxImGui version  | ImGui version | Supported oF version |

@@ -90,3 +90,9 @@ git clone https://github.com/openframeworks/apothecary.git
 # Recompile oF (github installs, not releases)
 # cd ./osx && ./compileOF.sh -j3
 ````
+
+
+# Future directions and contribution suggestions
+There's some work needed on to make the Helpers more useful and to document their features. Improving the Helpers example could help. Also, there's been discussions about a layout engine to position windows next to eachother. Other ideas include saving more states, such as collapsed sections.
+
+There is also some work to be done about event handling/bubbling. Currently, mouse and keyboard interactions are both send to oF and ofxImGui. In oF-event-space, how can one know if ImGui is using the mouse/keyboard data or not ? (`example-advanced` could be extended with some demo code on this subject). 
