@@ -40,11 +40,19 @@ In `imgui_impl_gflw`, add this right below the first `IM_ASSERT`s in `ImGui_Impl
 ````  
 This issue is that some globals are hardcoded. Switching context is possible, but the `g_Window` global variable isn't switched.  
 Related issues:  
- - [Does GLFW implementation only handle one GLFWindow?](https://discourse.dearimgui.org/t/does-glfw-implementation-only-handle-one-glfwindow/305)
- - [Add support for multiple GLFW contexts](https://github.com/ocornut/imgui/pull/3934)
- - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
- - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
- - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
+     - [Does GLFW implementation only handle one GLFWindow?](https://discourse.dearimgui.org/t/does-glfw-implementation-only-handle-one-glfwindow/305)
+     - [Add support for multiple GLFW contexts](https://github.com/ocornut/imgui/pull/3934)
+     - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
+     - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
+     - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
+- *Add GL ES 1 support so that it compiles on Rpis :*  
+````cpp
+// --- CUSTOM MODIFICATION
+// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
+#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) // && defined(IMGUI_IMPL_OPENGL_ES1)
+#include "gles1CompatibilityHacks.h"
+// --- END CUSTOM MODIFICATION
+````
 - *Cleaner backend code* : `GLFW_GAMEPAD_BUTTON_A` ... `GLFW_GAMEPAD_BUTTON_LAST` are hardcoded in the imgui backend while GLFW provides macros so they are easier to read. You can replace them with the following lines of code.
 ````cpp
     MAP_BUTTON(ImGuiNavInput_Activate,   GLFW_GAMEPAD_BUTTON_A);     // Cross / A
