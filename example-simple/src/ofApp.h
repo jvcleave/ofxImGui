@@ -2,7 +2,6 @@
 
 #include "ofMain.h"
 #include "ofxImGui.h"
-#include "glfw3.h"
 
 // Comment below to use manual drawing
 #define USE_AUTODRAW

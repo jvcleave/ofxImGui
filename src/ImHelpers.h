@@ -52,7 +52,7 @@ namespace ofxImGui
 
 	void SetNextWindow(Settings& settings);
 	bool BeginWindow(ofParameter<bool>& parameter, Settings& settings, bool collapse = true);
-	bool BeginWindow(const std::string& name, Settings& settings, bool collapse = true, bool * open = nullptr);
+	bool BeginWindow(const std::string& name, Settings& settings, bool collapsible = true, bool * open = nullptr);
 	bool BeginWindow(const std::string& name, Settings& settings, ImGuiWindowFlags flags, bool * open = nullptr);
 	void EndWindow(Settings& settings);
 

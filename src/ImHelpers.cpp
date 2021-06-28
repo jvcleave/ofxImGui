@@ -66,7 +66,7 @@ bool ofxImGui::BeginWindow(ofParameter<bool>& parameter, Settings& settings, boo
 }
 
 //--------------------------------------------------------------
-bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool collapse, bool * open)
+bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool collapsible, bool * open)
 {
 	if (settings.windowBlock)
 	{
@@ -79,10 +79,10 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool col
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_FirstUseEver);
 	//ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
-	return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
+	return ImGui::Begin(name.c_str(), open, /*ImGuiWindowFlags_NoSavedSettings |*/ /*ImGuiWindowFlags_AlwaysAutoResize |*/ (collapsible ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoCollapse));
 }
 
 //--------------------------------------------------------------
@@ -99,9 +99,9 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, ImGuiWin
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_FirstUseEver);
+	if(!(flags & ImGuiWindowFlags_NoCollapse)) ImGui::SetNextWindowCollapsed(true, ImGuiCond_Appearing); // Initially collapse collapsible windows
 	return ImGui::Begin(name.c_str(), open, flags);
 }
 
