@@ -72,7 +72,7 @@
 #define GLFW_HAS_MOUSE_PASSTHROUGH    (0)
 #endif
 
-// Dirty: Add support for older GLFW releases (needed for RPi Stretch at least)
+// Dirty: Add support for older GLFW releases (needed for RPi Stretch at least, Glfw 3.2)
 #ifndef GLFW_GAMEPAD_BUTTON_A
 #define GLFW_GAMEPAD_BUTTON_A               0
 #endif
@@ -120,6 +120,27 @@
 #endif
 #ifndef GLFW_JOYSTICK_1
 #define GLFW_JOYSTICK_1                     0
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_LEFT_X
+#define GLFW_GAMEPAD_AXIS_LEFT_X            0
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_LEFT_Y
+#define GLFW_GAMEPAD_AXIS_LEFT_Y            1
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_RIGHT_X
+#define GLFW_GAMEPAD_AXIS_RIGHT_X           2
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_RIGHT_Y
+#define GLFW_GAMEPAD_AXIS_RIGHT_Y           3
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_LEFT_TRIGGER
+#define GLFW_GAMEPAD_AXIS_LEFT_TRIGGER      4
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER
+#define GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER     5
+#endif
+#ifndef GLFW_GAMEPAD_AXIS_LAST
+#define GLFW_GAMEPAD_AXIS_LAST              GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER
 #endif
 
 // Data
