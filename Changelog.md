@@ -10,7 +10,8 @@ DearImGui has grown considerably over time, but some of the new (optional but ni
 - **Autodraw** : This setting was already around but worked differently, which lead to confusions. It used to call `gui.draw()` when calling `gui.end()`. Now, when autodraw is enabled, ofxImGui uses a callback on `ofEvents::afterDraw()` to render the gui, drawing the gui always on top of your ofApp. This might affect the render order rendered in your pipeline.
 
 As an upgrade assistant, you might want to enable `OFXIMGUI_DEBUG` while transitioning, it will provide some general warnings on mistakes.
-For more exhaustive information, refer to [Daandelange/ofxImGui#1](https://github.com/Daandelange/ofxImGui/issues/1) and [jvcleave/ofxImGui#107](https://github.com/jvcleave/ofxImGui/issues/107).
+
+For more exhaustive information on changes, refer to [Daandelange/ofxImGui#1](https://github.com/Daandelange/ofxImGui/issues/1) and [jvcleave/ofxImGui#107](https://github.com/jvcleave/ofxImGui/issues/107).
 
 ### New Features
 - Load custom fonts

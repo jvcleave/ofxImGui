@@ -6,8 +6,7 @@ Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipe
 
 ![Screenshot](images/ofxImGui.gif)
 
-### Fork info
-ofxImGui is a fork of the original [jvcleave/ofxImGui](https://github.com/jvcleave/ofxImGui), which cannot be updated anymore to newer versions of ImGui [since january 2020](https://github.com/ocornut/imgui/releases/tag/v1.80), and has been relying on depreciated functions for a few years.   
+- - - -
 
 ### Branches
 | Branch   | Description |
@@ -20,6 +19,7 @@ ofxImGui is a fork of the original [jvcleave/ofxImGui](https://github.com/jvclea
 
 The master branch may not be tested on all platforms. See [Releases](https://github.com/daandelange/ofxImGui/releases/) for more extensively tested versions.
 
+- - - -
 
 ### Supported Platforms
 ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requirements](https://openframeworks.cc/download/). These are typically:
@@ -29,26 +29,29 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
  - Raspberry Pi
  - Linux Desktop
 
- Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**. For now, one ImGui instance is created per oF window, without any communication in between them (cross-docking won't work). Hopefully DearImGui will introduce something to handle "multiple host viewports".
+ Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**. For now, one ImGui instance is created per oF window, without any communication in between them (cross-docking won't work). Hopefully DearImGui will introduce something to handle «[multiple host viewports](https://github.com/ocornut/imgui/issues/3012)».
 
  Currently, **ofxImGui only works on GLFW-based openFrameworks applications**, this seems to become the new oF standard. Thus, the `RPI_LEGACY`, iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends. For non-GLFW windows, please use ofxImGui version `< 1.80`.
 
-*Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with RaspBian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
+*Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with Raspbian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
 
 #### GLSL Support Table
 
-| OS | OpenGL 2.x (fixed pipeline) | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 (fixed pipeline) | GL ES 2 | GL ES 3 |
-|---|---|---|---|---|---|
+| OS | OpenGL 2.x | OpenGL 3.x  | OpenGL 4.x | GL ES 1.0 | GL ES 2 | GL ES 3 |
+|---|---|---|---|---|---|---|
 | Windows | Yes | Yes | Yes | Unknown | Unknown | Unknown |
 | Mac OsX | Yes | Yes | Yes |  *Unavailable* | *Unavailable* | *Unavailable* |
 | Linux | Yes | Yes | Yes | Yes | Yes |
-| Rpi3 | Unknown | Unknown | Unknown | Yes | Yes | Yes |
+| Rpi3 | Should | Unknown | Unknown | Yes | Yes | Yes |
 | Rpi4 | Unknown | Should | Should | Should | Should | Should |
 | iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should | Should |
 
 *Note: This support table does not take into account software emulated support for graphics APIs.*  
+*Note: GL ES 1 (the fixed pipeline ES shading language) is not natively supported by the native DearImGui backend, which has been [slightly hacked](src/gles1CompatibilityHacks.h).*
 
 #### oF & ImGui Support Table
+New ImGui versions bring changes and new API features, sometimes depreciations. 
+
 | ofxImGui version  | ImGui version | Supported oF version |
 |------------------:|---------------|----------------------|
 | ofxImGui 1.82     | 1.82*         | 0.11 -> 0.11.2 |
@@ -60,8 +63,9 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 | ofxImGui 1.47     | 1.47          | 0.10.x |
 | ofxImGui 0.90     | 1.45 WIP      | 0.9.x  |
 
-New ImGui versions bring changes and new API features, sometimes depreciations.  
 __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docking, gamepad control, and more.
+
+- - - -
 
 ## Usage
 
@@ -74,9 +78,10 @@ cd /path/to/of/addons && git clone https://github.com/Daandelange/ofxImGui.git
 Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md).
 
 ### Compilation flags
-ofxImGui tries to match your project's settings. If your projects needs to force a GL configuration, you can set some native imgui compilation flags to match your project settings :
- - `IMGUI_IMPL_OPENGL_ES2`
- - `IMGUI_IMPL_OPENGL_ES3`
+DearImGui needs to know your GL Context. ofxImGui tries to match your project's settings. If your projects needs to force a specific GL configuration, you can set some native imgui compilation flags to match your project settings :
+ - `IMGUI_IMPL_OPENGL_ES2` --> Use GLES2 (or GL ES 1.1 with some hacks).
+ - `IMGUI_IMPL_OPENGL_ES3` --> Use GLES3.
+ - `[none of the previous ones]` --> Use OpenGL.
 
 ### Setup
 Calling `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs.  
@@ -101,8 +106,12 @@ Most of these advanced options are explained in the `imgui_demo.cpp` source code
 ## Examples
 There are several example projects, covering from the simplest use case to more advanced ones : [Examples.md](./Examples.md).
 
+- - - -
+
 ## Developper info
 Useful dev info and how to get familiar with DearImGui : [Developper.md](./Developpers.md).
+
+- - - -
 
 ## Updating ofxImGui
 - `cd /path/to/ofxImGui && git pull && git submodule update`
