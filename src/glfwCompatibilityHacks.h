@@ -1,9 +1,14 @@
 
 #pragma once
 
-#ifdef TARGET_RASPBERRYPI
+#ifdef TARGET_RASPBERRY_PI
+
+#ifndef GLFW_GAMEPAD_BUTTON_A
+#pragma message "Warning, you are using an older GLFW version. Trying to load some fallbacks."
+#endif
 
 // Dirty: Add support for older GLFW releases (needed for RPi Stretch at least, Glfw 3.2)
+// These defines were hardcoded in older releases, but they're easier to read with these nice macros
 #ifndef GLFW_GAMEPAD_BUTTON_A
 #define GLFW_GAMEPAD_BUTTON_A               0
 #endif
