@@ -469,7 +469,7 @@ class ofApp : public ofBaseApp {
 
                         ImGui::EndGroup();
 #else
-                        ImGui::TextWrapped("GLFW joystick information not available in non-glfw windowing modes.);
+                        ImGui::TextWrapped("GLFW joystick information not available in non-glfw windowing modes.");
 #endif
                         //ImGui::Dummy(ImVec2(availWidth, gamepadZoneSize.y));
                         //ImGui::Button("test", gamepadZoneSize);
@@ -508,6 +508,7 @@ class ofApp : public ofBaseApp {
                         }
 
                         if( ImGui::CollapsingHeader("GLFW Joysticks Input") ){
+#if defined( GLFW_WINDOWING_SYSTEM_IS_USED )  && defined( GLFW_HAS_GAMEPAD_SUPPORT )
                             ImGui::TextWrapped("This section lets you inspect the GLFW side of your gamepad mappings.");
 
                             // Glfw Polling
@@ -579,6 +580,9 @@ class ofApp : public ofBaseApp {
                                 ImGui::SliderFloat(axeName.c_str(), &tmp, -1.f, 1.f, "%.1f");
                             }
                             ImGui::Columns(1);
+#else
+                            ImGui::TextWrapped("Unavailable on your setup.");
+#endif
                         }
                     }
                     ImGui::TreePop();
