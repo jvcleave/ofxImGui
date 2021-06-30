@@ -47,7 +47,7 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 | iOS | *Unavailable* | *Unavailable* | *Unavailable* | Should | Should | Should |
 
 *Note: This support table does not take into account software emulated support for graphics APIs.*  
-*Note: GL ES 1 (the fixed pipeline ES shading language) is not natively supported by the native DearImGui backend, which has been [slightly hacked](src/gles1CompatibilityHacks.h).*
+*Note: GL ES 1 (the fixed pipeline ES shading language) is not natively supported by the native DearImGui backend, but it works with [some dirty hacks](src/gles1CompatibilityHacks.h).*
 
 #### oF & ImGui Support Table
 New ImGui versions bring changes and new API features, sometimes depreciations. 
@@ -75,7 +75,8 @@ cd /path/to/of/addons && git clone https://github.com/Daandelange/ofxImGui.git
 ````
 
 ### Optional
-Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md).
+Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md#Improve-ofxImGui-s-backend-bindings).  
+This step is also recommended for RPIs where GLFW is v3.2, which doesn't provide gamepad support.  
 
 ### Compilation flags
 DearImGui needs to know your GL Context. ofxImGui tries to match your project's settings. If your projects needs to force a specific GL configuration, you can set some native imgui compilation flags to match your project settings :

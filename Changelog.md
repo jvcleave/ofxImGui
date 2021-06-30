@@ -3,7 +3,7 @@
 
 ## ofxImGui 1.82
 This is a major update for ofxImGui. Prior to this version, DearImGui was bound to openFrameworks using a "custom backend code".
-DearImGui has grown considerably over time, but some of the new (optional but nice) features require an advanced backend code, which is now provided by ImGui. For these features, DearImGui now needs to be bound to the OS' windowing framework (GLFW). Luckily this is the same as most OpenFrameworks projects, and other popular windowing frameworks are also covered in case OpenFrameworks moves away from GLFW.
+DearImGui has grown considerably over time, but some of the new (optional but nice) features require an advanced backend code, which is now provided by ImGui. For these features to be enabled, DearImGui now needs to be bound to the OS' windowing framework (GLFW). Luckily this is currently the same as most OpenFrameworks projects, and other popular windowing frameworks are also covered in case OpenFrameworks moves away from GLFW.
 
 ### Breaking changes
 - **GLFW** : If your project uses a windowing system other then GLFW, this newer ofxImGui will not work correctly. This is mainly the case for Emscriptem projects, iOS and some Rpi environments. Consider using an [older ofxImGui release](), or try [this untested commit](./commit/05ab131) together with `OFXIMGUI_ENABLE_OF_BINDINGS` if you need ImGui 1.79 features.
