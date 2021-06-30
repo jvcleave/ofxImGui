@@ -76,6 +76,14 @@
 // Comment below to use manual drawing
 #define USE_AUTODRAW
 
+// Only on GLFW platforms (TARGET_GLFW_WINDOW is only set on rpi, default on other platforms)
+#if !defined( TARGET_RASPBERRY_PI ) || defined( TARGET_GLFW_WINDOW )
+	#define GLFW_WINDOWING_SYSTEM_IS_USED
+	#if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 3 // Only GLFW > 3.3 has gamepad/joystick functions
+		#define GLFW_HAS_GAMEPAD_SUPPORT
+	#endif
+#endif
+
 class ofApp : public ofBaseApp {
 
 	public:
@@ -120,10 +128,12 @@ class ofApp : public ofBaseApp {
                 }
 #endif
 
+#ifdef GLFW_HAS_GAMEPAD_SUPPORT
                 // Load custom gamepad mapping
                 // GLFW uses the SDL database
                 // The default 360 binding doesn't work with 360controller driver, this one does.
                 glfwUpdateGamepadMappings("030000005e0400008e02000000000000,X360 Controller (custom),a:b0,b:b1,back:b9,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b10,leftshoulder:b4,leftstick:b6,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b7,righttrigger:a5,rightx:a3,righty:a4,start:b8,x:b2,y:b3,platform:Mac OS X,");
+#endif
             }
 //            if( dynamic_cast< ofAppGlutWindow* >(window.get()) )
 //                ofLogNotice("Window is Glut");
@@ -265,7 +275,7 @@ class ofApp : public ofBaseApp {
             }
 
             // GLFW info
-//#if defined(TARGET_GLFW)
+#ifdef GLFW_WINDOWING_SYSTEM_IS_USED
             if( ofAppGLFWWindow* glfwWin = dynamic_cast< ofAppGLFWWindow* >(ofGetCurrentWindow().get()) ){
                 if( ImGui::CollapsingHeader("GLFW Info", ImGuiTreeNodeFlags_DefaultOpen) ){
                     ImGui::Text("Your oF window seems to be a GLFW window.");
@@ -326,7 +336,11 @@ class ofApp : public ofBaseApp {
                     }
                 }
             }
-//#endif
+#else
+            if( ImGui::CollapsingHeader("GLFW Info", ImGuiTreeNodeFlags_DefaultOpen) ){
+                ImGui::TextWrapped("Your windowing system is something else then GLFW...");
+            }
+#endif
 
             // ImGui environment
             if( ImGui::CollapsingHeader("DearImGui environment", ImGuiTreeNodeFlags_DefaultOpen) ){
@@ -423,6 +437,7 @@ class ofApp : public ofBaseApp {
                         // Dummy above gamepad
                         ImGui::Dummy(gamepadZoneSize+ImVec2(availWidth*.1f,0));
 
+#ifdef GLFW_WINDOWING_SYSTEM_IS_USED
                         // Count joysticks
                         int detectedJoysticks = 0;
                         for(int joyNum = GLFW_JOYSTICK_1; joyNum < GLFW_JOYSTICK_LAST; joyNum++){
@@ -436,6 +451,7 @@ class ofApp : public ofBaseApp {
                         ImGui::Text("DearImGui uses GLFW_JOYSTICK_1 as input.");
 
                         ImGui::Dummy(ImVec2(0,6));
+    #ifdef GLFW_HAS_GAMEPAD_SUPPORT
                         if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1)){
                             ImGui::Text("Gamepad name : %s", glfwGetGamepadName(GLFW_JOYSTICK_1));
                             ImGui::Text("Gamepad GUID : %s", glfwGetJoystickGUID(GLFW_JOYSTICK_1));
@@ -447,9 +463,14 @@ class ofApp : public ofBaseApp {
                         else {
                             ImGui::Text("No joystick detected by GLFW as GLFW_JOYSTICK_1.");
                         }
+    #else
+                        ImGui::TextWrapped("Your GLFW version does not support gamepads or joysticks.");
+    #endif
 
                         ImGui::EndGroup();
-
+#else
+                        ImGui::TextWrapped("GLFW joystick information not available in non-glfw windowing modes.);
+#endif
                         //ImGui::Dummy(ImVec2(availWidth, gamepadZoneSize.y));
                         //ImGui::Button("test", gamepadZoneSize);
 

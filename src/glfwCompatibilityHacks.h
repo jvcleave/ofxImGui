@@ -1,7 +1,8 @@
 
 #pragma once
 
-#ifdef TARGET_RASPBERRY_PI
+// Note: Only RPI defines TARGET_GLFW_WINDOW, it's default on desktop platforms
+#if defined( TARGET_RASPBERRY_PI ) && defined( TARGET_GLFW_WINDOW )
 
 #ifndef GLFW_GAMEPAD_BUTTON_A
 #pragma message "Warning, you are using an older GLFW version. Trying to load some fallbacks."
