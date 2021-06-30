@@ -4,16 +4,26 @@
 int main()
 {
 
-#if defined(TARGET_OPENGLES)
-  ofGLESWindowSettings settings;
-  settings.setSize(1280, 720);
-  settings.setGLESVersion(2);
-  ofCreateWindow(settings);
+#if defined( TARGET_OPENGLES ) || defined ( FORCE_GLES )
+    ofGLESWindowSettings settings;
+    #if defined(TARGET_RASPBERRY_PI)
+    settings.setGLESVersion(2);
+    #else
+    settings.setGLESVersion(3);
+    #endif
+
 #else
-  ofSetupOpenGL(1280, 720, OF_WINDOW);
+    ofGLWindowSettings settings;
+    #if defined(TARGET_OSX)
+    settings.setGLVersion(3,2);
+    #else
+    settings.setGLVersion(4,1);
+    #endif
 #endif
 
-ofRunApp( new ofApp());
+    settings.setSize(1280, 720);
+
+    ofRunApp( new ofApp());
 
 }
 

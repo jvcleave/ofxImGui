@@ -5,6 +5,9 @@
 // Uncomment to force GLES for testing
 //#define FORCE_GLES
 
+// Uncomment to force FIXED pipeline for testing
+#define FORCE_FIXED_GL
+
 //========================================================================
 int main( ){
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -12,18 +15,28 @@ int main( ){
     int windowWidth = 900;
     int windowHeight = 900;
 	
-#if defined ( TARGET_OPENGLES ) || defined ( FORCE_GLES )
+#if defined( TARGET_OPENGLES ) || defined ( FORCE_GLES )
     ofGLESWindowSettings settings;
-    //settings.setSize(windowWidth, windowHeight);
-    settings.setGLESVersion(2);
+    #ifdef FORCE_FIXED_GL
+        settings.setGLESVersion(1);
+    #else
+        #if defined(TARGET_RASPBERRY_PI)
+        settings.setGLESVersion(2);
+        #else
+        settings.setGLESVersion(3);
+        #endif
+    #endif
 #else
-    //ofGLFWWindowSettings settings;
     ofGLWindowSettings settings;
-    settings.setGLVersion(3,2);
-	//ofSetupOpenGL(windowWidth, windowHeight, OF_WINDOW);
-
-    //ofGLESWindowSettings settings;
-    //settings.setGLESVersion(2);
+    #ifdef FORCE_FIXED_GL
+        settings.setGLVersion(2,1);
+    #else
+        #if defined(TARGET_OSX)
+        settings.setGLVersion(3,2);
+        #else
+        settings.setGLVersion(4,1);
+        #endif
+    #endif
 #endif
 
 	settings.title="ofxImGui Example Debug";
