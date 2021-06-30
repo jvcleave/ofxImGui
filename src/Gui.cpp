@@ -46,7 +46,7 @@ namespace ofxImGui
         // Curwindow cannot be null
         if(curWindow==nullptr){
             #ifdef OFXIMGUI_DEBUG
-                ofLogVerbose("Gui::setup()") << "You have to call me within an active oF window context !" << std::endl;
+                ofLogError("Gui::setup()") << "You have to call me within an active oF window context !" << std::endl;
             #endif
             return;
         }

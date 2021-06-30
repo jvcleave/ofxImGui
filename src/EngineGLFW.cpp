@@ -30,14 +30,14 @@ namespace ofxImGui
         #if defined(OFXIMGUI_DEBUG) && defined(TARGET_OPENGLES) && defined(TARGET_RASPBERRY_PI)
             // oF 0.11 related warnings
             #if defined(TARGET_RASPBERRY_PI_LEGACY)
-                #pragma message "ofxImGui detected that you use the RPI in LEGACY mode. Make sure that you use the Legacy Video driver."
+                #pragma message "WARNING ! ofxImGui detected that you use the RPI in LEGACY mode, which use an EGL window, which ain't supported by any native imgui backend. Please consider using an ofxImGui version before 1.80."
             #else
-                #pragma message "You are using the new Rpi GLFW binding. Please ensure that your raspi-config doesn't use the Legacy video drivers or define USE_PI_LEGACY while compiling."
+                #pragma message "You are using the new Rpi GLFW binding. Please ensure that your raspi-config doesn't use the Legacy video drivers for better performance."
             #endif
 
             // Warn for GL ES 1 usage (unsupported by imgui)
             if( !ofIsGLProgrammableRenderer() ){
-                ofLogWarning(__FUNCTION__) << "ofxImGui has not been tested with GL ES 1.0. Try compiling with USE_PI_LEGACY and try to change the rpi video driver.";
+                ofLogWarning(__FUNCTION__) << "ofxImGui has not been tested with GL ES 1.0 and there's no official imgui backend for it.";
             }
         #endif // rpi gles
         #endif // debug
@@ -121,7 +121,7 @@ namespace ofxImGui
         {
 #ifdef OFXIMGUI_DEBUG
     #ifdef TARGET_OPENGLES
-            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL ES and ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0");
+            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL ES 1, which is quite experimental. [ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0") << "]";
     #else
             ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL2 and ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0");
     #endif
