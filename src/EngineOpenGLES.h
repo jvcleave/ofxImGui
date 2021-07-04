@@ -4,7 +4,8 @@
 
 // Note : this implementation is broken, the file is kept for reference, if ported.
 
-#if defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+// Note: USE_GLFW_WINDOW is for ofxRPI4Window
+#if defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)// && defined(USE_GLFW_WINDOW) //&& !defined(TARGET_RASPBERRY_PI_LEGACY)
 
 #pragma GCC error "The OpenGLES implementation has not been updated yet ! (needs to be implemented)"
 

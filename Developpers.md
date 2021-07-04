@@ -14,10 +14,10 @@ In ImGui, everything is documented in the source code. Resolve a symbol in your 
 There are plenty of ImGui widgets. Use `example-demo` to discover them, together with the demo source code to check how to use them in your project. There's also a useful [interactive demo](https://pthom.github.io/imgui_manual_online/) that runs in your browser.
 
 ### ImGui Plugins
-ImGui has a huge community and is growing fast. There are a lot of plugins available (gui widgets). You can easily add some to your project, they should normally load into ofxDearImGui. See `example-advanced` and `example-imguizmo`.
+ImGui has a huge community and is growing fast. There are a lot of plugins available (gui widgets). You can easily add some to your project, they should normally load into ofxImGui. See `example-advanced` and `example-imguizmo`.
 
-### ofxDearImGui compilation flags
-- `#define OFXIMGUI_DEBUG` : Set to print some information on how ofxDearImGui runs. Also gives some hints if you're implementing it wrong.
+### ofxImGui compilation flags
+- `#define OFXIMGUI_DEBUG` : Set to print some information on how ofxImGui runs. Also gives some hints if you're implementing it wrong.
 
 ## Updating ImGui
 DearImGui has a fast update scheme and changes frequently. ofxImGui rather tries to follow the slower openFrameworks update scheme.  

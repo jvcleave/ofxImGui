@@ -1,7 +1,7 @@
 #include "EngineOpenGLES.h"
 
 // Since the new backends, the GLES renderer is not used anymore, and rpis use the glfw backend with a GL or GLES renderer, having their respective backends too.
-#if defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+#if defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)// && defined(USE_GLFW_WINDOW) //&& !defined(TARGET_RASPBERRY_PI_LEGACY)
 
 //#include "ofAppiOSWindow.h"
 //#include "imgui_impl_osx.h"
