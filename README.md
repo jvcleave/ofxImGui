@@ -13,7 +13,6 @@ Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipe
 | ---------|-------------|
 | master   | Up-to-date with the latest oF, quite stable. |
 | develop  | Active development branch before releasing to the master |
-| jvcleave | Depreciated. Used for merging into jvcleave/ofxImGui. |
 | legacy   | Depreciated. Used for compatibility with the original oF bindings. Can be used to have an updated (but limited) DearImGui in legacy ofxImGui projects. Can be used in non-GLFW rpi setups. |
 | OF**     | Master equivalent, blocked at the most update compatible with oF 0.**. |
 
@@ -48,6 +47,8 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 
 *Note: This support table does not take into account software emulated support for graphics APIs.*  
 *Note: GL ES 1 (the fixed pipeline ES shading language) is not natively supported by the native DearImGui backend, but it works with [some dirty hacks](src/gles1CompatibilityHacks.h).*
+
+Older versions of ofxImGui, which come with an older DearImGui version, use a simpler backend very close to OF, probably compatible with any OF version at that time. Try the latest [ofxImGui legacy version 1.77](https://github.com/jvcleave/ofxImGui/tree/legacy), or try [this untested transition commit](https://github.com/jvcleave/ofxImGui/tree/05ab1311511523c63c6f22d38ee015942b9ea557) together with `OFXIMGUI_ENABLE_OF_BINDINGS` if you need ImGui 1.79 features.
 
 #### oF & ImGui Support Table
 New ImGui versions bring changes and new API features, sometimes depreciations. 

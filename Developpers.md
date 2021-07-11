@@ -39,7 +39,7 @@ In `imgui_impl_gflw`, add this right below the first `IM_ASSERT`s in `ImGui_Impl
     #endif
 ````  
 This issue is that some globals are hardcoded. Switching context is possible, but the `g_Window` global variable isn't switched.  
-Related issues:  
+Related issues:
      - [Does GLFW implementation only handle one GLFWindow?](https://discourse.dearimgui.org/t/does-glfw-implementation-only-handle-one-glfwindow/305)
      - [Add support for multiple GLFW contexts](https://github.com/ocornut/imgui/pull/3934)
      - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
@@ -114,5 +114,5 @@ If you have some time to improve ofxImGui, please do and submit a pull request. 
 Please keep in mind that our philosophy is to stick with the slower oF release cycle rather then the fast Dear Imgui one.
 
  - There's some work needed on to make the Helpers more useful and to document their features. Improving the Helpers example could help. Also, there's been discussions about a layout engine to position windows next to eachother. Other ideas include saving more states, such as collapsed sections.
- - There is also some work to be done about event handling/bubbling. Currently, mouse and keyboard interactions are both send to oF and ofxImGui. In oF-event-space, how can one know if ImGui is using the mouse/keyboard data or not ? (`example-advanced` could be extended with some demo code on this subject).  
+ - There is also some work to be done about event handling/bubbling. Currently, mouse and keyboard interactions are both send to oF and ofxImGui. In oF-event-space, how can one know if ImGui is using the mouse/keyboard data or not ? (`example-advanced` could be extended with some demo code on this subject, or even some helper functions to facilitate this).  
 - RaspberryPi support will probably [evolve soon](https://github.com/openframeworks/openFrameworks/issues/6713). If using GLFW, imgui support will be good. But it'be great to be able ofxImGui from the console (without X11 desktop environment = more CPU & RAM available) will be a great addition. If oF 0.12 gets, a custom backend will need to be written, maybe letting the user choose between `1` a simpler console-compatible backend or `2` a GLFW-bound fully-featured backend.
