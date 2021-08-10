@@ -566,10 +566,10 @@ bool ofxImGui::AddStepper(ofParameter<int>& parameter, int step, int stepFast)
 }
 
 //--------------------------------------------------------------
-bool ofxImGui::AddSlider(ofParameter<float>& parameter, const char* format, float power)
+bool ofxImGui::AddSlider(ofParameter<float>& parameter, const char* format, bool logarithmic)
 {
 	auto tmpRef = parameter.get();
-	if (ImGui::SliderFloat(GetUniqueName(parameter), (float*)&tmpRef, parameter.getMin(), parameter.getMax(), format, power))
+	if (ImGui::SliderFloat(GetUniqueName(parameter), (float*)&tmpRef, parameter.getMin(), parameter.getMax(), format, logarithmic? ImGuiSliderFlags_Logarithmic : ImGuiSliderFlags_None))
 	{
 		parameter.set(tmpRef);
 		return true;
