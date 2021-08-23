@@ -74,7 +74,7 @@ bool ofxImGui::BeginWindow(const std::string& name, Settings& settings, bool col
 
 	ImGui::SetNextWindowPos(settings.windowPos, settings.lockPosition? ImGuiCond_Always : ImGuiCond_Appearing);
 	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
-	ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
+	//ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
 }
 
@@ -439,9 +439,9 @@ bool ofxImGui::AddParameter(ofParameter<std::string>& parameter, size_t maxChars
 }
 
 //--------------------------------------------------------------
-bool ofxImGui::AddParameter(ofParameter<void>& parameter)
+bool ofxImGui::AddParameter(ofParameter<void>& parameter, float width)
 {
-	if (ImGui::Button(GetUniqueName(parameter)))
+	if (ImGui::Button(GetUniqueName(parameter), glm::vec2(width, 0.0f)))
 	{
 		parameter.trigger();
 		return true;

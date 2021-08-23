@@ -20,6 +20,8 @@ namespace ofxImGui
 	unsigned int BaseEngine::g_VaoHandle = 0;
 	unsigned int BaseEngine::g_ElementsHandle = 0;
 
+	std::string BaseEngine::g_ClipboardText = "";
+
 	//--------------------------------------------------------------
 	void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 	{
@@ -71,13 +73,15 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	const char* BaseEngine::getClipboardString(void * userData)
 	{
-		return &ofGetWindowPtr()->getClipboardString()[0];
+		g_ClipboardText = ofGetWindowPtr()->getClipboardString();
+		return g_ClipboardText.c_str();
 	}
 
 	//--------------------------------------------------------------
 	void BaseEngine::setClipboardString(void * userData, const char * text)
 	{
-		ofGetWindowPtr()->setClipboardString(text);
+		g_ClipboardText = ofToString(text);
+		ofGetWindowPtr()->setClipboardString(g_ClipboardText);
 	}
 
 	//--------------------------------------------------------------
