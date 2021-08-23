@@ -22,7 +22,7 @@ meta:
 	ADDON_URL = https://github.com/jvcleave/ofxImGui
 
 common:
-	# dependencies with other addons, a list of them separated by spaces 
+# dependencies with other addons, a list of them separated by spaces 
 	# or use += in several lines
 	# ADDON_DEPENDENCIES =
 	
@@ -59,6 +59,27 @@ common:
 	# when parsing the file system looking for libraries exclude this for all or
 	# a specific platform
 	# ADDON_LIBS_EXCLUDE =
+	
+	# when parsing the file system looking for sources exclude this for all or
+	# a specific platform
+	ADDON_SOURCES_EXCLUDE = libs/ffmpeg/%
+	ADDON_SOURCES_EXCLUDE += libs/snappy/%
+	
+	# when parsing the file system looking for include paths exclude this for all or
+	# a specific platform
+	# ADDON_INCLUDES_EXCLUDE =
+
+
+vs:
+	ADDON_SOURCES_EXCLUDE = example-demo/%
+	ADDON_SOURCES_EXCLUDE += example-helpers/%
+	ADDON_SOURCES_EXCLUDE += example-ios/%
+	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/examples/%
+	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/misc/%
+	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/docs/%
+	ADDON_SOURCES_EXCLUDE += libs/imgui/%
+	ADDON_SOURCES_EXCLUDE += src/ImHelpers.h
+	ADDON_SOURCES_EXCLUDE += src/ImHelpers.cpp
 	
 linux64:
 	
