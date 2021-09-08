@@ -69,7 +69,8 @@
 ImVec2(const ofVec2f& f) { x = f.x; y = f.y; }        \
 operator ofVec2f() const { return ofVec2f(x, y); }    \
 ImVec2(const glm::vec2& f) { x = f.x; y = f.y; }    \
-operator glm::vec2() const { return glm::vec2(x, y); }
+operator glm::vec2() const { return glm::vec2(x, y); } \
+ImVec2 operator*(int i_p) const{ return {x*i_p,y*i_p};}
 #else
 #define IM_VEC2_CLASS_EXTRA                            \
 ImVec2(const ofVec2f& f) { x = f.x; y = f.y; }        \

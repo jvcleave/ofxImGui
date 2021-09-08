@@ -76,8 +76,7 @@ vs:
 	ADDON_SOURCES_EXCLUDE += example-ios/%
 	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/examples/%
 	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/misc/%
-	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/docs/%
-	ADDON_SOURCES_EXCLUDE += libs/imgui/%
+	ADDON_SOURCES_EXCLUDE += libs/imgui-docking/docs/%	
 	ADDON_SOURCES_EXCLUDE += src/ImHelpers.h
 	ADDON_SOURCES_EXCLUDE += src/ImHelpers.cpp
 	
