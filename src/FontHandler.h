@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "imgui.h"
+
 #include "ofJson.h"
 #include "ofPath.h"
 
@@ -25,11 +26,17 @@ public:
 		return imFontIndex_m;
 	}
 
-	void setup(const std::string& path_p, const float size_p)
+	bool setup(const std::string& path_p, const float size_p)
 	{
-		ImGuiIO* io = &ImGui::GetIO();
-		io->Fonts->AddFontFromFileTTF(path_p.c_str(), size_p);
-		imFontIndex_m = io->Fonts->Fonts.size() - 1;
+		if (ofFile::doesFileExist(path_p))
+		{
+			ImGuiIO* io = &ImGui::GetIO();
+			io->Fonts->AddFontFromFileTTF(path_p.c_str(), size_p);
+			imFontIndex_m = io->Fonts->Fonts.size() - 1;
+			return true;
+		}
+		ofLogError(__FUNCTION__, "Couldn't load font %s. File doesn't exist", path_p.c_str());
+		return false;
 	}
 };
 
@@ -126,7 +133,8 @@ public:
 					font = ofFile(ofToDataPath(fontJson.at(i)["src"].get<std::string>(), true));
 					loadFont(font.getAbsolutePath(), min, max);
 				}
-				if (fontJson.at(i).find("isDefault") != fontJson.at(i).end() && fontJson.at(i).find("defaultSize") != fontJson.at(i).end())
+				if (fontJson.at(i).find("isDefault") != fontJson.at(i).end() && fontJson.at(i).find("defaultSize") !=
+					fontJson.at(i).end())
 				{
 					setDefault(font.getBaseName(), fontJson.at(i)["defaultSize"].get<int>());
 				}
