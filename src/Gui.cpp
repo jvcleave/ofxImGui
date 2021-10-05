@@ -1,7 +1,7 @@
 #include "Gui.h"
 
 #include "ofAppRunner.h"
-
+#include "ofxWinTouchHook.h"
 
 
 namespace ofxImGui
@@ -29,7 +29,10 @@ namespace ofxImGui
 		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
 		io.MouseDrawCursor = false;
 
+		ofxWinTouchHook::EnableTouch();
 
+		ofAddListener(ofxWinTouchHook::touchDown, this, &Gui::touchDown);
+		ofAddListener(ofxWinTouchHook::touchUp, this, &Gui::touchUp);
 
 		autoDraw = autoDraw_;
 		engine.setup(autoDraw);
@@ -40,7 +43,7 @@ namespace ofxImGui
 		}
 		else
 		{
-            DefaultTheme* defaultTheme = new DefaultTheme();
+			DefaultTheme* defaultTheme = new DefaultTheme();
 			setTheme((BaseTheme*)defaultTheme);
 		}
 	}
@@ -48,7 +51,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::exit()
 	{
-        engine.exit();
+		engine.exit();
 		if (theme)
 		{
 			delete theme;
@@ -56,13 +59,16 @@ namespace ofxImGui
 		}
 		for (size_t i = 0; i < loadedTextures.size(); i++)
 		{
-            if(loadedTextures[i])
-            {
-                delete loadedTextures[i];
-                loadedTextures[i] = NULL;
-            }
+			if (loadedTextures[i])
+			{
+				delete loadedTextures[i];
+				loadedTextures[i] = NULL;
+			}
 		}
 		loadedTextures.clear();
+
+		ofRemoveListener(ofxWinTouchHook::touchDown, this, &Gui::touchDown);
+		ofRemoveListener(ofxWinTouchHook::touchUp, this, &Gui::touchUp);
 
 		ImGui::DestroyContext();
 	}
@@ -134,20 +140,55 @@ namespace ofxImGui
 		return texture.getTextureData().textureID;
 	}
 
+	void Gui::touchDown(ofTouchEventArgs& touch)
+	{
+		touchDown_m = true;
+		touchX_m = touch.x;
+		touchY_m = touch.y;
+	}
+
+	void Gui::touchUp(ofTouchEventArgs& touch)
+	{
+		touchUp_m = true;
+	}
+
 	//--------------------------------------------------------------
 	void Gui::begin()
 	{
-		
-
 		ImGuiIO& io = ImGui::GetIO();
 
-        io.DeltaTime = ofGetLastFrameTime();
+		io.DeltaTime = ofGetLastFrameTime();
 
 		// Update settings
-		io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+		if(ofGetPreviousMouseX() != ofGetMouseX() || ofGetPreviousMouseY() != ofGetMouseY())
+		{
+			io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+		}
+		
 		for (int i = 0; i < 5; i++) {
 			io.MouseDown[i] = engine.mousePressed[i];
 		}
+
+
+		// Handle Windows Touch:
+		if (touchDown_m)
+		{
+			io.MousePos = ImVec2((float)touchX_m, (float)touchY_m);
+			io.MouseDown[0] = true;
+			touchDown_m = false;
+		}
+		if (releaseTouch_m)
+		{
+			io.MouseDown[0] = false;
+			releaseTouch_m = false;
+		}
+		if (touchUp_m)
+		{
+			// Trigger Release on next Frame
+			releaseTouch_m = true;
+			touchUp_m = false;
+		}
+
 		ImGui::NewFrame();
 	}
 

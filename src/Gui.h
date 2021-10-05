@@ -40,6 +40,8 @@ namespace ofxImGui
 
 		GLuint loadTexture(const std::string& imagePath);
 		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
+		void touchDown(ofTouchEventArgs& touch);
+		void touchUp(ofTouchEventArgs& touch);
 
 	private:        
 #if defined(TARGET_OPENGLES)
@@ -56,5 +58,10 @@ namespace ofxImGui
 		BaseTheme* theme;
 
 		std::vector<ofTexture*> loadedTextures;
+
+		bool touchDown_m = false;
+		bool touchUp_m = false;
+		bool releaseTouch_m = false;
+		int touchX_m, touchY_m;
 	};
 }
