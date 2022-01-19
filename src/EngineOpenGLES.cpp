@@ -17,7 +17,9 @@ namespace ofxImGui
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.KeyMap[ImGuiKey_Tab] = OF_KEY_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = OF_KEY_LEFT;
+#ifdef OF_TARGET_IPHONE
+#else
+        io.KeyMap[ImGuiKey_LeftArrow] = OF_KEY_LEFT;
 		io.KeyMap[ImGuiKey_RightArrow] = OF_KEY_RIGHT;
 		io.KeyMap[ImGuiKey_UpArrow] = OF_KEY_UP;
 		io.KeyMap[ImGuiKey_DownArrow] = OF_KEY_DOWN;
@@ -25,6 +27,7 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_PageDown] = OF_KEY_PAGE_DOWN;
 		io.KeyMap[ImGuiKey_Home] = OF_KEY_HOME;
 		io.KeyMap[ImGuiKey_End] = OF_KEY_END;
+#endif
 		io.KeyMap[ImGuiKey_Delete] = OF_KEY_DEL;
 		io.KeyMap[ImGuiKey_Backspace] = OF_KEY_BACKSPACE;
 		io.KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
