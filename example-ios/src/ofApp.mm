@@ -60,6 +60,9 @@ void ofApp::draw(){
     
     // 1. Show a simple window
     {
+        // if you want to make the text bigger, change the scale here
+        ImGui::SetWindowFontScale(2.);
+
         inputTextButton.draw();
         
         ImGui::Text(inputTextButton.text.c_str());
