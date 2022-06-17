@@ -162,4 +162,4 @@ namespace ImGui
 //#define IMGUI_SET_CURRENT_CONTEXT_FUNC(ctx) { GImGui = ctx; }// g_Window = io.BackendPlatformUserData; }
 
 // Note: maybe other variables need to be stitched too ?
-#define IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME() { g_Window = (GLFWwindow*)io.BackendPlatformUserData; }
+#define IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME() { bd->Window = (GLFWwindow*)io.BackendPlatformUserData; }

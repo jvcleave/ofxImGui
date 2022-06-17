@@ -22,7 +22,7 @@ ImGui has a huge community and is growing fast. There are a lot of plugins avail
 ## Updating ImGui
 DearImGui has a fast update scheme and changes frequently. ofxImGui rather tries to follow the slower openFrameworks update scheme.  
 Here are some instructions for updating DearImGui within ofxImGui:
-- Go to the [official ImGui](https://github.com/ocornut/imgui/tree/docking/) repo and get the `glfw` and `opengl 2+3` header and source files from and into the `backends` folders. Beware that we're using the `docking` branch of imgui, until it gets merges in the master.
+- Go to the [official ImGui](https://github.com/ocornut/imgui/tree/docking/) repo and get the `glfw` and `opengl 2+3` header and source files from and into the `backends` folders. Beware that we're using the `docking` branch of imgui, until it gets merged in the master.
 - Similarly, put the `*.h` and `*.cpp` files from the `imgui root` go into `ofxImGui/libs/imgui/src`.
 - Manually compare `ofxImGui/src/imconfig.h` with the new `ofxImGui/libs/imgui/src/imconfig.h`, merge new changes if needed, then delete `ofxImGui/libs/imgui/src/imconfig.h`.
 - Apply hacks listed below.
@@ -45,7 +45,7 @@ Related issues:
      - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
      - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
      - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
-- *Add GL ES 1 support so that it compiles on Rpis :*  
+- *Add GL ES 1 support so that it compiles on Rpis :*  in `imgui_impl_opengl2.cpp`
 ````cpp
 // --- CUSTOM MODIFICATION
 // Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
@@ -53,26 +53,7 @@ Related issues:
 #include "gles1CompatibilityHacks.h"
 // --- END CUSTOM MODIFICATION
 ````
-- *Cleaner backend code* : `GLFW_GAMEPAD_BUTTON_A` ... `GLFW_GAMEPAD_BUTTON_LAST` are hardcoded in the imgui backend while GLFW provides macros so they are easier to read. You can replace them with the following lines of code.  
-````cpp
-    MAP_BUTTON(ImGuiNavInput_Activate,   GLFW_GAMEPAD_BUTTON_A);     // Cross / A
-    MAP_BUTTON(ImGuiNavInput_Cancel,     GLFW_GAMEPAD_BUTTON_B);     // Circle / B
-    MAP_BUTTON(ImGuiNavInput_Menu,       GLFW_GAMEPAD_BUTTON_X);     // Square / X
-    MAP_BUTTON(ImGuiNavInput_Input,      GLFW_GAMEPAD_BUTTON_Y);     // Triangle / Y
-    MAP_BUTTON(ImGuiNavInput_DpadLeft,   13);//GLFW_GAMEPAD_BUTTON_DPAD_LEFT);    // D-Pad Left
-    MAP_BUTTON(ImGuiNavInput_DpadRight,  14);//GLFW_GAMEPAD_BUTTON_DPAD_RIGHT);    // D-Pad Right
-    MAP_BUTTON(ImGuiNavInput_DpadUp,     GLFW_GAMEPAD_BUTTON_DPAD_UP);    // D-Pad Up
-    MAP_BUTTON(ImGuiNavInput_DpadDown,   12);//GLFW_GAMEPAD_BUTTON_DPAD_DOWN);    // D-Pad Down
-    MAP_BUTTON(ImGuiNavInput_FocusPrev,  GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);     // L1 / LB
-    MAP_BUTTON(ImGuiNavInput_FocusNext,  GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);    // R1 / RB
-    MAP_BUTTON(ImGuiNavInput_TweakSlow,  GLFW_GAMEPAD_BUTTON_LEFT_BUMPER);      // L2 / LT
-    MAP_BUTTON(ImGuiNavInput_TweakFast,  GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER);     // R2 / RT
-    MAP_ANALOG(ImGuiNavInput_LStickLeft, GLFW_GAMEPAD_AXIS_LEFT_X,  -0.3f,  -0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickRight,GLFW_GAMEPAD_AXIS_LEFT_X,  +0.3f,  +0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickUp,   GLFW_GAMEPAD_AXIS_LEFT_Y,  -0.3f,  -0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickDown, GLFW_GAMEPAD_AXIS_LEFT_Y,  +0.3f,  +0.9f);
-````  
-But then the raspberry pi might have an old GLFW implementation, please add these lines to ensure cross platform compatibility.  
+- *GLFW compatibility* : The raspberry pi might have an old GLFW implementation, please add these lines in `imgui_impl_glfw.cpp` to ensure cross platform compatibility.  
 ````cpp
 // Custom modification : Add support for older GLFW versions (<3.2) (on Rpi Stretch for example)
 #include "glfwCompatibilityHacks.h"
@@ -80,6 +61,7 @@ But then the raspberry pi might have an old GLFW implementation, please add thes
  *Note:* Currently, **oF 0.11.0 uses GLFW pre-3.3.0**; this causes the imgui glfw backend to use an unavailable function. Until oF's GLFW library gets updated, `imgui_impl_glfw.cpp` will need to be modified in order to work with ofxImGui. (_this has been applied in the master branch already using option 1, only when updating DearImGui. You can manually revert the change and update your GLFW if you wish._)  
 Update: oF 0.11.1 [uses GLFW 3.3-stable](https://github.com/openframeworks/apothecary/commit/68a0ec866341a8487d5c555311f3d5975bd62436) and doesn't need this hack.  
 Update: [oF 0.11.2 uses glfw pre-3.3.0 again](https://github.com/openframeworks/apothecary/pull/197).  
+Update: [oF 0.11.3 will use glfw 3.3.7](https://github.com/openframeworks/apothecary/pull/225).  
   - [Change `3300` to `3310`](https://github.com/ocornut/imgui/blob/dd4ca70b0d612038edadcf37bf601c0f21206d28/backends/imgui_impl_glfw.cpp#L62). This change disables some optional imgui features, related to viewport behaviour, and available mouse cursors.  
 
 # Improve ofxImGui's backend bindings
