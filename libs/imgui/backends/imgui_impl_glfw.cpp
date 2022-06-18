@@ -784,11 +784,6 @@ void ImGui_ImplGlfw_NewFrame()
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd != NULL && "Did you call ImGui_ImplGlfw_InitForXXX()?");
 
-    // Custom hack : switch g_Window too !
-#ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
-    IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
-#endif
-
     // Setup display size (every frame to accommodate for window resizing)
     int w, h;
     int display_w, display_h;

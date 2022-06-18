@@ -34,11 +34,12 @@ After updating imgui, it's required to do some changes.
 In `imgui_impl_gflw`, add this right below the first `IM_ASSERT`s in `ImGui_ImplGlfw_NewFrame(){}` :  
 ````cpp
 	// Custom hack : switch g_Window too !
-	#ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
-        IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
-    #endif
+	//#ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
+    //    IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
+    //#endif
+    // Note: not required anymore ! ^_^
 ````  
-This issue is that some globals are hardcoded. Switching context is possible, but the `g_Window` global variable isn't switched.  
+The issue is that some globals are hardcoded. Switching context is possible, but the `g_Window` global variable isn't switched.  
 Related issues:
      - [Does GLFW implementation only handle one GLFWindow?](https://discourse.dearimgui.org/t/does-glfw-implementation-only-handle-one-glfwindow/305)
      - [Add support for multiple GLFW contexts](https://github.com/ocornut/imgui/pull/3934)

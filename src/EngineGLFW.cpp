@@ -40,7 +40,7 @@ namespace ofxImGui
                 ofLogWarning(__FUNCTION__) << "ofxImGui has not been tested with GL ES 1.0 and there's no official imgui backend for it.";
             }
         #endif // rpi gles
-        #endif // debug
+#endif // debug
 
     #ifdef OFXIMGUI_DEBUG
         #pragma message "ofxImGui compiling with the new native imgui backend."
@@ -49,6 +49,11 @@ namespace ofxImGui
 
         // Init window
         GLFWwindow* curWin = (GLFWwindow*)ofGetWindowPtr()->getWindowContext();
+#ifdef OFXIMGUI_DEBUG
+        int tmpW = 0; int tmpH=0; if(curWin) glfwGetWindowSize(curWin, &tmpW, &tmpH);
+        ofLogVerbose(__FUNCTION__) << "ofxImGui setting up in GLFWwindow =" << curWin << " ("<< tmpW << "x"<< tmpH << ")";
+#endif
+        //glfwMakeContextCurrent(curWin);
         ImGui_ImplGlfw_InitForOpenGL( curWin, true );
 
         // Seems unnecessary (only needed for popped-out windows?)
@@ -169,8 +174,8 @@ namespace ofxImGui
     void EngineGLFW::newFrame()
     {
         // Set window ref for later usage
-        ImGuiIO& io = ImGui::GetIO();
-        io.BackendPlatformUserData = (void*) (GLFWwindow*) ofGetWindowPtr()->getWindowContext();
+        //ImGuiIO& io = ImGui::GetIO();
+        //io.BackendPlatformUserData = (void*) (GLFWwindow*) ofGetWindowPtr()->getWindowContext();
         if (ofIsGLProgrammableRenderer()){
             ImGui_ImplOpenGL3_NewFrame();
         }

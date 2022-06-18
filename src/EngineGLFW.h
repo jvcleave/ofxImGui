@@ -5,6 +5,11 @@
 
 #include "ofConstants.h"
 
+// This include is also used in the imgui glfw example, I hope it breaks nothing....
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+#include <GLES2/gl2.h>
+#endif
+
 #include "GLFW/glfw3.h"
 
 #include "BaseEngine.h"

@@ -89,7 +89,8 @@ namespace ofxImGui
         }
 
         ImGui::SetCurrentContext(context);
-		ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;// The example does this too; probably to crashes if the io is invalid --> for easier debugging
 
         // Note : In chaining mode, additional flags can still be set.
         io.ConfigFlags |= customFlags_;
