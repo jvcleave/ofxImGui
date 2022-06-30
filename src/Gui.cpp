@@ -1,6 +1,7 @@
 #include "Gui.h"
 
 #include "ofAppRunner.h"
+#include "ofAppGLFWWindow.h"
 
 
 
@@ -27,6 +28,7 @@ namespace ofxImGui
     // Must be called from the oF window that's gonna display the gui.
     // Creates 1 imgui context per oF window (glfw context).
     // Links the context handle to the correct window's imguicontext.
+    // Todo: an optional ofAppBaseWindow* to specify a manual context instead of using the current active ofApp window.
     void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
 	{
 #ifdef OFXIMGUI_DEBUG
@@ -41,13 +43,22 @@ namespace ofxImGui
         }
 
         // Check for existing context in current oF window.
+        // We only create one ImGuiContext per ofAppWindow (1 for each glfwWindow instance handled by oF)
         ofAppBaseWindow* curWindow = ofGetWindowPtr();
 
         // Curwindow cannot be null
         if(curWindow==nullptr){
-            #ifdef OFXIMGUI_DEBUG
-                ofLogError("Gui::setup()") << "You have to call me within an active oF window context !" << std::endl;
-            #endif
+            ofLogError("Gui::setup()") << "You have to call setup() from within an active oF window context ! Try calling setup() at ofApp::setup() or later.";
+            return; // todo: assert would be more appropriate to notify the dev ?
+        }
+        // Check context Ptr type
+        if( dynamic_cast<ofAppGLFWWindow*>(curWindow) == nullptr){
+            ofLogError("Gui::setup()") << "Sorry, for now ofxImGui only works with ofAppGLFWWindow...";
+            return; // todo: assert would be more appropriate to notify the dev ?
+        }
+        // Check for a GLFWwindow
+        else if((void*)curWindow->getWindowContext() == nullptr){
+            ofLogError("Gui::setup()") << "Sorry, for now ofxImGui only works with GLFWwindow...";
             return;
         }
 
@@ -64,12 +75,12 @@ namespace ofxImGui
             }
 
 #ifdef OFXIMGUI_DEBUG
-            ofLogVerbose("Gui::setup()") << "Context " << context << " already exists in window " << curWindow << ", using the existing context as a shared one." << std::endl;
+            ofLogVerbose("Gui::setup()") << "Context " << context << " already exists in window " << curWindow << ", using the existing context as a shared one.";
             if(!autoDraw) ofLogWarning("Gui::setup()") << "You are using manual rendering. This might cause a crash; to fix, ensure that you call the render function after all ofxImGui::Gui instances have send ImGui commands.";
             //else ofLogNotice("Gui::setup()") << "Autodraw now happens after ofApp:draw() instead of when ofxImGui::end() is called." << std::endl;
 #endif
         }
-        // Create context for this window
+        // Create a unique context for this window
         else {
             context = ImGui::CreateContext(); // Todo : pass shared fontatlas instance ?
             ownedContext = true;
@@ -96,7 +107,12 @@ namespace ofxImGui
         io.ConfigFlags |= customFlags_;
 
         // Already-setup contexts exit early
-        if( !ownedContext ) return;
+        if( !ownedContext ) {
+#ifdef OFXIMGUI_DEBUG
+            ofLogVerbose(__PRETTY_FUNCTION__) << "Context is not owned, skipping some settings and not binding the engine again.";
+#endif
+            return;
+        }
 
         // Mouse cursor drawing (disabled by default, oF uses the system mouse)
         io.MouseDrawCursor = _showImGuiMouseCursor;
@@ -104,7 +120,11 @@ namespace ofxImGui
         // Handle gui state saving
         if(!_restoreGuiState) io.IniFilename = nullptr;
 
-        engine.setup(autoDraw);
+        if(ownedContext) engine.setup(autoDraw);
+        else {
+            //ImGui_ImplGlfw_InstallCallbacks( (GLFWwindow*) curWindow->getWindowContext() );
+        }
+
 
 		if (theme_)
 		{
@@ -114,15 +134,6 @@ namespace ofxImGui
 		{
             DefaultTheme* defaultTheme = new DefaultTheme();
 			setTheme((BaseTheme*)defaultTheme);
-        }
-
-        // Source : https://github.com/yumataesu/ofxImGui_v3/blob/23ff3e02ae3b99cb3db449b950c2f3e34424fbc8/src/ofxImGui.cpp#L12-L18
-        // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-        ImGuiStyle& style = ImGui::GetStyle();
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            style.WindowRounding = 0.0f;
-            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
         //std::cout << "Fonts= " << io.Fonts->Fonts.size() << std::endl;
@@ -287,6 +298,15 @@ namespace ofxImGui
         // ImGui::DestroyContext();
         ImGui::SetCurrentContext(context);
 		theme->setup();
+
+        // Source : https://github.com/yumataesu/ofxImGui_v3/blob/23ff3e02ae3b99cb3db449b950c2f3e34424fbc8/src/ofxImGui.cpp#L12-L18
+        // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+        ImGuiStyle& style = ImGui::GetStyle();
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            style.WindowRounding = 0.0f;
+            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        }
 	}
 
 
