@@ -26,7 +26,7 @@ Here are some instructions for updating DearImGui within ofxImGui:
 - Similarly, put the `*.h` and `*.cpp` files from the `imgui root` go into `ofxImGui/libs/imgui/src`.
 - Manually compare `ofxImGui/src/imconfig.h` with the new `ofxImGui/libs/imgui/src/imconfig.h`, merge new changes if needed, then delete `ofxImGui/libs/imgui/src/imconfig.h`.
 - Apply hacks listed below.
-- After updating: Check ofxImGui's source code for detecting obsolete API functions usage.
+- After updating: Check ofxImGui's source code for detecting obsolete API functions usage using `IMGUI_DISABLE_OBSOLETE_FUNCTIONS`.
 
 ### Applying platform specific hacks
 After updating imgui, it's required to do some changes.
@@ -46,6 +46,7 @@ Related issues:
      - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
      - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
      - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
+- *Support standalone viewports* (pop-out windows) : Apply the changes of [this commit](https://github.com/Daandelange/imgui/commit/29a2d14fda62795fbd009239509e3ad6916a4836) until they get merged/fixed in imgui.
 - *Add GL ES 1 support so that it compiles on Rpis :*  in `imgui_impl_opengl2.cpp`
 ````cpp
 // --- CUSTOM MODIFICATION
