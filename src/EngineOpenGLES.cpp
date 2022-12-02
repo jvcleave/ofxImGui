@@ -287,10 +287,10 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& event)
 	{
-		int key = event.keycode;
+		int key = event.key;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
-		io.AddInputCharacter((unsigned short)event.codepoint);
+		io.AddInputCharacter((unsigned short)event.key);
 		//TODO modifiers?
 	}
 }
