@@ -290,8 +290,6 @@ namespace ofxImGui
 		int key = event.key;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
-		io.AddInputCharacter((unsigned short)event.key);
-		//TODO modifiers?
 	}
 }
 
