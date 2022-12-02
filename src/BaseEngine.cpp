@@ -25,10 +25,10 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 	{
-		int key = event.keycode;
+		int key = event.key;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
-		//io->AddInputCharacter((unsigned short)event.codepoint);
+		io.AddInputCharacter((unsigned short)event.key);
 	}
 
 	//--------------------------------------------------------------
