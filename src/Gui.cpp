@@ -109,7 +109,7 @@ namespace ofxImGui
         // Already-setup contexts exit early
         if( !ownedContext ) {
 #ifdef OFXIMGUI_DEBUG
-            ofLogVerbose(__PRETTY_FUNCTION__) << "Context is not owned, skipping some settings and not binding the engine again.";
+            ofLogVerbose("Gui::setup()") << "Context is not owned, skipping some settings and not binding the engine again.";
 #endif
             return;
         }
