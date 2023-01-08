@@ -282,8 +282,38 @@ namespace ofxImGui
 		else {
             return nullptr;
 		}
+	}
+	//--------------------------------------------------------------
+	ImFont* Gui::addFontFromMemory(void* dataFont, int font_size, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
 
+		if(context==nullptr){
+		  ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
+		  return nullptr;
+		}
 
+		//ImFontConfig structure allows you to configure oversampling.
+		//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
+		//than necessary, so you may reduce that to 1.
+
+		ImGui::SetCurrentContext(context);
+		ImGuiIO& io = ImGui::GetIO();
+
+		// ensure default font gets loaded once
+		if(io.Fonts->Fonts.size()==0) io.Fonts->AddFontDefault();
+
+		ImFont* font = io.Fonts->AddFontFromMemoryTTF( dataFont, font_size, fontSize, _fontConfig, _glyphRanges);
+
+		if (io.Fonts->Fonts.size() > 0) {
+			io.Fonts->Build();
+			if( engine.updateFontsTexture() ){
+				if(_setAsDefaultFont) setDefaultFont(font);
+				return font;
+			}
+			else return nullptr;
+		}
+		else {
+			return nullptr;
+		}
 	}
 
 	//--------------------------------------------------------------
