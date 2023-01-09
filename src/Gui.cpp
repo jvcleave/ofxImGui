@@ -284,7 +284,7 @@ namespace ofxImGui
 		}
 	}
 	//--------------------------------------------------------------
-	ImFont* Gui::addFontFromMemory(void* dataFont, int font_size, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
+	ImFont* Gui::addFontFromMemory(void* fontData, int fontDataSize, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
 
 		if(context==nullptr){
 		  ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
@@ -301,7 +301,7 @@ namespace ofxImGui
 		// ensure default font gets loaded once
 		if(io.Fonts->Fonts.size()==0) io.Fonts->AddFontDefault();
 
-		ImFont* font = io.Fonts->AddFontFromMemoryTTF( dataFont, font_size, fontSize, _fontConfig, _glyphRanges);
+		ImFont* font = io.Fonts->AddFontFromMemoryTTF( fontData, fontDataSize, fontSize, _fontConfig, _glyphRanges);
 
 		if (io.Fonts->Fonts.size() > 0) {
 			io.Fonts->Build();
