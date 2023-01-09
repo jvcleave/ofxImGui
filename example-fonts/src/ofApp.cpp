@@ -6,8 +6,13 @@ void ofApp::setup()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    //required call
-    gui.setup(nullptr, ImGuiConfigFlags_DockingEnable);
+    // The call to setup() is required BEFORE adding fonts.
+    bool autoDraw = true;
+    ofxImGui::BaseTheme* theme = nullptr;
+    ImGuiConfigFlags customFlags = ImGuiConfigFlags_DockingEnable;
+    bool restoreGuiState = false;
+    bool showImGuiMouseCursor = false;
+    gui.setup(theme, autoDraw, customFlags, restoreGuiState, showImGuiMouseCursor);
     
     // Add polish characters
     static const ImWchar polishCharRanges[] =
@@ -16,9 +21,18 @@ void ofApp::setup()
         0x0100, 0x01FF, // Polish characters
         0,
     };
-    auto normalCharRanges = ImGui::GetIO().Fonts->GetGlyphRangesDefault();
+    static const ImWchar* normalCharRanges = ImGui::GetIO().Fonts->GetGlyphRangesDefault();
+    static const ImWchar* myCharRanges = polishCharRanges;
+    //myCharRanges = normalCharRanges; // Uncomment to disable polish characters
 
-    customFont = gui.addFont("Roboto-Medium.ttf",16.f, nullptr, true?polishCharRanges:normalCharRanges);
+    // Set font and keep a reference of it for using it later
+    customFont = gui.addFont("Roboto-Medium.ttf",16.f, nullptr, myCharRanges);
+
+    // You can also load fonts from memory
+    // It will compile the font within the binary, so you don't have to ship the font file separately.
+    // https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#using-font-data-embedded-in-source-code
+    // #include "MyCompressedFont.h"
+    // gui.addFontFromMemory((void*)MyCompressedFont, sizeof(MyCompressedFont),16.f, nullptr, myCharRanges);
 
     // Add fontawesome fonts by merging new glyphs
     ImFontConfig config;
