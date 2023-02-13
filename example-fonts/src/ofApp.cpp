@@ -29,7 +29,7 @@ void ofApp::setup()
     customFont = gui.addFont("Roboto-Medium.ttf",16.f, nullptr, myCharRanges);
 
     // You can also load fonts from memory
-    // It will compile the font within the binary, so you don't have to ship the font file separately.
+    // It will compile the font within the binary, so you don't have to ship the font file separately. Increases binary size.
     // https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#using-font-data-embedded-in-source-code
     // #include "MyCompressedFont.h"
     // gui.addFontFromMemory((void*)MyCompressedFont, sizeof(MyCompressedFont),16.f, nullptr, myCharRanges);
@@ -66,16 +66,21 @@ void ofApp::draw(){
     ImGui::CollapsingHeader("Default font", ImGuiTreeNodeFlags_Leaf);
     // Uses the default font
     ImGui::Text("Hello, world!");
-    ImGui::Text(u8"Witaj świecie !");
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(255,255,255,0.5), "<-- one character is not loaded in this font !");
     ImGui::Spacing();
 
     // Use 2ndary font
     ImGui::CollapsingHeader("Special characters", ImGuiTreeNodeFlags_Leaf);
-    ImGui::PushFont(customFont);
+
     // u8 ensures text is encoded as utf8 from the cpp source code
     ImGui::Text(u8"Witaj świecie !");
+    ImGui::SameLine();
+    ImGui::TextColored(ImVec4(255,255,255,0.5), "<-- one character is not loaded in this font !");
+
+    // Custom font has more caracters, allowing to render them all
+    ImGui::PushFont(customFont);
+    ImGui::Text(u8"Witaj świecie !");
+    ImGui::SameLine();
+    ImGui::TextColored(ImVec4(255,255,255,0.5), "<-- with another font, it's rendered correctly !");
     ImGui::Text(u8"Some polish characters: ć, ń, ó, ś, ź, ż, ą, ę, ł.");
     ImGui::PopFont();
     ImGui::Dummy(ImVec2(0,10));
