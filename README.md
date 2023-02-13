@@ -2,7 +2,9 @@
 
 ofxAddon that allows you to use [ImGui](https://github.com/ocornut/imgui) in [openFrameworks](https://github.com/openframeworks/openFrameworks).
 
-Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)) paradigm rather then being OOP. In other words, every frame you rebuild the whole GUI, executing only the necessary parts, and ImGui is surprisingly fast at that ! This makes the Gui closer to the OpenGL api as to the inner oF logic (`update()`, `draw()`, `begin()`, `end()`, `push()`, `pop()`, etc.).
+### Immediate Mode Gui
+Unlike most C++ gui libraries, ImGui uses the [immediate mode](https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)) paradigm rather then being OOP. In other words, every frame you rebuild the whole GUI, executing only the necessary parts, and ImGui is surprisingly fast at that ! This makes the Gui closer to the OpenGL api as to the inner oF logic (`update()`, `draw()`, `begin()`, `end()`, `push()`, `pop()`, etc.).  
+_(Note: Internally, ImGui is not "ramming" on the CPU as most immediate-mode GUIs do)._
 
 ![Screenshot](images/ofxImGui.gif)
 
@@ -55,6 +57,7 @@ New ImGui versions bring changes and new API features, sometimes depreciations.
 
 | ofxImGui version  | ImGui version | Supported oF version |
 |------------------:|---------------|----------------------|
+| ofxImGui 1.89.2   | 1.89.2*         | 0.11 -> 0.11.2 |
 | ofxImGui 1.82     | 1.82*         | 0.11 -> 0.11.2 |
 | ofxImGui 1.79     | 1.79*         | 0.11.1 |
 | ofxImGui 1.75     | 1.75          | 0.11.x |
