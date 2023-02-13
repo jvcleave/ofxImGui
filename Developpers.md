@@ -22,8 +22,13 @@ ImGui has a huge community and is growing fast. There are a lot of plugins avail
 ## Updating ImGui
 DearImGui has a fast update scheme and changes frequently. ofxImGui rather tries to follow the slower openFrameworks update scheme.  
 Here are some instructions for updating DearImGui within ofxImGui:
-- Go to the [official ImGui](https://github.com/ocornut/imgui/tree/docking/) repo and get the `glfw` and `opengl 2+3` header and source files from and into the `backends` folders. Beware that we're using the `docking` branch of imgui, until it gets merged in the master.
-- Similarly, put the `*.h` and `*.cpp` files from the `imgui root` go into `ofxImGui/libs/imgui/src`.
+- Download the updated files and put them in `ofxImGui/libs`: (choose one)
+    1. Manually:
+      - Go to the [official ImGui](https://github.com/ocornut/imgui/tree/docking/) repo and get the `glfw` and `opengl 2+3` header and source files from and into the `backends` folders. Beware that we're using the `docking` branch of imgui, until it gets merged in the master.
+      - Similarly, put the `*.h` and `*.cpp` files from the `imgui root` go into `ofxImGui/libs/imgui/src`.
+    2. Automatically:
+      - Edit the commit you want in `libs/UpdateImGui.sh`.
+      - Run: `cd ofxImGui/libs && ./UpdateImGui.sh`.
 - Manually compare `ofxImGui/src/imconfig.h` with the new `ofxImGui/libs/imgui/src/imconfig.h`, merge new changes if needed, then delete `ofxImGui/libs/imgui/src/imconfig.h`.
 - Apply hacks listed below.
 - After updating: Check ofxImGui's source code for detecting obsolete API functions usage using `IMGUI_DISABLE_OBSOLETE_FUNCTIONS`.
