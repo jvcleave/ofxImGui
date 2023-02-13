@@ -22,12 +22,12 @@ static void HelpMarker(const char* desc){
 
 class ofApp : public ofBaseApp{
 
-	public:
-		ofApp() : v(0) {}
+    public:
+        ofApp() : v(0) {}
 
         void setup() {
             // Enable viewports, enable state saving
-            gui.setup(nullptr, false, ImGuiConfigFlags_ViewportsEnable, true);
+            gui.setup(nullptr, false, ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable, true);
             //ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
             // The backgroundColor is stored as an ImVec4 type but can handle ofColor
@@ -43,11 +43,11 @@ class ofApp : public ofBaseApp{
             // Or have the loading done for you if you don't need the ofImage reference
             //imageButtonID = gui.loadImage("of.png");
 
-            // You can also use ofPixels in same manner
+            // You can also use ofPixels in same way
             ofLoadImage(pixelsButtonSource, "of_upside_down.png");
             pixelsButtonID = gui.loadPixels(pixelsButtonSource);
 
-            //pass in your own texture reference if you want to keep it
+            // Pass in your own texture reference, and keep it for later usage
             textureSourceID = gui.loadTexture(textureSource, "of_upside_down.png");
 
             //or just pass a path
@@ -66,9 +66,9 @@ class ofApp : public ofBaseApp{
                 fileTextures.push_back(texID);
             }
             imageButtonID = fileTextures.front();
-		}
+        }
 
-		void draw() {
+        void draw() {
             // Precalcs
             #define plotSize 200
             static float realFPS[plotSize]={0};
@@ -81,11 +81,11 @@ class ofApp : public ofBaseApp{
             realFPS[plotSize-1]=ofGetFrameRate();
             avgFPS=(avgFPS+realFPS[plotSize-1])/plotSize;
 
-            //backgroundColor is stored as an ImVec4 type but is converted to ofColor automatically
+            // BackgroundColor is stored as an ImVec4 type but is converted to ofColor automatically
             ofSetBackgroundColor(backgroundColor);
 
             // Start drawing to ImGui (newFrame)
-			gui.begin();
+            gui.begin();
 
             // Draw a menu bar
             ImGui::BeginMainMenuBar();
@@ -189,7 +189,7 @@ class ofApp : public ofBaseApp{
             // Line drawing logic
             glm::vec2 windowPos;
             // With viewports enabled, coordinates are absolute
-            if(ImGui::GetIO().ConfigFlags &= ImGuiConfigFlags_ViewportsEnable)  windowPos -= glm::vec2(ofGetWindowPositionX(), ofGetWindowPositionY());
+            if(ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)  windowPos -= glm::vec2(ofGetWindowPositionX(), ofGetWindowPositionY());
             glm::vec2 windowSize;
             static bool isWindowDragging = false;
             static bool isWindowFocused = false;
@@ -211,7 +211,7 @@ class ofApp : public ofBaseApp{
             // Query ImGui window state
             // Note: Helpers help convert ImVec2 to glm::Vec2
             windowPos         = ImGui::GetWindowPos();
-            if(ImGui::GetIO().ConfigFlags &= ImGuiConfigFlags_ViewportsEnable)  windowPos -= glm::vec2(ofGetWindowPositionX(), ofGetWindowPositionY()); // with viewports enabled, coordinates change
+            if(ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)  windowPos -= glm::vec2(ofGetWindowPositionX(), ofGetWindowPositionY()); // with viewports enabled, coordinates change
             windowSize        = ImGui::GetWindowSize();
             isWindowDragging  = ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left);
             isWindowFocused   = ImGui::IsWindowFocused();
@@ -232,7 +232,7 @@ class ofApp : public ofBaseApp{
 
                 if( ImGui::CollapsingHeader("Line settings", ImGuiTreeNodeFlags_DefaultOpen) ){
 
-                    ImGui::TreePush();
+                    ImGui::TreePush((void*)NULL);
 
                     ImGui::Dummy(ImVec2(20,5));
 
@@ -309,7 +309,7 @@ class ofApp : public ofBaseApp{
                         }
                     }
 
-                    //GetImTextureID is a static function define in Helpers.h that accepts ofTexture, ofImage, or GLuint
+                    //GetImTextureID is a static function defined in Helpers.h that accepts ofTexture, ofImage, or GLuint
                     ImGui::Dummy(ImVec2(10,10));
                     if(ImGui::ImageButton(GetImTextureID(imageButtonID), ImVec2(200, 200))){
                            ofLog() << "PRESSED";
@@ -317,7 +317,6 @@ class ofApp : public ofBaseApp{
                     //or do it manually
                     ImGui::SameLine();
                     ImGui::Image(GetImTextureID(pixelsButtonID), ImVec2(200, 200));
-
                     ImGui::Image((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
                 }
                 ImGui::End();
@@ -450,7 +449,7 @@ class ofApp : public ofBaseApp{
         //--------------------------------------------------------------
         void dragEvent(ofDragInfo){}
 
-	private:
+    private:
         ofxImGui::Gui gui;
 
         // Variables exposed to ImGui
