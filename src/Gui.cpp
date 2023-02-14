@@ -336,8 +336,13 @@ namespace ofxImGui
         // Source : https://github.com/yumataesu/ofxImGui_v3/blob/23ff3e02ae3b99cb3db449b950c2f3e34424fbc8/src/ofxImGui.cpp#L12-L18
         // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
         ImGuiStyle& style = ImGui::GetStyle();
-        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
+		if(
+				// Viewports are enabled
+				(ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+				// Platform&Renderer backends both support viewports
+				&& (ImGui::GetIO().BackendFlags & (ImGuiBackendFlags_PlatformHasViewports))
+				&& (ImGui::GetIO().BackendFlags & (ImGuiBackendFlags_RendererHasViewports))
+		){
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
