@@ -25,6 +25,8 @@ namespace ofxImGui
 
         virtual bool updateFontsTexture() = 0;
 
+		// This is here to keep a compatibility layer with old codebases.
+		// Not recommended to use, Upload with OF and use the GL_TEXTURE_2D's textureID directly.
 		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
 	protected:

@@ -5,6 +5,8 @@
 
 
 
+// Todo: Texture/Pixel loading functions: Stop using ofDisableArbTex and use appropriate textureSettings instead.
+
 namespace ofxImGui
 {
 	//--------------------------------------------------------------

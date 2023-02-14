@@ -30,6 +30,6 @@ namespace ofxImGui
 
 		glBindTexture(GL_TEXTURE_2D, last_texture);
 
-		return new_texture;
+		return new_texture; // And who will clean up the garbage ? Seemingly nobody...
 	};
 }
