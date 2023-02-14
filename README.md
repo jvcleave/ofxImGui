@@ -57,7 +57,7 @@ New ImGui versions bring changes and new API features, sometimes depreciations.
 
 | ofxImGui version  | ImGui version | Supported oF version |
 |------------------:|---------------|----------------------|
-| ofxImGui 1.89.2   | 1.89.2*         | 0.11 -> 0.11.2 |
+| ofxImGui 1.89.2   | 1.89.2*       | 0.11 -> 0.11.2 |
 | ofxImGui 1.82     | 1.82*         | 0.11 -> 0.11.2 |
 | ofxImGui 1.79     | 1.79*         | 0.11.1 |
 | ofxImGui 1.75     | 1.75          | 0.11.x |
@@ -68,6 +68,15 @@ New ImGui versions bring changes and new API features, sometimes depreciations.
 | ofxImGui 0.90     | 1.45 WIP      | 0.9.x  |
 
 __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docking, gamepad control, and more.
+
+
+#### ImGui Feature Support Table
+| ofxImGui backend      | Viewports | Custom mouse cursors | Docking | Gamepads| GL SL | GL ES | Vulkan | Multiple ofxAppWindows | Context sharing |
+|-----------------------|-----------|----------------------|---------|---------|-------|-------|--------|------------------------|-----------------|
+|  EngineGLFW           | [x]       | [x]*                 | [x]     | [x]     | [x]   | [x]   | Maybe  | [ ]                    | [ ]             |
+|  EngineOpenFrameworks | [ ]       | [ ]                  | [x]     | [ ]     | [x]   | [x]   | Maybe  | [ ]                    | [ ]             |
+
+__*__ Partial support, by default not all cursors are enabled, see [Updating GLFW](./Developpers.md#Improve-ofxImGui-s-backend-bindings).
 
 - - - -
 

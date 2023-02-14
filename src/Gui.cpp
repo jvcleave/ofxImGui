@@ -62,6 +62,8 @@ namespace ofxImGui
             return;
         }
 
+        ImGuiContext* existingContext = ImGui::GetCurrentContext(); // Basically null, except when multiple ofAppWindows use ofxImGui
+
         if( imguiContexts.find( curWindow ) != imguiContexts.end() ){
             context = imguiContexts[curWindow];//ImGui::GetCurrentContext();
             ownedContext = false;
@@ -82,8 +84,10 @@ namespace ofxImGui
         }
         // Create a unique context for this window
         else {
-            context = ImGui::CreateContext(); // Todo : pass shared fontatlas instance ?
-            ownedContext = true;
+            context = existingContext==NULL?ImGui::CreateContext():existingContext; // Todo : pass shared fontatlas instance ?
+            ownedContext = existingContext==NULL;
+            //ofLogVerbose("Gui::setup()") << "ImGui::GetCurrentContext()=" << ((existingContext!=nullptr)? (void*)existingContext : "NULL") << (ownedContext?" (owned)":" (slave)");
+
             imguiContexts[curWindow] = context;
 
             // Note: only the first instance's setup() can set settings
@@ -233,7 +237,8 @@ namespace ofxImGui
         ImGuiIO& io = ImGui::GetIO();
 
         if( _atlasFont == nullptr ){
-            io.FontDefault = NULL; // default value, uses 0
+            // Don't override default font with nullptr
+            //io.FontDefault = NULL; // default value, uses 0
         }
         else {
             for(int i=0; i<io.Fonts->Fonts.size(); ++i){
@@ -245,7 +250,7 @@ namespace ofxImGui
             }
 
             // None found --> set default
-            io.FontDefault = NULL;
+            //io.FontDefault = NULL;
         }
         return false;
     }
@@ -274,14 +279,13 @@ namespace ofxImGui
 		if (io.Fonts->Fonts.size() > 0) {
             io.Fonts->Build();
             if( engine.updateFontsTexture() ){
-                if(_setAsDefaultFont) setDefaultFont(font);
+                // Set default font when there's none yet, or as requested
+                if(_setAsDefaultFont || io.FontDefault == nullptr) setDefaultFont(font);
                 return font;
             }
             else return nullptr;
 		}
-		else {
-            return nullptr;
-		}
+		return nullptr;
 	}
 	//--------------------------------------------------------------
 	ImFont* Gui::addFontFromMemory(void* fontData, int fontDataSize, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
@@ -412,6 +416,10 @@ namespace ofxImGui
 
         ImGui::SetCurrentContext(context);
 
+        // Help people loading fonts incorrectly
+        ImGuiIO& io = ImGui::GetIO();
+        IM_ASSERT( io.Fonts->IsBuilt() );
+
         //std::cout << "New Frame in context " << context << " in window " << ofGetWindowPtr() << " (" << ofGetWindowPtr()->getWindowSize().x << ")" << std::endl;
         engine.newFrame();
         ImGui::NewFrame();
@@ -449,7 +457,7 @@ namespace ofxImGui
             }
 
             // End submitting to ImGui
-            engine.endFrame();
+            //engine.endFrame();
             ImGui::EndFrame();
 
             //render(); // Now called after ofApp::draw() using a callback.
@@ -462,7 +470,7 @@ namespace ofxImGui
                 return;
             }
 
-            engine.endFrame(); // (Does nothing...)
+            //engine.endFrame(); // (Does nothing...)
             ImGui::EndFrame();
         }
     }

@@ -231,11 +231,6 @@ namespace ofxImGui
         ImGui_ImplGlfw_NewFrame();
     }
 
-    //--------------------------------------------------------------
-    void EngineGLFW::endFrame()
-    {
-
-    }
 
 	//--------------------------------------------------------------
     void EngineGLFW::render()

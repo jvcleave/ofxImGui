@@ -5,7 +5,7 @@
 #if defined( TARGET_RASPBERRY_PI ) && defined( TARGET_GLFW_WINDOW )
 
 #ifndef GLFW_GAMEPAD_BUTTON_A
-#pragma message "Warning, you are using an older GLFW version. Trying to load some fallbacks."
+#pragma message "Warning, you are using an older GLFW version. Trying to provide some fallbacks."
 #endif
 
 // Dirty: Add support for older GLFW releases (needed for RPi Stretch at least, Glfw 3.2)

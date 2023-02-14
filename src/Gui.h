@@ -3,15 +3,21 @@
 #include "ofImage.h"
 #include "ofPixels.h"
 #include "ofTexture.h"
+#include "ofEvent.h"
 
 #include <map>
 
-#if defined (OF_TARGET_API_VULKAN)
+#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
+#include "EngineOpenFrameworks.h"
+#elif defined (OF_TARGET_API_VULKAN)
 #include "EngineVk.h"
-#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
-#include "EngineOpenGLES.h"
+//#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+//#include "EngineOpenGLES.h"
+//#elif defined(TARGET_GLFW_WINDOW)
 #else
 #include "EngineGLFW.h"
+//#else
+//#pragma error "Sorry, you cannot run ofxImGui on your openFrameworks configuration. Try using GLFW windows for your project."
 #endif
 
 #include "DefaultTheme.h"
@@ -56,15 +62,17 @@ namespace ofxImGui
     private:
         void render();
 
-#if defined (OF_TARGET_API_VULKAN)
+#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
+        EngineOpenFrameworks engine;
+#elif defined (OF_TARGET_API_VULKAN)
         EngineVk engine;
-#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
-        EngineOpenGLES engine;
+//#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+//        EngineOpenGLES engine;
 #else
         EngineGLFW engine;
 #endif
         
-        float lastTime=0.f;
+//        float lastTime=0.f; // unused ?
         bool autoDraw=true;
         ofEventListener listener;
 

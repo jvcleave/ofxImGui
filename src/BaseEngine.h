@@ -20,8 +20,7 @@ namespace ofxImGui
 		virtual void setup(bool autoDraw) = 0;
 		virtual void exit() = 0;
 
-        virtual void newFrame() = 0;
-        virtual void endFrame() = 0; // todo: remove ?
+		virtual void newFrame() = 0;
         virtual void render() = 0;
 
         virtual bool updateFontsTexture() = 0;

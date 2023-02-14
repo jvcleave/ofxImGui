@@ -10,8 +10,7 @@
 
 static const int kImGuiMargin = 10;
 
-
-
+// Todo: ScopedHelpers like in ImGuiMagnumIntegration and Cinder's ImGui
 
 namespace ofxImGui
 {

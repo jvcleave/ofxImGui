@@ -1,9 +1,13 @@
 #pragma once
 
-// Exclude Vulkan
-#if !defined(OF_TARGET_API_VULKAN)
-
 #include "ofConstants.h"
+
+// Warn Vulkan users
+#if defined(OF_TARGET_API_VULKAN)
+#pragma GCC error "Sorry, there's no support for Vulkan yet while it should be very easy to implement"
+// See https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_vulkan.h or ImGui_ImplGlfw_InitForVulkan
+//#include "backends/imgui_impl_vulkan.h"
+#endif
 
 // This include is also used in the imgui glfw example, I hope it breaks nothing....
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -58,7 +62,6 @@ namespace ofxImGui
 		void exit() override;
 
         void newFrame() override;
-        void endFrame() override;
         void render() override;
 
         bool updateFontsTexture() override;
@@ -88,4 +91,3 @@ namespace ofxImGui
 	};
 }
 
-#endif
