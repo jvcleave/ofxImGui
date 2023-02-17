@@ -53,7 +53,8 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 Older versions of ofxImGui, which come with an older DearImGui version, use a simpler backend very close to OF, probably compatible with any OF version at that time. Try the latest [ofxImGui legacy version 1.77](https://github.com/jvcleave/ofxImGui/tree/legacy), or try [this untested transition commit](https://github.com/jvcleave/ofxImGui/tree/05ab1311511523c63c6f22d38ee015942b9ea557) together with `OFXIMGUI_ENABLE_OF_BINDINGS` if you need ImGui 1.79 features.
 
 #### oF & ImGui Support Table
-New ImGui versions bring changes and new API features, sometimes depreciations. 
+New ImGui versions bring changes and new API features, sometimes depreciations.  
+Versions are tagged in the git repo.
 
 | ofxImGui version  | ImGui version | Supported oF version |
 |------------------:|---------------|----------------------|
@@ -70,14 +71,20 @@ New ImGui versions bring changes and new API features, sometimes depreciations.
 __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docking, gamepad control, and more.
 
 
-#### ImGui Feature Support Table
-| ofxImGui backend      | Viewports | Custom mouse cursors | Docking | Gamepads| GL SL | GL ES | Vulkan | Multiple ofxAppWindows | Context sharing |
-|-----------------------|-----------|----------------------|---------|---------|-------|-------|--------|------------------------|-----------------|
-|  EngineGLFW           | [x]       | [x]*                 | [x]     | [x]     | [x]   | [x]   | Maybe  | [ ]                    | [ ]             |
-|  EngineOpenFrameworks | [ ]       | [ ]                  | [x]     | [ ]     | [x]   | [x]   | Maybe  | [ ]                    | [ ]             |
+#### ImGui Feature Support Table Per Backend
 
-__*__ Partial support, by default not all cursors are enabled, see [Updating GLFW](./Developpers.md#Improve-ofxImGui-s-backend-bindings).
+By default, ofxImGui uses the GLFW engine when possible, which gives the best user experience, falling back to the OpenFrameworks backend which is supported on most ofApp setups but provides slightly less ImGui functionality. You can force ofxImGui to use the OpenFrameworks one by defining `OFXIMGUI_ENABLE_OF_BINDINGS`.
 
+One tiny disadvantage of the Glfw backend is that multiwindow-together-with-viewports support might break on ImGui updates. There are automatic update scripts, but they might not work in the future. Without the custom modifications, it will work fine but you'll have to choose between multiwindow or viewports, knowing that you can configure ImGui to never merge viewport windows with the host window.
+
+| ofxImGui backend      | Viewports | Custom mouse cursors | Docking | Gamepads| GL SL | GL ES | Vulkan | Multiple ofxAppWindows | Automatic Contexts |
+|-----------------------|-----------|----------------------|---------|---------|-------|-------|--------|------------------------|--------------------|
+|  EngineGLFW           | [x]       | [x]*                 | [x]     | [x]     | [x]   | [x]   | Maybe  | [x]^                   | [x]!               |
+|  EngineOpenFrameworks | [ ]       | [ ]                  | [x]     | [ ]     | [x]   | [x]   | Maybe  | [x]^                   | [x]!               |
+
+- __*__ Partial support, by default not all cursors are enabled, see [Updating GLFW](./Developpers.md#Improve-ofxImGui-s-backend-bindings).
+- __^__ One Context per ofAppWindow (isolated mode): No inter-communication between the GUIs until ImGui supports additional host viewports. (_EngineGLFW backend is slightly modified for supporting it_)
+- __!__ A singleton class ensures ensures the creation of the ImGui Context within openFrameworks. If multiple source files setup ofxImGui, the first sets up normally (as a master), the following ones as slaves, both still being able to draw to the same gui context. This can be useful when using ofxImGui from multiple ofxAddons.
 - - - -
 
 ## Usage
@@ -101,7 +108,7 @@ DearImGui needs to know your GL Context. ofxImGui tries to match your project's 
 Calling `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs.  
 ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp (use the addon within multiple addons). This feature (shared context) is automatically enabled when a second `ofxImGui::Gui` instance is created within the same application's platform window context. See example-sharedContext for more tweaks.  
 _Note: Only the fist call to `gui.setup()` has full control over the settings (master); the next ones setup as slaves._  
-_Note: Any call to `setup()` has to be done from a valid ofWindow, `ofGetWindowPtr()` is used internally._  
+_Note: Any call to `setup()` has to be done from a valid ofWindow, `ofGetWindowPtr()` is used internally to associate the gui context to that exact ofWindow._  
 - **theme** : `nullptr` (use default theme, default), `BaseTheme*` (pointer to you theme instance))
 - **autoDraw** : `true` (automatic, sets up a listener on `ofApp::afterDraw()`, default) / `false` (manual, allows more precise control over the oF rendering pipeline, you have to call `myGui.draw()` )
 - **customFlags** : `ImGuiConfigFlags` ( set custom ImGui config flags, default: `ImGuiConfigFlags_None`)

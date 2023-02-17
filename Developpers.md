@@ -35,23 +35,29 @@ Here are some instructions for updating DearImGui within ofxImGui:
 
 ### Applying platform specific hacks
 After updating imgui, it's required to do some changes.
-- *For multiwindow support* (until the backend evolves towards multi context support or other).  
-In `imgui_impl_gflw`, add this right below the first `IM_ASSERT`s in `ImGui_ImplGlfw_NewFrame(){}` :  
+- *For multiwindow support with viewports enabled* : Enable support for multiple contexts in the glfw backend.  
+In `imgui_impl_gflw.cpp` : Add context registering, switching and restoring.
 ````cpp
-	// Custom hack : switch g_Window too !
-	//#ifdef IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME
-    //    IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME();
-    //#endif
-    // Note: not required anymore ! ^_^
+// Below #include "imgui_impl_glfw.h"
+#include "backends/imgui_impl_glfw_context_support.h" // CUSTOM ADDED LINE FOR OFXIMGUI
+
+// Within all GLFW callback functions taking `window` as 1st arg, add this to the begin :
+ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+
+// At the end of ImGui_ImplGlfw_CreateWindow :
+ImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext()); // CUSTOM ADDED LINE FOR OFXIMGUI
+
+// In ImGui_ImplGlfw_DestroyWindow, right before `if (vd->WindowOwned)` :
+ImGui_ImplGlfw_RemoveWindowContext(vd->Window); // CUSTOM ADDED LINE FOR OFXIMGUI
 ````  
-The issue is that some globals are hardcoded. Switching context is possible, but the `g_Window` global variable isn't switched.  
+Switching contexts is possible since these issues, but still we are in "Isolation mode". Right now, ImGui doesn't offer a way to register additional host viewports from a native system window, but they plan to support it in the future. So now we create an ImGui context per ofAppWindow.
 Related issues:
+     - [Multiple GLFW contexts : glfw event binding](https://github.com/ocornut/imgui/issues/5439)
      - [Does GLFW implementation only handle one GLFWindow?](https://discourse.dearimgui.org/t/does-glfw-implementation-only-handle-one-glfwindow/305)
      - [Add support for multiple GLFW contexts](https://github.com/ocornut/imgui/pull/3934)
      - [Multiple host viewports](https://github.com/ocornut/imgui/issues/3012)
      - [Correct use of ImGui_ImplGlfw_NewFrame with multiple ImGui contexts, and g_Time](https://github.com/ocornut/imgui/issues/2526)
      - [Nesting multiple imgui contexts (glfw+opengl3)](https://github.com/ocornut/imgui/issues/2004)
-- *Support standalone viewports* (pop-out windows) : Apply the changes of [this commit](https://github.com/Daandelange/imgui/commit/29a2d14fda62795fbd009239509e3ad6916a4836) until they get merged/fixed in imgui.
 - *Add GL ES 1 support so that it compiles on Rpis :*  in `imgui_impl_opengl2.cpp`
 ````cpp
 // --- CUSTOM MODIFICATION
