@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ofConstants.h"
+//#include "ofConstants.h"
 
 // This include is also used in the imgui glfw example, I hope it breaks nothing....
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -42,7 +42,7 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup(bool autoDraw) override;
+		void setup(ofAppBaseWindow* _window, bool autoDraw) override;
 		void exit() override;
 
         void newFrame() override;

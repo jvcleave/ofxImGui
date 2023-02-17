@@ -3,6 +3,8 @@
 #include "ofAppRunner.h"
 #include "ofAppGLFWWindow.h"
 
+//#include "imgui.h"
+//#include "backends/imgui_impl_glfw.h"
 
 
 // Todo: Texture/Pixel loading functions: Stop using ofDisableArbTex and use appropriate textureSettings instead.
@@ -53,14 +55,9 @@ namespace ofxImGui
             ofLogError("Gui::setup()") << "You have to call setup() from within an active oF window context ! Try calling setup() at ofApp::setup() or later.";
             return; // todo: assert would be more appropriate to notify the dev ?
         }
-        // Check context Ptr type
-        if( dynamic_cast<ofAppGLFWWindow*>(curWindow) == nullptr){
-            ofLogError("Gui::setup()") << "Sorry, for now ofxImGui only works with ofAppGLFWWindow...";
-            return; // todo: assert would be more appropriate to notify the dev ?
-        }
-        // Check for a GLFWwindow
+		// Check if the undelying window is valid too
         else if((void*)curWindow->getWindowContext() == nullptr){
-            ofLogError("Gui::setup()") << "Sorry, for now ofxImGui only works with GLFWwindow...";
+			ofLogError("Gui::setup()") << "Sorry, for now ofxImGui needs to be setup in a valid window object.";
             return;
         }
 
@@ -68,7 +65,8 @@ namespace ofxImGui
 
         if( imguiContexts.find( curWindow ) != imguiContexts.end() ){
             context = imguiContexts[curWindow];//ImGui::GetCurrentContext();
-            ownedContext = false;
+			ownedContext = (existingContext==NULL);
+			ownedWindow = false;
             sharedModes[context] = true; // tells master that the context is shared
 
             // Enable listener if autoDraw is on
@@ -86,15 +84,25 @@ namespace ofxImGui
         }
         // Create a unique context for this window
         else {
-            context = existingContext==NULL?ImGui::CreateContext():existingContext; // Todo : pass shared fontatlas instance ?
-            ownedContext = existingContext==NULL;
+			context = ImGui::CreateContext();//(existingContext==NULL)?ImGui::CreateContext():existingContext; // Todo : pass shared fontatlas instance ?
+
+			if(existingContext==NULL){
+				ownedContext = true;
+			}
+			else {
+				ownedContext = false;
+
+				// Create a new ImGuiIO for this window ?
+			}
+			ownedContext = true;
+			ownedWindow = true;
             //ofLogVerbose("Gui::setup()") << "ImGui::GetCurrentContext()=" << ((existingContext!=nullptr)? (void*)existingContext : "NULL") << (ownedContext?" (owned)":" (slave)");
 
             imguiContexts[curWindow] = context;
 
             // Note: only the first instance's setup() can set settings
             autoDraw = autoDraw_;
-            sharedModes[context] = false;
+			sharedModes[context] = false; // Start with unshared context
 
             if( autoDraw && curWindow!=nullptr ){
                 listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
@@ -112,35 +120,39 @@ namespace ofxImGui
         // Note : In chaining mode, additional flags can still be set.
         io.ConfigFlags |= customFlags_;
 
-        // Already-setup contexts exit early
-        if( !ownedContext ) {
+		// Already-setup window = exit early
+		if( !ownedWindow ) {
 #ifdef OFXIMGUI_DEBUG
             ofLogVerbose("Gui::setup()") << "Context is not owned, skipping some settings and not binding the engine again.";
 #endif
             return;
         }
 
-        // Mouse cursor drawing (disabled by default, oF uses the system mouse)
-        io.MouseDrawCursor = _showImGuiMouseCursor;
-
-        // Handle gui state saving
-        if(!_restoreGuiState) io.IniFilename = nullptr;
-
-        if(ownedContext) engine.setup(autoDraw);
-        else {
-            //ImGui_ImplGlfw_InstallCallbacks( (GLFWwindow*) curWindow->getWindowContext() );
-        }
-
-
-		if (theme_)
+		// Master may change settings
+		if(ownedContext)
 		{
-			setTheme(theme_);
+			// Mouse cursor drawing (disabled by default, oF uses the system mouse)
+			io.MouseDrawCursor = _showImGuiMouseCursor;
+
+			// Handle gui state saving
+			if(!_restoreGuiState) io.IniFilename = nullptr;
 		}
-		else
+
+		engine.setup( curWindow, autoDraw);
+
+		// Master may change settings
+		if(ownedContext)
 		{
-            DefaultTheme* defaultTheme = new DefaultTheme();
-			setTheme((BaseTheme*)defaultTheme);
-        }
+			if (theme_)
+			{
+				setTheme(theme_);
+			}
+			else
+			{
+				DefaultTheme* defaultTheme = new DefaultTheme();
+				setTheme((BaseTheme*)defaultTheme);
+			}
+		}
 
         //std::cout << "Fonts= " << io.Fonts->Fonts.size() << std::endl;
 	}
@@ -430,7 +442,6 @@ namespace ofxImGui
         //std::cout << "New Frame in context " << context << " in window " << ofGetWindowPtr() << " (" << ofGetWindowPtr()->getWindowSize().x << ")" << std::endl;
         engine.newFrame();
         ImGui::NewFrame();
-        //ImGui::AddUpdateViewport();
 
         isRenderingFrame[context] = true;
 	}

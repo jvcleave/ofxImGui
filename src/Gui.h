@@ -21,11 +21,30 @@
 #endif
 
 #include "DefaultTheme.h"
+//#include "imgui.h" // for ImFont*
+struct ImFont;
+//#include "imgui_internal.h" // for ImGuiContext*
+struct ImGuiContext;
+
+// Notes on context handling in ImGui
+// - Ideally, we should create 1 imgui context per ofApp and one host viewports per ofAppBaseWindow, which actually is not possible.
+//   Related issues:
+//     - Use of viewports with existing windows : https://github.com/ocornut/imgui/issues/4298
+//     - Multiple host viewports (solution: 1 context per window) : https://github.com/ocornut/imgui/issues/3012
+// - Currently implemented, the easiest way to achieve this is by providing one ImGui context per ofWindow, letting instances draw to it.
+//   The only drawback of this is that ImGui windows (or other draggables) cannot be moved to the other gui.
+//   This should not be an issue in most ofApps. Generally in GPU apps it's recommended to keep the GUI to one application window.
+
+// Todo: We could provide a way to intercept/filter OF mouse clicks when they are used by ImGui ?
 
 namespace ofxImGui
 {
 	class Gui
 	{
+		// to provide access to window->context map
+		friend class BaseEngine;
+		friend class EngineGLFW;
+		friend class EngineOpenFrameworks;
 	public:
 		Gui();
 		~Gui();
@@ -33,6 +52,7 @@ namespace ofxImGui
         void setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool _restoreGuiState = false, bool _showImGuiMouseCursor = false );
 		void exit();
 
+        // Todo: remove these ? Adapt them ?
         void setSharedMode(bool _sharedMode=true);
         bool isInSharedMode() const;
 
@@ -56,6 +76,7 @@ namespace ofxImGui
 
 		GLuint loadTexture(const std::string& imagePath);
 		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
+		// todo: updateFontTexture ?
 
         void afterDraw(ofEventArgs& _args); // Listener
 
@@ -72,7 +93,6 @@ namespace ofxImGui
         EngineGLFW engine;
 #endif
         
-//        float lastTime=0.f; // unused ?
         bool autoDraw=true;
         ofEventListener listener;
 
@@ -85,7 +105,7 @@ namespace ofxImGui
         ImGuiContext* context = nullptr; // Short-hand value, same as stored in the map
         // todo: rename to ownsContext
         bool ownedContext = false; // Copy of context, set when it needs destruction
-
+		bool ownedWindow = false; // Copy of context, set when it needs destruction
         static std::map< ofAppBaseWindow*, ImGuiContext* > imguiContexts; // Holds all available ImGui instances per window.
         static std::map< ImGuiContext*, bool > isRenderingFrame; // isRenderingFrame, per context
         static std::map< ImGuiContext*, bool > sharedModes; // Shared mode, per context

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ofConstants.h"
+//#include "ofConstants.h"
 
 // Warn Vulkan users
 #if defined(OF_TARGET_API_VULKAN)
-#pragma GCC error "Sorry, there's no support for Vulkan yet while it should be very easy to implement"
+#pragma GCC error "Sorry, there's no tested support for Vulkan yet while it should be very easy to implement"
 // See https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_vulkan.h or ImGui_ImplGlfw_InitForVulkan
 //#include "backends/imgui_impl_vulkan.h"
 #endif
@@ -14,26 +14,24 @@
 #include <GLES2/gl2.h>
 #endif
 
-#include "GLFW/glfw3.h"
-
 #include "BaseEngine.h"
 
-#include "ofEvents.h"
-//#include "imgui.h"
-
-// Draft implementation if enabled. Doesn't work in multi-contexts, but might allow intercepting gui-input later.
-//#define INTERCEPT_GLFW_CALLBACKS 1 // Works better without the backend modification
-#define INTERCEPT_GLFW_CALLBACKS 0 // Needs a modified backend for now (see imgui#3934)
+// Enable a bit more complicated callback interface
+// It fixes viewports in multiple contexts (one per ofAppWindow)
+// If this stuff breaks, you can set this to 0 or add a define to your compilation settings.
+#ifndef INTERCEPT_GLFW_CALLBACKS
+#define INTERCEPT_GLFW_CALLBACKS 1 // Works fine with the backend modification, otherwise breaks in multi-ofAppWindows
+//#define INTERCEPT_GLFW_CALLBACKS 0 // Works natively too but not with multi-ofAppWindows
+#endif
 
 #if INTERCEPT_GLFW_CALLBACKS == 1
-#include <map>
 class ImGuiContext; // fwd declare to prevent inclusion
 struct GLFWwindow;
 
-struct UniqueWindowData {
-	ImGuiContext* imguiContext;
-	ofAppBaseWindow* ofWindow;
+#include "GLFW/glfw3.h"
+#include "LinkedList.hpp"
 
+struct GlfwCallbacks {
 	// To store the original openFrameworks callbacks
 	GLFWwindowfocusfun      originalCallbackWindowFocus;
 	GLFWcursorenterfun      originalCallbackCursorEnter;
@@ -44,6 +42,7 @@ struct UniqueWindowData {
 	GLFWcharfun             originalCallbackChar;
 	GLFWmonitorfun          originalCallbackMonitor;
 };
+
 #endif
 
 namespace ofxImGui
@@ -58,7 +57,7 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup(bool autoDraw) override;
+		void setup(ofAppBaseWindow* _window, bool autoDraw) override;
 		void exit() override;
 
         void newFrame() override;
@@ -73,20 +72,35 @@ namespace ofxImGui
 		// We act as the imgui backend : unbinding OF events then calling them with the new functions again
 		// Idea: Maybe not-so-tmp; this might also facilitate some nice hackery to (optionally) stop propagation to OF when ImGui is being used ? :D
 
-		static void GlfwWindowFocusCallback(GLFWwindow* window, int focused);        // Since 1.84
-		static void GlfwCursorEnterCallback(GLFWwindow* window, int entered);        // Since 1.84
-		static void GlfwCursorPosCallback(GLFWwindow* window, double x, double y);   // Since 1.87
-		static void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-		static void GlfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-		static void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-		static void GlfwCharCallback(GLFWwindow* window, unsigned int c);
-		static void GlfwMonitorCallback(GLFWmonitor* monitor, int event);
+		// These allow binding a static method and call the member functions below.
+		// They simply route events to the engine instance of the corresponding window
+		static void GlfwWindowFocusCallbackGlobal(GLFWwindow* window, int focused);        // Since 1.84
+		static void GlfwCursorEnterCallbackGlobal(GLFWwindow* window, int entered);        // Since 1.84
+		static void GlfwCursorPosCallbackGlobal(GLFWwindow* window, double x, double y);   // Since 1.87
+		static void GlfwMouseButtonCallbackGlobal(GLFWwindow* window, int button, int action, int mods);
+		static void GlfwScrollCallbackGlobal(GLFWwindow* window, double xoffset, double yoffset);
+		static void GlfwKeyCallbackGlobal(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void GlfwCharCallbackGlobal(GLFWwindow* window, unsigned int c);
+		static void GlfwMonitorCallbackGlobal(GLFWmonitor* monitor, int event);
 
+		// Non-static callbacks
+		void GlfwWindowFocusCallback(GLFWwindow* window, int focused);        // Since 1.84
+		void GlfwCursorEnterCallback(GLFWwindow* window, int entered);        // Since 1.84
+		void GlfwCursorPosCallback(GLFWwindow* window, double x, double y);   // Since 1.87
+		void GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+		void GlfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+		void GlfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+		void GlfwCharCallback(GLFWwindow* window, unsigned int c);
+		void GlfwMonitorCallback(GLFWmonitor* monitor, int event);
 
-		//void setCallbacks();
-		//void removeCallbacks();
-		static ImGuiContext* getImGuiContextOfWindow(const GLFWwindow*);
-		static std::map<const GLFWwindow*, UniqueWindowData> glfwContexts; // for resolving bound instances juggled between events
+		static LinkedList<GLFWwindow, EngineGLFW> enginesMap;
+		// Alternative: Use GLFW callback userdata to find back our object when the static callback is called
+		// See https://github.com/ocornut/imgui/pull/3934#issuecomment-873213161
+		// I didn't use this but it could give more flexibility.
+		// Error : OF also sets GLFW user pointer. If we set it, OF breaks.
+
+		// One storage for all original callbacks
+		GlfwCallbacks originalOFCallbacks;
 #endif
 	};
 }

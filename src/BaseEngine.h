@@ -3,12 +3,16 @@
 #include "ofEvents.h"
 #include "ofAppBaseWindow.h"
 
-#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
+//#include "imgui.h"
+class ImGuiContext;
+
+//#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
 namespace ofxImGui
 {
 	class BaseEngine
 	{
+			friend class EngineGLFW;
 	public:
 		BaseEngine()
 			: isSetup(false)
@@ -17,7 +21,7 @@ namespace ofxImGui
 		virtual ~BaseEngine()
 		{}
 
-		virtual void setup(bool autoDraw) = 0;
+		virtual void setup(ofAppBaseWindow* _window, bool autoDraw) = 0;
 		virtual void exit() = 0;
 
 		virtual void newFrame() = 0;
@@ -30,7 +34,17 @@ namespace ofxImGui
 		virtual GLuint loadTextureImage2D(unsigned char * pixels, int width, int height);
 
 	protected:
+		const char* getGLVersionFromOF() const;
 		bool isSetup;
+
+		// Context handling helpers for events
+		bool setImGuiContext();
+		void restoreImGuiContext();
+
+		// Copy of associated ImGui context
+		// For handling events, as we don't know which context is set when they are called
+		ImGuiContext* imguiContext = nullptr;
+		ImGuiContext* imguiContextPrev = nullptr;
 	};
 }
 

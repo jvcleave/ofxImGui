@@ -460,7 +460,7 @@ void ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered)
 void ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c)
 {
 	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
-	std::cout << "Charevent on window " << window << std::endl;
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackChar != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackChar(window, c);

@@ -14,8 +14,75 @@
 
 #pragma once
 
-// USE the OF GL loader (GLEW), otherwise it will autodetect the system glew headers
-#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "GL/glew.h"
+// USE the OF GL loader (GLEW), otherwise imgui will autodetect the system glew headers
+// Note: Since imgui 1.89.3 there's a new custom loader that we might be able to use too ?
+// They use a stripped gl3w loader while Openframeworks uses glew, let's use that one for simplicity.
+// Todo: See ofConstants.h : glew is only used on desktop LIN/MAC/PC ?
+// See imgui_impl_opengl3_loader.h : We should use the embedded GL loader and «NOT BUILD BOTH IN THE SAME COMPILATION UNIT»
+
+// Try load them all using OF_CONSTANTS ?
+// Pros: Sure not to break, adapted to the user OF version
+// Cons: Includes lots of useless garbage
+#ifdef OFXIMGUI_USE_NATIVE_OF_LOADER
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "ofConstants.h"
+
+// Otherwise use this simplification of the opengl loader part in ofConstants.h
+#else
+// OSX / Windows
+#if defined(TARGET_OSX) || defined(TARGET_WIN32)
+	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "GL/glew.h"
+#elif defined(TARGET_LINUX)
+	// Linux can be GLES or GL SL
+	#ifdef TARGET_OPENGLES // #ifdef TARGET_LINUX_ARM
+		#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "EGL/egl.h" // Needs EGL/eglext.h too ?
+		//#include "GLES/gl.h"
+		//#include "GLES/glext.h"
+		//#include "GLES2/gl2.h"
+		//#include "GLES2/gl2ext.h"
+		//#define EGL_EGLEXT_PROTOTYPES
+		//#include "EGL/egl.h"
+		//#include "EGL/eglext.h"
+	#else
+		#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "GL/glew.h"
+	#endif
+#elif defined(TARGET_OF_IOS)
+	#pragma warning "Including untested GL loader for IOS !"
+	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM <OpenGLES/ES2/gl.h>
+	//#import <OpenGLES/ES1/gl.h>
+	//#import <OpenGLES/ES1/glext.h>
+	//#import <OpenGLES/ES2/gl.h>
+	//#import <OpenGLES/ES2/glext.h>
+#elif defined(TARGET_ANDROID)
+	#pragma warning "Including untested GL loader for Android !"
+	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM <GLES2/gl2.h>
+	//#include <typeinfo>
+	//#include <unistd.h>
+	//#include <GLES/gl.h>
+	//#define GL_GLEXT_PROTOTYPES
+	//#include <GLES/glext.h>
+	//#include <GLES2/gl2.h>
+	//#include <GLES2/gl2ext.h>
+#else
+	// Dummy fallback ?
+	#pragma warning "Including untested GL loader for UnknownPlatform !"
+	#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM "GL/glew.h"
+#endif
+#endif
+
+// Tmp: try to use the default loader ?
+#undef IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+
+// Setting or not setting it is the only option left.
+// We have to manually include the loaders now.
+// Keeping all code above for testing on RPI and other platforms.
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+//#include "ofConstants.h"
+
+// 1.89.3 fix misnamed defines
+//#define PFNGLBINDTEXTUREPROC PFNGLBINDTEXTURESPROC
+//#define PFNGLDELETETEXTURESPROC PFNGLDELETETEXTURESSPROC
+//#define PFNGLDRAWELEMENTSPROC PFNGLDRAWELEMENTSPROC
+
 
 //---- Define assertion handler. Defaults to calling assert().
 // If your macro uses multiple statements, make sure is enclosed in a 'do { .. } while (0)' block so it can be used as a single statement.
