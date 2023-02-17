@@ -33,10 +33,11 @@ Project{
         of.cFlags: []           // flags passed to the c compiler
         of.cxxFlags: []         // flags passed to the c++ compiler
         of.linkerFlags: []      // flags passed to the linker
-        of.defines: [
+        of.defines: [ // defines are passed as -D to the compiler
+                      // and can be checked with #ifdef or #if in the code
             'OFXIMGUI_DEBUG',
-        ]          // defines are passed as -D to the compiler
-                                // and can be checked with #ifdef or #if in the code
+            'OFXIMGUI_ENABLE_OF_BINDINGS',
+        ]
         of.frameworks: []       // osx only, additional frameworks to link with the project
         of.staticLibraries: []  // static libraries
         of.dynamicLibraries: [] // dynamic libraries

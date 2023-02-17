@@ -123,6 +123,8 @@ struct ExampleAppLog
 //--------------------------------------------------------------
 void ofApp::setup()
 {
+    ofSetEscapeQuitsApp(false);
+
     // First call to setup() for your main application menu (master).
     // Any next call to setup() will setup ofxImGui as a slave.
     ofAppGui.setup(nullptr, false, ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable , true);
