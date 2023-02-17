@@ -23,15 +23,16 @@ int main( ){
     #endif
 #endif
 
-    settings.setSize(300, 400);
-	settings.setPosition(ofVec2f(0, 100));
+	settings.setSize(400, 400);
+	settings.setPosition(ofVec2f(0, 220));
 
-    settings.title="Window 1";
+	settings.title="Master Window";
 	auto window1 = ofCreateWindow(settings);
 
-	settings.setPosition(ofVec2f(300, 100));
+    // Note: using a different width to test coordinates, specially useful in non-viewports mode where they are relative
+    settings.setPosition(ofVec2f(400, 20));
     settings.setSize(500, 600);
-    settings.title="Window 2";
+    settings.title="Slave Window";
 #if !defined( TARGET_OPENGLES )
     settings.shareContextWith = window1;
 #else
@@ -41,11 +42,13 @@ int main( ){
     // WARNING : settings.setGLVersion(2, 1);
     // For now, both GL versions must be the same for ImGui to work in a multiwindow context.
     auto window2 = ofCreateWindow(settings);
-    std::cout << "Window 1 = " << window1.get() << " // " << (ofAppGLFWWindow*) window1.get() << " // " << ((ofAppGLFWWindow*) window1.get())->getGLFWWindow() << std::endl;
-    std::cout << "Window 2 = " << window2.get() << " // " << (ofAppGLFWWindow*) window2.get() << " // " << ((ofAppGLFWWindow*) window2.get())->getGLFWWindow() << std::endl;
+
     auto app1 = std::make_shared<ofApp>();
     auto app2 = std::make_shared<ofApp>();
 
+
+    std::cout << "Window 1 = (ofAppBaseWindow)" << window1.get() << " // (ofAppGLFWWindow)" << (ofAppGLFWWindow*) window1.get() << " // (GLFWwindow)" << ((ofAppGLFWWindow*) window1.get())->getGLFWWindow() << std::endl;
+    std::cout << "Window 2 = (ofAppBaseWindow)" << window2.get() << " // (ofAppGLFWWindow)" << (ofAppGLFWWindow*) window2.get() << " // (GLFWwindow)" << ((ofAppGLFWWindow*) window2.get())->getGLFWWindow() << std::endl;
     ofRunApp(window1, app1);
     ofRunApp(window2, app2);
 
