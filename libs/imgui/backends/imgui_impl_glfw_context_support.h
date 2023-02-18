@@ -8,6 +8,8 @@
 // Glfw events are a bit messed; this ensures that the right windows events call upon the right imgui contexts. (see PR#3934 )
 // This file aims to reduce changes in the GLFW backend while injecting context switching before imgui callbacks are triggered.
 
+#pragma once
+
 #include "LinkedList.hpp"
 #include "backends/imgui_impl_glfw.h"
 

@@ -8,6 +8,8 @@
 // Relatively slow add/remove but very fast to iterate.
 // No ownership, just referencing pointers.
 
+#pragma once
+
 // Fwd declaration needed
 template<class T_KEY, class T_DATA>
 class LinkedList;
