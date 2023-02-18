@@ -10,18 +10,6 @@ _(Note: Internally, ImGui is not "ramming" on the CPU as most immediate-mode GUI
 
 - - - -
 
-### Branches
-| Branch   | Description |
-| ---------|-------------|
-| master   | Up-to-date with the latest oF, quite stable. |
-| develop  | Active development branch before releasing to the master |
-| legacy   | Depreciated. Used for compatibility with the original oF bindings. Can be used to have an updated (but limited) DearImGui in legacy ofxImGui projects. Can be used in non-GLFW rpi setups. |
-| OF**     | Master equivalent, blocked at the most update compatible with oF 0.**. |
-
-The master branch may not be tested on all platforms. See [Releases](https://github.com/daandelange/ofxImGui/releases/) for more extensively tested versions.
-
-- - - -
-
 ### Supported Platforms
 ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requirements](https://openframeworks.cc/download/). These are typically:
 
@@ -30,9 +18,7 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
  - Raspberry Pi
  - Linux Desktop
 
- Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**. For now, one ImGui instance is created per oF window, without any communication in between them (cross-docking won't work). Hopefully DearImGui will introduce something to handle «[multiple host viewports](https://github.com/ocornut/imgui/issues/3012)».
-
- Currently, **ofxImGui only works on GLFW-based openFrameworks applications**, this seems to become the new oF standard. Thus, the `RPI_LEGACY`, iOS and Vulkan implementations might be broken; as they've not yet been ported to the new ImGui backends. For non-GLFW windows, please use ofxImGui version `< 1.80`.
+ Currently, **ofxImGui has only be tested on GLFW-based openFrameworks applications**. Thus, the `RPI_LEGACY`, iOS, Android, Emscripten, and Vulkan implementations might be broken. They should be compatible but the GL pipeline setup and cpp includes remain to be tested; if you do so, please report back your findings.
 
 *Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with Raspbian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
 
@@ -83,8 +69,12 @@ One tiny disadvantage of the Glfw backend is that multiwindow-together-with-view
 |  EngineOpenFrameworks | [ ]       | [ ]                  | [x]     | [ ]     | [x]   | [x]   | Maybe  | [x]^                   | [x]!               |
 
 - __*__ Partial support, by default not all cursors are enabled, see [Updating GLFW](./Developpers.md#Improve-ofxImGui-s-backend-bindings).
-- __^__ One Context per ofAppWindow (isolated mode): No inter-communication between the GUIs until ImGui supports additional host viewports. (_EngineGLFW backend is slightly modified for supporting it_)
+- __^__ One Context per ofAppWindow (isolated mode): No inter-communication between the GUIs (cross-docking won't work).  
+  (_EngineGLFW backend is slightly modified for supporting multiple glfw contexts_)  
+  Hopefully DearImGui will introduce something to handle «[multiple host viewports](https://github.com/ocornut/imgui/issues/3012)».  
+  Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**.
 - __!__ A singleton class ensures ensures the creation of the ImGui Context within openFrameworks. If multiple source files setup ofxImGui, the first sets up normally (as a master), the following ones as slaves, both still being able to draw to the same gui context. This can be useful when using ofxImGui from multiple ofxAddons.
+
 - - - -
 
 ## Usage
@@ -95,7 +85,7 @@ cd /path/to/of/addons && git clone https://github.com/Daandelange/ofxImGui.git
 ````
 
 ### Optional
-Configure oF (tested with 0.11.0) to use GLFW 3.4 and imgui will have an even more polished interface. See [Developpers.md](./Developpers.md#Improve-ofxImGui-s-backend-bindings).  
+Configure oF (tested with 0.11.0 and 0.11.2) to use GLFW 3.4 and ImGui will have an even more polished interface. See [Developpers.md](./Developpers.md#Improve-ofxImGui-s-backend-bindings).  
 This step is also recommended for RPIs where GLFW is v3.2, which doesn't provide gamepad support.  
 
 ### Compilation flags
@@ -106,9 +96,15 @@ DearImGui needs to know your GL Context. ofxImGui tries to match your project's 
 
 ### Setup
 Calling `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs.  
-ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp (use the addon within multiple addons). This feature (shared context) is automatically enabled when a second `ofxImGui::Gui` instance is created within the same application's platform window context. See example-sharedContext for more tweaks.  
+ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp (to use the addon within multiple addons). This feature (shared mode) is automatically enabled when a second `ofxImGui::Gui` instance is created within the same application's platform window context. See example-sharedContext for more info.  
 _Note: Only the fist call to `gui.setup()` has full control over the settings (master); the next ones setup as slaves._  
 _Note: Any call to `setup()` has to be done from a valid ofWindow, `ofGetWindowPtr()` is used internally to associate the gui context to that exact ofWindow._  
+
+#### Return value
+The setup function returns an `ofxImGui::SetupState` indicating if the setup failed succeeded as a slave or master. 
+`if( gui->setup(...) & ofxImGui::SetupState::Success ) // I'm either a slave or a master`   
+
+#### Arguments
 - **theme** : `nullptr` (use default theme, default), `BaseTheme*` (pointer to you theme instance))
 - **autoDraw** : `true` (automatic, sets up a listener on `ofApp::afterDraw()`, default) / `false` (manual, allows more precise control over the oF rendering pipeline, you have to call `myGui.draw()` )
 - **customFlags** : `ImGuiConfigFlags` ( set custom ImGui config flags, default: `ImGuiConfigFlags_None`)
@@ -116,11 +112,13 @@ _Note: Any call to `setup()` has to be done from a valid ofWindow, `ofGetWindowP
 Helper for enabling ImGui's layout saving/restoring feature. Creates `imgui.ini` next to your app binary to save some GUI parameters.
 - **showImGuiMouseCursor** : `true` (use the imgui mouse cursor) or `false` (use default system mouse cursor, default).
 
-You might occasionaly want to enable `OFXIMGUI_DEBUG`, it provides some general warnings on mistakes and logs some important setup steps.
+Tip: While interfacing your ofApp with ofxImGui, a good practise is to enable `OFXIMGUI_DEBUG` together with `ofSetLogLevel(OF_LOG_VERBOSE)`, it provides some general warnings on mistakes and logs some important setup steps.
 
-#### Advanced setup : ImGui config flags & ImGui::GetIO().
+#### Advanced setup : ImGui config flags & ImGui::GetIO()
+
 ofxImGui provides a simple way to interface imgui, but it's a huge library providing lots of different options to suit your precise needs.  
-Most of these advanced options are explained in the `imgui_demo.cpp` source code. Also checkout `example-dockingandviewports` and `example-advanced`.
+Most of these advanced options are explained in the `imgui_demo.cpp` source code. Also checkout `example-dockingandviewports` and `example-advanced`.  
+Some options are: Docking, viewports, custom fonts, and other configuration flags.
 
 - - - -
 

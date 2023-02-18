@@ -100,6 +100,15 @@ class LinkedList {
 			}
 			return nullptr;
 		}
+		T_KEY* findKey(T_DATA* _data){
+			if(_data==nullptr) return nullptr;
+			LinkedListItem<T_KEY, T_DATA>* item = first;
+			while(item){
+				if(item->data == _data) return item->key;
+				item = item->getNext();
+			}
+			return nullptr;
+		}
 		LinkedListItem<T_KEY, T_DATA>* const getFirst(){
 			return first;
 		}

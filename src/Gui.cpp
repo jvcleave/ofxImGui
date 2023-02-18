@@ -11,8 +11,21 @@
 
 namespace ofxImGui
 {
+	enum SetupState : unsigned char {
+		Error = 0, // Keep to 0 so that it evaluates to false ?
+		Slave = 1 << 1,
+		Master = 1 << 2,
+		// Success flag
+		Success = Slave | Master, // Use like if(mState & Success)
+	};
+	std::ostream& operator<<(std::ostream& os, const SetupState& _state)
+	{
+		os << std::bitset<sizeof(SetupState)*8>(_state).to_string() << " (" << ((unsigned int)_state) << ")";
+		return os;
+	}
+
 	//--------------------------------------------------------------
-    Gui::Gui()
+	Gui::Gui() : context(nullptr)
 	{
         // This performs an ImGui version check (asserts on fail)
         // Probably of interest for DLL code that needs to draw to ImGui.
@@ -33,17 +46,18 @@ namespace ofxImGui
     // Creates 1 imgui context per oF window (glfw context).
     // Links the context handle to the correct window's imguicontext.
     // Todo: an optional ofAppBaseWindow* to specify a manual context instead of using the current active ofApp window.
-    void Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
+	// Returns a state indcating if the setup happened as slave or master
+	SetupState Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
 	{
 #ifdef OFXIMGUI_DEBUG
         ofLogVerbose("Gui::setup()") << "Setting up ofxImGui [" << this << "] in window " << ofGetWindowPtr();
 #endif
         // Instance already setup ?
-        if(context!=nullptr){
+		if( context!=nullptr ){
 #ifdef OFXIMGUI_DEBUG
             ofLogWarning("Gui::setup()") << "This Gui instance is already setup, you are calling it twice ! (ignoring this 2nd call)";
 #endif
-            return;
+			return isContextOwned ? SetupState::Master : SetupState::Slave;
         }
 
         // Check for existing context in current oF window.
@@ -53,59 +67,43 @@ namespace ofxImGui
         // Curwindow cannot be null
         if(curWindow==nullptr){
             ofLogError("Gui::setup()") << "You have to call setup() from within an active oF window context ! Try calling setup() at ofApp::setup() or later.";
-            return; // todo: assert would be more appropriate to notify the dev ?
+			return SetupState::Error;
         }
 		// Check if the undelying window is valid too
         else if((void*)curWindow->getWindowContext() == nullptr){
 			ofLogError("Gui::setup()") << "Sorry, for now ofxImGui needs to be setup in a valid window object.";
-            return;
+			return SetupState::Error;
         }
 
-        ImGuiContext* existingContext = ImGui::GetCurrentContext(); // Basically null, except when multiple ofAppWindows use ofxImGui
+		// Grab existing ImGui Context
+		ImGuiContext* existingImGuiContext = ImGui::GetCurrentContext(); // Null on first call ever
 
-        if( imguiContexts.find( curWindow ) != imguiContexts.end() ){
-            context = imguiContexts[curWindow];//ImGui::GetCurrentContext();
-			ownedContext = (existingContext==NULL);
-			ownedWindow = false;
-            sharedModes[context] = true; // tells master that the context is shared
+		// Does this ofBaseWindow already have an ofxImGuiContext ?
+		ofxImGuiContext* ofWindowContext = imguiContexts.findData( curWindow );
+		if( ofWindowContext != nullptr ){
+			ofWindowContext->isShared = true; // tells master that the context became shared
 
-            // Enable listener if autoDraw is on
-            // To be fully tested. It might be problematic that it's registering to the slave instance here.
-            if(autoDraw){
-                listener.unsubscribe();
-                listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
-            }
+			// Keep reference of master context
+			context = ofWindowContext;
+			isContextOwned = false;
 
 #ifdef OFXIMGUI_DEBUG
-            ofLogVerbose("Gui::setup()") << "Context " << context << " already exists in window " << curWindow << ", using the existing context as a shared one.";
-            if(!autoDraw) ofLogWarning("Gui::setup()") << "You are using manual rendering. This might cause a crash; to fix, ensure that you call the render function after all ofxImGui::Gui instances have send ImGui commands.";
-            //else ofLogNotice("Gui::setup()") << "Autodraw now happens after ofApp:draw() instead of when ofxImGui::end() is called." << std::endl;
+			ofLogNotice("Gui::setup()") << "Context " << context << "/" << context->imguiContext << " already exists in window " << curWindow << ", using the existing context as a shared one.";
+			if(autoDraw_) ofLogWarning("Gui::setup()") << "You requested to enable Autodraw, but this is a Slave setting. Not enabling autoDraw.";
 #endif
         }
         // Create a unique context for this window
         else {
-			context = ImGui::CreateContext();//(existingContext==NULL)?ImGui::CreateContext():existingContext; // Todo : pass shared fontatlas instance ?
+			context = new ofxImGuiContext();
+			isContextOwned = true;
 
-			if(existingContext==NULL){
-				ownedContext = true;
-			}
-			else {
-				ownedContext = false;
+			// Register
+			imguiContexts.add(curWindow, context);
 
-				// Create a new ImGuiIO for this window ?
-			}
-			ownedContext = true;
-			ownedWindow = true;
-            //ofLogVerbose("Gui::setup()") << "ImGui::GetCurrentContext()=" << ((existingContext!=nullptr)? (void*)existingContext : "NULL") << (ownedContext?" (owned)":" (slave)");
-
-            imguiContexts[curWindow] = context;
-
-            // Note: only the first instance's setup() can set settings
-            autoDraw = autoDraw_;
-			sharedModes[context] = false; // Start with unshared context
-
-            if( autoDraw && curWindow!=nullptr ){
-                listener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
+			// Enable autodraw
+			if( autoDraw_ && curWindow!=nullptr ){
+				context->autoDraw = true;
+				autoDrawListener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
             }
 
 #ifdef OFXIMGUI_DEBUG
@@ -113,70 +111,68 @@ namespace ofxImGui
 #endif
         }
 
-        ImGui::SetCurrentContext(context);
+		// Set context and grab IO
+		ImGui::SetCurrentContext(context->imguiContext);
         ImGuiIO& io = ImGui::GetIO();
-        (void)io;// The example does this too; probably to crashes if the io is invalid --> for easier debugging
+
+		// Dummy call that will crash if the io is invalid --> ie for easier debugging
+		(void)io;
 
         // Note : In chaining mode, additional flags can still be set.
         io.ConfigFlags |= customFlags_;
 
-		// Already-setup window = exit early
-		if( !ownedWindow ) {
+		// Already-setup window --> slaves exit early
+		if( !isContextOwned ) {
 #ifdef OFXIMGUI_DEBUG
             ofLogVerbose("Gui::setup()") << "Context is not owned, skipping some settings and not binding the engine again.";
 #endif
-            return;
+			return SetupState::Slave;
         }
 
-		// Master may change settings
-		if(ownedContext)
-		{
-			// Mouse cursor drawing (disabled by default, oF uses the system mouse)
-			io.MouseDrawCursor = _showImGuiMouseCursor;
+		// Master may set more settings
+		// Mouse cursor drawing (disabled by default, oF uses the system mouse)
+		io.MouseDrawCursor = _showImGuiMouseCursor;
 
-			// Handle gui state saving
-			if(!_restoreGuiState) io.IniFilename = nullptr;
+		// Handle gui state saving
+		if(!_restoreGuiState)
+			io.IniFilename = nullptr;
+
+		engine.setup( curWindow, context->autoDraw);
+
+		if (theme_)
+		{
+			setTheme(theme_);
+		}
+		else
+		{
+			DefaultTheme* defaultTheme = new DefaultTheme();
+			setTheme((BaseTheme*)defaultTheme);
 		}
 
-		engine.setup( curWindow, autoDraw);
-
-		// Master may change settings
-		if(ownedContext)
-		{
-			if (theme_)
-			{
-				setTheme(theme_);
-			}
-			else
-			{
-				DefaultTheme* defaultTheme = new DefaultTheme();
-				setTheme((BaseTheme*)defaultTheme);
-			}
-		}
-
-        //std::cout << "Fonts= " << io.Fonts->Fonts.size() << std::endl;
+		return SetupState::Master;
 	}
 
 	//--------------------------------------------------------------
 	void Gui::exit()
 	{
-        // Unregister the afterDraw() callback (if used)
-        listener.unsubscribe();
-
         // Exit engine
-        if(ownedContext){
-            ImGui::SetCurrentContext(context);
+		if(isContextOwned){
+
+			// Unregister the afterDraw() callback (if used)
+			autoDrawListener.unsubscribe();
+
+			ImGui::SetCurrentContext(context->imguiContext);
             engine.exit();
+
+			// Theme
+			if (theme)
+			{
+				delete theme;
+				theme = nullptr;
+			}
         }
 
-        // Theme
-		if (theme)
-		{
-			delete theme;
-			theme = nullptr;
-		}
-
-        // Textures
+		// Textures (slaves can have some too)
 		for (size_t i = 0; i < loadedTextures.size(); i++)
 		{
             if(loadedTextures[i])
@@ -188,35 +184,56 @@ namespace ofxImGui
 		loadedTextures.clear();
 
         // Destroy context
-        if(ownedContext){
-            auto it = imguiContexts.begin();
-            while( it != imguiContexts.end() && it->second != context ) it++;
-            if( it != imguiContexts.end() ) imguiContexts.erase(it);
+		if(isContextOwned){
+			// What if slaves exit() after the master ?
+			// Todo: maybe leave it alive ? Transfer ownership to slave ?
+			if(context!=nullptr){
 
-            auto frameEntry = isRenderingFrame.find(context);
-            if( frameEntry != isRenderingFrame.end()){
-                isRenderingFrame.erase(frameEntry);
-            }
+				// Unregister
+				ofAppBaseWindow* myOfWindow = imguiContexts.findKey(context);
+				if(myOfWindow!=nullptr){
+					imguiContexts.remove(myOfWindow);
+				}
+				else {
+					ofLogWarning("Gui::exit()") << "Master could not unregister the context !";
+				}
 
-            ImGui::DestroyContext(context);
-            ownedContext = false;
+#ifdef OFXIMGUI_DEBUG
+			ofLogNotice("Gui::exit()") << "Destroyed master context" << context << " that was bound to window " << myOfWindow << " (together with ImGuiContext" << context->imguiContext << ").";
+#endif
+
+				// Destroy
+				ImGui::DestroyContext(context->imguiContext);
+
+				// Set context to null so that slaves can know the context is gone.
+				context->imguiContext = nullptr;
+
+				isContextOwned = false;
+				delete context;
+			}
         }
-        context = nullptr;
+		else {
+#ifdef OFXIMGUI_DEBUG
+			ofLogNotice("Gui::exit()") << "Destroyed slave context " << context << ".";
+#endif
+
+			// Slaves set their context to nullptr without destroying anything
+			context = nullptr;
+		}
 		
 	}
 
     //--------------------------------------------------------------
-    // In some rare cases you might wish to enable or disable this manually. (in most cases it's automatic)
+	// In some rare cases you might wish to enable this manually. (in most cases it's automatic)
     void Gui::setSharedMode(bool _sharedMode) {
-        if(!context) return;
-        sharedModes[context]=_sharedMode;
+		if(!_sharedMode || !context || !context->imguiContext) return;
+		context->isShared = true;
     }
-    // Returns true if the context is setup and in shared mode.
+	// Returns true if the context is setup in shared mode
+	// (when multiple Gui instances share the same context).
     bool Gui::isInSharedMode() const {
-        if( !context ) return false;
-        auto ret = sharedModes.find(context);
-        if( ret == sharedModes.end()) return false; // Should never happen
-        return ret->second;
+		if( !context ) return false;
+		return context->isShared;
     }
 
     //--------------------------------------------------------------
@@ -226,7 +243,7 @@ namespace ofxImGui
             return false;
         }
 
-        ImGui::SetCurrentContext(context);
+		ImGui::SetCurrentContext(context->imguiContext);
         ImGuiIO& io = ImGui::GetIO();
         if( indexAtlasFont < 0 ){
             io.FontDefault = NULL; // default value, uses 0
@@ -247,24 +264,18 @@ namespace ofxImGui
             return false;
         }
 
-        ImGui::SetCurrentContext(context);
+		ImGui::SetCurrentContext(context->imguiContext);
         ImGuiIO& io = ImGui::GetIO();
 
-        if( _atlasFont == nullptr ){
-            // Don't override default font with nullptr
-            //io.FontDefault = NULL; // default value, uses 0
-        }
-        else {
+		// Don't override default font with nullptr
+		if( _atlasFont != nullptr ){
             for(int i=0; i<io.Fonts->Fonts.size(); ++i){
                 if(io.Fonts->Fonts[i] == _atlasFont){
                     // Set font
                     io.FontDefault = _atlasFont;
-                    return true; // break;
+					return true;
                 }
             }
-
-            // None found --> set default
-            //io.FontDefault = NULL;
         }
         return false;
     }
@@ -281,7 +292,7 @@ namespace ofxImGui
 	//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
 	//than necessary, so you may reduce that to 1.
 
-        ImGui::SetCurrentContext(context);
+		ImGui::SetCurrentContext(context->imguiContext);
 		ImGuiIO& io = ImGui::GetIO();
         std::string filePath = ofFilePath::getAbsolutePath(fontPath);
 
@@ -313,7 +324,7 @@ namespace ofxImGui
 		//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
 		//than necessary, so you may reduce that to 1.
 
-		ImGui::SetCurrentContext(context);
+		ImGui::SetCurrentContext(context->imguiContext);
 		ImGuiIO& io = ImGui::GetIO();
 
 		// ensure default font gets loaded once
@@ -343,8 +354,8 @@ namespace ofxImGui
 			theme = nullptr;
 		}
 		theme = theme_;
-        // ImGui::DestroyContext();
-        ImGui::SetCurrentContext(context);
+
+		ImGui::SetCurrentContext(context->imguiContext);
 		theme->setup();
 
         // Source : https://github.com/yumataesu/ofxImGui_v3/blob/23ff3e02ae3b99cb3db449b950c2f3e34424fbc8/src/ofxImGui.cpp#L12-L18
@@ -428,12 +439,20 @@ namespace ofxImGui
         }
 
         // Ignore 2nd call to begin(), to allow chaining
-        if( sharedModes.find(context) != sharedModes.end() && sharedModes[context] && isRenderingFrame.find(context) != isRenderingFrame.end() && isRenderingFrame[context] == true ){
+		if( context->isRenderingFrame == true ){
             // Already began context
+			if(!context->isShared){
+				// Notify misuse if shared context is off
+				static bool userWasWarned = false;
+				if(!userWasWarned){
+					ofLogWarning("Gui::begin()") << "The frame already began, and the context is not shared, you're probably not orchestrating begin/end calls correctly !";
+					userWasWarned = true;
+				}
+			}
             return;
         }
 
-        ImGui::SetCurrentContext(context);
+		ImGui::SetCurrentContext(context->imguiContext);
 
         // Help people loading fonts incorrectly
         ImGuiIO& io = ImGui::GetIO();
@@ -443,7 +462,7 @@ namespace ofxImGui
         engine.newFrame();
         ImGui::NewFrame();
 
-        isRenderingFrame[context] = true;
+		context->isRenderingFrame = true;
 	}
 
 	//--------------------------------------------------------------
@@ -457,9 +476,9 @@ namespace ofxImGui
         }
 
         // Let context open in shared mode.
-        if( sharedModes[context]==true ){
+		if( context->isShared==true ){
 #ifdef OFXIMGUI_DEBUG
-            if( !isRenderingFrame[context] ){
+			if( !context->isRenderingFrame ){
                 ofLogWarning("Gui::end()") << "The Gui already rendered, or forgot to call Gui::Begin() ! Please ensure you render the gui after other instances have rendered.";
             }
 #endif
@@ -468,9 +487,9 @@ namespace ofxImGui
 
 
         // Only render in autodraw mode.
-        if(autoDraw){
+		if(context->autoDraw){
             // Protection : don't endFrame() twice.
-            if( !isRenderingFrame[context] ){
+			if( !context->isRenderingFrame ){
                 return;
             }
 
@@ -484,7 +503,7 @@ namespace ofxImGui
         // Note: You cannot resume using ImGui::NewFrame() without flushing the pipeline.
         else {
             // Protection : don't endFrame() twice.
-            if( !isRenderingFrame[context] ){
+			if( !context->isRenderingFrame ){
                 return;
             }
 
@@ -498,11 +517,11 @@ namespace ofxImGui
     void Gui::render(){
         if( context==nullptr ) return;
 
-        ImGui::SetCurrentContext(context);
+		ImGui::SetCurrentContext(context->imguiContext);
         ImGui::Render();
         engine.render();
 
-        isRenderingFrame[context] = false;
+		context->isRenderingFrame = false;
     }
 
 	//--------------------------------------------------------------
@@ -511,13 +530,13 @@ namespace ofxImGui
 		if(!context) return;
 
         // Just for clarity, we require draw() not to be used in autoDraw mode.
-        if( autoDraw ){
+		if( context->autoDraw ){
 #ifdef OFXIMGUI_DEBUG
             ofLogWarning("ofxImGui::Gui::draw()") << "Please don't call draw() in autoDraw mode.";
 #endif
             return;
         }
-        else if(isRenderingFrame[context]==true){
+		else if(context->isRenderingFrame==true){
             render();
 		}
 	}
@@ -526,17 +545,15 @@ namespace ofxImGui
     void Gui::afterDraw( ofEventArgs& ){
 
         // This function is registered after ofApp::draw() to honor autodraw in shared context mode.
-        if(context && isRenderingFrame[context] ){
+		if(context && context->isRenderingFrame ){
             // Autodraw renders here if sharedMode is on
-            if( (autoDraw && sharedModes[context]==true) ) render();
+			if( (context->autoDraw && context->isShared==true) ) render();
             // Render if manual render was forgotten (do we want this to happen??)
-            else if( sharedModes[context]==false ) render();
+			else if( context->isShared==false ) render();
         };
     }
 
     // Initialise statics
-    std::map< ofAppBaseWindow*, ImGuiContext* > Gui::imguiContexts = {};
-    std::map< ImGuiContext*, bool > Gui::isRenderingFrame = {};
-    std::map< ImGuiContext*, bool > Gui::sharedModes = {};
+	LinkedList<ofAppBaseWindow, ofxImGuiContext> Gui::imguiContexts = {};
 }
 

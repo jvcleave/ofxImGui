@@ -6,6 +6,7 @@
 #include "ofEvent.h"
 
 #include <map>
+#include <bitset>
 
 #if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
 #include "EngineOpenFrameworks.h"
@@ -21,6 +22,7 @@
 #endif
 
 #include "DefaultTheme.h"
+#include "LinkedList.hpp"
 //#include "imgui.h" // for ImFont*
 struct ImFont;
 //#include "imgui_internal.h" // for ImGuiContext*
@@ -37,8 +39,34 @@ struct ImGuiContext;
 
 // Todo: We could provide a way to intercept/filter OF mouse clicks when they are used by ImGui ?
 
+// A context pointer with some more info
+struct ofxImGuiContext {
+	public:
+		ofxImGuiContext() :
+			imguiContext(ImGui::CreateContext()),
+			isShared(false),
+			isRenderingFrame(false),
+			autoDraw(false){}
+
+		ImGuiContext* imguiContext = nullptr;
+		bool isShared;
+		bool isRenderingFrame;
+		bool autoDraw;
+
+		// Explicit not to mess with compilers casting it to anything !
+		explicit operator bool() const {
+			return imguiContext != nullptr;
+		}
+		bool operator !() const {
+			return imguiContext == nullptr;
+		}
+};
+
 namespace ofxImGui
 {
+	enum SetupState : unsigned char;
+	std::ostream& operator<<(std::ostream& os, const SetupState& _state);
+
 	class Gui
 	{
 		// to provide access to window->context map
@@ -49,7 +77,7 @@ namespace ofxImGui
 		Gui();
 		~Gui();
 
-        void setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool _restoreGuiState = false, bool _showImGuiMouseCursor = false );
+		SetupState setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool _restoreGuiState = false, bool _showImGuiMouseCursor = false );
 		void exit();
 
         // Todo: remove these ? Adapt them ?
@@ -93,21 +121,17 @@ namespace ofxImGui
         EngineGLFW engine;
 #endif
         
-        bool autoDraw=true;
-        ofEventListener listener;
+		ofEventListener autoDrawListener;
 
-        BaseTheme* theme=nullptr;
+		BaseTheme* theme=nullptr; // Todo: move this into ofxImguiContext ?
 
 		std::vector<ofTexture*> loadedTextures;
 
         // Static context instance. All Gui instances share the same context.
         // If you're dealing with dynamic libraries, you might need to pass this over to another ImGui instance.
-        ImGuiContext* context = nullptr; // Short-hand value, same as stored in the map
-        // todo: rename to ownsContext
-        bool ownedContext = false; // Copy of context, set when it needs destruction
-		bool ownedWindow = false; // Copy of context, set when it needs destruction
-        static std::map< ofAppBaseWindow*, ImGuiContext* > imguiContexts; // Holds all available ImGui instances per window.
-        static std::map< ImGuiContext*, bool > isRenderingFrame; // isRenderingFrame, per context
-        static std::map< ImGuiContext*, bool > sharedModes; // Shared mode, per context
+		ofxImGuiContext* context; // Short-hand value, same as stored in the map
+		bool isContextOwned = false; // Copy of context, set when it needs destruction
+
+		static LinkedList<ofAppBaseWindow, ofxImGuiContext> imguiContexts; // Window/MasterContext map
 	};
 }

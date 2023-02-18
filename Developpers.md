@@ -2,6 +2,16 @@
 
 This readme contains some useful information for ofxImGui development.
 
+## ofxImGui branches
+
+| Branch   | Description |
+| ---------|-------------|
+| master   | Up-to-date with the latest oF, quite stable. |
+| develop  | Active development branch before releasing to the master |
+| OF**     | Master equivalent, blocked at the most recent update compatible with oF 0.**. |
+
+The master branch may not be tested on all platforms. See [Releases](https://github.com/daandelange/ofxImGui/releases/) for more extensively tested versions.
+
 ## Coding with ImGui
 
 ### ImGui coding style
@@ -83,9 +93,9 @@ _This should also enable gamepad support on RPI with Raspbian <= Buster which sh
 ````bash
 # Instructions for Mac/Win/Linux
 cd OF/scripts
-# Only if you don't have apothecary :
+# Only if you don't have apothecary (OF release zip):
 git clone https://github.com/openframeworks/apothecary.git
-# Manually edit `apothecary/apothecary/apothecary/formulas/glfw.sh`, change to :
+# Manually edit the GLFW formula `apothecary/apothecary/apothecary/formulas/glfw.sh`, change to :
 # - `VER=3.3-stable` (for gfwf 3.3.x)
 # - `VER=master` (for gfwf 3.4.x, recommended)
 # - `GIT_URL=https://github.com/glfw/glfw.git`
