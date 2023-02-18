@@ -19,7 +19,8 @@ int main( ){
     #if defined(TARGET_OSX)
     settings.setGLVersion(3,2);
     #else
-    settings.setGLVersion(4,1);
+    settings.setGLVersion(3,2);
+    // settings.setGLVersion(3,2); // Uncomment if your GPU supports it
     #endif
 #endif
 

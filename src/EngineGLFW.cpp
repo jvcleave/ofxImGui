@@ -96,6 +96,8 @@ namespace ofxImGui
 			const char* glsl_version = getGLVersionFromOF();
 
 #ifdef OFXIMGUI_DEBUG
+            int major = ofGetGLRenderer()->getGLVersionMajor();
+            int minor = ofGetGLRenderer()->getGLVersionMinor();
     #ifdef TARGET_OPENGLES
             ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with programmable OpenGL ES " << major << "." << minor << " and version string «" << glsl_version << "»";
     #else
