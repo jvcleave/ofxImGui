@@ -3,8 +3,8 @@
 #include "ofEvents.h"
 #include "ofAppBaseWindow.h"
 
-//#include "imgui.h"
-class ImGuiContext;
+// Seems needed on windows
+#include "imgui.h"
 
 //#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 

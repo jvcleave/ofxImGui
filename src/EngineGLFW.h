@@ -19,13 +19,15 @@
 // Enable a bit more complicated callback interface
 // It fixes viewports in multiple contexts (one per ofAppWindow)
 // If this stuff breaks, you can set this to 0 or add a define to your compilation settings.
+// Todo: If enabled, ofxImGui will crash imgui on exit in Windows as the ofApp unregisters the callback @glfw then we still call it, crashing. OSX doesn't crash weirdly.
+// We probably have to listen to window.events.notifyExit .
 #ifndef INTERCEPT_GLFW_CALLBACKS
 #define INTERCEPT_GLFW_CALLBACKS 1 // Works fine with the backend modification, otherwise breaks in multi-ofAppWindows
 //#define INTERCEPT_GLFW_CALLBACKS 0 // Works natively too but not with multi-ofAppWindows
 #endif
 
 #if INTERCEPT_GLFW_CALLBACKS == 1
-class ImGuiContext; // fwd declare to prevent inclusion
+
 struct GLFWwindow;
 
 #include "GLFW/glfw3.h"

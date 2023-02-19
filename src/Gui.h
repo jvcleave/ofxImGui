@@ -23,10 +23,9 @@
 
 #include "DefaultTheme.h"
 #include "LinkedList.hpp"
-//#include "imgui.h" // for ImFont*
-struct ImFont;
+#include "imgui.h" // for ImFont*
+
 //#include "imgui_internal.h" // for ImGuiContext*
-struct ImGuiContext;
 
 // Notes on context handling in ImGui
 // - Ideally, we should create 1 imgui context per ofApp and one host viewports per ofAppBaseWindow, which actually is not possible.
