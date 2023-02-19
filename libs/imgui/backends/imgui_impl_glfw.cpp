@@ -66,7 +66,6 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
-
 #include "backends/imgui_impl_glfw_context_support.h" // CUSTOM OFXIMGUI ADDED LINE
 
 // Clang warnings with -Weverything
@@ -320,7 +319,8 @@ static bool ImGui_ImplGlfw_ShouldChainCallback(GLFWwindow* window)
 
 void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackMousebutton != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackMousebutton(window, button, action, mods);
@@ -334,7 +334,8 @@ void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int acti
 
 void ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackScroll != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackScroll(window, xoffset, yoffset);
@@ -383,7 +384,8 @@ static int ImGui_ImplGlfw_TranslateUntranslatedKey(int key, int scancode)
 
 void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackKey != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackKey(window, keycode, scancode, action, mods);
@@ -406,7 +408,8 @@ void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, i
 
 void ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackWindowFocus != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackWindowFocus(window, focused);
@@ -417,7 +420,8 @@ void ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused)
 
 void ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackCursorPos != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackCursorPos(window, x, y);
@@ -440,7 +444,8 @@ void ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
 // so we back it up and restore on Leave/Enter (see https://github.com/ocornut/imgui/issues/4984)
 void ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackCursorEnter != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
         bd->PrevUserCallbackCursorEnter(window, entered);
@@ -463,7 +468,7 @@ void ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered)
 
 void ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
 
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (bd->PrevUserCallbackChar != nullptr && ImGui_ImplGlfw_ShouldChainCallback(window))
@@ -499,7 +504,8 @@ static EM_BOOL ImGui_ImplEmscripten_WheelCallback(int, const EmscriptenWheelEven
 
 void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd->InstalledCallbacks == false && "Callbacks already installed!");
     IM_ASSERT(bd->Window == window);
@@ -517,7 +523,8 @@ void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
 
 void ImGui_ImplGlfw_RestoreCallbacks(GLFWwindow* window)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd->InstalledCallbacks == true && "Callbacks not installed!");
     IM_ASSERT(bd->Window == window);
@@ -923,7 +930,8 @@ static void ImGui_ImplGlfw_WindowCloseCallback(GLFWwindow* window)
 // ignore recent glfwSetWindowXXX() calls.
 static void ImGui_ImplGlfw_WindowPosCallback(GLFWwindow* window, int, int)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     if (ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle(window))
     {
         if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
@@ -939,7 +947,8 @@ static void ImGui_ImplGlfw_WindowPosCallback(GLFWwindow* window, int, int)
 
 static void ImGui_ImplGlfw_WindowSizeCallback(GLFWwindow* window, int, int)
 {
-	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_ScopedContext sc(window); // CUSTOM OFXIMGUI ADDED LINE
+
     if (ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle(window))
     {
         if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
@@ -997,7 +1006,7 @@ static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
         glfwMakeContextCurrent(vd->Window);
         glfwSwapInterval(0);
     }
-	ImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext()); // CUSTOM ADDED LINE FOR OFXIMGUI
+	ImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext()); // CUSTOM OFXIMGUI ADDED LINE
 }
 
 static void ImGui_ImplGlfw_DestroyWindow(ImGuiViewport* viewport)
@@ -1005,7 +1014,6 @@ static void ImGui_ImplGlfw_DestroyWindow(ImGuiViewport* viewport)
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
     {
-		ImGui_ImplGlfw_RemoveWindowContext(vd->Window); // CUSTOM ADDED LINE FOR OFXIMGUI
         if (vd->WindowOwned)
         {
 #if !GLFW_HAS_MOUSE_PASSTHROUGH && GLFW_HAS_WINDOW_HOVERED && defined(_WIN32)
@@ -1021,7 +1029,8 @@ static void ImGui_ImplGlfw_DestroyWindow(ImGuiViewport* viewport)
 
             glfwDestroyWindow(vd->Window);
         }
-        vd->Window = nullptr;
+        ImGui_ImplGlfw_RemoveWindowContext(vd->Window); // CUSTOM OFXIMGUI ADDED LINE
+		vd->Window = nullptr;
         IM_DELETE(vd);
     }
     viewport->PlatformUserData = viewport->PlatformHandle = nullptr;

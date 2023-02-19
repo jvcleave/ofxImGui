@@ -112,6 +112,20 @@ else
 	gsed -i '/^static void ImGui_ImplGlfw_CreateWindow(/,/^}$/s/^}$/\tImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext())\; \/\/ CUSTOM OFXIMGUI ADDED LINE\n}/' ./imgui/backends/imgui_impl_glfw.cpp
 	#Forget windows
 	gsed -i '/^static void ImGui_ImplGlfw_DestroyWindow(/,/^}$/s/vd->Window \= nullptr;$/ImGui_ImplGlfw_RemoveWindowContext(vd->Window)\; \/\/ CUSTOM OFXIMGUI ADDED LINE\n\t\tvd->Window \= nullptr\;/' ./imgui/backends/imgui_impl_glfw.cpp
+
+
+	# Modify imgui's GLFW autoconfig due to oF 0.11.0 and 0.11.2 (not 0.11.1) having a pre-3.3.0 glfw library on osx platform.
+	# This causes the native backend to fail linking, the of-version hasn't got glfwGetMonitorWorkarea which was added only in the final version
+	# before: #define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetMonitorWorkarea
+	# after : #define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3301) // 3.3+ glfwGetMonitorWorkarea
+	gsed -i '/^#define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3300) \/\/ 3.3+ glfwGetMonitorWorkarea$/i #ifdef TARGET_OSX \/\/ BEGIN CUSTOM OFXIMGUI LINES\n#define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3301) \/\/ 3.3+ glfwGetMonitorWorkarea\n#else' ./imgui/backends/imgui_impl_glfw.cpp
+	gsed -i '/^#define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3300) \/\/ 3.3+ glfwGetMonitorWorkarea$/a #endif \/\/ END CUSTOM OFXIMGUI LINES' ./imgui/backends/imgui_impl_glfw.cpp
+
+	# Uncomment to generate a new diff :
+	# With timestamps included
+	# diff -u ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
+	# Without timestamps
+	# git diff ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
 fi;
 
 # Done !
