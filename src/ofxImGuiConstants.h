@@ -6,18 +6,20 @@
 
 // Ensures they are always set (Only set if not forced by user).
 
-// TODO:
-// - rename OFXIMGUI_ENABLE_OF_BINDINGS to OFXIMGUI_FORCE_OF_BINDINGS for clarity
-
 // Flags that you can set :
-// #define OFXIMGUI_ENABLE_OF_BINDINGS --> force-use the simpler OF-based backend
+// #define OFXIMGUI_FORCE_OF_BACKEND --> force-use the simpler OF-based backend
 // #define INTERCEPT_GLFW_CALLBACKS 0|1 --> disable imgui glfw backend modification to allow multiple context for using imgui with multiple ofAppBaseWindows
+// #define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 0|1 --> Disable modifications to imgui_impl_glfw, disabling support for using ofxImGui in a multi-windowed-ofApp with viewports enabled.
+
+// TODO:
+// - replace INTERCEPT_GLFW_CALLBACKS by OFXIMGUI_INTERCEPT_GLFW_CALLBACKS for clarity.
+// - add OFXIMGUI_REPLACE_OF_GLFW_CALLBACKS to optionally listen to ofEvents rather than the GLFW callback ?
 
 // Grab ofConstants
 #include "ofConstants.h"
 
 // Backend selection
-#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
+#if defined (OFXIMGUI_FORCE_OF_BACKEND)
 	#define OFXIMGUI_LOADED_BACKEND "OpenFrameworks"
 	#define OFXIMGUI_BACKEND_OPENFRAMEWORKS
 #elif defined (OF_TARGET_API_VULKAN)
@@ -42,7 +44,7 @@
 	#pragma error "Sorry, could not configure ofxImGui on your openFrameworks configuration, nobody ever tried ofxImGui in your config. Feel free to as questions or submit a PR about support for your platform, we'd like to support all Platforms."
 #endif
 
-// Enable a bit more complicated callback interface
+// Enable an alternative callback interface
 // if 1, it fixes viewports in multiple contexts (one per ofAppWindow)
 // if 0, it uses the native imgui backend and multi-ofAppBaseWindows with pop-out windows (viewports) will fail.
 #ifdef OFXIMGUI_BACKEND_GLFW
@@ -51,9 +53,15 @@
 		#define INTERCEPT_GLFW_CALLBACKS 1
 		//#define INTERCEPT_GLFW_CALLBACKS 0
 	#endif
+	// Enable Multi-context support by default
+	#ifndef IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT
+		#define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 1
+	#endif
 #else
 	// Always off in non-GLFW contexts
 	#define INTERCEPT_GLFW_CALLBACKS 0
+	// Disable GLWF multi-context hack
+	#define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 0
 #endif
 
 // Uncomment to enable debugging

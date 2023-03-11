@@ -4,6 +4,8 @@
 
 //========================================================================
 int main( ){
+	ofSetLogLevel(OF_LOG_VERBOSE);
+
     int windowWidth = 800;
     int windowHeight = 600;
 

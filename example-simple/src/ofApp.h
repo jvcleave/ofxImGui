@@ -6,23 +6,13 @@
 // Comment below to use manual drawing
 #define USE_AUTODRAW
 
-// For apps that compile without GLFW
-#ifndef GLFW_VERSION_MAJOR
-#define GLFW_VERSION_MAJOR 0
-#endif
-#ifndef GLFW_VERSION_MINOR
-#define GLFW_VERSION_MINOR 0
-#endif
-#ifndef GLFW_VERSION_REVISION
-#define GLFW_VERSION_REVISION 0
-#endif
-
 class ofApp : public ofBaseApp{
 
 	public:
         ofApp() {}
 
 		void setup() {
+			ofSetLogLevel(OF_LOG_VERBOSE);
             #ifdef USE_AUTODRAW
             gui.setup(nullptr, true, ImGuiConfigFlags_ViewportsEnable, true );
             #else
@@ -59,14 +49,6 @@ class ofApp : public ofBaseApp{
             ImGui::Checkbox("Draw lines", &drawLines);
             ImGui::ColorEdit3("Background color", &backGroundColor[0]);
             ImGui::SliderFloat("Float Slider", &v1, -10.f, 10.f);
-			ImGui::Text("GLFW version : %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION );
-
-#if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR <= 3 && GLFW_VERSION_MINOR <= 3
-             ImGui::Text("Your GLFW version quite old, you could update it.");
-#ifdef TARGET_LINUX
-             ImGui::Text("On Linux, moving pop-out windows with the mouse is quite shaky!");
-#endif
-#endif
 
             // Close the main window
             ImGui::End();

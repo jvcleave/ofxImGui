@@ -24,7 +24,7 @@
 #ifdef OFXIMGUI_BACKEND_GLFW
 		//#include "backends/imgui_impl_glfw.h"
 		#include <GLFW/glfw3.h> // For getting macro-defined versions
-		#if INTERCEPT_GLFW_CALLBACKS == 1
+		#if IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 1
 			#include "backends/imgui_impl_glfw_context_support.h"
 		#endif
 #endif
@@ -606,7 +606,7 @@ namespace ofxImGui
 				{
 					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
 					ImGui::Dummy({10,10});
-					ImGui::TextWrapped("Here is some useful information about this ofxImGui instantance's state.");
+					ImGui::TextWrapped("Here is some useful information about this ofxImGui instance's state.");
 					ImGui::PopStyleColor();
 
 					ImGui::Dummy({10,10});
@@ -629,7 +629,7 @@ namespace ofxImGui
 					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
 					ImGui::TextWrapped("ImGui needs a context instance to work correctly.");
 					ImGui::TextWrapped("ofxImGui provides automatic context handling, setting up one context per ofAppWindow.");
-					ImGui::TextWrapped("Note that it's generally recommended to use only one GUI window, and that setting up multiple contexts is not encouraged by ImGui.");
+					ImGui::TextWrapped("Note that it's generally recommended to use only one GUI window, and that setting up multiple contexts is not encouraged by the ImGui community.");
 					ImGui::PopStyleColor();
 
 					ImGui::Dummy({10,10});
@@ -801,47 +801,57 @@ namespace ofxImGui
 #if defined(OFXIMGUI_BACKEND_GLFW)
 					ImGui::TextWrapped("GLFW version : %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION );
 					ImGui::Dummy({10,10});
-					//ImGui::Indent();
-					ImGui::Text("Master engines handling GLFW Windows");
-//					if(ImGui::BeginTable("Bound engines table", 2)){
-//						ImGui::TableSetupColumn("GlfwWindow*");
-//						ImGui::TableSetupColumn("EngineGlfw*");
-//						ImGui::TableHeadersRow();
-//						for(auto* engineEntry = context->engine.enginesMap.getFirst(); engineEntry != nullptr; engineEntry=engineEntry->getNext()){
-//							ImGui::TableNextRow();
-//							ImGui::TableNextColumn();
-//							ImGui::Text("%p", engineEntry->key);
-//							ImGui::TableNextColumn();
-//							ImGui::Text("%p", engineEntry->data);
-//						}
-//						ImGui::EndTable();
-//					}
+
 
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("GLFW Callbacks");
 					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
-					ImGui::TextWrapped("GLFW window events can only be bound to one listener; imgui_backend_glfw allows either to");
-					//ImGui::TextWrapped("This can be toggled with the INTERCEPT_GLFW_CALLBACKS macro define. (default = 1)");
-					ImGui::Bullet(); ImGui::TextWrapped("0 = ofxImGui listens to ofEvents and forwards them to the ImGui backend.\nEvent propagation: GLFW -> Openframeworks -> ImGui");
-					ImGui::Bullet(); ImGui::TextWrapped("1 = Bind ImGui directly to GLFW events by replacing OF's GLFW listeners, forwarding callbacks to OF afterwrds.\nEvent propagation: GLFW -> ImGui -> Openframeworks");
-					//ImGui::TextWrapped("The GLFW backend has the ability to either bind it's");
+					ImGui::TextWrapped("GLFW window events can only be bound to one listener; imgui_backend_glfw allows either to bind to GLFW directly or to call its event listeners manually.\n");
+					ImGui::TextWrapped("This can be toggled with the INTERCEPT_GLFW_CALLBACKS macro define. (default = 1)");
+					ImGui::Bullet(); ImGui::TextWrapped("0 = ofxImGui listens to ofEvents and forwards them to the ImGui backend.\nEvent propagation: GLFW -> ImGui -> OpenFrameworks");
+					ImGui::Bullet(); ImGui::TextWrapped("1 = Bind ImGui directly to GLFW events by replacing OF's GLFW listeners, forwarding callbacks to OF afterwrds.\nEvent propagation: GLFW -> ofxImGui -> (ImGui + OpenFrameworks)");
 					ImGui::PopStyleColor();
-					//ImGui::TextWrapped("INTERCEPT_GLFW_CALLBACKS = %i", INTERCEPT_GLFW_CALLBACKS);
 
 					ImGui::Dummy({10,10});
-					ImGui::SeparatorText("INTERCEPT_GLFW_CALLBACKS");
-
-					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
-					ImGui::TextWrapped("ofxImGui uses a modified imgui backend by default so that it can use multiple imgui contexts (one per ofAppBaseWindow).\nIf there are multiple contexts, the native GLFW backend needs to be able to switch context on GLFW callbacks.");
-					ImGui::TextWrapped("For this to work, we use a modified glfw backend so that it supports multiple contexts.");
-					ImGui::TextWrapped("If you don't need ofxImGui in multiple windows, you may toggle this off by setting the INTERCEPT_GLFW_CALLBACKS macro define to 0.");
-					ImGui::PopStyleColor();
 					ImGui::TextWrapped("INTERCEPT_GLFW_CALLBACKS = %i", INTERCEPT_GLFW_CALLBACKS);
 
 #if INTERCEPT_GLFW_CALLBACKS == 1
-					ImGui::TextWrapped("Viewport windows handled by ofxImGui for the native imgui_backend_glfw:");
-					ImGui::Dummy({10,10});
+					ImGui::Bullet(); ImGui::TextWrapped("The openFrameworks listeners (on GLFW Windows) are replaced by those of ofxImGui, which then forwards them to OpenFrameworks and ImGui by adding multi-context support.");
 
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("Master engines handling GLFW Windows :");
+					if(ImGui::BeginTable("Bound engines table", 2)){
+						ImGui::TableSetupColumn("GlfwWindow*");
+						ImGui::TableSetupColumn("EngineGlfw*");
+						ImGui::TableHeadersRow();
+						for(auto* engineEntry = context->engine.enginesMap.getFirst(); engineEntry != nullptr; engineEntry=engineEntry->getNext()){
+							ImGui::TableNextRow();
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", engineEntry->key);
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", engineEntry->data);
+						}
+						ImGui::EndTable();
+					}
+#else
+					ImGui::Bullet(); ImGui::TextWrapped("ofxImGui doesn't handle any events. ImGui replaces the OpenFrameworks ones while ensuring to call the OF ones afterwards.");
+#endif
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("GLFW Backend modification");
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("ofxImGui uses a modified ImGui GLFW backend by default so that it can use multiple imgui contexts (one per ofAppBaseWindow).\nIf there are multiple contexts, the native GLFW backend needs to be able to switch context on GLFW callbacks.");
+					ImGui::TextWrapped("For this to work, we use a modified GLFW backend so that it supports multiple contexts with pop-out windows.");
+					ImGui::TextWrapped("If you don't need ofxImGui in multiple windows, you may toggle this off by setting the INTERCEPT_GLFW_CALLBACKS macro define to 0.");
+					ImGui::PopStyleColor();
+					ImGui::TextWrapped("IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT = %i", IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT);
+
+					ImGui::Dummy({10,10});
+#if IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 1
+					ImGui::TextWrapped("You are using a modified imgui_backend_glfw so that you can use multiple ofAppBaseWindows together with viewports enabled.");
+
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("Viewport windows handled by ofxImGui for the native imgui_backend_glfw:");
 					if(ImGui::BeginTable("Bound engines table", 2)){
 						ImGui::TableSetupColumn("GlfwWindow*");
 						ImGui::TableSetupColumn("ImGuiContext*");
@@ -861,22 +871,62 @@ namespace ofxImGui
 						}
 						ImGui::EndTable();
 					}
+#else // if IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 0
+					ImGui::TextWrapped("You are using an unmodified imgui_backend_glfw : you can't use multiple ofAppBaseWindows together with viewports enabled.");
 #endif
 
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("Backend Usage Tips");
-
+					ImGui::Bullet(); ImGui::TextWrapped("You have the choice between using the GLFW backend or the native OF backend.");
 #if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR <= 3 && GLFW_VERSION_MINOR <= 3
 					ImGui::Dummy({10,10});
-					ImGui::TextWrapped("Your GLFW version is quite old, you could update it.");
-#ifdef TARGET_LINUX
-					 ImGui::Text("On Linux, moving pop-out windows with the mouse is quite shaky!");
+					ImGui::Bullet(); ImGui::TextWrapped("Your GLFW version is quite old, you could update it to get a smoother user interface experience.\nRefer to Developers.md.");
 #endif
+#ifdef TARGET_LINUX
+					ImGui::Bullet(); ImGui::TextWrapped("On Linux, moving pop-out windows (viewports enabled) with the mouse is quite shaky!");
+#endif
+
 #if defined(TARGET_OSX) && OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR == 11 && ( OF_VERSION_PATCH == 2 || OF_VERSION_PATCH == 0 )
 					ImGui::Dummy({10,10});
-					ImGui::TextWrapped("On OSX and OF 0.11.0 and OF 0.11.2, GLFW comes as a pre-3.3.0 release, breaking native ImGui compatibility, but we got you covered !");
+					ImGui::Bullet(); ImGui::TextWrapped("On OSX and OF 0.11.0 and OF 0.11.2, GLFW comes as a pre-3.3.0 release, breaking native ImGui compatibility.\nBut we got you covered by disabling some advanced ImGui features !\nAlternatively you can update GLFW (refer to Developers.md).");
 #endif
+					// Viewports support check
+					if(ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
+						ImGui::Dummy({10,10});
+#if defined(OFXIMGUI_BACKEND_GLFW)
+	#if IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 0
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,128,20,200));
+						ImGui::Bullet(); ImGui::TextWrapped("Warning: Viewports are enabled, but not IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT.\nViewport windows will only work in one of your ofApp windows (if using multiple windows).");
+						ImGui::PopStyleColor();
+	#else
+						ImGui::Bullet(); ImGui::TextWrapped("You requested to enable viewports which are supported. :) ");
+	#endif
+#else
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,20,20,200));
+						ImGui::Bullet(); ImGui::TextWrapped("You requested to enable viewports but it's not implemented in the backend you're using.");
+						ImGui::PopStyleColor();
 #endif
+					}
+
+					// Multiwindow support checking
+					ImGui::Dummy({10,10});
+#if defined(OFXIMGUI_BACKEND_GLFW) && INTERCEPT_GLFW_CALLBACKS == 0
+					ImGui::PushStyleColor(ImGuiCol_Text, (imguiContexts.size()>1) ? IM_COL32(255,20,20,200) : IM_COL32(255,128,20,200));
+					ImGui::Bullet(); ImGui::TextWrapped("Using multi-window ofApps is not supported in your configuration. Set INTERCEPT_GLFW_CALLBACKS=1 to enable.");
+					ImGui::PopStyleColor();
+#else
+					ImGui::TextWrapped("Using multi-window ofApps is supported in your configuration.");
+#endif
+
+//}
+
+					// MultiContext incompatibility
+//#if IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 0
+//						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,128,20,200));
+//						ImGui::Bullet(); ImGui::TextWrapped("Warning: Viewports are enabled, but not IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT.\nViewport windows will only work in one of your ofApp windows (if using multiple windows).");
+//						ImGui::PopStyleColor();
+//#endif
+//#endif
 #elif defined(OFXIMGUI_BACKEND_OPENFRAMEWORKS)
 					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
 					ImGui::TextWrapped("This backend interfaces the minimum required interactions to use ImGui with ofEvents, so interactions are a little less user-friendly.\n Meanwhile, it's also less likely to break on future ImGui releases, which ensures a more-stable-over-time fallback for the fully featured GLFW backend.");
@@ -892,6 +942,8 @@ namespace ofxImGui
 					ImGui::Bullet(); ImGui::TextWrapped("Text input and keyboard shortcuts are more limited due to how OF forwards user input.");
 					ImGui::Bullet(); ImGui::TextWrapped("(Unexhaustive list, to be continued...)");
 
+					ImGui::Text("Other hints:");
+					ImGui::Bullet(); ImGui::TextWrapped("If using GLFW windows, you can switch to the GFW backend.");
 #else
 					ImGui::TextWrapped("There's no custom information for your backend.");
 #endif

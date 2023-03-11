@@ -54,17 +54,15 @@ namespace ofxImGui
         //glfwMakeContextCurrent(curWin);
 
         // Todo: check return value from glfw ?
-#if INTERCEPT_GLFW_CALLBACKS == 1
-        ImGui_ImplGlfw_InitForOpenGL( curWin, false ); // no more auto binding as it's required to set the right imgui context before calling the backend ones. See https://github.com/ocornut/imgui/blob/9764adc7bb7a582601dd4dd1c34d4fa17ab5c8e8/backends/imgui_impl_glfw.cpp#L142-L145
-#else
-        ImGui_ImplGlfw_InitForOpenGL( curWin, true );
-#endif
+		// no more auto binding as it's required to set the right imgui context before calling the backend ones. See https://github.com/ocornut/imgui/blob/9764adc7bb7a582601dd4dd1c34d4fa17ab5c8e8/backends/imgui_impl_glfw.cpp#L142-L145
+		ImGui_ImplGlfw_InitForOpenGL( curWin, (INTERCEPT_GLFW_CALLBACKS == 1)?false:true );
 
         //ImGui::GetIO().DisplaySize;
 
+		// Register events manually if needed
 #if INTERCEPT_GLFW_CALLBACKS == 1
 		// Use GLFW window user pointer API to retrieve an instance, events are static/non-member
-		// Error: OF needs the userpointer, or we'd have to st it back, too messy.
+		// Error: OF needs the userpointer, or we'd have to set it back, too messy.
 		//glfwSetWindowUserPointer(curWin, (void*)this);
 
 		// Replace callbacks and store original callbacks
@@ -80,16 +78,20 @@ namespace ofxImGui
 			glfwSetMonitorCallback(             GlfwMonitorCallbackGlobal)
 		};
 
-		// Seems unnecessary (only needed for popped-out windows?)
+		// Seems unnecessary (only needed for popped-out windows, when viewports are enabled ?)
 		//glfwSetWindowPosCallback(   curWin, ImGui_ImplGlfw_WindowPosCallback);
 		//glfwSetWindowSizeCallback(  curWin, ImGui_ImplGlfw_WindowSizeCallback);
 
 		// Register context and listen to window destruction
 		enginesMap.add(curWin, this);
-		ofAddListener(curOfWin->events().exit, this, &EngineGLFW::onWindowExit   );
+		ofAddListener(curOfWin->events().exit, this, &EngineGLFW::onWindowExit);
 
 		// This might give better performance if enabled. To be fully tested.
 		//ImGui_ImplGlfw_SetCallbacksChainForAllWindows(true);
+
+		ofLogNotice("EngineGLFW::setup()") << "Replaced the openFrameworks' GLFW event listeners by the ofxImGui ones which will then call the OF and ImGui ones while adding multi-context support.";
+#else
+		ofLogNotice("EngineGLFW::setup()") << "Replaced the openFrameworks' GLFW event listeners by the imgui_impl_glfw ones. You will not have multi-window nor multi-context support. This can be enabled by defining INTERCEPT_GLFW_CALLBACKS=1.";
 #endif
 
         // Init renderer
@@ -100,9 +102,9 @@ namespace ofxImGui
             int major = ofGetGLRenderer()->getGLVersionMajor();
             int minor = ofGetGLRenderer()->getGLVersionMinor();
     #ifdef TARGET_OPENGLES
-            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with programmable OpenGL ES " << major << "." << minor << " and version string «" << glsl_version << "»";
+			ofLogVerbose("EngineGLFW::setup()") << "ofxImGui loading GLFW with programmable OpenGL ES " << major << "." << minor << " and version string «" << glsl_version << "»";
     #else
-            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with programmable OpenGL " << major << "." << minor << " and version string «" << glsl_version << "»";
+			ofLogVerbose("EngineGLFW::setup()") << "ofxImGui loading GLFW with programmable OpenGL " << major << "." << minor << " and version string «" << glsl_version << "»";
     #endif
 #endif
 
@@ -113,9 +115,9 @@ namespace ofxImGui
         {
 #ifdef OFXIMGUI_DEBUG
     #ifdef TARGET_OPENGLES
-            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL ES 1, which is quite experimental. [ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0") << "]";
+			ofLogVerbose("EngineGLFW::setup()") << "ofxImGui loading GLFW with OpenGL ES 1, which is quite experimental. [ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0") << "]";
     #else
-            ofLogVerbose(__FUNCTION__) << "ofxImGui loading GLFW with OpenGL2 and ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0");
+			ofLogVerbose("EngineGLFW::setup()") << "ofxImGui loading GLFW with OpenGL2 and ofIsGLProgrammableRenderer()=" << (ofIsGLProgrammableRenderer()?"1":"0");
     #endif
 #endif
             ImGui_ImplOpenGL2_Init();
@@ -141,7 +143,7 @@ namespace ofxImGui
 			return;
 		}
 
-		ofRemoveListener(ofGetCurrentWindow()->events().exit, this, &EngineGLFW::onWindowExit   );
+		ofRemoveListener(ofGetCurrentWindow()->events().exit, this, &EngineGLFW::onWindowExit);
 
         if (ofIsGLProgrammableRenderer()){
             //ImGui_ImplOpenGL3_DestroyFontsTexture(); // called by function below
@@ -233,8 +235,10 @@ namespace ofxImGui
 
 		// Dummy exit ? What if context is shared ?
 		//exit();
-
+#if INTERCEPT_GLFW_CALLBACKS == 1
 		enginesMap.remove((GLFWwindow*)ofGetWindowPtr()->getWindowContext());
+#endif
+
 
 		// Set unloaded state
 		imguiContext = nullptr;

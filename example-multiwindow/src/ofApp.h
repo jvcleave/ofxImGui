@@ -42,6 +42,8 @@ class ofApp : public ofBaseApp{
             // Draw to ImGui (after OF related stuff, to make it overlay)
 			gui.begin();
 
+			gui.drawOfxImGuiDebugWindow();
+
 			if(ImGui::IsMouseDown(ImGuiMouseButton_Left)){
 				mouseIsPressedImgui = true;
 			}
@@ -97,8 +99,16 @@ class ofApp : public ofBaseApp{
 			ImGui::Dummy({10,10});
 			ImGui::Text("Keydown test: ");
 			ImGuiEx::ShowHelpMarker("Note: Pressing too much keys at the same time will have random results.");
-			static ImGuiKey someKeys[] =          { ImGuiKey_Space, ImGuiKey_Backspace, ImGuiKey_Enter, ImGuiKey_Tab, ImGuiKey_LeftArrow, ImGuiKey_RightArrow, ImGuiKey_UpArrow, ImGuiKey_DownArrow };
-			static const char * someKeysNames[] = { "Space",        "Backspace",        "Enter",        "Tab",        "Left",             "Right",             "Up",             "Down"             };
+			static ImGuiKey someKeys[] =          {
+				ImGuiKey_Space,     ImGuiKey_Backspace,  ImGuiKey_Enter,     ImGuiKey_Tab,
+				ImGuiKey_LeftArrow, ImGuiKey_RightArrow, ImGuiKey_UpArrow,   ImGuiKey_DownArrow,
+				ImGuiKey_LeftAlt,   ImGuiKey_LeftCtrl,   ImGuiKey_LeftShift, ImGuiKey_LeftSuper,
+			};
+			static const char * someKeysNames[] = {
+				"Space",            "Backspace",         "Enter",            "Tab",
+				"Left",             "Right",             "Up",               "Down",
+				"AltL",             "CtrlL",             "ShiftL",           "SuperL",
+			};
 			static bool someKeysState[IM_ARRAYSIZE(someKeys)] = {false};
 			ImGui::Columns(4);
 			for(int i=0; i<IM_ARRAYSIZE(someKeys); i++){

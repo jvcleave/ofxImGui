@@ -57,7 +57,7 @@ __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docki
 
 #### ImGui Feature Support Table Per Backend
 
-By default, ofxImGui uses the GLFW engine when possible, which gives the best user experience, falling back to the OpenFrameworks backend which is supported on most ofApp setups but provides slightly less ImGui functionality. You can force ofxImGui to use the OpenFrameworks one by defining `OFXIMGUI_ENABLE_OF_BINDINGS`.
+By default, ofxImGui uses the GLFW engine when possible, which gives the best user experience, falling back to the OpenFrameworks backend which is supported on most ofApp setups but provides slightly less ImGui functionality. You can force ofxImGui to use the OpenFrameworks one by defining `OFXIMGUI_FORCE_OF_BACKEND`.
 
 One tiny disadvantage of the Glfw backend is that multiwindow-together-with-viewports support might break on ImGui updates. There are automatic update scripts, but they might not work in the future. Without the custom modifications, it will work fine but you'll have to choose between multiwindow or viewports, knowing that you can configure ImGui to never merge viewport windows with the host window.
 
@@ -70,7 +70,7 @@ One tiny disadvantage of the Glfw backend is that multiwindow-together-with-view
 - __^__ One Context per ofAppWindow (isolated mode): No inter-communication between the GUIs (cross-docking won't work).  
   (_EngineGLFW backend is slightly modified for supporting multiple glfw contexts_)  
   Hopefully DearImGui will introduce something to handle «[multiple host viewports](https://github.com/ocornut/imgui/issues/3012)».  
-  Please note that using **ofxImGui in multiwindow OpenFrameworks applications is in testing phase**.
+  Please note that using **ofxImGui in multiwindow OpenFrameworks applications** works, but keep in mind that this might break with future ImGui updates.
 - __!__ A singleton class ensures ensures the creation of the ImGui Context within openFrameworks. If multiple source files setup ofxImGui, the first sets up normally (as a master), the following ones as slaves, both still being able to draw to the same gui context. This can be useful when using ofxImGui from multiple ofxAddons.
 
 - - - -
@@ -87,10 +87,18 @@ Configure oF (tested with 0.11.0 and 0.11.2) to use GLFW 3.4 and ImGui will have
 This step is also recommended for RPIs where GLFW is v3.2, which doesn't provide gamepad support.  
 
 ### Compilation flags
-DearImGui needs to know your GL Context. ofxImGui tries to match your project's settings. If your projects needs to force a specific GL configuration, you can set some native imgui compilation flags to match your project settings :
+DearImGui needs to know your GL Context. ofxImGui tries to match your project's settings.  
+If your projects needs to force a specific GL configuration, you can set some native imgui compilation flags to match your project settings :
  - `IMGUI_IMPL_OPENGL_ES2` --> Use GLES2 (or GL ES 1.1 with some hacks).
  - `IMGUI_IMPL_OPENGL_ES3` --> Use GLES3.
  - `[none of the previous ones]` --> Use OpenGL.
+
+ By default, ofxImGui uses the improved GLFW backend when using `ofAppGLFWWindow`s. You may force to use the openframeworks backend by defining :
+ - `OFXIMGUI_FORCE_OF_BACKEND`
+
+You may also over-ride some automatic macro defines (not recommended, there are drawbacks, but it might solve some very specific use cases):
+ - `IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT=0` to disable imgui_impl_glfw changes to support multiple context. Disables using ofxImGui within multiple `ofAppBaseWindow`s.
+ - `INTERCEPT_GLFW_CALLBACKS=0` to use an alternative method to bind imgui to glfw events. If `0`, ofxImGui doesn't add multi-context event routing, disabling multi-window-ofApp support; event propagation: `GLFW -> ImGui -> OpenFrameworks`. By default (`=1`), ofxImGui binds to GLFW, allowing to route events to the correct context instances; event propagation: `GLFW -> ofxImGui -> (ImGui + OpenFrameworks)`.
 
 To have an insight on how your ofxImGui interfaces ImGui, you can call `gui.drawOfxImGuiDebugWindow();` together with `OFXIMGUI_DEBUG`. It will provide you an explanation of your configuration and it also provides some suggestions for gradually improving your configuration (to get the most out of OF+ImGui).
 
@@ -136,4 +144,5 @@ Useful dev info and how to get familiar with DearImGui : [Developper.md](./Devel
 - `cd /path/to/ofxImGui && git pull && git submodule update`
 - (*optional but recommended*) After updating: Add `#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS` in your `imconfig.h` file to make sure you are not using to-be-obsoleted symbols. Update any if needed.
 
-
+## Alternatives and similar ofxAddons
+- [moebiussurfing/ofxSurfingImGui](https://github.com/moebiussurfing/ofxSurfingImGui/): An extension of this addon which facilitates advanced integration with ofApps while also making the UI more user-friendly. It embeds a presets system, and embeds many 3rd party ui widgets.

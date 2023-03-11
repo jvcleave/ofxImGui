@@ -11,7 +11,7 @@
 #pragma once
 
 #include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
-#if defined(OFXIMGUI_BACKEND_GLFW) && (INTERCEPT_GLFW_CALLBACKS == 1)
+#if defined(OFXIMGUI_BACKEND_GLFW) && (IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 1)
 
 #include "backends/imgui_impl_glfw.h"
 

@@ -168,7 +168,7 @@ namespace ofxImGui
         void render();
 		static void initialiseForWindow();
 
-//#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
+//#if defined (OFXIMGUI_FORCE_OF_BACKEND)
 //        EngineOpenFrameworks engine;
 //#elif defined (OF_TARGET_API_VULKAN)
 //        EngineVk engine;

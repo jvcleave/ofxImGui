@@ -133,8 +133,8 @@ void ofApp::setup()
     // By default, it's automatically enabled when a 2nd ofxImGui instance is created in the same ofApp.
     // You can also force the shared mode, needed when the shared code cannot be modified
 
-    // This all is needed for privateAddonClass, which "say" we cannot modify, and hasn't specially been build for use in shared contexts
-    ofAppGui.setSharedMode(true); // Force shared context
+	// This all is needed for privateAddonClass, which we cannot modify (for this demo), and hasn't specially been build for use in shared contexts
+	//ofAppGui.setSharedMode(true); // Force shared context
 
     // Setup addon guis in shared mode
     myAddonObject.setup( ofAppGui ); // Preferred method : share the menu handle; when you can modify myAddonClass
@@ -224,11 +224,11 @@ void ofApp::draw()
     this->drawImGui();
 
     // instance 2 - Plugin code that was made for sharing context
-    ImGui::PushID("##SomeUniqueSandboxHash"); // <-- if you want to ensure a sandbox between both (fails with sharedMode off)
+	ImGui::PushID("##SomeUniqueSandboxHash"); // <-- if you want to ensure a sandbox between both (so that it cannot interact with existing GUI)
 	myAddonObject.drawImGui();
     ImGui::PopID(); // <-- If you want to ensure a sandbox between both
 
-    // Instance 3 - Plugin code that was not mode for sharing context
+	// Instance 3 - Plugin code that was not made for sharing context
     privateAddonObject.drawImGui();
 
     // Manually render once all GUI items have been submitted
