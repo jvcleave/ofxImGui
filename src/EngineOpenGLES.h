@@ -1,9 +1,10 @@
 #pragma once
 
 #include "ofConstants.h"
+#include "ofxImGuiConstants.h"
 
 // Note : this implementation is broken, the file is kept for reference, if ported.
-
+#ifdef OFXIMGUI_BACKEND_GLES
 // Note: USE_GLFW_WINDOW is for ofxRPI4Window
 #if defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)// && defined(USE_GLFW_WINDOW) //&& !defined(TARGET_RASPBERRY_PI_LEGACY)
 
@@ -44,5 +45,7 @@ namespace ofxImGui
 		static ofShader g_Shader;
 	};
 }
+
+#endif
 
 #endif

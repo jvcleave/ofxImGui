@@ -3,11 +3,14 @@
 
 // We include this to check for #define OF_TARGET_API_VULKAN
 #include "ofConstants.h"
+#include "ofxImGuiConstants.h"
 
 #if defined(OF_TARGET_API_VULKAN)
 
-#pragma GCC error "The Vulkan implementation has not been updated yet ! (needs to be implemented)"
-//#pragma message "Try to compile with OFXIMGUI_ENABLE_OF_BINDINGS defined to use the legacy version."
+#pragma GCC error "Sorry, there's no support for Vulkan yet while it should be very easy to implement."
+#pragma message "Try to compile with OFXIMGUI_ENABLE_OF_BINDINGS defined to use the legacy version."
+// See https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_vulkan.h or ImGui_ImplGlfw_InitForVulkan
+
 
 #include "BaseEngine.h"
 

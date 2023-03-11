@@ -10,44 +10,68 @@
 
 #pragma once
 
-#include "LinkedList.hpp"
+#include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
+#if defined(OFXIMGUI_BACKEND_GLFW) && (INTERCEPT_GLFW_CALLBACKS == 1)
+
 #include "backends/imgui_impl_glfw.h"
+
+#include "LinkedList.hpp"
 
 // Fwd declarations
 class ImGui_ImplGlfw_Data;
 
-// Some global vars
-static LinkedList<GLFWwindow, ImGuiContext> ImGui_ImplGlfw_Contexts;
+namespace ofxImGui {
+	class Gui;
+}
 
 // A scoped struct to set the correct context and restores it when destroyed
 // Reduces
 struct ImGui_ImplGlfw_ScopedContext {
+		friend class ofxImGui::Gui;
 	public:
-		inline ImGui_ImplGlfw_ScopedContext(GLFWwindow* window) : prevContext(ImGui::GetCurrentContext()) {
-			ImGuiContext* context = ImGui_ImplGlfw_Contexts.findData(window);
+		inline ImGui_ImplGlfw_ScopedContext(GLFWwindow* window): prevContext(ImGui::GetCurrentContext()){
+			ImGuiContext* context = Contexts.findData(window);
 			if(context){
 				ImGui::SetCurrentContext(context);
 			}
 		}
-
-		inline ~ImGui_ImplGlfw_ScopedContext(){
-			if(prevContext){
+		~ImGui_ImplGlfw_ScopedContext(){
+			if(prevContext != nullptr){
 				ImGui::SetCurrentContext(prevContext);
 			}
 		}
+		static inline void RegisterWindowContext(GLFWwindow* window, ImGuiContext* context){
+			Contexts.add( window, context );
+		}
+		static inline void RemoveWindowContext(GLFWwindow* window){
+			Contexts.remove(window);
+		}
+
 	private:
 		ImGuiContext* const prevContext;
+		// Contains all standalone viewport windows.
+		static LinkedList<GLFWwindow, ImGuiContext*> Contexts;
 };
 
-inline void ImGui_ImplGlfw_RegisterWindowContext(GLFWwindow* window, ImGuiContext* context)
-{
-	ImGui_ImplGlfw_Contexts.add( window, context );
+// Very tmp not to modify imgui_glfw again
+inline void ImGui_ImplGlfw_RegisterWindowContext(GLFWwindow* window, ImGuiContext* context){
+	ImGui_ImplGlfw_ScopedContext::RegisterWindowContext(window, context);
 }
-inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window)
-{
-	ImGui_ImplGlfw_Contexts.remove(window);
+inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window){
+	ImGui_ImplGlfw_ScopedContext::RemoveWindowContext(window);
 }
 
 // Todo: set context for :
 // - ImGui_ImplGlfw_UpdateKeyModifiers ?
 // - ImGui_ImplGlfw_MonitorCallback ?
+
+#else
+// Define classes, compiler should strip all in optimisation steps as it's just dummy code.
+class GLFWwindow;
+class ImGuiContext;
+inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window){}
+inline void ImGui_ImplGlfw_RegisterWindowContext(GLFWwindow* window, ImGuiContext* context){}
+struct ImGui_ImplGlfw_ScopedContext {
+		ImGui_ImplGlfw_ScopedContext(GLFWwindow* window){}
+};
+#endif

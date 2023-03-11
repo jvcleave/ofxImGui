@@ -75,10 +75,15 @@ mv ./imgui_git/docs/BACKENDS.md		./imgui/docs/BACKENDS.md
 mv ./imgui_git/docs/CHANGELOG.txt	./imgui/docs/CHANGELOG.txt
 mv ./imgui_git/docs/README.md		./imgui/docs/README.md
 
+#copy extras
+echo "Copying extras..."
+mkdir -p ./imgui_git/extras
+cp ./imgui_git/misc/cpp/imgui_stdlib.cpp ./imgui/extras/imgui_stdlib.cpp
+cp ./imgui_git/misc/cpp/imgui_stdlib.h ./imgui/extras/imgui_stdlib.h
+
 # Remove git repo // cleanup
 echo "Cleaning up git repo..."
 rm -rf ./imgui_git
-fi;
 
 # Apply patches
 echo "\nApplying patches..."
@@ -121,11 +126,11 @@ else
 	gsed -i '/^#define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3300) \/\/ 3.3+ glfwGetMonitorWorkarea$/i #if defined(TARGET_OSX) || defined(TARGET_WIN32) \/\/ BEGIN CUSTOM OFXIMGUI LINES\n#define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3301) \/\/ 3.3+ glfwGetMonitorWorkarea\n#else' ./imgui/backends/imgui_impl_glfw.cpp
 	gsed -i '/^#define GLFW_HAS_MONITOR_WORK_AREA      (GLFW_VERSION_COMBINED >= 3300) \/\/ 3.3+ glfwGetMonitorWorkarea$/a #endif \/\/ END CUSTOM OFXIMGUI LINES' ./imgui/backends/imgui_impl_glfw.cpp
 
-	# Uncomment to generate a new diff :
+	# Generate a new diff :
 	# With timestamps included
 	# diff -u ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
 	# Without timestamps
-	# git diff ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
+	git diff ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
 fi;
 
 # Done !

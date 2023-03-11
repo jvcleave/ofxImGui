@@ -3,8 +3,32 @@
 #include "ofAppRunner.h"
 #include "ofAppGLFWWindow.h"
 
+#include "ofxImGuiConstants.h"
+
 //#include "imgui.h"
 //#include "backends/imgui_impl_glfw.h"
+
+// For apps that compile without GLFW
+#ifdef OFXIMGUI_DEBUG
+//	#ifndef GLFW_VERSION_MAJOR
+//		#define GLFW_VERSION_MAJOR 0
+//	#endif
+//	#ifndef GLFW_VERSION_MINOR
+//		#define GLFW_VERSION_MINOR 0
+//	#endif
+//	#ifndef GLFW_VERSION_REVISION
+//		#define GLFW_VERSION_REVISION 0
+//	#endif
+
+	// Some includes to debug GLFW
+#ifdef OFXIMGUI_BACKEND_GLFW
+		//#include "backends/imgui_impl_glfw.h"
+		#include <GLFW/glfw3.h> // For getting macro-defined versions
+		#if INTERCEPT_GLFW_CALLBACKS == 1
+			#include "backends/imgui_impl_glfw_context_support.h"
+		#endif
+#endif
+#endif
 
 
 // Todo: Texture/Pixel loading functions: Stop using ofDisableArbTex and use appropriate textureSettings instead.
@@ -16,7 +40,7 @@ namespace ofxImGui
 		Slave = 1 << 1,
 		Master = 1 << 2,
 		// Success flag
-		Success = Slave | Master, // Use like if(mState & Success)
+		Success = Slave | Master, // Use like: if(mState & Success)
 	};
 	std::ostream& operator<<(std::ostream& os, const SetupState& _state)
 	{
@@ -41,16 +65,24 @@ namespace ofxImGui
 		exit();
 	}
 
+	// Retro-compatibility with older setup functions
+	SetupState Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
+	{
+		auto window = ofGetCurrentWindow();
+		IM_ASSERT( window && window != nullptr && "You must call setup() from within an active ofAppBaseWindow, or provide a pointer to it." );
+		return setup( window, theme, autoDraw_, customFlags_, _restoreGuiState, _showImGuiMouseCursor);
+	}
+
 	//--------------------------------------------------------------
     // Must be called from the oF window that's gonna display the gui.
     // Creates 1 imgui context per oF window (glfw context).
     // Links the context handle to the correct window's imguicontext.
     // Todo: an optional ofAppBaseWindow* to specify a manual context instead of using the current active ofApp window.
 	// Returns a state indcating if the setup happened as slave or master
-	SetupState Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
+	SetupState Gui::setup(std::shared_ptr<ofAppBaseWindow>& _ofWindow, BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )
 	{
 #ifdef OFXIMGUI_DEBUG
-        ofLogVerbose("Gui::setup()") << "Setting up ofxImGui [" << this << "] in window " << ofGetWindowPtr();
+		ofLogVerbose("Gui::setup()") << "Setting up ofxImGui [" << this << "] in window " << _ofWindow.get();
 #endif
         // Instance already setup ?
 		if( context!=nullptr ){
@@ -60,54 +92,63 @@ namespace ofxImGui
 			return isContextOwned ? SetupState::Master : SetupState::Slave;
         }
 
-        // Check for existing context in current oF window.
-        // We only create one ImGuiContext per ofAppWindow (1 for each glfwWindow instance handled by oF)
-        ofAppBaseWindow* curWindow = ofGetWindowPtr();
-
         // Curwindow cannot be null
-        if(curWindow==nullptr){
-            ofLogError("Gui::setup()") << "You have to call setup() from within an active oF window context ! Try calling setup() at ofApp::setup() or later.";
+		if(_ofWindow==nullptr){
+			ofLogError("Gui::setup()") << "The provided ofAppBaseWindow pointer is null, cannot continue setup !";
 			return SetupState::Error;
         }
 		// Check if the undelying window is valid too
-        else if((void*)curWindow->getWindowContext() == nullptr){
+		else if((void*)_ofWindow->getWindowContext() == nullptr){
 			ofLogError("Gui::setup()") << "Sorry, for now ofxImGui needs to be setup in a valid window object.";
 			return SetupState::Error;
         }
 
 		// Grab existing ImGui Context
-		ImGuiContext* existingImGuiContext = ImGui::GetCurrentContext(); // Null on first call ever
+		//ImGuiContext* existingImGuiContext = ImGui::GetCurrentContext(); // Null on first call ever
 
 		// Does this ofBaseWindow already have an ofxImGuiContext ?
-		ofxImGuiContext* ofWindowContext = imguiContexts.findData( curWindow );
-		if( ofWindowContext != nullptr ){
-			ofWindowContext->isShared = true; // tells master that the context became shared
+		ofxImGuiContext* existingOfWindowContext = nullptr;
+		auto foundWindowContext = imguiContexts.find( _ofWindow.get() );
+		if( foundWindowContext != imguiContexts.end() ) existingOfWindowContext = &foundWindowContext->second ;
+
+		if( existingOfWindowContext != nullptr ){
+			existingOfWindowContext->slaveCount++; // tells master that the context became shared
 
 			// Keep reference of master context
-			context = ofWindowContext;
+			context = existingOfWindowContext;
 			isContextOwned = false;
 
 #ifdef OFXIMGUI_DEBUG
-			ofLogNotice("Gui::setup()") << "Context " << context << "/" << context->imguiContext << " already exists in window " << curWindow << ", using the existing context as a shared one.";
+			ofLogNotice("Gui::setup()") << "Context " << context << "/" << context->imguiContext << " already exists in window " << _ofWindow.get() << ", using the existing context as a shared one.";
 			if(autoDraw_) ofLogWarning("Gui::setup()") << "You requested to enable Autodraw, but this is a Slave setting. Not enabling autoDraw.";
 #endif
         }
         // Create a unique context for this window
         else {
-			context = new ofxImGuiContext();
-			isContextOwned = true;
+			//context = new ofxImGuiContext(_ofWindow);
+//			std::pair<ofAppBaseWindow*, ofxImGuiContext> myPair(std::piecewise_construct, std::forward_as_tuple(_ofWindow.get()), std::forward_as_tuple(_ofWindow));
+			//std::pair<ofAppBaseWindow*, ofxImGuiContext> myPair(std::piecewise_construct, std::forward_as_tuple(_ofWindow.get()), std::forward_as_tuple(_ofWindow));
 
 			// Register
-			imguiContexts.add(curWindow, context);
+			//imguiContexts.emplace(_ofWindow.get(), _ofWindow);
+			//imguiContexts[_ofWindow.get()] = ofxImGuiContext(_ofWindow);
+			auto createdContext = imguiContexts.emplace(std::piecewise_construct, std::forward_as_tuple(_ofWindow.get()), std::forward_as_tuple(_ofWindow));
+			if(!createdContext.second){ // Failed creating ?
+				ofLogError("Gui::setup()") << "Couldn't create a context for this window !";
+				return SetupState::Error;
+			}
+			context = &createdContext.first->second;
+			context->slaveCount ++; // Master counts as a slave too ;)
+			isContextOwned = true;
 
 			// Enable autodraw
-			if( autoDraw_ && curWindow!=nullptr ){
+			if( autoDraw_ && _ofWindow!=nullptr ){
 				context->autoDraw = true;
-				autoDrawListener = curWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
+				autoDrawListener = _ofWindow->events().draw.newListener( this, &Gui::afterDraw, OF_EVENT_ORDER_AFTER_APP );
             }
 
 #ifdef OFXIMGUI_DEBUG
-            ofLogVerbose("Gui::setup()") << "Created context "<< context << " in window " << ofGetWindowPtr() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
+			ofLogVerbose("Gui::setup()") << "Created context "<< context << " in window " << _ofWindow.get() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
 #endif
         }
 
@@ -134,10 +175,10 @@ namespace ofxImGui
 		io.MouseDrawCursor = _showImGuiMouseCursor;
 
 		// Handle gui state saving
-		if(!_restoreGuiState)
+		if(_restoreGuiState == false)
 			io.IniFilename = nullptr;
 
-		engine.setup( curWindow, context->autoDraw);
+		context->engine.setup( _ofWindow.get(), context->imguiContext, context->autoDraw);
 
 		if (theme_)
 		{
@@ -162,7 +203,7 @@ namespace ofxImGui
 			autoDrawListener.unsubscribe();
 
 			ImGui::SetCurrentContext(context->imguiContext);
-            engine.exit();
+			context->engine.exit();
 
 			// Theme
 			if (theme)
@@ -190,16 +231,16 @@ namespace ofxImGui
 			if(context!=nullptr){
 
 				// Unregister
-				ofAppBaseWindow* myOfWindow = imguiContexts.findKey(context);
-				if(myOfWindow!=nullptr){
-					imguiContexts.remove(myOfWindow);
-				}
-				else {
-					ofLogWarning("Gui::exit()") << "Master could not unregister the context !";
-				}
+//				ofAppBaseWindow* myOfWindow = imguiContexts.find(context);
+//				if(myOfWindow!=nullptr){
+//					imguiContexts.remove(myOfWindow);
+//				}
+//				else {
+//					ofLogWarning("Gui::exit()") << "Master could not unregister the context !";
+//				}
 
 #ifdef OFXIMGUI_DEBUG
-			ofLogNotice("Gui::exit()") << "Destroyed master context" << context << " that was bound to window " << myOfWindow << " (together with ImGuiContext" << context->imguiContext << ").";
+//			ofLogNotice("Gui::exit()") << "Destroyed master context " << context << " that was bound to window " << myOfWindow << " (together with ImGuiContext" << context->imguiContext << ").";
 #endif
 
 				// Destroy
@@ -209,7 +250,7 @@ namespace ofxImGui
 				context->imguiContext = nullptr;
 
 				isContextOwned = false;
-				delete context;
+				//delete context;
 			}
         }
 		else {
@@ -225,15 +266,15 @@ namespace ofxImGui
 
     //--------------------------------------------------------------
 	// In some rare cases you might wish to enable this manually. (in most cases it's automatic)
-    void Gui::setSharedMode(bool _sharedMode) {
-		if(!_sharedMode || !context || !context->imguiContext) return;
-		context->isShared = true;
-    }
+//    void Gui::setSharedMode(bool _sharedMode) {
+//		if(!_sharedMode || !context || !context->imguiContext) return;
+//		context->slaveCount++;
+//    }
 	// Returns true if the context is setup in shared mode
 	// (when multiple Gui instances share the same context).
     bool Gui::isInSharedMode() const {
 		if( !context ) return false;
-		return context->isShared;
+		return context->isShared();
     }
 
     //--------------------------------------------------------------
@@ -280,17 +321,17 @@ namespace ofxImGui
         return false;
     }
 
-  //--------------------------------------------------------------
-  ImFont* Gui::addFont(const std::string & fontPath, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
+	//--------------------------------------------------------------
+	ImFont* Gui::addFont(const std::string & fontPath, float fontSize, const ImFontConfig* _fontConfig, const ImWchar* _glyphRanges, bool _setAsDefaultFont ) {
 
-      if(context==nullptr){
-          ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
-          return nullptr;
-      }
+		if(context==nullptr){
+			ofLogWarning() << "You must load fonts after gui.setup() ! (ignoring this call)";
+			return nullptr;
+		}
 
-	//ImFontConfig structure allows you to configure oversampling.
-	//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
-	//than necessary, so you may reduce that to 1.
+		//ImFontConfig structure allows you to configure oversampling.
+		//By default OversampleH = 3 and OversampleV = 1 which will make your font texture data 3 times larger
+		//than necessary, so you may reduce that to 1.
 
 		ImGui::SetCurrentContext(context->imguiContext);
 		ImGuiIO& io = ImGui::GetIO();
@@ -303,7 +344,7 @@ namespace ofxImGui
 
 		if (io.Fonts->Fonts.size() > 0) {
             io.Fonts->Build();
-            if( engine.updateFontsTexture() ){
+			if( context->engine.updateFontsTexture() ){
                 // Set default font when there's none yet, or as requested
                 if(_setAsDefaultFont || io.FontDefault == nullptr) setDefaultFont(font);
                 return font;
@@ -334,7 +375,7 @@ namespace ofxImGui
 
 		if (io.Fonts->Fonts.size() > 0) {
 			io.Fonts->Build();
-			if( engine.updateFontsTexture() ){
+			if( context->engine.updateFontsTexture() ){
 				if(_setAsDefaultFont) setDefaultFont(font);
 				return font;
 			}
@@ -378,7 +419,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(ofPixels& pixels)
 	{
-		return engine.loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
+		return context->engine.loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
 	}
 
 	//--------------------------------------------------------------
@@ -441,7 +482,7 @@ namespace ofxImGui
         // Ignore 2nd call to begin(), to allow chaining
 		if( context->isRenderingFrame == true ){
             // Already began context
-			if(!context->isShared){
+			if(!context->isShared()){
 				// Notify misuse if shared context is off
 				static bool userWasWarned = false;
 				if(!userWasWarned){
@@ -459,7 +500,7 @@ namespace ofxImGui
         IM_ASSERT( io.Fonts->IsBuilt() );
 
         //std::cout << "New Frame in context " << context << " in window " << ofGetWindowPtr() << " (" << ofGetWindowPtr()->getWindowSize().x << ")" << std::endl;
-        engine.newFrame();
+		context->engine.newFrame();
         ImGui::NewFrame();
 
 		context->isRenderingFrame = true;
@@ -476,7 +517,7 @@ namespace ofxImGui
         }
 
         // Let context open in shared mode.
-		if( context->isShared==true ){
+		if( context->isShared()==true ){
 #ifdef OFXIMGUI_DEBUG
 			if( !context->isRenderingFrame ){
                 ofLogWarning("Gui::end()") << "The Gui already rendered, or forgot to call Gui::Begin() ! Please ensure you render the gui after other instances have rendered.";
@@ -494,7 +535,7 @@ namespace ofxImGui
             }
 
             // End submitting to ImGui
-            //engine.endFrame();
+			//context->engine.endFrame();
             ImGui::EndFrame();
 
             //render(); // Now called after ofApp::draw() using a callback.
@@ -507,7 +548,7 @@ namespace ofxImGui
                 return;
             }
 
-            //engine.endFrame(); // (Does nothing...)
+			//context->engine.endFrame(); // (Does nothing...)
             ImGui::EndFrame();
         }
     }
@@ -519,8 +560,7 @@ namespace ofxImGui
 
 		ImGui::SetCurrentContext(context->imguiContext);
         ImGui::Render();
-        engine.render();
-
+		context->engine.render();
 		context->isRenderingFrame = false;
     }
 
@@ -541,19 +581,338 @@ namespace ofxImGui
 		}
 	}
 
-
+	//--------------------------------------------------------------
     void Gui::afterDraw( ofEventArgs& ){
 
         // This function is registered after ofApp::draw() to honor autodraw in shared context mode.
 		if(context && context->isRenderingFrame ){
             // Autodraw renders here if sharedMode is on
-			if( (context->autoDraw && context->isShared==true) ) render();
+			if( context->autoDraw && context->isShared()) render();
             // Render if manual render was forgotten (do we want this to happen??)
-			else if( context->isShared==false ) render();
+			else if( !context->isShared() ) render();
         };
     }
 
+	//--------------------------------------------------------------
+	void Gui::drawOfxImGuiDebugWindow() const {
+		// Only provide this functions with debug flags on
+#ifdef OFXIMGUI_DEBUG
+		if( ImGui::Begin("ofxImGui Debug Window") ){
+
+			if(ImGui::BeginTabBar("DebugTabs")){
+
+				// STATE tab
+				if (ImGui::BeginTabItem("State"))
+				{
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("Here is some useful information about this ofxImGui instantance's state.");
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("Gui instance");
+					ImGui::Text("Gui instance: %p (ofxImGui::Gui)", (void*)this);
+					ImGui::Text("Owns context: %s", isContextOwned?"YES":"NO");
+					ImGui::Indent();
+					if( isContextOwned ){
+						ImGui::TextWrapped("This instance is setup as a MASTER.");
+						ImGui::TextWrapped("It has full control over all settings.");
+					}
+					else {
+						ImGui::TextWrapped("This instance is setup as a SLAVE.");
+						ImGui::TextWrapped("Some initial setup settings might have been ignored.");
+					}
+					ImGui::Unindent();
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("Context");
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("ImGui needs a context instance to work correctly.");
+					ImGui::TextWrapped("ofxImGui provides automatic context handling, setting up one context per ofAppWindow.");
+					ImGui::TextWrapped("Note that it's generally recommended to use only one GUI window, and that setting up multiple contexts is not encouraged by ImGui.");
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+					ImGui::Text("ofxImGuiContext : %p (isSetup=%s)", (void*)context, (bool)context?"1":"0");
+					ImGui::Text("ImGui context   : %p", (void*)context->imguiContext);
+					ImGui::Text("Bound OF window : %p", (void*)context->ofWindow.get());
+					ImGui::Text("Autodraw        : %s", context->autoDraw?"enabled":"disabled");
+					ImGui::Text("Slave count     : %u (%s)", context->slaveCount, context->isShared()?"shared mode":"not shared");
+					ImGui::Text("Engine          : %p (isSetup=%s)", &context->engine, context->engine.isSetup?"1":"0");
+
+					ImGui::EndTabItem();
+				}
+
+				// Backend TAB
+				if (ImGui::BeginTabItem("oF Windows"))
+				{
+					ImGui::Dummy({10,10});
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("ofxImGui assigns one context per ofAppBaseWindow instance.");
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("This tab gives an overview of all ofxImGuiContexts bound to ofWindows.");
+					ImGui::TextWrapped("They can be owned by any ofxImGui::Gui instance.");
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("Windows");
+					if(ImGui::BeginTable("ofxImGui bound OF windows.", 4)){
+						ImGui::TableSetupColumn("ofxAppBaseWindow*");
+						ImGui::TableSetupColumn("ofxImGuiContext*");
+						ImGui::TableSetupColumn("ImGuiContext*");
+						ImGui::TableSetupColumn("Slaves");
+						ImGui::TableHeadersRow();
+
+						//for(auto* windowEntry = imguiContexts.getFirst(); windowEntry != nullptr; windowEntry=windowEntry->getNext()){
+						//for(const std::pair<std::string, int>& windowEntry : imguiContexts){
+						for(auto windowEntry = imguiContexts.begin(); windowEntry!=imguiContexts.end(); windowEntry++){
+							ImGui::TableNextRow();
+
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", (void*)windowEntry->first);
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", (void*)&windowEntry->second);
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", (void*)windowEntry->second.imguiContext);
+							ImGui::TableNextColumn();
+							ImGui::Text("%u", windowEntry->second.slaveCount);
+						}
+
+						ImGui::EndTable();
+					}
+
+					ImGui::Dummy({10,10});
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("Slaves count relate to attached gui instances, be they master or slave.");
+					ImGui::PopStyleColor();
+
+					ImGui::EndTabItem();
+				}
+
+				// Backend TAB
+				if (ImGui::BeginTabItem("ofxImGuiBackend"))
+				{
+					ImGui::Dummy({10,10});
+					if(ImGui::TreeNode("What are backends ?")){
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("The ofxImGui engine interfaces ImGui with an ofAppBaseWindow.");
+						ImGui::Dummy({10,10});
+						ImGui::TextWrapped("There are currently 2 implementations :");
+						ImGui::Bullet(); ImGui::TextWrapped("OpenFrameworks : The simplest one which binds ImGui to native OF events in a simple way, ensured to work in any ofApp.");
+						ImGui::Bullet(); ImGui::TextWrapped("GLFW : A fully featured ImGui binding for ofGLFWWindow-based-ofApps (mainly MacOsX/Linux/Windows).\nIt binds the native ImGui Glfw backend to your ofWindows.");
+						ImGui::Bullet(); ImGui::TextWrapped("In both cases, rendering is done by loading the native ImGui shaders.");
+						ImGui::PopStyleColor();
+						ImGui::TreePop();
+					}
+
+					auto& io = ImGui::GetIO();
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("Used Backend");
+					ImGui::Text("Loaded backend   : %s", OFXIMGUI_LOADED_BACKEND);
+					ImGui::Text("Backend instance : %p", (void*)&context->engine);
+					ImGui::Text("Backend.isSetup  : %s", context->engine.isSetup?"1":"0");
+					ImGui::Text("Renderer         : %s", io.BackendRendererName);
+					ImGui::Text("Platform         : %s", io.BackendPlatformName);
+					//ImGui::Text("Backend isSetup : %s", context->engine.);
+					//ImGui::Text("Backend window  : %p", (void*)this->context->imguiContext);
+
+					ImGui::Dummy({10,10});
+					ImGui::Text("OF version       : %i.%i.%i (%s)", OF_VERSION_MAJOR, OF_VERSION_MINOR, OF_VERSION_PATCH, OF_VERSION_PRE_RELEASE );
+
+					ImGui::Dummy({10,10});
+					if( ImGui::CollapsingHeader("Global Backend Details") ){
+
+						// Some IO data
+						ImGui::Dummy({10,10});
+						ImGui::SeparatorText("Global Internals");
+						ImGui::Text("FPS          : %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+						ImGui::Text("Delta time   : %.2f (sec)", io.DeltaTime);
+						ImGui::Text("Display size : %.0f x %.0f (px)", io.DisplaySize.x, io.DisplaySize.y);
+						ImGui::Text("Display scale: %.3f x %.3f", io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+						ImGui::Text("Ini filename : %s", io.IniFilename);
+						ImGui::Text("Loaded Fonts : %i", io.Fonts->Fonts.size());
+						for(auto& font : io.Fonts->Fonts){
+							ImGui::BulletText("%s", font->ConfigData->Name);
+						}
+						ImGui::TextWrapped("");
+
+						// Backend Flags
+						ImGui::Dummy({10,10});
+						ImGui::SeparatorText("Backend Capabilities");
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("Backends can support advanced ImGui features.");
+						ImGui::PopStyleColor();
+						ImGuiBackendFlags backend_flags = io.BackendFlags;
+						ImGui::CheckboxFlags("HasGamepad",             &backend_flags, ImGuiBackendFlags_HasGamepad);
+						ImGui::CheckboxFlags("HasMouseCursors",        &backend_flags, ImGuiBackendFlags_HasMouseCursors);
+						ImGui::CheckboxFlags("HasSetMousePos",         &backend_flags, ImGuiBackendFlags_HasSetMousePos);
+						ImGui::CheckboxFlags("PlatformHasViewports",   &backend_flags, ImGuiBackendFlags_PlatformHasViewports);
+						ImGui::CheckboxFlags("HasMouseHoveredViewport",&backend_flags, ImGuiBackendFlags_HasMouseHoveredViewport);
+						ImGui::CheckboxFlags("RendererHasVtxOffset",   &backend_flags, ImGuiBackendFlags_RendererHasVtxOffset);
+						ImGui::CheckboxFlags("RendererHasViewports",   &backend_flags, ImGuiBackendFlags_RendererHasViewports);
+
+						// Parts from imgui_demo.cpp
+						ImGui::Dummy({10,10});
+						ImGui::SeparatorText("ImGui::io.ConfigFlags");
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("These are the most important settings, for more fine-tuning, refer to ImGui docs.");
+						ImGui::TextWrapped("You can set them like : ImGui::GetIO().ConfigFlags |= myFlag");
+						ImGui::PopStyleColor();
+						ImGui::CheckboxFlags("NavEnableKeyboard",    &io.ConfigFlags, ImGuiConfigFlags_NavEnableKeyboard);
+						ImGui::CheckboxFlags("NavEnableGamepad",     &io.ConfigFlags, ImGuiConfigFlags_NavEnableGamepad);
+						ImGui::CheckboxFlags("NavEnableSetMousePos", &io.ConfigFlags, ImGuiConfigFlags_NavEnableSetMousePos);
+						ImGui::CheckboxFlags("NoMouse",              &io.ConfigFlags, ImGuiConfigFlags_NoMouse);
+						ImGui::CheckboxFlags("DockingEnable",        &io.ConfigFlags, ImGuiConfigFlags_DockingEnable);
+						ImGui::CheckboxFlags("ViewportsEnable",      &io.ConfigFlags, ImGuiConfigFlags_ViewportsEnable);
+
+						// Widget settings
+						ImGui::Dummy({10,10});
+						ImGui::SeparatorText("ImGui Widget Settings");
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("You can change these to adjust ImGui input behaviour.");
+						ImGui::PopStyleColor();
+						ImGui::Checkbox("io.MouseDrawCursor", &io.MouseDrawCursor);
+						ImGui::Checkbox("io.ConfigInputTextCursorBlink", &io.ConfigInputTextCursorBlink);
+						ImGui::Checkbox("io.ConfigWindowsResizeFromEdges", &io.ConfigWindowsResizeFromEdges);
+
+						// User Input
+						ImGui::Dummy({10,10});
+						ImGui::SeparatorText("ImGui Input");
+						ImGui::Text("Keys down  :");
+						for (ImGuiKey key = ImGuiKey_KeysData_OFFSET; key < ImGuiKey_COUNT; key = (ImGuiKey)(key + 1)) {
+							if(!ImGui::IsKeyDown(key)) continue;
+							ImGui::SameLine();
+							ImGui::Text((key < ImGuiKey_NamedKey_BEGIN) ? "\"%s\"" : "\"%s\" %d", ImGui::GetKeyName(key), key);
+						}
+						ImGui::Text("Mouse pos  : (%g, %g)", io.MousePos.x, io.MousePos.y);
+						ImGui::Text("Mouse delta: (%g, %g)", io.MouseDelta.x, io.MouseDelta.y);
+						ImGui::Text("MouseWheel : %f", io.MouseWheel);
+						ImGui::Text("Mouse down :");
+						for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++){
+							if (ImGui::IsMouseDown(i)) { ImGui::SameLine(); ImGui::Text("b%d (%.02f secs)", i, io.MouseDownDuration[i]); }
+						}
+					}
+
+					ImGui::Dummy({10,10});
+					if( ImGui::CollapsingHeader("Backend Specific Information", ImGuiTreeNodeFlags_DefaultOpen) ){
+
+					ImGui::SeparatorText(OFXIMGUI_LOADED_BACKEND " Backend Information");
+#if defined(OFXIMGUI_BACKEND_GLFW)
+					ImGui::TextWrapped("GLFW version : %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION );
+					ImGui::Dummy({10,10});
+					//ImGui::Indent();
+					ImGui::Text("Master engines handling GLFW Windows");
+//					if(ImGui::BeginTable("Bound engines table", 2)){
+//						ImGui::TableSetupColumn("GlfwWindow*");
+//						ImGui::TableSetupColumn("EngineGlfw*");
+//						ImGui::TableHeadersRow();
+//						for(auto* engineEntry = context->engine.enginesMap.getFirst(); engineEntry != nullptr; engineEntry=engineEntry->getNext()){
+//							ImGui::TableNextRow();
+//							ImGui::TableNextColumn();
+//							ImGui::Text("%p", engineEntry->key);
+//							ImGui::TableNextColumn();
+//							ImGui::Text("%p", engineEntry->data);
+//						}
+//						ImGui::EndTable();
+//					}
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("GLFW Callbacks");
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("GLFW window events can only be bound to one listener; imgui_backend_glfw allows either to");
+					//ImGui::TextWrapped("This can be toggled with the INTERCEPT_GLFW_CALLBACKS macro define. (default = 1)");
+					ImGui::Bullet(); ImGui::TextWrapped("0 = ofxImGui listens to ofEvents and forwards them to the ImGui backend.\nEvent propagation: GLFW -> Openframeworks -> ImGui");
+					ImGui::Bullet(); ImGui::TextWrapped("1 = Bind ImGui directly to GLFW events by replacing OF's GLFW listeners, forwarding callbacks to OF afterwrds.\nEvent propagation: GLFW -> ImGui -> Openframeworks");
+					//ImGui::TextWrapped("The GLFW backend has the ability to either bind it's");
+					ImGui::PopStyleColor();
+					//ImGui::TextWrapped("INTERCEPT_GLFW_CALLBACKS = %i", INTERCEPT_GLFW_CALLBACKS);
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("INTERCEPT_GLFW_CALLBACKS");
+
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("ofxImGui uses a modified imgui backend by default so that it can use multiple imgui contexts (one per ofAppBaseWindow).\nIf there are multiple contexts, the native GLFW backend needs to be able to switch context on GLFW callbacks.");
+					ImGui::TextWrapped("For this to work, we use a modified glfw backend so that it supports multiple contexts.");
+					ImGui::TextWrapped("If you don't need ofxImGui in multiple windows, you may toggle this off by setting the INTERCEPT_GLFW_CALLBACKS macro define to 0.");
+					ImGui::PopStyleColor();
+					ImGui::TextWrapped("INTERCEPT_GLFW_CALLBACKS = %i", INTERCEPT_GLFW_CALLBACKS);
+
+#if INTERCEPT_GLFW_CALLBACKS == 1
+					ImGui::TextWrapped("Viewport windows handled by ofxImGui for the native imgui_backend_glfw:");
+					ImGui::Dummy({10,10});
+
+					if(ImGui::BeginTable("Bound engines table", 2)){
+						ImGui::TableSetupColumn("GlfwWindow*");
+						ImGui::TableSetupColumn("ImGuiContext*");
+						ImGui::TableHeadersRow();
+						for(auto* engineEntry = ImGui_ImplGlfw_ScopedContext::Contexts.getFirst(); engineEntry != nullptr; engineEntry=engineEntry->getNext()){
+							ImGui::TableNextRow();
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", engineEntry->key);
+							ImGui::TableNextColumn();
+							ImGui::Text("%p", engineEntry->data);
+							if(ImGui::IsItemHovered()){
+								ImGui::SameLine();
+								ImGui::BeginTooltip();
+								ImGui::Text("%s", context->imguiContext==engineEntry->data?"Current context":"Other instance's context");
+								ImGui::EndTooltip();
+							}
+						}
+						ImGui::EndTable();
+					}
+#endif
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("Backend Usage Tips");
+
+#if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR <= 3 && GLFW_VERSION_MINOR <= 3
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("Your GLFW version is quite old, you could update it.");
+#ifdef TARGET_LINUX
+					 ImGui::Text("On Linux, moving pop-out windows with the mouse is quite shaky!");
+#endif
+#if defined(TARGET_OSX) && OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR == 11 && ( OF_VERSION_PATCH == 2 || OF_VERSION_PATCH == 0 )
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("On OSX and OF 0.11.0 and OF 0.11.2, GLFW comes as a pre-3.3.0 release, breaking native ImGui compatibility, but we got you covered !");
+#endif
+#endif
+#elif defined(OFXIMGUI_BACKEND_OPENFRAMEWORKS)
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+					ImGui::TextWrapped("This backend interfaces the minimum required interactions to use ImGui with ofEvents, so interactions are a little less user-friendly.\n Meanwhile, it's also less likely to break on future ImGui releases, which ensures a more-stable-over-time fallback for the fully featured GLFW backend.");
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("Backend Usage Tips");
+					ImGui::Text("Cons compared to the GLFW backend:");
+					ImGui::Bullet(); ImGui::TextWrapped("You cannot use viewport features (pop-out windows) and all ImGui windows are constrained to fit in your ofAppWindow.\nThis \"custom backend feature\" will be quite hard to port and maintain.");
+					ImGui::Bullet(); ImGui::TextWrapped("The (native) mouse cursor will always be a simple pointer, unless you use a custom software-rendered cursor.\nAlternatively you can enable the ImGui a software renderd mouse (and ensure to disable the native oF mouse cursor).");
+					ImGui::Bullet(); ImGui::TextWrapped("There's no gamepad support (useful for mouseless gui navigation in some situations, keyboard navigation should still work).\n(it could be implemented by binding an optional ofxAddon)");
+					ImGui::Bullet(); ImGui::TextWrapped("There's no touchscreen support.\n(but it's probably easy to implement in EngineOpenFrameworks.cpp)");
+					ImGui::Bullet(); ImGui::TextWrapped("Text input and keyboard shortcuts are more limited due to how OF forwards user input.");
+					ImGui::Bullet(); ImGui::TextWrapped("(Unexhaustive list, to be continued...)");
+
+#else
+					ImGui::TextWrapped("There's no custom information for your backend.");
+#endif
+					} // Backend Specific Informations
+
+					ImGui::Dummy({10,10});
+
+
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
+			}
+		}
+		// Close window space
+		ImGui::End();
+
+#endif // OFXIMGUI_DEBUG
+	}
+
     // Initialise statics
-	LinkedList<ofAppBaseWindow, ofxImGuiContext> Gui::imguiContexts = {};
+	//LinkedList<ofAppBaseWindow, ofxImGuiContext> Gui::imguiContexts = {};
+	std::unordered_map<ofAppBaseWindow*, ofxImGuiContext> Gui::imguiContexts = {};
 }
 

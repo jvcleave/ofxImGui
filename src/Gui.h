@@ -3,27 +3,29 @@
 #include "ofImage.h"
 #include "ofPixels.h"
 #include "ofTexture.h"
-#include "ofEvent.h"
+#include "ofEvents.h"
+#include "ofAppBaseWindow.h"
 
 #include <map>
 #include <bitset>
 
-#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
-#include "EngineOpenFrameworks.h"
-#elif defined (OF_TARGET_API_VULKAN)
-#include "EngineVk.h"
-//#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
-//#include "EngineOpenGLES.h"
-//#elif defined(TARGET_GLFW_WINDOW)
-#else
-#include "EngineGLFW.h"
-//#else
-//#pragma error "Sorry, you cannot run ofxImGui on your openFrameworks configuration. Try using GLFW windows for your project."
-#endif
-
+#include "ofxImGuiConstants.h"
 #include "DefaultTheme.h"
-#include "LinkedList.hpp"
+//#include "LinkedList.hpp"
+#include <unordered_map>
 #include "imgui.h" // for ImFont*
+
+#if defined(OFXIMGUI_BACKEND_OPENFRAMEWORKS)
+	#include "EngineOpenFrameworks.h"
+#elif defined (OFXIMGUI_BACKEND_VULKAN)
+	#include "EngineVk.h"
+#elif defined(OFXIMGUI_BACKEND_GLES)
+	#include "EngineOpenGLES.h"
+#elif defined(OFXIMGUI_BACKEND_GLFW)
+	#include "EngineGLFW.h"
+#else
+	#pragma error "Sorry, ofxImGui is incorrectly configured, cannot proceed !"
+#endif
 
 //#include "imgui_internal.h" // for ImGuiContext*
 
@@ -38,27 +40,74 @@
 
 // Todo: We could provide a way to intercept/filter OF mouse clicks when they are used by ImGui ?
 
-// A context pointer with some more info
+// Todo: count slave instances so only master exits when no more slaves ?
+
+// Todo: Maybe we could move setup() to main.cpp, or bind it to an ofxImGuiWindow
+// This could clarify the setup process by explicitly giving is the window handle.
+
+
+namespace ofxImGui {
+	class Gui;
+}
+// A context pointer with some more info. One ofxImGuiContext per ofAppWindow.
 struct ofxImGuiContext {
+		friend class ofxImGui::Gui;
+		friend struct std::pair<ofAppBaseWindow*, ofxImGuiContext>;
 	public:
-		ofxImGuiContext() :
+		explicit ofxImGuiContext(std::shared_ptr<ofAppBaseWindow>& _window) :
 			imguiContext(ImGui::CreateContext()),
-			isShared(false),
-			isRenderingFrame(false),
-			autoDraw(false){}
+			ofWindow(_window),
+			autoDraw(false),
+			slaveCount(0),
+			isRenderingFrame(false){}
+	public:
+		// Prevent making copies
+		ofxImGuiContext( const ofxImGuiContext& ) = delete;
+		ofxImGuiContext& operator=( const ofxImGuiContext& ) = delete;
+
+		// Allow move contructor & move assign
+		explicit ofxImGuiContext(ofxImGuiContext&& other) noexcept : imguiContext{other.imguiContext}{
+			other.imguiContext = nullptr;
+			//other. = false;
+		}
+//		ofxImGuiContext& operator=(ofxImGuiContext&& other) noexcept {
+
+//		}
+
+		~ofxImGuiContext(){
+			if(imguiContext) {
+				ImGui::DestroyContext(imguiContext);
+			}
+		}
 
 		ImGuiContext* imguiContext = nullptr;
-		bool isShared;
-		bool isRenderingFrame;
+		std::shared_ptr<ofAppBaseWindow> ofWindow;
 		bool autoDraw;
 
-		// Explicit not to mess with compilers casting it to anything !
+		inline bool isShared() const {
+			return slaveCount > 1;
+		}
+
+		// Note: Explicit, not to mess with compilers casting it to anything !
 		explicit operator bool() const {
 			return imguiContext != nullptr;
 		}
 		bool operator !() const {
-			return imguiContext == nullptr;
+			return !(bool)this;//imguiContext == nullptr;
 		}
+	protected:
+		unsigned int slaveCount;
+		bool isRenderingFrame;
+
+#if defined (OFXIMGUI_BACKEND_OPENFRAMEWORKS)
+		ofxImGui::EngineOpenFrameworks engine;
+#elif defined (OFXIMGUI_BACKEND_VULKAN)
+		ofxImGui::EngineVk engine;
+#elif defined(OFXIMGUI_BACKEND_OPENGLES)
+		ofxImGui::EngineOpenGLES engine;
+#elif defined(OFXIMGUI_BACKEND_GLFW)
+		ofxImGui::EngineGLFW engine;
+#endif
 };
 
 namespace ofxImGui
@@ -76,11 +125,16 @@ namespace ofxImGui
 		Gui();
 		~Gui();
 
+		// Prevent making copies, prevents making mistakes messing up the gui instances and contexts
+		Gui( const Gui& ) = delete;
+		Gui& operator=( const Gui& ) = delete;
+
 		SetupState setup(BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool _restoreGuiState = false, bool _showImGuiMouseCursor = false );
+		SetupState setup(std::shared_ptr<ofAppBaseWindow>& _ofWindow, BaseTheme* theme = nullptr, bool autoDraw = true, ImGuiConfigFlags customFlags_=ImGuiConfigFlags_None, bool _restoreGuiState = false, bool _showImGuiMouseCursor = false );
 		void exit();
 
         // Todo: remove these ? Adapt them ?
-        void setSharedMode(bool _sharedMode=true);
+		//void setSharedMode(bool _sharedMode=true);
         bool isInSharedMode() const;
 
 		void begin();
@@ -107,19 +161,22 @@ namespace ofxImGui
 
         void afterDraw(ofEventArgs& _args); // Listener
 
+		// Helper window to debug ofxImGui specific stuff, and provide some hints on your setup.
+		void drawOfxImGuiDebugWindow() const;
+
     private:
         void render();
+		static void initialiseForWindow();
 
-#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
-        EngineOpenFrameworks engine;
-#elif defined (OF_TARGET_API_VULKAN)
-        EngineVk engine;
-//#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
-//        EngineOpenGLES engine;
-#else
-        EngineGLFW engine;
-#endif
-        
+//#if defined (OFXIMGUI_ENABLE_OF_BINDINGS)
+//        EngineOpenFrameworks engine;
+//#elif defined (OF_TARGET_API_VULKAN)
+//        EngineVk engine;
+////#elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
+////        EngineOpenGLES engine;
+//#else
+//        EngineGLFW engine;
+//#endif
 		ofEventListener autoDrawListener;
 
 		BaseTheme* theme=nullptr; // Todo: move this into ofxImguiContext ?
@@ -128,9 +185,10 @@ namespace ofxImGui
 
         // Static context instance. All Gui instances share the same context.
         // If you're dealing with dynamic libraries, you might need to pass this over to another ImGui instance.
-		ofxImGuiContext* context; // Short-hand value, same as stored in the map
+		ofxImGuiContext* context = nullptr; // Short-hand value, same as stored in the map, faster access
 		bool isContextOwned = false; // Copy of context, set when it needs destruction
 
-		static LinkedList<ofAppBaseWindow, ofxImGuiContext> imguiContexts; // Window/MasterContext map
+		//static LinkedList<ofAppBaseWindow*, ofxImGuiContext> imguiContexts; // Window/MasterContext map
+		static std::unordered_map<ofAppBaseWindow*, ofxImGuiContext> imguiContexts; // Window/MasterContext map
 	};
 }

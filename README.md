@@ -18,7 +18,7 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
  - Raspberry Pi
  - Linux Desktop
 
- Currently, **ofxImGui has only be tested on GLFW-based openFrameworks applications**. Thus, the `RPI_LEGACY`, iOS, Android, Emscripten, and Vulkan implementations might be broken. They should be compatible but the GL pipeline setup and cpp includes remain to be tested; if you do so, please report back your findings.
+ Currently, **ofxImGui has been refactored**, both implementing a custom oF backend (similar to Jvcleave's original implementation) and a "native imgui backend" (similar to one of the many imgui forks). OsX, Windows and Linux have been tested, but some more specific platforms remain to be tested. They should be compatible but the GL pipeline setup and cpp includes remain to be tested; if you do so, please report back your findings.
 
 *Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. It's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with Raspbian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
 
@@ -35,8 +35,6 @@ ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requir
 
 *Note: This support table does not take into account software emulated support for graphics APIs.*  
 *Note: GL ES 1 (the fixed pipeline ES shading language) is not natively supported by the native DearImGui backend, but it works with [some dirty hacks](src/gles1CompatibilityHacks.h).*
-
-Older versions of ofxImGui, which come with an older DearImGui version, use a simpler backend very close to OF, probably compatible with any OF version at that time. Try the latest [ofxImGui legacy version 1.77](https://github.com/jvcleave/ofxImGui/tree/legacy), or try [this untested transition commit](https://github.com/jvcleave/ofxImGui/tree/05ab1311511523c63c6f22d38ee015942b9ea557) together with `OFXIMGUI_ENABLE_OF_BINDINGS` if you need ImGui 1.79 features.
 
 #### oF & ImGui Support Table
 New ImGui versions bring changes and new API features, sometimes depreciations.  
@@ -94,6 +92,8 @@ DearImGui needs to know your GL Context. ofxImGui tries to match your project's 
  - `IMGUI_IMPL_OPENGL_ES3` --> Use GLES3.
  - `[none of the previous ones]` --> Use OpenGL.
 
+To have an insight on how your ofxImGui interfaces ImGui, you can call `gui.drawOfxImGuiDebugWindow();` together with `OFXIMGUI_DEBUG`. It will provide you an explanation of your configuration and it also provides some suggestions for gradually improving your configuration (to get the most out of OF+ImGui).
+
 ### Setup
 Calling `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs.  
 ofxImGui implements DearImGui in such a way that each oF window gets its own imgui context, seamlessly shared between any oF window context. You can also load multiple instances of it in the same ofApp (to use the addon within multiple addons). This feature (shared mode) is automatically enabled when a second `ofxImGui::Gui` instance is created within the same application's platform window context. See example-sharedContext for more info.  
@@ -134,6 +134,6 @@ Useful dev info and how to get familiar with DearImGui : [Developper.md](./Devel
 
 ## Updating ofxImGui
 - `cd /path/to/ofxImGui && git pull && git submodule update`
-- (*optional*) After updating: Add `#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS` in your `imconfig.h` file to make sure you are not using to-be-obsoleted symbols. Update any if needed.
+- (*optional but recommended*) After updating: Add `#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS` in your `imconfig.h` file to make sure you are not using to-be-obsoleted symbols. Update any if needed.
 
 

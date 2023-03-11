@@ -1,6 +1,7 @@
+#include "ofxImGuiConstants.h"
 #include "EngineGLFW.h"
 
-#if ( !defined(OF_TARGET_API_VULKAN) )
+#ifdef OFXIMGUI_BACKEND_GLFW
 
 #include "ofAppGLFWWindow.h"
 #include "ofGLProgrammableRenderer.h"
@@ -15,7 +16,7 @@ namespace ofxImGui
 	GLuint EngineGLFW::g_FontTexture = 0;
 
 	//--------------------------------------------------------------
-	void EngineGLFW::setup(ofAppBaseWindow* _window, bool autoDraw)
+	void EngineGLFW::setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw)
 	{
         if (isSetup){
 #ifdef OFXIMGUI_DEBUG
@@ -24,7 +25,7 @@ namespace ofxImGui
             return;
         }
 #ifdef OFXIMGUI_DEBUG
-        else ofLogNotice("EngineGLFW::setup()") << "Setting up GLFW in oF window " << ofGetWindowPtr() << " // GlfwWindow=" << ofGetWindowPtr()->getWindowContext() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
+		else ofLogNotice("EngineGLFW::setup()") << ((void*)this) << " Setting up GLFW in oF window " << ofGetWindowPtr() << " // GlfwWindow=" << ofGetWindowPtr()->getWindowContext() << " ["<< ofGetWindowPtr()->getWindowSize() <<"]";
 
         #if defined(OFXIMGUI_DEBUG) && defined(TARGET_OPENGLES) && defined(TARGET_RASPBERRY_PI)
             // oF 0.11 related warnings
@@ -42,10 +43,10 @@ namespace ofxImGui
 #endif // debug
 
 		// Store a reference to the current imgui context for event handling
-		imguiContext = ImGui::GetCurrentContext();
+		imguiContext = _imguiContext;
 
         // Init window
-        ofAppBaseWindow* curOfWin = ofGetWindowPtr();
+		ofAppBaseWindow* curOfWin = _window;
         GLFWwindow* curWin = (GLFWwindow*)curOfWin->getWindowContext();
 
 		// Maybe we need this in the future ?
@@ -83,8 +84,9 @@ namespace ofxImGui
 		//glfwSetWindowPosCallback(   curWin, ImGui_ImplGlfw_WindowPosCallback);
 		//glfwSetWindowSizeCallback(  curWin, ImGui_ImplGlfw_WindowSizeCallback);
 
-		// Register context
+		// Register context and listen to window destruction
 		enginesMap.add(curWin, this);
+		ofAddListener(curOfWin->events().exit, this, &EngineGLFW::onWindowExit   );
 
 		// This might give better performance if enabled. To be fully tested.
 		//ImGui_ImplGlfw_SetCallbacksChainForAllWindows(true);
@@ -130,7 +132,17 @@ namespace ofxImGui
 	void EngineGLFW::exit()
 	{
 		if (!isSetup) return;
-        
+
+		// Ensure context is set, when shutting down from a callback for example.
+		if(!setImGuiContext()){
+#ifdef OFXIMGUI_DEBUG
+			ofLogWarning("EngineGLFW::exit()") << "Couldn't set context on exit... there's probably something wrong. There's unexpected behaviour ahead, good luck !";
+#endif
+			return;
+		}
+
+		ofRemoveListener(ofGetCurrentWindow()->events().exit, this, &EngineGLFW::onWindowExit   );
+
         if (ofIsGLProgrammableRenderer()){
             //ImGui_ImplOpenGL3_DestroyFontsTexture(); // called by function below
             //ImGui_ImplOpenGL3_DestroyDeviceObjects(); // Called below
@@ -192,6 +204,7 @@ namespace ofxImGui
         }
 	}
 
+	//--------------------------------------------------------------
     bool EngineGLFW::updateFontsTexture(){
         if (ofIsGLProgrammableRenderer()) {
             return ImGui_ImplOpenGL3_CreateFontsTexture();
@@ -201,7 +214,38 @@ namespace ofxImGui
         }
     }
 
+	//--------------------------------------------------------------
+	void EngineGLFW::onWindowExit(ofEventArgs& event){
+		std::cout << "Window Exit! [engine]" << (void*)this << " // [window]" << ofGetWindowPtr() << std::endl;
+		std::cout << "ofApp = " << (void*)ofGetAppPtr() << " // [window]" << ofGetAppPtr() << std::endl;
+
+		// Set imgui context of this window
+		if(!setImGuiContext()) return;
+
+		// Call Destroy platform windows(otherwise pop-out windows remain visible but unresponsive)
+		//ImGui_ImplGlfw_Shutdown();
+		//ImGui_ImplGlfw_ShutdownPlatformInterface();
+
+		// Todo: Notify global GLFW event listeners to not forward calls anymore ? Windows platforms seem to receuve a focus callback afterwards
+
+		// When using quit, exit() makes pollEvents crash later. Try to call it before.
+		//ofGetMainLoop()->pollEvents();
+
+		// Dummy exit ? What if context is shared ?
+		//exit();
+
+		enginesMap.remove((GLFWwindow*)ofGetWindowPtr()->getWindowContext());
+
+		// Set unloaded state
+		imguiContext = nullptr;
+		isSetup = false;
+
+		// Todo: notify child/slaves about gui destruction ? gui.begin() should return false if the gui has gone ?
+		std::cout << "Exit done" << std::endl;
+	}
+
 #if INTERCEPT_GLFW_CALLBACKS == 1
+	//--------------------------------------------------------------
     // The code below is a template from the GLFW backend, almost unmodified, but commented.
     void EngineGLFW::GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods){
 		// Call the original callback
@@ -215,12 +259,14 @@ namespace ofxImGui
 
 		// Warning: gotta call newFrame() to compute the active state (1 frame delay?)
 		if(!ImGui::GetIO().WantCaptureMouse){
-            // todo: call openframeworks callback
+			// todo: call openframeworks callback
         }
 
         // Restore
 		restoreImGuiContext();
     }
+
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwMouseButtonCallbackGlobal(GLFWwindow* window, int button, int action, int mods){
 		//EngineGLFW* self = static_cast<EngineGLFW*>(glfwGetWindowUserPointer(window));
 		EngineGLFW* self = enginesMap.findData(window);
@@ -230,6 +276,7 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
     void EngineGLFW::GlfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 		// Call the original callback
 		if(originalOFCallbacks.originalCallbackScroll) originalOFCallbacks.originalCallbackScroll(window, xoffset, yoffset);
@@ -243,6 +290,8 @@ namespace ofxImGui
 		// Restore
 		restoreImGuiContext();
     }
+
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwScrollCallbackGlobal(GLFWwindow* window, double xoffset, double yoffset) {
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwScrollCallback(window, xoffset, yoffset);
@@ -251,6 +300,7 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
     void EngineGLFW::GlfwKeyCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods){
 		// Call the original callback
 		if(originalOFCallbacks.originalCallbackKey) originalOFCallbacks.originalCallbackKey(window, keycode, scancode, action, mods);
@@ -264,6 +314,8 @@ namespace ofxImGui
 		// Restore
 		restoreImGuiContext();
     }
+
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwKeyCallbackGlobal(GLFWwindow* window, int keycode, int scancode, int action, int mods){
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwKeyCallback(window, keycode, scancode, action, mods);
@@ -272,7 +324,11 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
     void EngineGLFW::GlfwWindowFocusCallback(GLFWwindow* window, int focused) {
+//		if(ofGetMainLoop()->exitEvent)
+//			if(ofGetMainLoop()->getCurrentWindow()->events().notifyExit() != nullptr)
+
 		// Call the original callback
 		if(originalOFCallbacks.originalCallbackWindowFocus) originalOFCallbacks.originalCallbackWindowFocus(window, focused);
 
@@ -286,6 +342,7 @@ namespace ofxImGui
 		restoreImGuiContext();
     }
 
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwWindowFocusCallbackGlobal(GLFWwindow* window, int focused) {
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwWindowFocusCallback(window, focused);
@@ -294,6 +351,7 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwCursorPosCallback(GLFWwindow* window, double x, double y) {
 		// Call the original callback
 		if(originalOFCallbacks.originalCallbackCursorPos) originalOFCallbacks.originalCallbackCursorPos(window, x, y);
@@ -308,6 +366,7 @@ namespace ofxImGui
 		restoreImGuiContext();
     }
 
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwCursorPosCallbackGlobal(GLFWwindow* window, double x, double y) {
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwCursorPosCallback(window, x, y);
@@ -316,6 +375,7 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
     // Workaround: X11 seems to send spurious Leave/Enter events which would make us lose our position,
     // so we back it up and restore on Leave/Enter (see https://github.com/ocornut/imgui/issues/4984)
     void EngineGLFW::GlfwCursorEnterCallback(GLFWwindow* window, int entered) {
@@ -331,6 +391,8 @@ namespace ofxImGui
 		// Restore
 		restoreImGuiContext();
     }
+
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwCursorEnterCallbackGlobal(GLFWwindow* window, int entered) {
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwCursorEnterCallback(window, entered);
@@ -339,6 +401,7 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwCharCallback(GLFWwindow* window, unsigned int c) {
 
 		// Call the original callback
@@ -353,6 +416,8 @@ namespace ofxImGui
 		// Restore
 		restoreImGuiContext();
     }
+
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwCharCallbackGlobal(GLFWwindow* window, unsigned int c) {
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwCharCallback(window, c);
@@ -361,6 +426,7 @@ namespace ofxImGui
 #endif
 	}
 
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwMonitorCallback(GLFWmonitor* mon, int id) {
 		// Call the original callback
 		if(originalOFCallbacks.originalCallbackMonitor) originalOFCallbacks.originalCallbackMonitor(mon, id);
@@ -375,6 +441,7 @@ namespace ofxImGui
 		restoreImGuiContext();
 	}
 
+	//--------------------------------------------------------------
 	void EngineGLFW::GlfwMonitorCallbackGlobal(GLFWmonitor* mon, int id) {
 		// To prevent storing an extra monitor map, and because windows can change their monitor, simply trigger all engines to resize.
 		auto item = enginesMap.getFirst();
@@ -387,7 +454,7 @@ namespace ofxImGui
 		}
 	}
 
-	LinkedList<GLFWwindow, EngineGLFW> EngineGLFW::enginesMap = {};
+	LinkedList<GLFWwindow, EngineGLFW*> EngineGLFW::enginesMap = {};
 
 #endif
 }

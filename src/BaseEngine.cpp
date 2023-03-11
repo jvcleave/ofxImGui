@@ -2,6 +2,8 @@
 
 //#include "ofAppBaseWindow.h"
 //#include "ofAppRunner.h"
+
+#include "ofxImGuiConstants.h" // For OFXIMGUI_DEBUG
 #include "imgui.h"
 #include "ofGLProgrammableRenderer.h"
 

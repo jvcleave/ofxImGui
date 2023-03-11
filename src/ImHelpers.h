@@ -128,8 +128,13 @@ namespace ofxImGui
 
 static ImTextureID GetImTextureID(const ofTexture& texture)
 {
+#ifdef TARGET_OPENGLES
+	if (false) // TODO !
+#else
 	if (texture.getTextureData().textureTarget == GL_TEXTURE_RECTANGLE)
+#endif
 	{
+		
 		ofLogWarning("Warning, ImGui only supports drawing textures of type GL_TEXTURE_RECTANGLE.");
 	}
     return (ImTextureID)(uintptr_t)texture.texData.textureID;

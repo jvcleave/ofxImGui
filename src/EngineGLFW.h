@@ -1,30 +1,16 @@
 #pragma once
 
-//#include "ofConstants.h"
+#include "ofxImGuiConstants.h"
 
-// Warn Vulkan users
-#if defined(OF_TARGET_API_VULKAN)
-#pragma GCC error "Sorry, there's no tested support for Vulkan yet while it should be very easy to implement"
-// See https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_vulkan.h or ImGui_ImplGlfw_InitForVulkan
-//#include "backends/imgui_impl_vulkan.h"
-#endif
+#ifdef OFXIMGUI_BACKEND_GLFW
 
 // This include is also used in the imgui glfw example, I hope it breaks nothing....
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <GLES2/gl2.h>
-#endif
+//#if defined(IMGUI_IMPL_OPENGL_ES2)
+//#include <GLES2/gl2.h>
+//#endif
 
 #include "BaseEngine.h"
 
-// Enable a bit more complicated callback interface
-// It fixes viewports in multiple contexts (one per ofAppWindow)
-// If this stuff breaks, you can set this to 0 or add a define to your compilation settings.
-// Todo: If enabled, ofxImGui will crash imgui on exit in Windows as the ofApp unregisters the callback @glfw then we still call it, crashing. OSX doesn't crash weirdly.
-// We probably have to listen to window.events.notifyExit .
-#ifndef INTERCEPT_GLFW_CALLBACKS
-#define INTERCEPT_GLFW_CALLBACKS 1 // Works fine with the backend modification, otherwise breaks in multi-ofAppWindows
-//#define INTERCEPT_GLFW_CALLBACKS 0 // Works natively too but not with multi-ofAppWindows
-#endif
 
 #if INTERCEPT_GLFW_CALLBACKS == 1
 
@@ -53,19 +39,24 @@ namespace ofxImGui
 		: public BaseEngine
 	{
 	public:
+		EngineGLFW(){
+			std::cout << "New BaseEngine " << this << std::endl;
+		}
 		~EngineGLFW()
 		{
 			exit();
 		}
 
 		// BaseEngine required
-		void setup(ofAppBaseWindow* _window, bool autoDraw) override;
+		void setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw) override;
 		void exit() override;
 
         void newFrame() override;
         void render() override;
 
         bool updateFontsTexture() override;
+
+		void onWindowExit(ofEventArgs& event);
 
 		static GLuint g_FontTexture;
 
@@ -95,7 +86,7 @@ namespace ofxImGui
 		void GlfwCharCallback(GLFWwindow* window, unsigned int c);
 		void GlfwMonitorCallback(GLFWmonitor* monitor, int event);
 
-		static LinkedList<GLFWwindow, EngineGLFW> enginesMap;
+		static LinkedList<GLFWwindow, EngineGLFW*> enginesMap;
 		// Alternative: Use GLFW callback userdata to find back our object when the static callback is called
 		// See https://github.com/ocornut/imgui/pull/3934#issuecomment-873213161
 		// I didn't use this but it could give more flexibility.
@@ -106,4 +97,4 @@ namespace ofxImGui
 #endif
 	};
 }
-
+#endif

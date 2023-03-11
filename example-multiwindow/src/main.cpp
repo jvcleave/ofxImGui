@@ -2,7 +2,7 @@
 #include "ofApp.h"
 #include "ofAppGLFWWindow.h"
 
-#pragma message "Warning, multiwindow is in testing phase. Proceed with caution !"
+#pragma message "Warning, ofxImGui in multiple ofAppBaseWindows is in testing phase. Proceed with caution !"
 
 //========================================================================
 int main( ){

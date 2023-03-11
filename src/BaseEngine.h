@@ -4,8 +4,13 @@
 #include "ofAppBaseWindow.h"
 
 // Seems needed on windows
-#include "imgui.h"
+//#include "imgui.h"
+struct ImGuiContext;
 
+// Fwd declaration
+namespace ofxImGui {
+	class Gui;
+}
 //#define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
 namespace ofxImGui
@@ -13,15 +18,23 @@ namespace ofxImGui
 	class BaseEngine
 	{
 			friend class EngineGLFW;
+			friend class ofxImGui::Gui;
 	public:
 		BaseEngine()
 			: isSetup(false)
-		{}
+		{
+			std::cout << "New BaseEngine " << this << std::endl;
+		}
 
 		virtual ~BaseEngine()
 		{}
 
-		virtual void setup(ofAppBaseWindow* _window, bool autoDraw) = 0;
+		// Prevent making copies, prevents making mistakes messing up the gui instances and contexts
+		BaseEngine( const BaseEngine& ) = delete;
+		BaseEngine& operator=( const BaseEngine& ) = delete;
+
+		virtual void setup(ofAppBaseWindow* _window, ImGuiContext* imguiContext, bool autoDraw) = 0;
+		//void setup(ofAppBaseWindow* _window, bool autoDraw); // for retro-compatibility, can be removed in next major release
 		virtual void exit() = 0;
 
 		virtual void newFrame() = 0;

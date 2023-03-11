@@ -1,8 +1,8 @@
 
 #pragma once
 
-// Note: Only RPI defines TARGET_GLFW_WINDOW, it's default on desktop platforms
-#if defined( TARGET_RASPBERRY_PI ) && defined( TARGET_GLFW_WINDOW )
+#include "ofxImGuiConstants.h"
+#ifdef OFXIMGUI_BACKEND_GLES
 
 #ifndef GLFW_GAMEPAD_BUTTON_A
 #pragma message "Warning, you are using an older GLFW version. Trying to provide some fallbacks."

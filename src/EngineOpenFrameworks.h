@@ -2,21 +2,26 @@
 
 //#include "ofConstants.h"
 
+//#include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
+//#if defined(OFXIMGUI_BACKEND_GLFW)
+
 // This include is also used in the imgui glfw example, I hope it breaks nothing....
 #if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <GLES2/gl2.h>
+//#include <GLES2/gl2.h>
+// includes from ofConstants.h / iOS
+//#import <OpenGLES/ES1/gl.h>
+//#import <OpenGLES/ES1/glext.h>
+
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
 #endif
 
 // Warn Vulkan users
 #if defined(OF_TARGET_API_VULKAN)
-#pragma GCC error "Sorry, there's no support for Vulkan yet while it should be very easy to implement"
-// See https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_vulkan.h or ImGui_ImplGlfw_InitForVulkan
-//#include "backends/imgui_impl_vulkan.h"
+#include "backends/imgui_impl_vulkan.h"
 #elif defined(TARGET_OPENGLES) && !defined(TARGET_GLFW_WINDOW)
 // Todo: include GLSL stuff ?
 #endif
-
-//#include "GLFW/glfw3.h"
 
 #include "BaseEngine.h"
 
@@ -42,7 +47,7 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup(ofAppBaseWindow* _window, bool autoDraw) override;
+		void setup(ofAppBaseWindow* _window, ImGuiContext* imguiContext, bool autoDraw) override;
 		void exit() override;
 
         void newFrame() override;
@@ -74,6 +79,10 @@ namespace ofxImGui
         static ImGuiKey oFKeyToImGuiKey(int key);
         static ImGuiKey keyCodeToImGuiKey(int keyCode);
 
+
+	protected:
+		void registerListeners();
+		void unregisterListeners();
 	};
 }
 

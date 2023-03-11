@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <type_traits> // is_pointer
+
 // Fwd declaration needed
 template<class T_KEY, class T_DATA>
 class LinkedList;
@@ -18,14 +20,16 @@ class LinkedList;
 template<class T_KEY, class T_DATA>
 struct LinkedListItem {
 		friend class LinkedList<T_KEY, T_DATA>;
-
+		using DATA_REF = typename std::conditional<std::is_pointer<T_DATA>::value, T_DATA, T_DATA&>::type;
 	public:
 		LinkedListItem<T_KEY, T_DATA>* const getNext(){
 			return next;
 		};
 		T_KEY* const key;
-		T_DATA* const data;
-		LinkedListItem(T_KEY* _key, T_DATA* _data, LinkedListItem<T_KEY, T_DATA>* _next = nullptr) :
+		T_DATA data;
+		//LinkedListItem(T_KEY* _key, DATA_REF _data, LinkedListItem<T_KEY, T_DATA>* _next = nullptr) :
+		//	next(_next), key(_key), data(std::move(_data)){}
+		LinkedListItem(T_KEY* _key, DATA_REF _data, LinkedListItem<T_KEY, T_DATA>* _next = nullptr) :
 			next(_next), key(_key), data(_data){}
 
 	private:
@@ -48,12 +52,16 @@ class LinkedList {
 			first = nullptr;
 		}
 
+		using DATA_PTR = typename std::conditional<std::is_pointer<T_DATA>::value, T_DATA, T_DATA*>::type;
+		using DATA_REF = typename std::conditional<std::is_pointer<T_DATA>::value, T_DATA, T_DATA&>::type;
+
 		// Disable copy
+		LinkedList<T_KEY,T_DATA>( const LinkedList<T_KEY,T_DATA>& ) = delete;
 		LinkedList<T_KEY,T_DATA>& operator=(const LinkedList<T_KEY, T_DATA>&) = delete;
 
-		void add(T_KEY* _glfwWin, T_DATA* _engine){
+		void add(T_KEY* _key, DATA_REF _data){
 			LinkedListItem<T_KEY, T_DATA>* last = first;
-			LinkedListItem<T_KEY, T_DATA>* newEntry = new LinkedListItem<T_KEY, T_DATA>(_glfwWin, _engine);
+			LinkedListItem<T_KEY, T_DATA>* newEntry = new LinkedListItem<T_KEY, T_DATA>(_key, _data);
 			// First entry ?
 			if(last==nullptr){
 				first = newEntry;
@@ -93,20 +101,21 @@ class LinkedList {
 			return findData(_key) != nullptr;
 		}
 
-		T_DATA* findData(T_KEY* _key){
+		DATA_PTR findData(T_KEY* _key){
 			if(_key==nullptr) return nullptr;
 			LinkedListItem<T_KEY, T_DATA>* item = first;
 			while(item){
-				if(item->key == _key) return item->data;
+				if(item->key == _key) return dataToPtr(item->data);
 				item = item->getNext();
 			}
 			return nullptr;
 		}
-		T_KEY* findKey(T_DATA* _data){
+
+		T_KEY* findKey(DATA_PTR _data){
 			if(_data==nullptr) return nullptr;
 			LinkedListItem<T_KEY, T_DATA>* item = first;
 			while(item){
-				if(item->data == _data) return item->key;
+				if(dataToPtr(item->data) == _data) return item->key;
 				item = item->getNext();
 			}
 			return nullptr;
@@ -115,5 +124,17 @@ class LinkedList {
 			return first;
 		}
 	private:
+		// How verbose is this ?!
+		template <class C=T_DATA>
+//		static inline typename std::enable_if<!std::is_pointer<C>::value && std::is_same<C,T_DATA>::value, DATA_PTR>::type dataToPtr(C& _v){//  getPtr(DATA_TYPE& _v){
+		static inline typename std::enable_if<!std::is_pointer<C>::value, DATA_PTR>::type dataToPtr(C& _v){//  getPtr(DATA_TYPE& _v){
+			return &_v;
+		}
+		template <class C=T_DATA>
+//		static inline typename std::enable_if<std::is_pointer<C>::value && std::is_same<C,T_DATA>::value, DATA_PTR>::type dataToPtr(C _v){
+		static inline typename std::enable_if<std::is_pointer<C>::value, DATA_PTR>::type dataToPtr(C _v){
+			return _v;
+		}
+
 		LinkedListItem<T_KEY, T_DATA>* first = nullptr;
 };

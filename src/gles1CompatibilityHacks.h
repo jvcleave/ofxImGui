@@ -1,7 +1,8 @@
 
 #pragma once
 
-#if defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES)
+#include "ofxImGuiConstants.h"
+#ifdef OFXIMGUI_BACKEND_GLES
 
 // Todo: maybe not all RPIs need this... Anyways, it's only used when GL ES 1 is required, compilation needs to be fixed anyways.
 #pragma message "[Notice] Using some GL ES 1.1 compatibility hack for the RPI ! (prefer using at least GL ES 2)"

@@ -56,6 +56,9 @@
 #if defined(__APPLE__)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
+// For IOS ?
+//#include <OpenGLES/ES2/gl.h>
+//#include <OpenGLES/ES2/glext.h>
 #else
 #include <GL/gl.h>
 #endif

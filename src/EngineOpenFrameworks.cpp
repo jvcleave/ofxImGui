@@ -1,6 +1,6 @@
 #include "EngineOpenFrameworks.h"
 
-// Custom backend include, only for getting keycodes
+// Custom backend include, only for getting keycodes, improving keyboard input
 #if defined (TARGET_GLFW_WINDOW)
 #include "ofAppGLFWWindow.h"
 //#include "backends/imgui_impl_glfw.h"
@@ -22,10 +22,10 @@ namespace ofxImGui
 	std::string EngineOpenFrameworks::g_ClipboardText = "";
 
 	//--------------------------------------------------------------
-	void EngineOpenFrameworks::setup(ofAppBaseWindow* _window, bool autoDraw)
+	void EngineOpenFrameworks::setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw)
 	{
 		// Store a reference to the current imgui context for event handling
-		imguiContext = ImGui::GetCurrentContext();
+		//imguiContext = ImGui::GetCurrentContext();
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -35,8 +35,11 @@ namespace ofxImGui
 		// Can we change mouse cursors ? Nope, not supported out of the box by OF...
 		// io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 
+		// Store a reference to the current imgui context for event handling
+		imguiContext = _imguiContext;
+
 		//io.AddKeyEvent();
-		io.DisplaySize = ImVec2( ofGetWindowSize() );
+		io.DisplaySize = ImVec2( _window->getWindowSize() );//ofGetWindowSize() );
 		io.DeltaTime = 1.0f / 60.0f; // start with non-null time
 		io.WantCaptureMouse = true;
 
@@ -67,26 +70,10 @@ namespace ofxImGui
 		// Create initial fonts texture
 		updateFontsTexture();
 
-		// Mouse events
-		ofAddListener(ofEvents().mouseMoved,    this, &EngineOpenFrameworks::onMouseMoved   );
-		ofAddListener(ofEvents().mouseDragged,  this, &EngineOpenFrameworks::onMouseDragged );
-		ofAddListener(ofEvents().mousePressed,  this, &EngineOpenFrameworks::onMouseButton  );
-		ofAddListener(ofEvents().mouseReleased, this, &EngineOpenFrameworks::onMouseButton  );
-		ofAddListener(ofEvents().mouseScrolled, this, &EngineOpenFrameworks::onMouseScrolled);
+		// Event listeners
+		registerListeners();
 
-		// Keyboard avents
-		ofAddListener(ofEvents().keyReleased,   this, &EngineOpenFrameworks::onKeyEvent );
-		ofAddListener(ofEvents().keyPressed,    this, &EngineOpenFrameworks::onKeyEvent );
-		ofAddListener(ofEvents().charEvent,     this, &EngineOpenFrameworks::onCharInput);
-
-		// Window Listeners
-		ofAddListener(ofEvents().windowResized, this, &EngineOpenFrameworks::onWindowResized);
-
-		// Others to bind ?
-		//ofEvents().notifyMouseEntered() -> AddMousePosEvent
-		//ofEvents().notifyMouseExites() -> AddMousePosEvent
-		// ImGui also has io.AddFocusEvent but OF hasn't got them.
-
+		// We're done :)
 		isSetup = true;
 	} 
 
@@ -95,20 +82,8 @@ namespace ofxImGui
 	{
 		if (!isSetup) return;
 
-		// Mouse events
-		ofRemoveListener(ofEvents().mouseMoved,     this, &EngineOpenFrameworks::onMouseMoved   );
-		ofRemoveListener(ofEvents().mouseDragged,   this, &EngineOpenFrameworks::onMouseDragged );
-		ofRemoveListener(ofEvents().mousePressed,   this, &EngineOpenFrameworks::onMouseButton  );
-		ofRemoveListener(ofEvents().mouseReleased,  this, &EngineOpenFrameworks::onMouseButton  );
-		ofRemoveListener(ofEvents().mouseScrolled,  this, &EngineOpenFrameworks::onMouseScrolled);
-
-		// Keyboard avents
-		ofRemoveListener(ofEvents().keyReleased,    this, &EngineOpenFrameworks::onKeyEvent );
-		ofRemoveListener(ofEvents().keyPressed,     this, &EngineOpenFrameworks::onKeyEvent );
-		ofRemoveListener(ofEvents().charEvent,      this, &EngineOpenFrameworks::onCharInput);
-
-		// Window Listeners
-		ofRemoveListener(ofEvents().windowResized,  this, &EngineOpenFrameworks::onWindowResized);
+		// Event listeners
+		unregisterListeners();
 
 		// Clear GPU data
 		if (ofIsGLProgrammableRenderer()){
@@ -235,15 +210,15 @@ namespace ofxImGui
 		int key = event.keycode; // Todo: this seems to be window specific ?
 		ImGuiIO& io = ImGui::GetIO();
 
-		// Set key modifiers
+		// Set key modifiers (ensures they are set on time, fixes kb shortcuts)
 		io.AddKeyEvent(ImGuiMod_Ctrl,  event.hasModifier(OF_KEY_CONTROL));
 		io.AddKeyEvent(ImGuiMod_Shift, event.hasModifier(OF_KEY_SHIFT));
 		io.AddKeyEvent(ImGuiMod_Alt,   event.hasModifier(OF_KEY_ALT));
 		io.AddKeyEvent(ImGuiMod_Super, event.hasModifier(OF_KEY_SUPER));
 
 		// Since 1.87 : Key events
-		//ImGuiKey imgui_key = ImGui_ImplGlfw_KeyToImGuiKey(keycode);
 		ImGuiKey imKey = oFKeyToImGuiKey(event.key);
+		//ImGuiKey imgui_key = ImGui_ImplGlfw_KeyToImGuiKey(keycode); // Previous code
 
 		// Fallback by guessing the imguikey from the typed character
 		// Note: could create weird behaviour on some special keyboards ?
@@ -255,6 +230,10 @@ namespace ofxImGui
 		}
 
 		io.AddKeyEvent(imKey, event.type == ofKeyEventArgs::Pressed );
+
+		// Note: this brings support for pre-1.87 user code using very specific API code.
+		// It causes an assert/crash in imgui v1.89.3 when releasing ALT+CMD simultanously (osx+backend_of_native), when IMGUI_DISABLE_OBSOLETE_KEYIO is not defined.
+		// As we disabled it, we can support old user code again.
 		io.SetKeyEventNativeData(imKey, key, event.scancode); // To support legacy indexing (<1.87 user code)
 
 		// Note: Not anymore, we do this in the charInput callback now.
@@ -526,6 +505,54 @@ namespace ofxImGui
 	{
 		g_ClipboardText = ofToString(text);
 		ofGetWindowPtr()->setClipboardString(g_ClipboardText);
+	}
+
+	//--------------------------------------------------------------
+	void EngineOpenFrameworks::registerListeners(){
+		// Mouse events
+		ofAddListener(ofEvents().mouseMoved,    this, &EngineOpenFrameworks::onMouseMoved   );
+		ofAddListener(ofEvents().mouseDragged,  this, &EngineOpenFrameworks::onMouseDragged );
+		ofAddListener(ofEvents().mousePressed,  this, &EngineOpenFrameworks::onMouseButton  );
+		ofAddListener(ofEvents().mouseReleased, this, &EngineOpenFrameworks::onMouseButton  );
+		ofAddListener(ofEvents().mouseScrolled, this, &EngineOpenFrameworks::onMouseScrolled);
+		// Todo: Bind touch events too ? (touchDown, touchUp, touchMoved, touchCancelled, touchDoubleTap)
+
+		// Keyboard avents
+		ofAddListener(ofEvents().keyReleased,   this, &EngineOpenFrameworks::onKeyEvent );
+		ofAddListener(ofEvents().keyPressed,    this, &EngineOpenFrameworks::onKeyEvent );
+		ofAddListener(ofEvents().charEvent,     this, &EngineOpenFrameworks::onCharInput);
+
+		// Window Listeners
+		ofAddListener(ofEvents().windowResized, this, &EngineOpenFrameworks::onWindowResized);
+		//ofAddListener(ofEvents().windowMoved, this, &EngineOpenFrameworks::onWindowResized); // Seems unnecssary
+
+		// Additional mouse data
+		ofAddListener(ofEvents().mouseEntered, this, &EngineOpenFrameworks::onMouseMoved);
+		ofAddListener(ofEvents().mouseExited , this, &EngineOpenFrameworks::onMouseMoved);
+
+		// ImGui also has io.AddFocusEvent but OF hasn't got them.
+	}
+
+	//--------------------------------------------------------------
+	void EngineOpenFrameworks::unregisterListeners(){
+		// Mouse events
+		ofRemoveListener(ofEvents().mouseMoved,     this, &EngineOpenFrameworks::onMouseMoved   );
+		ofRemoveListener(ofEvents().mouseDragged,   this, &EngineOpenFrameworks::onMouseDragged );
+		ofRemoveListener(ofEvents().mousePressed,   this, &EngineOpenFrameworks::onMouseButton  );
+		ofRemoveListener(ofEvents().mouseReleased,  this, &EngineOpenFrameworks::onMouseButton  );
+		ofRemoveListener(ofEvents().mouseScrolled,  this, &EngineOpenFrameworks::onMouseScrolled);
+
+		// Keyboard avents
+		ofRemoveListener(ofEvents().keyReleased,    this, &EngineOpenFrameworks::onKeyEvent );
+		ofRemoveListener(ofEvents().keyPressed,     this, &EngineOpenFrameworks::onKeyEvent );
+		ofRemoveListener(ofEvents().charEvent,      this, &EngineOpenFrameworks::onCharInput);
+
+		// Window Listeners
+		ofRemoveListener(ofEvents().windowResized,  this, &EngineOpenFrameworks::onWindowResized);
+
+		// Additional mouse data
+		ofRemoveListener(ofEvents().mouseEntered, this, &EngineOpenFrameworks::onMouseMoved);
+		ofRemoveListener(ofEvents().mouseExited , this, &EngineOpenFrameworks::onMouseMoved);
 	}
 }
 

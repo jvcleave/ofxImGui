@@ -1,5 +1,8 @@
 #include "DefaultTheme.h"
 
+#include "ofColor.h"
+#include "imgui.h"
+
 // from imgui_internals.h
 static inline ImVec4 ImLerp(const ImVec4& a, const ImVec4& b, float t)          { return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t); }
 static inline ImVec4 operator*(const ImVec4& lhs, const ImVec4& rhs)            { return ImVec4(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w); }
@@ -98,8 +101,8 @@ namespace ofxImGui
         style->Colors[ImGuiCol_ResizeGripHovered]       = ImVec4(col_main_head, 0.78f);
         style->Colors[ImGuiCol_ResizeGripActive]        = ImVec4(col_main_head, 1.00f);
         style->Colors[ImGuiCol_Tab]                     = ImVec4(col_main_area, 0.9f); // ImLerp(colors[ImGuiCol_Header],       colors[ImGuiCol_TitleBgActive], 0.80f)
-        style->Colors[ImGuiCol_TabHovered]              = ImVec4(col_win_backg, 0.7f);
-        style->Colors[ImGuiCol_TabActive]               = ImVec4(col_win_backg, 0.7f);
+		style->Colors[ImGuiCol_TabHovered]              = ImVec4(col_main_head, 0.5f);
+		style->Colors[ImGuiCol_TabActive]               = ImVec4(col_main_head, 0.7f);
         style->Colors[ImGuiCol_TabUnfocused]            = ImLerp(style->Colors[ImGuiCol_Tab],       style->Colors[ImGuiCol_TitleBg], 0.80f);
         style->Colors[ImGuiCol_TabUnfocusedActive]      = ImLerp(style->Colors[ImGuiCol_TabActive], style->Colors[ImGuiCol_TitleBg], 0.40f);
         style->Colors[ImGuiCol_DockingPreview]          = style->Colors[ImGuiCol_HeaderActive] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
