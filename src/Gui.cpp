@@ -707,6 +707,7 @@ namespace ofxImGui
 
 					auto& io = ImGui::GetIO();
 
+					// Backend info
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("Used Backend");
 					ImGui::Text("Loaded backend   : %s", OFXIMGUI_LOADED_BACKEND);
@@ -717,8 +718,23 @@ namespace ofxImGui
 					//ImGui::Text("Backend isSetup : %s", context->engine.);
 					//ImGui::Text("Backend window  : %p", (void*)this->context->imguiContext);
 
+					// OF environment
 					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("openFrameworks Environment");
 					ImGui::Text("OF version       : %i.%i.%i (%s)", OF_VERSION_MAJOR, OF_VERSION_MINOR, OF_VERSION_PATCH, OF_VERSION_PRE_RELEASE );
+					static int minor; static int major;
+					major = ofGetGLRenderer()->getGLVersionMajor();
+					minor = ofGetGLRenderer()->getGLVersionMinor();
+					static bool isProgrammable = ofIsGLProgrammableRenderer();
+					#if defined(TARGET_OPENGLES) || defined(TARGET_LINUX_ARM) || defined(TARGET_IOS)
+						ImGui::Text("GL ES            : %d.%d (%s)", major, minor, isProgrammable?"programmable":"fixed pipeline");
+					#else
+						ImGui::Text("GL SL            : %d.%d (%s)", major, minor, isProgrammable?"programmable":"fixed pipeline");
+					#endif
+					ImGui::Text( "Vendor           : %s", glGetString(GL_VENDOR) );
+					ImGui::Text( "GPU              : %s", glGetString(GL_RENDERER) );
+					ImGui::Text( "OpenGL version   : %s", glGetString(GL_VERSION) ); // alt: glGetString(GL_MAJOR_VERSION), glGetString(GL_MINOR_VERSION)
+					ImGui::Text( "GLSL version     : %s (#version %s)", glGetString(GL_SHADING_LANGUAGE_VERSION), ofGLSLVersionFromGL(major, minor).c_str() );
 
 					ImGui::Dummy({10,10});
 					if( ImGui::CollapsingHeader("Global Backend Details") ){

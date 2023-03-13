@@ -10,6 +10,7 @@ public:
     virtual void setup() override;
     virtual void setup( ofxImGui::Gui& _gui );
     virtual void draw() override;
+//	virtual void exit() override; // Todo: destroy gui on exit and see what happens ?
 	void drawImGui();
 
 private:

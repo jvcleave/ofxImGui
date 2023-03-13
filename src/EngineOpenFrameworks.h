@@ -5,29 +5,36 @@
 //#include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
 //#if defined(OFXIMGUI_BACKEND_GLFW)
 
+// OpenGL ES platform includes
+#ifdef IMGUI_IMPL_OPENGL_ES2
+
 // This include is also used in the imgui glfw example, I hope it breaks nothing....
-#if defined(IMGUI_IMPL_OPENGL_ES2)
 //#include <GLES2/gl2.h>
-// includes from ofConstants.h / iOS
-//#import <OpenGLES/ES1/gl.h>
-//#import <OpenGLES/ES1/glext.h>
 
-//#ifdef TARGET_LINUX_ARM
-#ifdef TARGET_RASPBERRY_PI
-#include "GLES/gl.h"
-#include "GLES/glext.h"
-#include "GLES2/gl2.h"
-#include "GLES2/gl2ext.h"
-#define EGL_EGLEXT_PROTOTYPES
-#include "EGL/egl.h"
-#include "EGL/eglext.h"
-//#include "gles1CompatibilityHacks.h"
+// Linux GLES (rpi & desktop)
+#ifdef TARGET_LINUX_ARM // TARGET_RASPBERRY_PI
+	// includes from ofConstants.h / Linux ARM
+	#include "GLES/gl.h"
+	#include "GLES/glext.h"
+	#include "GLES2/gl2.h"
+	#include "GLES2/gl2ext.h"
+
+	#define EGL_EGLEXT_PROTOTYPES
+	#include "EGL/egl.h"
+	#include "EGL/eglext.h"
+// iOS
+#elif defined(TARGET_OF_IOS)
+	// includes from ofConstants.h / iOS
+	#import <OpenGLES/ES1/gl.h>
+	#import <OpenGLES/ES1/glext.h>
+	#import <OpenGLES/ES2/gl.h>
+	#import <OpenGLES/ES2/glext.h>
+// Other = Unsupported
 #else
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
+	#pragma error "IMGUI_IMPL_OPENGL_ES2 is defined but your platform doesn't support it (yet?). Compilation will fail."
 #endif
 
-#endif
+#endif // IMGUI_IMPL_OPENGL_ES2
 
 // Warn Vulkan users
 #if defined(OF_TARGET_API_VULKAN)
