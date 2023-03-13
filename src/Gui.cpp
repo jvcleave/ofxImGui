@@ -814,6 +814,8 @@ namespace ofxImGui
 					if(isContextReportsErrors)       ImGui::BulletText("OpenGL does not report errors");
 					ImGui::EndGroup();
 #endif
+// Note: Unavailable on GL ES
+#if !defined(OFXIMGUI_RENDERER_GLES && defined(GL_NUM_EXTENSIONS)
 					// GL Extensions
 					static int numExtensions = 0;
 					static std::string extensions = "";
@@ -830,8 +832,7 @@ namespace ofxImGui
 						ImGui::TextWrapped("%s", extensions.c_str());
 						ImGui::TreePop();
 					}
-					// Check Support for some commonly useful extensions :
-#ifdef TARGET_OPENGLES
+					// Check OpenGL support for GL ES :
 					static bool glHasES2Compatibility = extensions.find("GL_ARB_ES2_compatibility") != std::string::npos;
 					ImGui::BulletText("GL ES 2 compatibile : %s", glHasES2Compatibility?"YES":"NO");
 					static bool glHasES3Compatibility = extensions.find("GL_ARB_ES3_compatibility") != std::string::npos;
