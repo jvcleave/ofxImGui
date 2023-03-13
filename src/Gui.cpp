@@ -715,26 +715,128 @@ namespace ofxImGui
 					ImGui::Text("Backend.isSetup  : %s", context->engine.isSetup?"1":"0");
 					ImGui::Text("Renderer         : %s", io.BackendRendererName);
 					ImGui::Text("Platform         : %s", io.BackendPlatformName);
-					//ImGui::Text("Backend isSetup : %s", context->engine.);
-					//ImGui::Text("Backend window  : %p", (void*)this->context->imguiContext);
 
 					// OF environment
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("openFrameworks Environment");
-					ImGui::Text("OF version       : %i.%i.%i (%s)", OF_VERSION_MAJOR, OF_VERSION_MINOR, OF_VERSION_PATCH, OF_VERSION_PRE_RELEASE );
+					ImGui::Text("OF version        : %i.%i.%i (%s)", OF_VERSION_MAJOR, OF_VERSION_MINOR, OF_VERSION_PATCH, OF_VERSION_PRE_RELEASE );
 					static int minor; static int major;
 					major = ofGetGLRenderer()->getGLVersionMajor();
 					minor = ofGetGLRenderer()->getGLVersionMinor();
 					static bool isProgrammable = ofIsGLProgrammableRenderer();
-					#if defined(TARGET_OPENGLES) || defined(TARGET_LINUX_ARM) || defined(TARGET_IOS)
-						ImGui::Text("GL ES            : %d.%d (%s)", major, minor, isProgrammable?"programmable":"fixed pipeline");
+					#if defined(TARGET_OPENGLES) || defined(TARGET_LINUX_ARM) || defined(TARGET_IOS) || defined(TARGET_EMSCRIPTEM) || defined(TARGET_ANDROID)
+						ImGui::Text("OFRenderer OpenGL : %d.%d (%s)", major, minor, isProgrammable?"programmable":"fixed pipeline");
 					#else
-						ImGui::Text("GL SL            : %d.%d (%s)", major, minor, isProgrammable?"programmable":"fixed pipeline");
+						ImGui::Text("OFRenderer OpenGL : %d.%d (#version %s) (%s)", major, minor, ofGLSLVersionFromGL(major, minor).c_str(), isProgrammable?"programmable":"fixed pipeline");
 					#endif
-					ImGui::Text( "Vendor           : %s", glGetString(GL_VENDOR) );
-					ImGui::Text( "GPU              : %s", glGetString(GL_RENDERER) );
-					ImGui::Text( "OpenGL version   : %s", glGetString(GL_VERSION) ); // alt: glGetString(GL_MAJOR_VERSION), glGetString(GL_MINOR_VERSION)
-					ImGui::Text( "GLSL version     : %s (#version %s)", glGetString(GL_SHADING_LANGUAGE_VERSION), ofGLSLVersionFromGL(major, minor).c_str() );
+					// OF environment
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("OpenGL Environment");
+					ImGui::Text( "Vendor            : %s", glGetString(GL_VENDOR) );
+					ImGui::Text( "GPU               : %s", glGetString(GL_RENDERER) );
+					ImGui::Text( "OpenGL version    : %s", glGetString(GL_VERSION) ); // Version + vendor info
+// Note: Separated versions are only available in OpenGL 3+ (glsl 1.3+) (null on GLSL 1.1 and 1.2 at least) :
+#if defined(GL_MAJOR_VERSION) && defined(GL_MINOR_VERSION)
+					static int glMajor = 0; if(glMajor==0) glGetIntegerv(GL_MAJOR_VERSION, &glMajor);
+					static int glMinor = 0; if(glMinor==0) glGetIntegerv(GL_MINOR_VERSION, &glMinor);
+					if(glMajor != 0 || glMinor != 0){
+						ImGui::Text( "GLSL version max  : %s (%i.%i) (#version %s)", glGetString(GL_SHADING_LANGUAGE_VERSION), glMajor, glMinor, ofGLSLVersionFromGL(glMajor, glMinor).c_str() );
+					}
+					else {
+						ImGui::Text( "GLSL version max  : %s", glGetString(GL_SHADING_LANGUAGE_VERSION) );
+					}
+#endif
+#ifdef GL_NUM_SHADING_LANGUAGE_VERSIONS
+					// List of Supported GL SL versions
+					static int numSupportedShadingLanguages = 0; glGetIntegerv(GL_NUM_SHADING_LANGUAGE_VERSIONS, &numSupportedShadingLanguages);
+					/* If zero, The implementation doesn't support querying profiles. ( probably GL < 4.3) */
+					if(numSupportedShadingLanguages>0){
+						ImGui::Text("Supported profiles: %i", numSupportedShadingLanguages);
+						for(int i = 0; i<numSupportedShadingLanguages; i++){
+							ImGui::BulletText("%s", glGetStringi(GL_SHADING_LANGUAGE_VERSION, i));
+						}
+					}
+					else {
+						ImGui::Text("Supported profiles: Unavailable");
+					}
+#else
+					ImGui::Text("Supported profiles: Undefined");
+#endif
+					ImGui::Text("OpenGL Context    :");
+// Missing defines, they are not set in all contexts... this prevents compile issues, ignoring the settings
+#ifndef GL_CONTEXT_COMPATIBILITY_PROFILE_BIT
+#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT 0
+#endif
+#ifndef GL_CONTEXT_CORE_PROFILE_BIT
+#define GL_CONTEXT_CORE_PROFILE_BIT 0
+#endif
+#ifndef GL_CONTEXT_FLAG_DEBUG_BIT
+#define GL_CONTEXT_FLAG_DEBUG_BIT 0
+#endif
+#ifndef GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT_ARB
+#define GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT_ARB 0
+#endif
+#ifndef GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT
+#define GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT 0
+#endif
+#ifndef GL_CONTEXT_FLAG_NO_ERROR_BIT
+#define GL_CONTEXT_FLAG_NO_ERROR_BIT 0
+#endif
+#ifndef GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT
+#define GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT 0
+#endif
+#ifdef GL_CONTEXT_PROFILE_MASK
+					ImGui::SameLine();
+					ImGui::BeginGroup();
+					// Core / Compatibbility mode
+					static int  glContextProfileMask = 0;
+					if(glContextProfileMask == 0)
+						glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &glContextProfileMask);
+					static bool isCoreProfile          = glContextProfileMask & GL_CONTEXT_CORE_PROFILE_BIT;
+					static bool isCompatibilityProfile = glContextProfileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT;
+					if(isCoreProfile)          ImGui::BulletText("Core Profile");
+					if(isCompatibilityProfile) ImGui::BulletText("Compatibility Profile");
+#endif
+#ifdef GL_CONTEXT_FLAGS
+					// Context flags
+					static int glContextFlags = 0;
+					if(glContextFlags==0)
+						glGetIntegerv(GL_CONTEXT_FLAGS, &glContextFlags);
+					static bool isContextForwardCompatible  = glContextFlags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT;
+					static bool isContextDebugMode          = glContextFlags & GL_CONTEXT_FLAG_DEBUG_BIT;
+					static bool isContextRobustMemoryAxxArb = glContextFlags & GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT_ARB;
+					static bool isContextRobustMemoryAxx    = glContextFlags & GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT;
+					static bool isContextReportsErrors      = glContextFlags & GL_CONTEXT_FLAG_NO_ERROR_BIT;
+					if(isContextForwardCompatible)   ImGui::BulletText("Forward Compatible Profile");
+					if(isContextDebugMode)           ImGui::BulletText("Debug Mode");
+					if(isContextRobustMemoryAxxArb)  ImGui::BulletText("Robust memory access on ARB textures");
+					if(isContextRobustMemoryAxx)     ImGui::BulletText("Robust memory access");
+					if(isContextReportsErrors)       ImGui::BulletText("OpenGL does not report errors");
+					ImGui::EndGroup();
+#endif
+					// GL Extensions
+					static int numExtensions = 0;
+					static std::string extensions = "";
+					if(numExtensions==0){
+						glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+						for(int i = 0; i<numExtensions; ++i){
+							if(i!=0) extensions.append("\n");
+							extensions.append( (char*)glGetStringi(GL_EXTENSIONS, i) );
+						}
+					}
+					if(ImGui::TreeNode("GL Extensions", "GL Extensions (%2i):", numExtensions)){
+						//ImGui::Text("GL Extensions (%2i):", numExtensions);
+						//ImGui::SameLine();
+						ImGui::TextWrapped("%s", extensions.c_str());
+						ImGui::TreePop();
+					}
+					// Check Support for some commonly useful extensions :
+#ifdef TARGET_OPENGLES
+					static bool glHasES2Compatibility = extensions.find("GL_ARB_ES2_compatibility") != std::string::npos;
+					ImGui::BulletText("GL ES 2 compatibile : %s", glHasES2Compatibility?"YES":"NO");
+					static bool glHasES3Compatibility = extensions.find("GL_ARB_ES3_compatibility") != std::string::npos;
+					ImGui::BulletText("GL ES 3 compatibile : %s", glHasES3Compatibility?"YES":"NO");
+#endif
 
 					ImGui::Dummy({10,10});
 					if( ImGui::CollapsingHeader("Global Backend Details") ){

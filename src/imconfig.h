@@ -82,16 +82,18 @@
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 //#include "ofConstants.h"
 
-#ifdef OF_TARGET_OPENGLES
-	#define IMGUI_IMPL_OPENGL_ES2
-	//#define IMGUI_IMPL_OPENGL_ES3
+//#ifdef OF_TARGET_OPENGLES
+#ifdef OFXIMGUI_RENDERER_GLES
+	#ifdef OFXIMGUI_RENDERER_GLES_3
+		#define IMGUI_IMPL_OPENGL_ES3
+	#else
+		#define IMGUI_IMPL_OPENGL_ES2
+	#endif
 #else
+	// Ensure thye are not accidentally set
 	#undef IMGUI_IMPL_OPENGL_ES3
 	#undef IMGUI_IMPL_OPENGL_ES2
 #endif
-
-// tmp
-#define OFXIMGUI_DEBUG
 
 #ifdef TARGET_RASPBERRY_PI
 //#include <GLES/gl.h>

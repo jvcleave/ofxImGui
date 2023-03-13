@@ -46,6 +46,39 @@
 #include <stdint.h>     // intptr_t
 #endif
 
+
+// --- BEGIN CUSTOM MODIFICATION
+// GLSL ES 1 (fixed pipeline) (OpenGL ES 2.0) is not supported by ImGui, we try to provide some hacks here.
+// Note:
+//   - imgui_impl_opengl2.cpp (      fixed pipeline) --> OpenGL 2.0  and GLES 1
+//   - imgui_impl_opengl3.cpp (programable pipeline) --> OpenGL 3.0+ and GLES 2+
+#if defined(OFXIMGUI_RENDERER_GLES)
+
+// Include GLES 1 & 2
+#ifdef TARGET_OF_IOS
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
+//#import <OpenGLES/ES2/gl.h>
+//#import <OpenGLES/ES2/glext.h>
+#elif defined(TARGET_LINUX_ARM)
+#include "GLES/gl.h"
+#include "GLES/glext.h"
+//#include "GLES2/gl2.h"
+//#include "GLES2/gl2ext.h"
+#else
+// Other : warn about unsupported platform
+// If this error throws, there might not be much to do to support them, if your platform supports GLES.
+// Note: For GL ES 2 & 3, this file is probably not needed, imgui_impl_opengl2 should be excluded from compilation or compiled pseudo-empty. Best is to support both gles 1 and 2+3 if the platform also supports it.
+#error "ofxImGui doesn't know where GLES 1 & 2 are located for your platform !"
+#endif
+
+// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
+#if defined(TARGET_RASPBERRY_PI)
+#include "gles1CompatibilityHacks.h"
+#endif
+#else
+// --- END CUSTOM MODIFICATION
+
 // Include OpenGL header (without an OpenGL loader) requires a bit of fiddling
 #if defined(_WIN32) && !defined(APIENTRY)
 #define APIENTRY __stdcall                  // It is customary to use APIENTRY for OpenGL function pointer declarations on all platforms.  Additionally, the Windows OpenGL header needs APIENTRY.
@@ -56,24 +89,12 @@
 #if defined(__APPLE__)
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
-// For IOS ?
-//#include <OpenGLES/ES2/gl.h>
-//#include <OpenGLES/ES2/glext.h>
-// --- CUSTOM MODIFICATION
-// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
-//#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) // && defined(IMGUI_IMPL_OPENGL_ES1)
-//#include "gles1CompatibilityHacks.h"
-// --- END CUSTOM MODIFICATION
 #else
 #include <GL/gl.h>
-// --- CUSTOM MODIFICATION
-// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
-#if defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) // && defined(IMGUI_IMPL_OPENGL_ES1)
-#pragma warning "INCLUDING GLES1 compatibility hacks !"
-#include "gles1CompatibilityHacks.h"
+#endif
+// --- BEGIN CUSTOM MODIFICATION
 #endif
 // --- END CUSTOM MODIFICATION
-#endif
 
 struct ImGui_ImplOpenGL2_Data
 {
