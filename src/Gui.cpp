@@ -815,7 +815,7 @@ namespace ofxImGui
 					ImGui::EndGroup();
 #endif
 // Note: Unavailable on GL ES
-#if !defined(OFXIMGUI_RENDERER_GLES && defined(GL_NUM_EXTENSIONS)
+#if !defined(OFXIMGUI_RENDERER_GLES) && defined(GL_NUM_EXTENSIONS)
 					// GL Extensions
 					static int numExtensions = 0;
 					static std::string extensions = "";
