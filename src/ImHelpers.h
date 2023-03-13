@@ -8,6 +8,8 @@
 #include "imgui.h"
 #include <stack> // Needed for Arch Linux
 
+#include "gles1CompatibilityHacks.h" // needed on rpi3 for GL_TEXTURE_RECTANGLE
+
 static const int kImGuiMargin = 10;
 
 // Todo: ScopedHelpers like in ImGuiMagnumIntegration and Cinder's ImGui

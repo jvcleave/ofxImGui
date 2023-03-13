@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "ofConstants.h"
+#include "ofConstants.h"
 
 //#include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
 //#if defined(OFXIMGUI_BACKEND_GLFW)
@@ -12,8 +12,21 @@
 //#import <OpenGLES/ES1/gl.h>
 //#import <OpenGLES/ES1/glext.h>
 
+//#ifdef TARGET_LINUX_ARM
+#ifdef TARGET_RASPBERRY_PI
+#include "GLES/gl.h"
+#include "GLES/glext.h"
+#include "GLES2/gl2.h"
+#include "GLES2/gl2ext.h"
+#define EGL_EGLEXT_PROTOTYPES
+#include "EGL/egl.h"
+#include "EGL/eglext.h"
+//#include "gles1CompatibilityHacks.h"
+#else
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+#endif
+
 #endif
 
 // Warn Vulkan users

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "ofxImGuiConstants.h"
-#ifdef OFXIMGUI_BACKEND_GLES
+//#ifdef OFXIMGUI_BACKEND_GLES
 
 // Todo: maybe not all RPIs need this... Anyways, it's only used when GL ES 1 is required, compilation needs to be fixed anyways.
 #pragma message "[Notice] Using some GL ES 1.1 compatibility hack for the RPI ! (prefer using at least GL ES 2)"
@@ -25,16 +25,28 @@
 //#pragma message "<GLES/gl.h> was loaded somewhere, thus using GL ES 1, which needs some the tweaks below to become GL 1 compilable."
 //#endif
 
-#if !defined(GL_VERSION_1_1) && defined(GL_VERSION_ES_CM_1_0)
-#pragma message "Hacking GL ES to support GL 1.0, specially for RPIs. ofxImGui might behave weirdly."
+//#if !defined(GL_VERSION_1_1) && defined(GL_VERSION_ES_CM_1_0)
+#pragma message "Hacking GL ES to support GL 1.0, specially for RPIs. ofxImGui might behave weirdly as some GL functions are simply ignored."
 // These defines are needed for fixed pipeline (GL ES 1) to compile with the RPI.
 // Some have fallbacks, others simply disable the problematic calls.
 #define glOrtho glOrthof // Different function name
-#define glPolygonMode // No alternative, but seems not to affect rendering
+#define glPolygonMode( X, Y ) // No alternative, but seems not to affect rendering
 #define glPushAttrib( X ) // No alternative, but seems not to affect rendering
 #define glPopAttrib( X )
 #define GL_POLYGON_MODE GL_LINES
 #define GL_FILL 0 // Enabled by default
-#endif // !GL_VERSION_1_0 && GL_VERSION_ES_CM_1_0
+//#endif // !GL_VERSION_1_0 && GL_VERSION_ES_CM_1_0
 
-#endif // rpi & gles
+// Some defines needed ?
+#ifndef GL_TEXTURE_RECTANGLE
+#define GL_TEXTURE_RECTANGLE 0 // TODO: find correct value
+#endif
+
+#ifndef GL_VERTEX_ARRAY_BINDING
+#define GL_VERTEX_ARRAY_BINDING 777
+#endif
+
+#define GL_ENABLE_BIT 0
+#define GL_TRANSFORM_BIT 0
+
+//#endif // rpi & gles

@@ -90,6 +90,15 @@
 	#undef IMGUI_IMPL_OPENGL_ES2
 #endif
 
+// tmp
+#define OFXIMGUI_DEBUG
+
+#ifdef TARGET_RASPBERRY_PI
+//#include <GLES/gl.h>
+#include "gles1CompatibilityHacks.h"
+#define IMGUI_IMPL_OPENGL_ES2 // todo : define according to TARGET-GLES if GLES3 is also an option ?
+#endif
+
 // We don't need this, skips compiling useless functionality
 #define IMGUI_DISABLE_OBSOLETE_KEYIO
 

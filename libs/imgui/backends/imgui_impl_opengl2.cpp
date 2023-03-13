@@ -59,8 +59,20 @@
 // For IOS ?
 //#include <OpenGLES/ES2/gl.h>
 //#include <OpenGLES/ES2/glext.h>
+// --- CUSTOM MODIFICATION
+// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
+//#elif defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) // && defined(IMGUI_IMPL_OPENGL_ES1)
+//#include "gles1CompatibilityHacks.h"
+// --- END CUSTOM MODIFICATION
 #else
 #include <GL/gl.h>
+// --- CUSTOM MODIFICATION
+// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
+#if defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES) // && defined(IMGUI_IMPL_OPENGL_ES1)
+#pragma warning "INCLUDING GLES1 compatibility hacks !"
+#include "gles1CompatibilityHacks.h"
+#endif
+// --- END CUSTOM MODIFICATION
 #endif
 
 struct ImGui_ImplOpenGL2_Data

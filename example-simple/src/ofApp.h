@@ -26,6 +26,10 @@ class ofApp : public ofBaseApp{
             // Start drawing to ImGui (newFrame)
 			gui.begin();
 
+		if(bDrawOfxImGuiDebug){
+			gui.drawOfxImGuiDebugWindow();
+		}
+
             // Create a new window
             ImGui::Begin("ofxImGui example-simple");
 
@@ -35,6 +39,7 @@ class ofApp : public ofBaseApp{
             // Many arguments you pass to ImGui functions need to remain valid between frames. (they are passed by reference [&])
             static bool staticBool = false;
             ImGui::Checkbox("Checkbox", &staticBool);
+            ImGui::Checkbox("Show ofxImGui Debug Window", &bDrawOfxImGuiDebug);
 
             // You can hide and show Gui parts on demand
             if(staticBool){
@@ -87,4 +92,5 @@ class ofApp : public ofBaseApp{
         float v1 = 0;
         float backGroundColor[3] = {1,1,1};
         bool drawLines = false;
+	bool bDrawOfxImGuiDebug = false;
 };

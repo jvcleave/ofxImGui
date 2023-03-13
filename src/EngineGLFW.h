@@ -90,7 +90,7 @@ namespace ofxImGui
 		// Alternative: Use GLFW callback userdata to find back our object when the static callback is called
 		// See https://github.com/ocornut/imgui/pull/3934#issuecomment-873213161
 		// I didn't use this but it could give more flexibility.
-		// Error : OF also sets GLFW user pointer. If we set it, OF breaks.
+		// Error : OF also sets the GLFW user pointer. If we set it, OF breaks.
 
 		// One storage for all original callbacks
 		GlfwCallbacks originalOFCallbacks;
