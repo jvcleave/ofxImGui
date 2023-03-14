@@ -757,10 +757,10 @@ namespace ofxImGui
 						}
 					}
 					else {
-						ImGui::Text("Supported profiles: Unavailable");
+						ImGui::Text("Supported profiles: [Unavailable]");
 					}
 #else
-					ImGui::Text("Supported profiles: Undefined");
+					ImGui::Text("Supported profiles: [Undefined]");
 #endif
 					ImGui::Text("OpenGL Context    :");
 // Missing defines, they are not set in all contexts... this prevents compile issues, ignoring the settings
@@ -814,30 +814,20 @@ namespace ofxImGui
 					if(isContextReportsErrors)       ImGui::BulletText("OpenGL does not report errors");
 					ImGui::EndGroup();
 #endif
-// Note: Unavailable on GL ES
-#if !defined(OFXIMGUI_RENDERER_GLES) && defined(GL_NUM_EXTENSIONS)
 					// GL Extensions
-					static int numExtensions = 0;
-					static std::string extensions = "";
-					if(numExtensions==0){
-						glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-						for(int i = 0; i<numExtensions; ++i){
-							if(i!=0) extensions.append("\n");
-							extensions.append( (char*)glGetStringi(GL_EXTENSIONS, i) );
-						}
-					}
+					std::vector<std::string> glExtensions = ofGLSupportedExtensions();
+					static int numExtensions = glExtensions.size();
 					if(ImGui::TreeNode("GL Extensions", "GL Extensions (%2i):", numExtensions)){
-						//ImGui::Text("GL Extensions (%2i):", numExtensions);
-						//ImGui::SameLine();
-						ImGui::TextWrapped("%s", extensions.c_str());
+						for(const auto& extension : glExtensions){
+							ImGui::BulletText("%s", extension.c_str());
+						}
 						ImGui::TreePop();
 					}
 					// Check OpenGL support for GL ES :
-					static bool glHasES2Compatibility = extensions.find("GL_ARB_ES2_compatibility") != std::string::npos;
+					static bool glHasES2Compatibility = std::find(glExtensions.cbegin(), glExtensions.cend(), "GL_ARB_ES2_compatibility") != glExtensions.cend();
 					ImGui::BulletText("GL ES 2 compatibile : %s", glHasES2Compatibility?"YES":"NO");
-					static bool glHasES3Compatibility = extensions.find("GL_ARB_ES3_compatibility") != std::string::npos;
+					static bool glHasES3Compatibility = std::find(glExtensions.cbegin(), glExtensions.cend(), "GL_ARB_ES3_compatibility") != glExtensions.cend();
 					ImGui::BulletText("GL ES 3 compatibile : %s", glHasES3Compatibility?"YES":"NO");
-#endif
 
 					ImGui::Dummy({10,10});
 					if( ImGui::CollapsingHeader("Global Backend Details") ){
