@@ -56,7 +56,7 @@ namespace ofxImGui
 			// Todo: Maybe better to replace with const char* glsl_version = getGLVersionFromOF(); ?
 			// To be tested on multiple platforms.
 #if defined( TARGET_OPENGLES )
-			ImGui_ImplOpenGL3_Init( "#version 150" ); // Todo: we might need to pass another or no version string here
+			ImGui_ImplOpenGL3_Init( "#version 100" ); // Todo: we might need to pass another or no version string here
 #else
 			ImGui_ImplOpenGL3_Init();
 #endif

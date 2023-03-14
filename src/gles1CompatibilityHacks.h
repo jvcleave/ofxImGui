@@ -13,19 +13,20 @@
 //#undef __gl_h_ // this forces re-loading GL/gl.h
 //#include <GL/gl.h> // --> Original inclusion, on RPIs in /usr/include/GL/gl.h
 #include <GLES/gl.h>
+#include <GLES/glext.h>
 //#endif
 
 // Rpis might want to apt install libmesa-dev or mesa-common-dev... they look already installed here.
 
-//#ifndef GL_VERSION_1_1
-//#pragma message "<GL/gl.h> was included, but not loaded correctly."
-//#endif
+#ifndef GL_VERSION_1_1
+#pragma message "<GL/gl.h> was included, but not loaded correctly."
+#endif
 
-//#ifdef GL_VERSION_ES_CM_1_0
-//#pragma message "<GLES/gl.h> was loaded somewhere, thus using GL ES 1, which needs some the tweaks below to become GL 1 compilable."
-//#endif
+#ifdef GL_VERSION_ES_CM_1_0
+#pragma message "<GLES/gl.h> was loaded somewhere, thus using GL ES 1, which needs some the tweaks below to become GL 1 compilable."
+#endif
 
-//#if !defined(GL_VERSION_1_1) && defined(GL_VERSION_ES_CM_1_0)
+#if !defined(GL_VERSION_1_1) && defined(GL_VERSION_ES_CM_1_0)
 #pragma message "Hacking GL ES to support GL 1.0, specially for RPIs. ofxImGui might behave weirdly as some GL functions are simply ignored."
 // These defines are needed for fixed pipeline (GL ES 1) to compile with the RPI.
 // Some have fallbacks, others simply disable the problematic calls.
@@ -35,7 +36,7 @@
 #define glPopAttrib( X )
 #define GL_POLYGON_MODE GL_LINES
 #define GL_FILL 0 // Enabled by default
-//#endif // !GL_VERSION_1_0 && GL_VERSION_ES_CM_1_0
+#endif // !GL_VERSION_1_0 && GL_VERSION_ES_CM_1_0
 
 // Some defines needed ?
 #ifndef GL_TEXTURE_RECTANGLE
