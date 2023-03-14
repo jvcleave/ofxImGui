@@ -197,6 +197,8 @@ namespace ofxImGui
 
 		restoreImGuiContext();
 	}
+
+#ifdef OFXIMGUI_TOUCH_EVENTS
 	//--------------------------------------------------------------
 	void EngineOpenFrameworks::onTouchInput(ofTouchEventArgs& event)
 	{
@@ -219,6 +221,7 @@ namespace ofxImGui
 		
 		restoreImGuiContext();
 	}
+#endif
 
 	//--------------------------------------------------------------
 	void EngineOpenFrameworks::onKeyEvent(ofKeyEventArgs& event)
