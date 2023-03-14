@@ -97,7 +97,7 @@
 
 #ifdef TARGET_RASPBERRY_PI
 //#include <GLES/gl.h>
-#include "gles1CompatibilityHacks.h"
+//#include "gles1CompatibilityHacks.h"
 #define IMGUI_IMPL_OPENGL_ES2 // todo : define according to TARGET-GLES if GLES3 is also an option ?
 #endif
 

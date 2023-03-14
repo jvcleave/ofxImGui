@@ -20,7 +20,7 @@
 //		#define GLFW_VERSION_REVISION 0
 //	#endif
 
-	// Some includes to debug GLFW
+// Some includes to debug GLFW
 #ifdef OFXIMGUI_BACKEND_GLFW
 		//#include "backends/imgui_impl_glfw.h"
 		#include <GLFW/glfw3.h> // For getting macro-defined versions
@@ -95,11 +95,6 @@ namespace ofxImGui
         // Curwindow cannot be null
 		if(_ofWindow==nullptr){
 			ofLogError("Gui::setup()") << "The provided ofAppBaseWindow pointer is null, cannot continue setup !";
-			return SetupState::Error;
-        }
-		// Check if the undelying window is valid too
-		else if((void*)_ofWindow->getWindowContext() == nullptr){
-			ofLogError("Gui::setup()") << "Sorry, for now ofxImGui needs to be setup in a valid window object.";
 			return SetupState::Error;
         }
 
@@ -178,7 +173,7 @@ namespace ofxImGui
 		if(_restoreGuiState == false)
 			io.IniFilename = nullptr;
 
-		context->engine.setup( _ofWindow.get(), context->imguiContext, context->autoDraw);
+		this->context->engine.setup( _ofWindow.get(), context->imguiContext, context->autoDraw);
 
 		if (theme_)
 		{
@@ -203,7 +198,7 @@ namespace ofxImGui
 			autoDrawListener.unsubscribe();
 
 			ImGui::SetCurrentContext(context->imguiContext);
-			context->engine.exit();
+			this->context->engine.exit();
 
 			// Theme
 			if (theme)
@@ -1025,7 +1020,7 @@ namespace ofxImGui
 					ImGui::PopStyleColor();
 #else
 					ImGui::TextWrapped("Using multi-window ofApps is supported in your configuration.");
-#endif
+#endif // BACKEND GLFW
 
 //}
 

@@ -84,9 +84,22 @@ namespace ofxImGui
         void onMouseDragged(ofMouseEventArgs& event);
         void onMouseScrolled(ofMouseEventArgs& event);
         void onMouseButton(ofMouseEventArgs& event);
+#ifdef OFXIMGUI_TOUCH_EVENTS
+		void onTouchInput(ofTouchEventArgs & touch);
+		//void onTouchDown(ofTouchEventArgs & touch);
+		//void onTouchMoved(ofTouchEventArgs & touch);
+		//void onTouchUp(ofTouchEventArgs & touch);
+		//void onTouchDoubleTap(ofTouchEventArgs & touch);
+		//void onTouchCancelled(ofTouchEventArgs & touch);
+#endif
 
         // Window events
         void onWindowResized(ofResizeEventArgs& window);
+#ifdef OFXIMGUI_TOUCH_EVENTS
+//		void onLostFocus();
+//		void onGotFocus();
+//		void onDeviceOrientationChanged(int newOrientation);
+#endif
 
         // todo: gamepad support ? io.AddKeyEvent()/io.AddKeyAnalogEvent()
 

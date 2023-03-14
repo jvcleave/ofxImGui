@@ -72,8 +72,9 @@
 #error "ofxImGui doesn't know where GLES 1 & 2 are located for your platform !"
 #endif
 
-// Rpi dirty fix : Add support for GLES 1.1, used by the imgui fixed pipeline.
-#if defined(TARGET_RASPBERRY_PI)
+// GLES1 Support : ImGui has no native GL ES1 support for the fixes pipeline.
+// Openframeworks does, here we hack in support by loading gles1 and provide some dirty fallbacks for unimplemented functionality.
+#if defined(OFXIMGUI_RENDERER_GLES)
 #include "gles1CompatibilityHacks.h"
 #endif
 #else

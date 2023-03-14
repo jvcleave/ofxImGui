@@ -2,7 +2,7 @@
 #pragma once
 
 #include "ofxImGuiConstants.h"
-#if defined (OFXIMGUI_RENDERER_GLES) && defined (OFXIMGUI_RENDERER_GLES_1)
+#if defined (OFXIMGUI_RENDERER_GLES)// && defined (OFXIMGUI_RENDERER_GLES_1)
 
 // Todo: maybe not all RPIs need this... Anyways, it's only used when GL ES 1 is required, compilation needs to be fixed anyways.
 #pragma message "[Notice] Using some GL ES 1.1 compatibility hack for the RPI ! (prefer using at least GL ES 2)"
@@ -12,9 +12,17 @@
 #pragma message "Trying to include <GLES/gl.h> on rpi, instead of <GL/gl.h>. If you get errors, please comment the inclusion below."
 //#undef __gl_h_ // this forces re-loading GL/gl.h
 //#include <GL/gl.h> // --> Original inclusion, on RPIs in /usr/include/GL/gl.h
+#ifdef TARGET_TARGET_LINUX_ARM
 #include <GLES/gl.h>
 #include <GLES/glext.h>
-//#endif
+#elif defined(TARGET_OF_IOS)
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
+//#import <OpenGLES/ES2/gl.h>
+//#import <OpenGLES/ES2/glext.h>
+#else
+#warning "Couldn't locate GLES for your platform !"
+#endif
 
 // Rpis might want to apt install libmesa-dev or mesa-common-dev... they look already installed here.
 
@@ -49,5 +57,11 @@
 
 #define GL_ENABLE_BIT 0
 #define GL_TRANSFORM_BIT 0
+
+// iOS GLES 2.0 hasn't got GL_UNPACK_ROW_LENGTH
+#ifndef GL_UNPACK_ROW_LENGTH
+OFXIMGUI_COMPILER_MESSAGE("GLES 2.0 doesn't have GL_UNPACK_ROW_LENGTH, providing a dummy placeholder !")
+#define GL_UNPACK_ROW_LENGTH 0
+#endif
 
 #endif // rpi & gles1

@@ -197,6 +197,28 @@ namespace ofxImGui
 
 		restoreImGuiContext();
 	}
+	//--------------------------------------------------------------
+	void EngineOpenFrameworks::onTouchInput(ofTouchEventArgs& event)
+	{
+		// Set context
+		if(!setImGuiContext()) return;
+		
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMousePosEvent(event.x, event.y);
+		static bool isDown; isDown = (event.type == ofTouchEventArgs::down || event.type == ofTouchEventArgs::doubleTap);
+		switch(event.type){
+			case ofTouchEventArgs::down :
+			case ofTouchEventArgs::cancel :
+			case ofTouchEventArgs::up :
+			//case ofTouchEventArgs::doubleTap :
+				io.AddMouseButtonEvent(ImGuiMouseButton_Left, isDown);
+				break;
+			default:
+				break;
+		}
+		
+		restoreImGuiContext();
+	}
 
 	//--------------------------------------------------------------
 	void EngineOpenFrameworks::onKeyEvent(ofKeyEventArgs& event)
@@ -515,8 +537,20 @@ namespace ofxImGui
 		ofAddListener(ofEvents().mousePressed,  this, &EngineOpenFrameworks::onMouseButton  );
 		ofAddListener(ofEvents().mouseReleased, this, &EngineOpenFrameworks::onMouseButton  );
 		ofAddListener(ofEvents().mouseScrolled, this, &EngineOpenFrameworks::onMouseScrolled);
-		// Todo: Bind touch events too ? (touchDown, touchUp, touchMoved, touchCancelled, touchDoubleTap)
-
+		
+#ifdef OFXIMGUI_TOUCH_EVENTS
+		// TouchEvents
+//		ofAddListener(ofEvents().touchDoubleTap,this, &EngineOpenFrameworks::onTouchDoubleTap   );
+//		ofAddListener(ofEvents().touchMoved,    this, &EngineOpenFrameworks::onTouchMoved );
+//		ofAddListener(ofEvents().touchDown,     this, &EngineOpenFrameworks::onTouchDown  );
+//		ofAddListener(ofEvents().touchUp,       this, &EngineOpenFrameworks::onTouchUp  );
+//		ofAddListener(ofEvents().touchCancelled, this, &EngineOpenFrameworks::onTouchCancelled);
+		ofAddListener(ofEvents().touchDoubleTap,this, &EngineOpenFrameworks::onTouchInput );
+		ofAddListener(ofEvents().touchMoved,    this, &EngineOpenFrameworks::onTouchInput );
+		ofAddListener(ofEvents().touchDown,     this, &EngineOpenFrameworks::onTouchInput );
+		ofAddListener(ofEvents().touchUp,       this, &EngineOpenFrameworks::onTouchInput );
+		ofAddListener(ofEvents().touchCancelled, this, &EngineOpenFrameworks::onTouchInput);
+#endif
 		// Keyboard avents
 		ofAddListener(ofEvents().keyReleased,   this, &EngineOpenFrameworks::onKeyEvent );
 		ofAddListener(ofEvents().keyPressed,    this, &EngineOpenFrameworks::onKeyEvent );
@@ -525,7 +559,10 @@ namespace ofxImGui
 		// Window Listeners
 		ofAddListener(ofEvents().windowResized, this, &EngineOpenFrameworks::onWindowResized);
 		//ofAddListener(ofEvents().windowMoved, this, &EngineOpenFrameworks::onWindowResized); // Seems unnecssary
-
+#ifdef OFXIMGUI_TOUCH_EVENTS
+		// TouchEvents
+		//ofAddListener(ofEvents().touchDoubleTap,this, &EngineOpenFrameworks::onDeviceOrientationChanged);
+#endif
 		// Additional mouse data
 		ofAddListener(ofEvents().mouseEntered, this, &EngineOpenFrameworks::onMouseMoved);
 		ofAddListener(ofEvents().mouseExited , this, &EngineOpenFrameworks::onMouseMoved);
@@ -541,6 +578,20 @@ namespace ofxImGui
 		ofRemoveListener(ofEvents().mousePressed,   this, &EngineOpenFrameworks::onMouseButton  );
 		ofRemoveListener(ofEvents().mouseReleased,  this, &EngineOpenFrameworks::onMouseButton  );
 		ofRemoveListener(ofEvents().mouseScrolled,  this, &EngineOpenFrameworks::onMouseScrolled);
+		
+#ifdef OFXIMGUI_TOUCH_EVENTS
+		// TouchEvents
+//		ofRemoveListener(ofEvents().touchDoubleTap,this, &EngineOpenFrameworks::onTouchDoubleTap   );
+//		ofRemoveListener(ofEvents().touchMoved,    this, &EngineOpenFrameworks::onTouchMoved );
+//		ofRemoveListener(ofEvents().touchDown,     this, &EngineOpenFrameworks::onTouchDown  );
+//		ofRemoveListener(ofEvents().touchUp,       this, &EngineOpenFrameworks::onTouchUp  );
+//		ofRemoveListener(ofEvents().touchCancelled, this, &EngineOpenFrameworks::onTouchCancelled);
+		ofRemoveListener(ofEvents().touchDoubleTap,this, &EngineOpenFrameworks::onTouchInput );
+		ofRemoveListener(ofEvents().touchMoved,    this, &EngineOpenFrameworks::onTouchInput );
+		ofRemoveListener(ofEvents().touchDown,     this, &EngineOpenFrameworks::onTouchInput );
+		ofRemoveListener(ofEvents().touchUp,       this, &EngineOpenFrameworks::onTouchInput );
+		ofRemoveListener(ofEvents().touchCancelled, this, &EngineOpenFrameworks::onTouchInput );
+#endif
 
 		// Keyboard avents
 		ofRemoveListener(ofEvents().keyReleased,    this, &EngineOpenFrameworks::onKeyEvent );

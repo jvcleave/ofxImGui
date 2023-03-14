@@ -24,7 +24,8 @@
 #elif defined(OFXIMGUI_BACKEND_GLFW)
 	#include "EngineGLFW.h"
 #else
-	#pragma error "Sorry, ofxImGui is incorrectly configured, cannot proceed !"
+	#include "EngineOpenFrameworks.h"
+	//#error "Sorry, ofxImGui is incorrectly configured, cannot proceed !"
 #endif
 
 //#include "imgui_internal.h" // for ImGuiContext*
@@ -107,6 +108,8 @@ struct ofxImGuiContext {
 		ofxImGui::EngineOpenGLES engine;
 #elif defined(OFXIMGUI_BACKEND_GLFW)
 		ofxImGui::EngineGLFW engine;
+#else
+		ofxImGui::EngineOpenFrameworks engine;
 #endif
 };
 

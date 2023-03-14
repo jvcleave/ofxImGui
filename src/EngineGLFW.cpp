@@ -49,6 +49,12 @@ namespace ofxImGui
 		ofAppBaseWindow* curOfWin = _window;
         GLFWwindow* curWin = (GLFWwindow*)curOfWin->getWindowContext();
 
+		// Check if the undelying window is valid too
+		if(curWin == nullptr){
+			ofLogError("EngineGLFW::setup()") << "Sorry, for now ofxImGui needs to be setup in a valid window object.";
+			return;
+		}
+
 		// Maybe we need this in the future ?
 		// For now OF ensures it's already the active window so it's useless.
         //glfwMakeContextCurrent(curWin);

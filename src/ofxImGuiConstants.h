@@ -21,7 +21,7 @@
 // Tmp
 #ifndef OFXIMGUI_DEBUG
 	// Uncomment to enable debugging
-	//#define OFXIMGUI_DEBUG
+	#define OFXIMGUI_DEBUG
 #endif
 
 // Helper for printing debug messages only when DEBUG is on
@@ -57,9 +57,10 @@
 		#define OFXIMGUI_LOADED_BACKEND "GLFW"
 		#define OFXIMGUI_BACKEND_GLFW
 	#endif
+#endif
 
 // Default backend : openframeworks
-#else
+#ifndef OFXIMGUI_LOADED_BACKEND
 	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with the openframeworks backend.")
 	#define OFXIMGUI_LOADED_BACKEND "OpenFrameworks"
 	#define OFXIMGUI_BACKEND_OPENFRAMEWORKS
@@ -72,7 +73,7 @@
 // GL ES
 #if defined(TARGET_OPENGLES)
 	#define OFXIMGUI_RENDERER_GLES
-	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with the GL ES renderer support.")
+	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with GL ES renderer support.")
 
 	// Specialisations
 	// RPIs have GL ES 1
@@ -111,4 +112,8 @@
 	#define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 0
 #endif
 
-
+// Touch support detection
+// Todo: add explicit compiler flag so devices such as Windows/Linux with TouchScreens can use it too ?
+#if defined(TARGET_OF_IOS) || defined(TARGET_ANDROID)
+	#define OFXIMGUI_TOUCH_EVENTS
+#endif
