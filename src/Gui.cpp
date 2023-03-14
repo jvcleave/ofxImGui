@@ -818,11 +818,13 @@ namespace ofxImGui
 						}
 						ImGui::TreePop();
 					}
+#ifndef OFXIMGUI_RENDERER_GLES
 					// Check OpenGL support for GL ES :
 					static bool glHasES2Compatibility = std::find(glExtensions.cbegin(), glExtensions.cend(), "GL_ARB_ES2_compatibility") != glExtensions.cend();
 					ImGui::BulletText("GL ES 2 compatibile : %s", glHasES2Compatibility?"YES":"NO");
 					static bool glHasES3Compatibility = std::find(glExtensions.cbegin(), glExtensions.cend(), "GL_ARB_ES3_compatibility") != glExtensions.cend();
 					ImGui::BulletText("GL ES 3 compatibile : %s", glHasES3Compatibility?"YES":"NO");
+#endif
 
 					ImGui::Dummy({10,10});
 					if( ImGui::CollapsingHeader("Global Backend Details") ){
