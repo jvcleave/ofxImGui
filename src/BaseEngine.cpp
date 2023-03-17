@@ -7,6 +7,11 @@
 #include "imgui.h"
 #include "ofGLProgrammableRenderer.h"
 
+// Needed on Rpi
+#if defined (TARGET_GLFW_WINDOW)
+#include "GLFW/glfw3.h" 
+#endif
+
 namespace ofxImGui
 {
 	//--------------------------------------------------------------
