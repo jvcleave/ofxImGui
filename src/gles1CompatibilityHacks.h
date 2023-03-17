@@ -21,15 +21,15 @@
 //#include <GL/gl.h> // --> Original inclusion, on RPIs in /usr/include/GL/gl.h
 
 // GL ES 1 Includes
-#ifdef TARGET_TARGET_LINUX_ARM
+#if defined(TARGET_TARGET_LINUX_ARM) || defined(TARGET_RASPBERRY_PI)
 	#include <GLES/gl.h>
 	#include <GLES/glext.h>
-	#elif defined(TARGET_OF_IOS)
+#elif defined(TARGET_OF_IOS)
 	#import <OpenGLES/ES1/gl.h>
 	#import <OpenGLES/ES1/glext.h>
 	//#import <OpenGLES/ES2/gl.h>
 	//#import <OpenGLES/ES2/glext.h>
-	#else
+#else
 	// Other : warn about unsupported platform
 	// If this error throws, there might not be much to do to support them, if your platform supports GLES.
 	// Note: For GL ES 2 & 3, this file is probably not needed, imgui_impl_opengl2 should be excluded from compilation or compiled pseudo-empty. Best is to support both gles 1 and 2+3 if the platform also supports it.
