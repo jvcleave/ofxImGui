@@ -11,10 +11,11 @@
 
 #include "BaseEngine.h"
 
-
-#if INTERCEPT_GLFW_CALLBACKS == 1
-
 struct GLFWwindow;
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+
+//struct GLFWwindow;
 
 #include "GLFW/glfw3.h"
 #include "LinkedList.hpp"
@@ -29,8 +30,12 @@ struct GlfwCallbacks {
 	GLFWkeyfun              originalCallbackKey;
 	GLFWcharfun             originalCallbackChar;
 	GLFWmonitorfun          originalCallbackMonitor;
+	bool					isValid;
 };
 
+#endif
+#else
+//struct GLFWwindow;
 #endif
 
 namespace ofxImGui
@@ -40,7 +45,7 @@ namespace ofxImGui
 	{
 	public:
 		EngineGLFW(){
-			std::cout << "New BaseEngine " << this << std::endl;
+			std::cout << "New GLFWEngine " << this << std::endl;
 		}
 		~EngineGLFW()
 		{
@@ -56,11 +61,21 @@ namespace ofxImGui
 
         bool updateFontsTexture() override;
 
+		//void registerCallbacks(ofAppGLFWWindow* ofWindowPtr, GLFWwindow* glfwWindowPtr);
+		void registerCallbacks(ofAppBaseWindow* ofWindowPtr, GLFWwindow* glfwWindowPtr);
+		void unregisterCallbacks();
+
 		void onWindowExit(ofEventArgs& event);
+
+		// Clipboard Functions
+		//static const char* ImGui_ImplGlfw_GetClipboardText(void* user_data);
+		//static void ImGui_ImplGlfw_SetClipboardText(void* user_data, const char* text);
 
 		static GLuint g_FontTexture;
 
-#if INTERCEPT_GLFW_CALLBACKS == 1
+// Bind to GLFW ?
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
 		// Below --> might be temporary, see https://github.com/ocornut/imgui/blob/9764adc7bb7a582601dd4dd1c34d4fa17ab5c8e8/backends/imgui_impl_glfw.cpp#L142-L145
 		// We act as the imgui backend : unbinding OF events then calling them with the new functions again
 		// Idea: Maybe not-so-tmp; this might also facilitate some nice hackery to (optionally) stop propagation to OF when ImGui is being used ? :D
@@ -89,12 +104,32 @@ namespace ofxImGui
 		static LinkedList<GLFWwindow, EngineGLFW*> enginesMap;
 		// Alternative: Use GLFW callback userdata to find back our object when the static callback is called
 		// See https://github.com/ocornut/imgui/pull/3934#issuecomment-873213161
-		// I didn't use this but it could give more flexibility.
 		// Error : OF also sets the GLFW user pointer. If we set it, OF breaks.
 
 		// One storage for all original callbacks
 		GlfwCallbacks originalOFCallbacks;
+	#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+		GLFWwindow* mainGLFWWindow = nullptr;
+	#endif
+// Bind to Openframeworks
+#else
+		// Input events
+		void onKeyEvent(ofKeyEventArgs& event);
+		void onCharInput(uint32_t& _char);
+
+		// Mouse events
+		void onMouseMoved(ofMouseEventArgs& event);
+		void onMouseDragged(ofMouseEventArgs& event);
+		void onMouseScrolled(ofMouseEventArgs& event);
+		void onMouseButton(ofMouseEventArgs& event);
+
+		// Window events
+		//void onWindowResized(ofResizeEventArgs& window);
+
+		// todo : exit_cb, drop_cb
+		// can't : framebuffer_size_cb, error_cb
 #endif
+
 	};
 }
 #endif

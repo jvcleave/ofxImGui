@@ -2,7 +2,7 @@
 
 #include "ofConstants.h"
 
-//#include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
+//#include "ofxImGuiConstants.h" // To get the definition of OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP
 //#if defined(OFXIMGUI_BACKEND_GLFW)
 
 // OpenGL ES platform includes
@@ -109,7 +109,7 @@ namespace ofxImGui
         static std::string g_ClipboardText; // Is this still useful ? Maybe ofWin->setClipboardString needs a reference that stays alive ?
 
         // Helpers
-        static ImGuiKey oFKeyToImGuiKey(int key);
+		//static ImGuiKey oFKeyToImGuiKey(int key);
         static ImGuiKey keyCodeToImGuiKey(int keyCode);
 
 

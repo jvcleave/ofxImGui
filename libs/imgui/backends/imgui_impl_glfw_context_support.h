@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "ofxImGuiConstants.h" // To get the definition of INTERCEPT_GLFW_CALLBACKS
-#if defined(OFXIMGUI_BACKEND_GLFW) && (IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT == 1)
+#include "ofxImGuiConstants.h" // To get the definition of OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP
+#if defined(OFXIMGUI_BACKEND_GLFW) && (OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1)
 
 #include "backends/imgui_impl_glfw.h"
 

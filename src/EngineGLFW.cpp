@@ -10,6 +10,10 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_opengl2.h"
 
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1 && OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 0 && OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+	#include "imgui_impl_glfw_context_support.h"
+#endif
+
 
 namespace ofxImGui
 {
@@ -61,44 +65,15 @@ namespace ofxImGui
 
         // Todo: check return value from glfw ?
 		// no more auto binding as it's required to set the right imgui context before calling the backend ones. See https://github.com/ocornut/imgui/blob/9764adc7bb7a582601dd4dd1c34d4fa17ab5c8e8/backends/imgui_impl_glfw.cpp#L142-L145
-		ImGui_ImplGlfw_InitForOpenGL( curWin, (INTERCEPT_GLFW_CALLBACKS == 1)?false:true );
-
-        //ImGui::GetIO().DisplaySize;
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1 && OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 0
+		ImGui_ImplGlfw_InitForOpenGL( curWin, true );
+#else
+		ImGui_ImplGlfw_InitForOpenGL( curWin, false );
+#endif
+		//ImGui_ImplGlfw_InitForOpenGL( curWin, !(OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1 && OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1) );
 
 		// Register events manually if needed
-#if INTERCEPT_GLFW_CALLBACKS == 1
-		// Use GLFW window user pointer API to retrieve an instance, events are static/non-member
-		// Error: OF needs the userpointer, or we'd have to set it back, too messy.
-		//glfwSetWindowUserPointer(curWin, (void*)this);
-
-		// Replace callbacks and store original callbacks
-		// Note: the set functions return the previously installe callbacks or nullptr if none.
-		originalOFCallbacks = {
-			glfwSetWindowFocusCallback( curWin, GlfwWindowFocusCallbackGlobal),
-			glfwSetCursorEnterCallback( curWin, GlfwCursorEnterCallbackGlobal),
-			glfwSetCursorPosCallback(   curWin, GlfwCursorPosCallbackGlobal),
-			glfwSetMouseButtonCallback( curWin, GlfwMouseButtonCallbackGlobal),
-			glfwSetScrollCallback(      curWin, GlfwScrollCallbackGlobal),
-			glfwSetKeyCallback(         curWin, GlfwKeyCallbackGlobal),
-			glfwSetCharCallback(        curWin, GlfwCharCallbackGlobal),
-			glfwSetMonitorCallback(             GlfwMonitorCallbackGlobal)
-		};
-
-		// Seems unnecessary (only needed for popped-out windows, when viewports are enabled ?)
-		//glfwSetWindowPosCallback(   curWin, ImGui_ImplGlfw_WindowPosCallback);
-		//glfwSetWindowSizeCallback(  curWin, ImGui_ImplGlfw_WindowSizeCallback);
-
-		// Register context and listen to window destruction
-		enginesMap.add(curWin, this);
-		ofAddListener(curOfWin->events().exit, this, &EngineGLFW::onWindowExit);
-
-		// This might give better performance if enabled. To be fully tested.
-		//ImGui_ImplGlfw_SetCallbacksChainForAllWindows(true);
-
-		ofLogNotice("EngineGLFW::setup()") << "Replaced the openFrameworks' GLFW event listeners by the ofxImGui ones which will then call the OF and ImGui ones while adding multi-context support.";
-#else
-		ofLogNotice("EngineGLFW::setup()") << "Replaced the openFrameworks' GLFW event listeners by the imgui_impl_glfw ones. You will not have multi-window nor multi-context support. This can be enabled by defining INTERCEPT_GLFW_CALLBACKS=1.";
-#endif
+		registerCallbacks(curOfWin, curWin);
 
         // Init renderer
         if( ofIsGLProgrammableRenderer() ){
@@ -132,9 +107,7 @@ namespace ofxImGui
 
 		isSetup = true;
 
-	}
-
-    
+	} 
     
 	//--------------------------------------------------------------
 	void EngineGLFW::exit()
@@ -149,7 +122,10 @@ namespace ofxImGui
 			return;
 		}
 
-		ofRemoveListener(ofGetCurrentWindow()->events().exit, this, &EngineGLFW::onWindowExit);
+//#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+//		ofRemoveListener(ofGetCurrentWindow()->events().exit, this, &EngineGLFW::onWindowExit);
+//#endif
+		unregisterCallbacks();
 
         if (ofIsGLProgrammableRenderer()){
             //ImGui_ImplOpenGL3_DestroyFontsTexture(); // called by function below
@@ -161,7 +137,8 @@ namespace ofxImGui
             //ImGui_ImplOpenGL2_DestroyDeviceObjects(); // Called below
             ImGui_ImplOpenGL2_Shutdown();
         }
-        ImGui_ImplGlfw_Shutdown();
+		// Note: Restores OF callbacks; can it happen that of unregistered them already ?
+		ImGui_ImplGlfw_Shutdown();
 
 		isSetup = false;
 	}
@@ -223,7 +200,158 @@ namespace ofxImGui
     }
 
 	//--------------------------------------------------------------
+	void EngineGLFW::registerCallbacks(ofAppBaseWindow* ofWindowPtr, GLFWwindow* glfwWindowPtr){
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+		// Use GLFW window user pointer API to retrieve an instance, events are static/non-member
+		// Error: OF needs the userpointer, or we'd have to set it back, too messy.
+		//glfwSetWindowUserPointer(curWin, (void*)this);
+
+		// Replace callbacks and store original callbacks
+		// Note: the set functions return the previously installe callbacks or nullptr if none.
+		originalOFCallbacks = {
+			glfwSetWindowFocusCallback( glfwWindowPtr, GlfwWindowFocusCallbackGlobal),
+			glfwSetCursorEnterCallback( glfwWindowPtr, GlfwCursorEnterCallbackGlobal),
+			glfwSetCursorPosCallback(   glfwWindowPtr, GlfwCursorPosCallbackGlobal),
+			glfwSetMouseButtonCallback( glfwWindowPtr, GlfwMouseButtonCallbackGlobal),
+			glfwSetScrollCallback(      glfwWindowPtr, GlfwScrollCallbackGlobal),
+			glfwSetKeyCallback(         glfwWindowPtr, GlfwKeyCallbackGlobal),
+			glfwSetCharCallback(        glfwWindowPtr, GlfwCharCallbackGlobal),
+			glfwSetMonitorCallback(                    GlfwMonitorCallbackGlobal),
+			true
+		};
+
+		// Unnecessary (only needed for popped-out windows, when viewports are enabled ?)
+		//glfwSetWindowPosCallback(   curWin, ImGui_ImplGlfw_WindowPosCallback);
+		//glfwSetWindowSizeCallback(  curWin, ImGui_ImplGlfw_WindowSizeCallback);
+
+		// Register context
+		enginesMap.add(glfwWindowPtr, this);
+
+		// Listen to window destruction.
+		// fixme: should always register (any backend) ?
+		ofAddListener(ofWindowPtr->events().exit, this, &EngineGLFW::onWindowExit);
+
+		// This might give better performance if enabled. To be fully tested.
+		//ImGui_ImplGlfw_SetCallbacksChainForAllWindows(true);
+
+		ofLogNotice("EngineGLFW::setup()") << "Replaced the openFrameworks' GLFW event listeners by the ofxImGui ones which will then call the OF and ImGui ones while adding multi-context support.";
+	#else
+		ofLogNotice("EngineGLFW::setup()") << "Replaced the openFrameworks' GLFW event listeners by the imgui_impl_glfw ones. You will not have multi-window nor multi-context support. This can be enabled by defining OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP=1.";
+		#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+		// Register window at 2ndary
+		mainGLFWWindow = glfwWindowPtr;
+		ImGui_ImplGlfw_ScopedContext::RegisterWindowContext(glfwWindowPtr, this->imguiContext);
+		#endif
+	#endif
+		// - - - - - - - - - - -
+		// Bind to openframeworks
+		// - - - - - - - - - - -
+#else
+		// Mouse events
+		ofAddListener(ofEvents().mouseMoved,    this, &EngineGLFW::onMouseMoved   );
+		ofAddListener(ofEvents().mouseDragged,  this, &EngineGLFW::onMouseDragged );
+		ofAddListener(ofEvents().mousePressed,  this, &EngineGLFW::onMouseButton  );
+		ofAddListener(ofEvents().mouseReleased, this, &EngineGLFW::onMouseButton  );
+		ofAddListener(ofEvents().mouseScrolled, this, &EngineGLFW::onMouseScrolled);
+
+	#ifdef OFXIMGUI_TOUCH_EVENTS
+		// TouchEvents
+		ofAddListener(ofEvents().touchDoubleTap,this, &EngineGLFW::onTouchInput );
+		ofAddListener(ofEvents().touchMoved,    this, &EngineGLFW::onTouchInput );
+		ofAddListener(ofEvents().touchDown,     this, &EngineGLFW::onTouchInput );
+		ofAddListener(ofEvents().touchUp,       this, &EngineGLFW::onTouchInput );
+		ofAddListener(ofEvents().touchCancelled, this, &EngineGLFW::onTouchInput);
+	#endif
+		// Keyboard avents
+		ofAddListener(ofEvents().keyReleased,   this, &EngineGLFW::onKeyEvent );
+		ofAddListener(ofEvents().keyPressed,    this, &EngineGLFW::onKeyEvent );
+		ofAddListener(ofEvents().charEvent,     this, &EngineGLFW::onCharInput);
+
+		// Window Listeners
+		//ofAddListener(ofEvents().windowResized, this, &EngineGLFW::onWindowResized);
+
+	#ifdef OFXIMGUI_TOUCH_EVENTS
+		// TouchEvents
+		//ofAddListener(ofEvents().touchDoubleTap,this, &EngineGLFW::onDeviceOrientationChanged);
+	#endif
+		// Additional mouse data
+		ofAddListener(ofEvents().mouseEntered, this, &EngineGLFW::onMouseMoved);
+		ofAddListener(ofEvents().mouseExited , this, &EngineGLFW::onMouseMoved);
+
+		// ImGui also has io.AddFocusEvent but OF hasn't got them.
+#endif
+	}
+
+	//--------------------------------------------------------------
+	void EngineGLFW::unregisterCallbacks(){
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+		// - - - - - - - - - - -
+		// Bind to GLFW
+		// - - - - - - - - - - -
+	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+		GLFWwindow* glfwWindowPtr = (GLFWwindow*)ofGetWindowPtr()->getWindowContext();
+		// Restore OF callbacks
+		// Fixme: when OF is exiting, Not sure this is a good idea.
+		if(originalOFCallbacks.isValid){
+			glfwSetWindowFocusCallback( glfwWindowPtr, originalOFCallbacks.originalCallbackWindowFocus);
+			glfwSetCursorEnterCallback( glfwWindowPtr, originalOFCallbacks.originalCallbackCursorEnter);
+			glfwSetCursorPosCallback(   glfwWindowPtr, originalOFCallbacks.originalCallbackCursorPos);
+			glfwSetMouseButtonCallback( glfwWindowPtr, originalOFCallbacks.originalCallbackMousebutton);
+			glfwSetScrollCallback(      glfwWindowPtr, originalOFCallbacks.originalCallbackScroll);
+			glfwSetKeyCallback(         glfwWindowPtr, originalOFCallbacks.originalCallbackKey);
+			glfwSetCharCallback(        glfwWindowPtr, originalOFCallbacks.originalCallbackChar);
+			glfwSetMonitorCallback(                    originalOFCallbacks.originalCallbackMonitor);
+			originalOFCallbacks.isValid = false;
+		}
+		ofRemoveListener(ofGetWindowPtr()->events().exit, this, &EngineGLFW::onWindowExit);
+		enginesMap.remove(glfwWindowPtr);
+	#else
+		#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+		// Unregister window at 2ndary
+		if(mainGLFWWindow != nullptr){
+			ImGui_ImplGlfw_ScopedContext::RemoveWindowContext(mainGLFWWindow);
+			mainGLFWWindow = nullptr;
+		}
+		#endif
+	#endif
+		// - - - - - - - - - - -
+		// Bind to openframeworks
+		// - - - - - - - - - - -
+#else
+		// Mouse events
+		ofRemoveListener(ofEvents().mouseMoved,     this, &EngineGLFW::onMouseMoved   );
+		ofRemoveListener(ofEvents().mouseDragged,   this, &EngineGLFW::onMouseDragged );
+		ofRemoveListener(ofEvents().mousePressed,   this, &EngineGLFW::onMouseButton  );
+		ofRemoveListener(ofEvents().mouseReleased,  this, &EngineGLFW::onMouseButton  );
+		ofRemoveListener(ofEvents().mouseScrolled,  this, &EngineGLFW::onMouseScrolled);
+
+#ifdef OFXIMGUI_TOUCH_EVENTS
+		// TouchEvents
+		ofRemoveListener(ofEvents().touchDoubleTap, this, &EngineGLFW::onTouchInput );
+		ofRemoveListener(ofEvents().touchMoved,     this, &EngineGLFW::onTouchInput );
+		ofRemoveListener(ofEvents().touchDown,      this, &EngineGLFW::onTouchInput );
+		ofRemoveListener(ofEvents().touchUp,        this, &EngineGLFW::onTouchInput );
+		ofRemoveListener(ofEvents().touchCancelled, this, &EngineGLFW::onTouchInput );
+#endif
+
+		// Keyboard avents
+		ofRemoveListener(ofEvents().keyPressed,     this, &EngineGLFW::onKeyEvent );
+		ofRemoveListener(ofEvents().keyPressed,     this, &EngineGLFW::onKeyEvent );
+		ofRemoveListener(ofEvents().charEvent,      this, &EngineGLFW::onCharInput);
+
+		// Window Listeners
+		//ofRemoveListener(ofEvents().windowResized,  this, &EngineGLFW::onWindowResized);
+
+		// Additional mouse data
+		ofRemoveListener(ofEvents().mouseEntered, this, &EngineGLFW::onMouseMoved);
+		ofRemoveListener(ofEvents().mouseExited , this, &EngineGLFW::onMouseMoved);
+#endif
+	}
+
+	//--------------------------------------------------------------
 	void EngineGLFW::onWindowExit(ofEventArgs& event){
+		// Todo: Clean this up and check correct behaviour
 		std::cout << "Window Exit! [engine]" << (void*)this << " // [window]" << ofGetWindowPtr() << std::endl;
 		std::cout << "ofApp = " << (void*)ofGetAppPtr() << " // [window]" << ofGetAppPtr() << std::endl;
 
@@ -241,7 +369,7 @@ namespace ofxImGui
 
 		// Dummy exit ? What if context is shared ?
 		//exit();
-#if INTERCEPT_GLFW_CALLBACKS == 1
+#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
 		enginesMap.remove((GLFWwindow*)ofGetWindowPtr()->getWindowContext());
 #endif
 
@@ -254,7 +382,27 @@ namespace ofxImGui
 		std::cout << "Exit done" << std::endl;
 	}
 
-#if INTERCEPT_GLFW_CALLBACKS == 1
+//	//--------------------------------------------------------------
+//	// Clipboard functions
+//	static const char* ImGui_ImplGlfw_GetClipboardText(void* user_data)
+//	{
+//		// Set context
+//		//if(!setImGuiContext()) return;
+
+//		return glfwGetClipboardString((GLFWwindow*)user_data);
+//	}
+
+//	//--------------------------------------------------------------
+//	static void ImGui_ImplGlfw_SetClipboardText(void* user_data, const char* text)
+//	{
+//		// Set context
+//		//if(!setImGuiContext()) return;
+//		glfwSetClipboardString((GLFWwindow*)user_data, text);
+//	}
+
+// Bind to GLFW ?
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
 	//--------------------------------------------------------------
     // The code below is a template from the GLFW backend, almost unmodified, but commented.
     void EngineGLFW::GlfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods){
@@ -282,7 +430,7 @@ namespace ofxImGui
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwMouseButtonCallback(window, button, action, mods);
 #ifdef OFXIMGUI_DEBUG
-		else ofLogWarning("EngineGLFW::GlfwMouseButtonCallbackGlobal") << "Missed a callback due to unknown window = " << window;
+		else ofLogNotice("EngineGLFW::GlfwMouseButtonCallbackGlobal") << "Missed a callback due to unknown window = " << window;
 #endif
 	}
 
@@ -306,7 +454,7 @@ namespace ofxImGui
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwScrollCallback(window, xoffset, yoffset);
 #ifdef OFXIMGUI_DEBUG
-		else ofLogWarning("EngineGLFW::GlfwScrollCallbackGlobal") << "Missed a callback due to unknown window = " << window;
+		else ofLogNotice("EngineGLFW::GlfwScrollCallbackGlobal") << "Missed a callback due to unknown window = " << window;
 #endif
 	}
 
@@ -330,7 +478,7 @@ namespace ofxImGui
 		EngineGLFW* self = enginesMap.findData(window);
 		if(self) self->GlfwKeyCallback(window, keycode, scancode, action, mods);
 #ifdef OFXIMGUI_DEBUG
-		else ofLogWarning("EngineGLFW::GlfwKeyCallbackGlobal") << "Missed a callback due to unknown window = " << window;
+		else ofLogNotice("EngineGLFW::GlfwKeyCallbackGlobal") << "Missed a callback due to unknown window = " << window;
 #endif
 	}
 
@@ -467,7 +615,169 @@ namespace ofxImGui
 	LinkedList<GLFWwindow, EngineGLFW*> EngineGLFW::enginesMap = {};
 
 #endif
-}
+
+ // End bind events to OF
+#else // if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 0
+
+	//--------------------------------------------------------------
+	// Reverse implementation of ofAppGLFWWindow::motion_cb
+	void EngineGLFW::onMouseMoved(ofMouseEventArgs& event)
+	{
+		// Set context
+		if(!setImGuiContext()) return;
+
+		ImGui_ImplGlfw_CursorPosCallback( (GLFWwindow*)ofGetWindowPtr()->getWindowContext(), event.x, event.y );
+
+		restoreImGuiContext();
+	}
+
+	//--------------------------------------------------------------
+	void EngineGLFW::onMouseDragged(ofMouseEventArgs& event)
+	{
+		// Set context
+		if(!setImGuiContext()) return;
+
+		ImGui_ImplGlfw_CursorPosCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), event.x, event.y );
+
+		// Update imgui mouse pos
+		//ImGuiIO& io = ImGui::GetIO();
+		//io.AddMousePosEvent(static_cast<float>(event.x), static_cast<float>(event.y));
+
+		restoreImGuiContext();
+	}
+
+	//--------------------------------------------------------------
+	void EngineGLFW::onMouseScrolled(ofMouseEventArgs& event)
+	{
+		// Set context
+		if(!setImGuiContext()) return;
+
+		ImGui_ImplGlfw_ScrollCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), event.scrollX, event.scrollY );
+		// Update imgui mouse pos
+		//ImGuiIO& io = ImGui::GetIO();
+		//io.AddMouseWheelEvent( static_cast<float>(event.scrollX), static_cast<float>(event.scrollY) );
+
+		restoreImGuiContext();
+	}
+
+	//--------------------------------------------------------------
+	// Reverse implementation of ofAppGLFWWindow::mouse_cb
+	void EngineGLFW::onMouseButton(ofMouseEventArgs& event)
+	{
+		// Set context
+		if(!setImGuiContext()) return;
+
+		if(event.type == ofMouseEventArgs::Entered || event.type == ofMouseEventArgs::Exited){
+			ImGui_ImplGlfw_CursorEnterCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), event.type == ofMouseEventArgs::Entered );
+		}
+		else if(event.type == ofMouseEventArgs::Moved || event.type == ofMouseEventArgs::Dragged){
+			ImGui_ImplGlfw_CursorPosCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), event.x, event.y);
+		}
+		else {
+			int button = GLFW_MOUSE_BUTTON_LEFT;
+			switch(event.button){
+			case OF_MOUSE_BUTTON_LEFT:
+				button = GLFW_MOUSE_BUTTON_LEFT;
+				break;
+			case OF_MOUSE_BUTTON_RIGHT:
+				button = GLFW_MOUSE_BUTTON_RIGHT;
+				break;
+			case OF_MOUSE_BUTTON_MIDDLE:
+				button = GLFW_MOUSE_BUTTON_MIDDLE;
+				break;
+			}
+			int modifiers = 0;
+			if(event.modifiers & OF_KEY_SHIFT){
+				modifiers |= GLFW_MOD_SHIFT;
+			}
+			if(event.modifiers & OF_KEY_ALT){
+				modifiers |= GLFW_MOD_ALT;
+			}
+			if(event.modifiers & OF_KEY_CONTROL){
+				modifiers |= GLFW_MOD_CONTROL;
+			}
+			if(event.modifiers & OF_KEY_SUPER){
+				modifiers |= GLFW_MOD_SUPER;
+			}
+
+			ImGui_ImplGlfw_MouseButtonCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), button, event.type == ofMouseEventArgs::Pressed, modifiers );
+		}
+		//ImGuiIO& io = ImGui::GetIO();
+		//io.AddMouseButtonEvent(event.button, event.type == ofMouseEventArgs::Pressed);
+
+		restoreImGuiContext();
+	}
+	//--------------------------------------------------------------
+	void EngineGLFW::onKeyEvent(ofKeyEventArgs& event)
+	{
+		// Ignore repeats
+		//if(event.isRepeat) return;
+
+		// Set context
+		if(!setImGuiContext()) return;
+
+		// This one is a little too ahrd to port, let's behave like EngineOpenFrameworks
+		// ImGui_ImplGlfw_KeyCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), ...);
+
+		int key = event.keycode; // Todo: this seems to be window specific ?
+		ImGuiIO& io = ImGui::GetIO();
+
+		// Set key modifiers (ensures they are set on time, fixes kb shortcuts)
+		io.AddKeyEvent(ImGuiMod_Ctrl,  event.hasModifier(OF_KEY_CONTROL));
+		io.AddKeyEvent(ImGuiMod_Shift, event.hasModifier(OF_KEY_SHIFT));
+		io.AddKeyEvent(ImGuiMod_Alt,   event.hasModifier(OF_KEY_ALT));
+		io.AddKeyEvent(ImGuiMod_Super, event.hasModifier(OF_KEY_SUPER));
+
+		// Since 1.87 : Key events
+		ImGuiKey imKey = oFKeyToImGuiKey(event.key);
+		//ImGuiKey imgui_key = ImGui_ImplGlfw_KeyToImGuiKey(keycode); // Previous code
+
+		// Fallback by guessing the imguikey from the typed character
+		// Note: could create weird behaviour on some special keyboards ?
+		// If so: It could be disabled, it doesn't prevent from using ImGui
+		// This helps registering key up/down state, which is rarely used in imgui widgets.
+//		if(imKey == ImGuiKey_None){
+//			// Note: codepoint corresponds to the typed character
+//			imKey = keyCodeToImGuiKey( event.codepoint );
+//		}
+
+		io.AddKeyEvent(imKey, event.type == ofKeyEventArgs::Pressed );
+
+		// Note: this brings support for pre-1.87 user code using very specific API code.
+		// It causes an assert/crash in imgui v1.89.3 when releasing ALT+CMD simultanously (osx+backend_of_native), when IMGUI_DISABLE_OBSOLETE_KEYIO is not defined.
+		// As we disabled it, we can support old user code again.
+		io.SetKeyEventNativeData(imKey, key, event.scancode); // To support legacy indexing (<1.87 user code)
+
+		restoreImGuiContext();
+	}
+
+	//--------------------------------------------------------------
+	void EngineGLFW::onCharInput(uint32_t& _char)
+	{
+		// Set context
+		if(!setImGuiContext()) return;
+
+		ImGui_ImplGlfw_CharCallback((GLFWwindow*)ofGetWindowPtr()->getWindowContext(), _char);
+		//ImGuiIO& io = ImGui::GetIO();
+		//io.AddInputCharacter((unsigned short)_char);
+
+		restoreImGuiContext();
+	}
+	//--------------------------------------------------------------
+//	void EngineGLFW::onWindowResized(ofResizeEventArgs& window)
+//	{
+//		// Set context
+//		if(!setImGuiContext()) return;
+
+//		//ImGuiIO& io = ImGui::GetIO();
+//		//io.DisplaySize = ImVec2((float)window.width, (float)window.height);
+
+//		restoreImGuiContext();
+//	}
+#endif // End bind events to OF
+
+} // End namespace ofxImGui
+
 
 
 

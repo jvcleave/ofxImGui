@@ -8,24 +8,30 @@
 
 // Flags that you can set :
 // #define OFXIMGUI_FORCE_OF_BACKEND --> force-use the simpler OF-based backend
-// #define INTERCEPT_GLFW_CALLBACKS 0|1 --> disable imgui glfw backend modification to allow multiple context for using imgui with multiple ofAppBaseWindows
-// #define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 0|1 --> Disable modifications to imgui_impl_glfw, disabling support for using ofxImGui in a multi-windowed-ofApp with viewports enabled.
-
-// TODO:
-// - replace INTERCEPT_GLFW_CALLBACKS by OFXIMGUI_INTERCEPT_GLFW_CALLBACKS for clarity.
-// - add OFXIMGUI_REPLACE_OF_GLFW_CALLBACKS to optionally listen to ofEvents rather than the GLFW callback ?
+// #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0|1 --> disable imgui glfw backend modification to allow multiple context for using imgui with multiple ofAppBaseWindows
+// #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 0|1 --> Disable modifications to imgui_impl_glfw, disabling support for using ofxImGui in a multi-windowed-ofApp with viewports enabled.
 
 // Grab ofConstants
 #include "ofConstants.h"
 
-// Tmp
+// OFXIMGUI_DEBUG
 #ifndef OFXIMGUI_DEBUG
-	// Uncomment to enable debugging
-	#define OFXIMGUI_DEBUG
+	// Uncomment to enable debugging by default
+	// Prefer defining it in your project macros.
+	//#define OFXIMGUI_DEBUG
 #endif
 
-// Helper for printing debug messages only when DEBUG is on
+// Additional debug flag
 #ifdef OFXIMGUI_DEBUG
+	// Uncomment to enable by default
+	//#define OFXIMGUI_DEBUG_MACROS
+#else
+	// Force-disable if debug not set
+	#undef OFXIMGUI_DEBUG_MACROS
+#endif
+
+// Helper for printing debug messages (only when DEBUG is on)
+#ifdef OFXIMGUI_DEBUG_MACROS
 	#define PRAGMA_MESSAGE(x) _Pragma(#x)
 	#define OFXIMGUI_COMPILER_MESSAGE(X) PRAGMA_MESSAGE(message X)
 #else
@@ -33,14 +39,14 @@
 #endif
 
 // Platform backend selection
-#if !defined (OFXIMGUI_FORCE_OF_BACKEND)
+#if !defined(OFXIMGUI_FORCE_OF_BACKEND)
 
 	// Vulkan support ?
 	#if defined (OF_TARGET_API_VULKAN) && FALSE // tmp disabled, doesn't work either. Maybe rather implement OF backend with vulkan support
 		#define OFXIMGUI_LOADED_BACKEND "Vulkan"
 		#define OFXIMGUI_BACKEND_VULKAN
 		// Warn Vulkan users
-		#pragma error "Sorry, there's no tested support for Vulkan yet while it should be very easy to implement"
+		#error "Sorry, there's no tested support for Vulkan yet while it should be very easy to implement"
 		// See https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_vulkan.h or ImGui_ImplGlfw_InitForVulkan
 
 	// Global condition for GLES platforms. Todo: Check if there are no false positives ?
@@ -61,11 +67,9 @@
 
 // Default backend : openframeworks
 #ifndef OFXIMGUI_LOADED_BACKEND
-	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with the openframeworks backend.")
+	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with the default openFrameworks backend.")
 	#define OFXIMGUI_LOADED_BACKEND "OpenFrameworks"
 	#define OFXIMGUI_BACKEND_OPENFRAMEWORKS
-	// Todo : fallback to engine openframeworks ?
-	//#pragma error "Sorry, could not configure ofxImGui on your openFrameworks configuration, nobody ever tried ofxImGui in your config. Feel free to as questions or submit a PR about support for your platform, we'd like to support all Platforms."
 #endif
 
 // Renderer selection
@@ -76,43 +80,76 @@
 	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with GL ES renderer support.")
 
 	// Specialisations
-	// RPIs have GL ES 1
-	#ifdef TARGET_RASPBERRY_PI
-		#define OFXIMGUI_RENDERER_GLES_1
-	// While ImGui supports GLES3, openFrameworks doesn't, so let's stick to GLES 2
-	#else
-		#define OFXIMGUI_RENDERER_GLES_2
-	#endif
+	// Todo: remove these ? GLES1 is available on all OF gles platforms, so no differenciation is needed
+	//#ifdef TARGET_RASPBERRY_PI
+	//	#define OFXIMGUI_RENDERER_GLES_1
+	//#else
+	//	#define OFXIMGUI_RENDERER_GLES_2
+	//#endif
 // Vulkan renderer ?
 #elif defined (OF_TARGET_API_VULKAN)
 	#error "Sorry, ofxImGui doesn't support Vulkan yet. Some works have been done in the past, and ImGui supports it, if you have OF+Vulkan, feel free to have a look or ask questions."
 // GL SL (default)
 #else
 	#define OFXIMGUI_RENDERER_GLSL
-	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with the GL SL renderer support.")
+	OFXIMGUI_COMPILER_MESSAGE("ofxImGui is compiling with GL SL renderer support.")
 #endif
 
+// Sanitize backend specific flags
+// - - - - - - - - - - - - - - - -
 // Sanitize GLFW callback flags which allow interfacing GLFW in different ways.
-// if 1, it fixes viewports in multiple contexts (one per ofAppWindow)
-// if 0, it uses the native imgui backend and multi-ofAppBaseWindows with pop-out windows (viewports) will fail.
 #ifdef OFXIMGUI_BACKEND_GLFW
-	#ifndef INTERCEPT_GLFW_CALLBACKS
-		// You can toggle these lines to change the default value (enabled by default)
-		#define INTERCEPT_GLFW_CALLBACKS 1
-		//#define INTERCEPT_GLFW_CALLBACKS 0
+	// Enabled by default (glfw event binding is more advanced then the ofevents, imgui works beter like this)
+	#if !defined(OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS) || OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS != 0
+		#define OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS 1
 	#endif
-	// Enable Multi-context support by default
-	#ifndef IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT
-		#define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 1
+
+	// Bind to GLFW ?
+	#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+		OFXIMGUI_COMPILER_MESSAGE("ofxImGui is binding window events by replacing some OF's GLFW listeners.")
+		// Shorthand compiler flag
+		#ifdef OFXIMGUI_GLFW_FIX_MULTICONTEXT
+			#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0
+			#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 1
+		#else
+			#if !defined(OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP) || OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP != 0
+				// You can toggle these lines to change the default value (disabled by default)
+				//#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 1
+				#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0
+			#endif
+
+			// Enable Multi-context support by default
+			#if !defined(OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP) || OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP != 0
+				// You can toggle these lines to change the default value (enabled by default)
+				#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 1
+				//#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 0
+			#endif
+		#endif
+	// Bind to openFrameworks ?
+	#else
+		OFXIMGUI_COMPILER_MESSAGE("ofxImGui is binding window events by listening to the OpenFrameworks events.")
+		// Sanitize / disable some flags
+		#ifdef OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS
+			#undef OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS
+		#endif
+		#define OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS 0
+		#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0
+		#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 0
 	#endif
+
+// OF Backend
 #else
-	// Always off in non-GLFW contexts
-	#define INTERCEPT_GLFW_CALLBACKS 0
-	// Disable GLWF multi-context hack
-	#define IMGUI_GLFW_INJECT_MULTICONTEXT_SUPPORT 0
+	// Disable some GLFW backend related flags
+	#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0
+	#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 0
+	#undef OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS
 #endif
 
-// Touch support detection
+// Prevent using this flag in code
+#undef OFXIMGUI_GLFW_FIX_MULTICONTEXT
+
+// Touch events support ?
+// - - - - - - - - - - - - - - - -
 // Todo: add explicit compiler flag so devices such as Windows/Linux with TouchScreens can use it too ?
 #if defined(TARGET_OF_IOS) || defined(TARGET_ANDROID)
 	#define OFXIMGUI_TOUCH_EVENTS

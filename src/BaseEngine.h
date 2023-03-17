@@ -4,8 +4,8 @@
 #include "ofAppBaseWindow.h"
 
 // Seems needed on windows
-//#include "imgui.h"
-struct ImGuiContext;
+#include "imgui.h"
+//struct ImGuiContext;
 
 // Fwd declaration
 namespace ofxImGui {
@@ -48,6 +48,7 @@ namespace ofxImGui
 
 	protected:
 		const char* getGLVersionFromOF() const;
+		static ImGuiKey oFKeyToImGuiKey(int key);
 		bool isSetup;
 
 		// Context handling helpers for events
