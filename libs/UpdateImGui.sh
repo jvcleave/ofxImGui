@@ -13,6 +13,7 @@
 #VERSION_SHA=d822c65 # 1.89.2
 #VERSION_SHA=1921967 # 1.89.3
 VERSION_SHA=9e30fb0 # 1.89.4
+#VERSION_SHA=??????? # 1.89.5 - Fixes 2ndary viewport modifier keys including Copy&Paste (see commit 91577c7f51)
 # ------------------
 
 echo "\nFinding ImGui..."
