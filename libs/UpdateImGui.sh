@@ -11,8 +11,8 @@
 # Right after that, in the docking branch, there's a commit "Merge branch 'master' into docking ".
 # That's the one you wish. The docs/CHANGELOG.txt should NOT state "In Progress" (ie: "VERSION 1.89.3 (In Progress)"")
 #VERSION_SHA=d822c65 # 1.89.2
-VERSION_SHA=1921967 # 1.89.3
-#VERSION_SHA=9e30fb0 # 1.89.4
+#VERSION_SHA=1921967 # 1.89.3
+VERSION_SHA=9e30fb0 # 1.89.4
 # ------------------
 
 echo "\nFinding ImGui..."
@@ -137,7 +137,7 @@ else
 	# With timestamps included
 	# diff -u ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
 	# Without timestamps
-	git diff --no-index ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
+	git diff --no-index ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_new.diff
 fi;
 
 # Inject GLES1 compatibility in imgui_implopengl2
