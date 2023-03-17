@@ -9,9 +9,10 @@
 # Sha of latest version release (in docking branch!)
 # How to find it : Omar publishes a version commit, for example "Version 1.89.3" which is the non-docking version
 # Right after that, in the docking branch, there's a commit "Merge branch 'master' into docking ".
-# That's the one you wish. The docs/CHANGELOG.txt should NOT state "VERSION 1.89.3 (In Progress)"
+# That's the one you wish. The docs/CHANGELOG.txt should NOT state "In Progress" (ie: "VERSION 1.89.3 (In Progress)"")
 #VERSION_SHA=d822c65 # 1.89.2
 VERSION_SHA=1921967 # 1.89.3
+#VERSION_SHA=9e30fb0 # 1.89.4
 # ------------------
 
 echo "\nFinding ImGui..."
@@ -96,6 +97,7 @@ if [ `uname -s` = "Darwin" ] ; then
 	fi;
 fi;
 
+echo "\nApplying GLFW multi context patch..."
 # Option 1 : Patch file ?
 #git apply --check Glfw_MultiContext_Support.diff
 patch --dry-run -s ./imgui/backends/imgui_impl_glfw.cpp ./Glfw_MultiContext_Support.diff > /dev/null 2>&1
@@ -106,18 +108,23 @@ if [ $? -eq 0 ]; then
 
 # option 2 : Sed search/replace
 else
-	echo "Git diff is not compatible, trying to apply a custom GNU sed patch that might be less vulnerable to breaking changes."
+	echo "The Git diff is not compatible anymore, trying to apply a custom GNU sed patch that might be less vulnerable to breaking changes."
+	echo "This has only been tested on OSX."
+
 	# todo: On linux use sed instead of gsed ? Tested on OSX only.
 	
+	# Inform about changes
+	gsed -i '1s/^/\/\/ Warning!\n\/\/ This file has been modified for ofxImGui to support context switching.\n\/\/ This is not the original one. Changes are indicated.\n\n/' ./imgui/backends/imgui_impl_glfw.cpp
 	# Add include
 	gsed -i '/^#include "imgui_impl_glfw\.h"$/a #include "backends\/imgui_impl_glfw_context_support.h" \/\/ CUSTOM OFXIMGUI ADDED LINE' ./imgui/backends/imgui_impl_glfw.cpp
-	# Add scoped context on glfw callbacks
+	# Add scoped context on glfw window callbacks
 	gsed -i -e '/^.*void ImGui_ImplGlfw_.*Callback.*(GLFWwindow\* window.*)$/{n; s/$/\n\tImGui_ImplGlfw_ScopedContext sc\(window\)\; \/\/ CUSTOM OFXIMGUI ADDED LINE\n/}' ./imgui/backends/imgui_impl_glfw.cpp
 	# Register Windows
 	gsed -i '/^static void ImGui_ImplGlfw_CreateWindow(/,/^}$/s/^}$/\tImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext())\; \/\/ CUSTOM OFXIMGUI ADDED LINE\n}/' ./imgui/backends/imgui_impl_glfw.cpp
-	#Forget windows
+	# Forget windows
 	gsed -i '/^static void ImGui_ImplGlfw_DestroyWindow(/,/^}$/s/vd->Window \= nullptr;$/ImGui_ImplGlfw_RemoveWindowContext(vd->Window)\; \/\/ CUSTOM OFXIMGUI ADDED LINE\n\t\tvd->Window \= nullptr\;/' ./imgui/backends/imgui_impl_glfw.cpp
-
+	# Initialise in the context (needed for secondary viewports)
+	gsed -i '/^static bool ImGui_ImplGlfw_Init(/{n; s/$/\n\tImGui_ImplGlfw_ScopedContext sc\(window\)\; \/\/ CUSTOM OFXIMGUI ADDED LINE\n/}' ./imgui/backends/imgui_impl_glfw.cpp
 
 	# Modify imgui's GLFW autoconfig due to oF 0.11.0 and 0.11.2 (not 0.11.1) having a pre-3.3.0 glfw library on osx platform.
 	# This causes the native backend to fail linking, the of-version hasn't got glfwGetMonitorWorkarea which was added only in the final version
@@ -130,7 +137,30 @@ else
 	# With timestamps included
 	# diff -u ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
 	# Without timestamps
-	git diff ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
+	git diff --no-index ./imgui_git/backends/imgui_impl_glfw.cpp ./imgui/backends/imgui_impl_glfw.cpp > ./Glfw_MultiContext_Support_New.diff
+fi;
+
+# Inject GLES1 compatibility in imgui_implopengl2
+echo "\nApplying OpenGL2 patch for compatibility with GLES1..."
+
+# Test the diff file
+patch --dry-run -s ./imgui/backends/imgui_impl_opengl2.cpp ./Glfw_GLES1_Support.diff > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+	#git apply Glfw_MultiContext_Support.diff
+	echo "Applying a GIT diff as it seems compatible..."
+	patch ./imgui/backends/imgui_impl_opengl2.cpp ./Glfw_GLES1_Support.diff
+else
+	echo "The Git diff is not compatible anymore, trying to apply a custom GNU sed patch that might be less vulnerable to breaking changes."
+	echo "This has only been tested on OSX."
+
+	# Include GLES1 compatibility hack in imgui_implopengl2
+	gsed -i '/^\/\/ Include OpenGL header/i \ \/\/ --- BEGIN CUSTOM MODIFICATION\n#include "ofxImGuiConstants\.h"\n#if defined(OFXIMGUI_RENDERER_GLES)\n#include "gles1CompatibilityHacks\.h"\n// --- END CUSTOM MODIFICATION\n' ./imgui/backends/imgui_impl_opengl2.cpp
+	# Modify the OpenGL loader condition
+	#gsed -i '/^#include <GL\/gl\.h>$/{n; s/$/\n#endif \/\/ CUSTOM OFXIMGUI ADDED LINE/}' ./imgui/backends/imgui_impl_opengl2.cpp
+	gsed -i '/^\/\/ Include OpenGL header/{n; s/^#if/#elif/; s/$/ \/\/ CUSTOM OFXIMGUI MODIFIED LINE/}' ./imgui/backends/imgui_impl_opengl2.cpp
+
+	# Generate a new diff :
+	git diff --no-index ./imgui_git/backends/imgui_impl_opengl2.cpp ./imgui/backends/imgui_impl_opengl2.cpp > ./Glfw_GLES1_Support_new.diff
 fi;
 
 # Done !

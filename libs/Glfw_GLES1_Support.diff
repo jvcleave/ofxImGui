@@ -1,0 +1,20 @@
+diff --git a/./imgui_git/backends/imgui_impl_opengl2.cpp b/./imgui/backends/imgui_impl_opengl2.cpp
+index 62a7dae..817b5b9 100644
+--- a/./imgui_git/backends/imgui_impl_opengl2.cpp
++++ b/./imgui/backends/imgui_impl_opengl2.cpp
+@@ -46,8 +46,14 @@
+ #include <stdint.h>     // intptr_t
+ #endif
+ 
++ // --- BEGIN CUSTOM MODIFICATION
++#include "ofxImGuiConstants.h"
++#if defined(OFXIMGUI_RENDERER_GLES)
++#include "gles1CompatibilityHacks.h"
++// --- END CUSTOM MODIFICATION
++
+ // Include OpenGL header (without an OpenGL loader) requires a bit of fiddling
+-#if defined(_WIN32) && !defined(APIENTRY)
++#elif defined(_WIN32) && !defined(APIENTRY) // CUSTOM OFXIMGUI MODIFIED LINE
+ #define APIENTRY __stdcall                  // It is customary to use APIENTRY for OpenGL function pointer declarations on all platforms.  Additionally, the Windows OpenGL header needs APIENTRY.
+ #endif
+ #if defined(_WIN32) && !defined(WINGDIAPI)

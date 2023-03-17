@@ -46,42 +46,14 @@
 #include <stdint.h>     // intptr_t
 #endif
 
-
-// --- BEGIN CUSTOM MODIFICATION
-// GLSL ES 1 (fixed pipeline) (OpenGL ES 2.0) is not supported by ImGui, we try to provide some hacks here.
-// Note:
-//   - imgui_impl_opengl2.cpp (      fixed pipeline) --> OpenGL 2.0  and GLES 1
-//   - imgui_impl_opengl3.cpp (programable pipeline) --> OpenGL 3.0+ and GLES 2+
-#if defined(OFXIMGUI_RENDERER_GLES)
-
-// Include GLES 1 & 2
-#ifdef TARGET_OF_IOS
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-//#import <OpenGLES/ES2/gl.h>
-//#import <OpenGLES/ES2/glext.h>
-#elif defined(TARGET_LINUX_ARM)
-#include "GLES/gl.h"
-#include "GLES/glext.h"
-//#include "GLES2/gl2.h"
-//#include "GLES2/gl2ext.h"
-#else
-// Other : warn about unsupported platform
-// If this error throws, there might not be much to do to support them, if your platform supports GLES.
-// Note: For GL ES 2 & 3, this file is probably not needed, imgui_impl_opengl2 should be excluded from compilation or compiled pseudo-empty. Best is to support both gles 1 and 2+3 if the platform also supports it.
-#error "ofxImGui doesn't know where GLES 1 & 2 are located for your platform !"
-#endif
-
-// GLES1 Support : ImGui has no native GL ES1 support for the fixes pipeline.
-// Openframeworks does, here we hack in support by loading gles1 and provide some dirty fallbacks for unimplemented functionality.
+ // --- BEGIN CUSTOM MODIFICATION
+#include "ofxImGuiConstants.h"
 #if defined(OFXIMGUI_RENDERER_GLES)
 #include "gles1CompatibilityHacks.h"
-#endif
-#else
 // --- END CUSTOM MODIFICATION
 
 // Include OpenGL header (without an OpenGL loader) requires a bit of fiddling
-#if defined(_WIN32) && !defined(APIENTRY)
+#elif defined(_WIN32) && !defined(APIENTRY) // CUSTOM OFXIMGUI MODIFIED LINE
 #define APIENTRY __stdcall                  // It is customary to use APIENTRY for OpenGL function pointer declarations on all platforms.  Additionally, the Windows OpenGL header needs APIENTRY.
 #endif
 #if defined(_WIN32) && !defined(WINGDIAPI)
@@ -93,9 +65,6 @@
 #else
 #include <GL/gl.h>
 #endif
-// --- BEGIN CUSTOM MODIFICATION
-#endif
-// --- END CUSTOM MODIFICATION
 
 struct ImGui_ImplOpenGL2_Data
 {
