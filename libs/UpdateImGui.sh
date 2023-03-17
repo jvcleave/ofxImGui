@@ -156,10 +156,10 @@ else
 	echo "This has only been tested on OSX."
 
 	# Include GLES1 compatibility hack in imgui_implopengl2
-	gsed -i '/^\/\/ Include OpenGL header/i \ \/\/ --- BEGIN CUSTOM MODIFICATION\n#include "ofxImGuiConstants\.h"\n#if defined(OFXIMGUI_RENDERER_GLES)\n#include "gles1CompatibilityHacks\.h"\n// --- END CUSTOM MODIFICATION\n' ./imgui/backends/imgui_impl_opengl2.cpp
+	gsed -i '/^\/\/ Include OpenGL header/i \ \/\/ --- BEGIN CUSTOM MODIFICATION\n#include "ofxImGuiConstants\.h"\n#if defined(OFXIMGUI_RENDERER_GLES)\n#include "gles1CompatibilityHacks\.h"\n#else// --- END CUSTOM MODIFICATION\n' ./imgui/backends/imgui_impl_opengl2.cpp
 	# Modify the OpenGL loader condition
-	#gsed -i '/^#include <GL\/gl\.h>$/{n; s/$/\n#endif \/\/ CUSTOM OFXIMGUI ADDED LINE/}' ./imgui/backends/imgui_impl_opengl2.cpp
-	gsed -i '/^\/\/ Include OpenGL header/{n; s/^#if/#elif/; s/$/ \/\/ CUSTOM OFXIMGUI MODIFIED LINE/}' ./imgui/backends/imgui_impl_opengl2.cpp
+	gsed -i '/^#include <GL\/gl\.h>$/{n; s/$/\n#endif \/\/ CUSTOM OFXIMGUI ADDED LINE/}' ./imgui/backends/imgui_impl_opengl2.cpp
+	#gsed -i '/^\/\/ Include OpenGL header/{n; s/^#if/#elif/; s/$/ \/\/ CUSTOM OFXIMGUI MODIFIED LINE/}' ./imgui/backends/imgui_impl_opengl2.cpp
 
 	# Generate a new diff :
 	git diff --no-index ./imgui_git/backends/imgui_impl_opengl2.cpp ./imgui/backends/imgui_impl_opengl2.cpp > ./Glfw_GLES1_Support_new.diff

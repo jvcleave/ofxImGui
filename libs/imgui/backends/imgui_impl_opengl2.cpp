@@ -50,10 +50,11 @@
 #include "ofxImGuiConstants.h"
 #if defined(OFXIMGUI_RENDERER_GLES)
 #include "gles1CompatibilityHacks.h"
+#else
 // --- END CUSTOM MODIFICATION
 
 // Include OpenGL header (without an OpenGL loader) requires a bit of fiddling
-#elif defined(_WIN32) && !defined(APIENTRY) // CUSTOM OFXIMGUI MODIFIED LINE
+#if defined(_WIN32) && !defined(APIENTRY) // CUSTOM OFXIMGUI MODIFIED LINE
 #define APIENTRY __stdcall                  // It is customary to use APIENTRY for OpenGL function pointer declarations on all platforms.  Additionally, the Windows OpenGL header needs APIENTRY.
 #endif
 #if defined(_WIN32) && !defined(WINGDIAPI)
@@ -65,6 +66,7 @@
 #else
 #include <GL/gl.h>
 #endif
+#endif // CUSTOM OFXIMGUI ADDED LINE
 
 struct ImGui_ImplOpenGL2_Data
 {
