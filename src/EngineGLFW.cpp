@@ -326,14 +326,14 @@ namespace ofxImGui
 		ofRemoveListener(ofEvents().mouseReleased,  this, &EngineGLFW::onMouseButton  );
 		ofRemoveListener(ofEvents().mouseScrolled,  this, &EngineGLFW::onMouseScrolled);
 
-#ifdef OFXIMGUI_TOUCH_EVENTS
+	#ifdef OFXIMGUI_TOUCH_EVENTS
 		// TouchEvents
 		ofRemoveListener(ofEvents().touchDoubleTap, this, &EngineGLFW::onTouchInput );
 		ofRemoveListener(ofEvents().touchMoved,     this, &EngineGLFW::onTouchInput );
 		ofRemoveListener(ofEvents().touchDown,      this, &EngineGLFW::onTouchInput );
 		ofRemoveListener(ofEvents().touchUp,        this, &EngineGLFW::onTouchInput );
 		ofRemoveListener(ofEvents().touchCancelled, this, &EngineGLFW::onTouchInput );
-#endif
+	#endif
 
 		// Keyboard avents
 		ofRemoveListener(ofEvents().keyPressed,     this, &EngineGLFW::onKeyEvent );
