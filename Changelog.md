@@ -8,6 +8,9 @@ DearImGui has grown considerably over time, but some of the new (optional but ni
 ### Breaking changes
 - **GLFW** : If your project uses a windowing system other then GLFW, this newer ofxImGui will not work correctly. This is mainly the case for Emscriptem projects, iOS and some Rpi environments. Consider using an [older ofxImGui release](https://github.com/jvcleave/ofxImGui/tree/330e1425a88de7babd53ceb2fb93f8109b61724c), or try [this untested commit](https://github.com/jvcleave/ofxImGui/tree/05ab1311511523c63c6f22d38ee015942b9ea557) together with `OFXIMGUI_ENABLE_OF_BINDINGS` if you need ImGui 1.79 features.
 - **Autodraw** : This setting was already around but worked differently, which lead to confusions. It used to call `gui.draw()` when calling `gui.end()`. Now, when autodraw is enabled, ofxImGui uses a callback on `ofEvents::afterDraw()` to render the gui, drawing the gui always on top of your ofApp. This might affect the render order rendered in your pipeline.
+- **imgui_stdlib.h/cpp** : If you were using them in your project, please remove the files, they are now included with ofxImGui.
+- **ImHelpers.cpp** : If you are using them, they are not included by default via `#import "ofxImGui.h"`, you now need to include it manually (`#import "ImHelpers.h"`).
+- **ImGui API changes** : Refer to the ImGui changelog.
 
 As an upgrade assistant, you might want to enable `OFXIMGUI_DEBUG` while transitioning, it will provide some general warnings on mistakes.
 

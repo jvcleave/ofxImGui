@@ -1036,21 +1036,72 @@ namespace ofxImGui
 
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("GLFW Callbacks");
-					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
-					ImGui::TextWrapped("GLFW window events can only be bound to one listener; imgui_backend_glfw allows either to bind to GLFW directly or to call its event listeners manually.\n");
-					ImGui::TextWrapped("This can be toggled with the OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP macro define. (default = 1)");
-					ImGui::Bullet(); ImGui::TextWrapped("0 = ofxImGui listens to ofEvents and forwards them to the ImGui backend.\nEvent propagation: GLFW -> ImGui -> OpenFrameworks");
-					ImGui::Bullet(); ImGui::TextWrapped("1 = Bind ImGui directly to GLFW events by replacing OF's GLFW listeners, forwarding callbacks to OF afterwrds.\nEvent propagation: GLFW -> ofxImGui -> (ImGui + OpenFrameworks)");
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetColorU32(ImGuiCol_ChildBg)); // Disable hover on treenode
+					if(ImGui::TreeNode("Explanations##glfw_callbacks")){
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("GLFW window events can only be bound to one listener; imgui_backend_glfw allows either to bind to GLFW directly or to call its event listeners manually.\n");
+						ImGui::TextWrapped("This can be toggled with the OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS macro define. (default = 1)");
+						ImGui::Bullet(); ImGui::TextWrapped("0 = ofxImGui listens to ofEvents and forwards them to the ImGui backend (after converting them).\nEvent propagation: GLFW -> OpenFrameworks -> ofxImGui -> ImGui");
+						ImGui::Bullet(); ImGui::TextWrapped("1 = Replace GLFW callbacks by those of ImGui or ofxImGui then forward them to OpenFrameworks.\nEvent propagation: GLFW -> (ImGui | ofxImGui) -> OpenFrameworks");
+						ImGui::PopStyleColor();
+						ImGui::TreePop();
+					}
 					ImGui::PopStyleColor();
 
 					ImGui::Dummy({10,10});
-					ImGui::TextWrapped("OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP = %i", OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP);
-
-	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
-					ImGui::Bullet(); ImGui::TextWrapped("The openFrameworks listeners (on GLFW Windows) are replaced by those of ofxImGui, which then forwards them to OpenFrameworks and ImGui by adding multi-context support.");
+					ImGui::TextWrapped("OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS = %i", OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS);
+#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
+					ImGui::Bullet(); ImGui::TextWrapped("You are replacing the OpenFrameworks GLFW callbacks. They are intercepted by either ofxImGui or ImGui, then forwarded to OpenFrameworks.");
+#else
+					ImGui::Bullet(); ImGui::TextWrapped("The original OpenFrameworks GLFW window callbacks left intact. ofxImGui listens to ofEvents, converts them back to GlfwEvents then forwards them to ImGui.");
+#endif
 
 					ImGui::Dummy({10,10});
-					ImGui::TextWrapped("Master engines handling GLFW Windows :");
+					ImGui::SeparatorText("MultiContext Support");
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetColorU32(ImGuiCol_ChildBg)); // Disable hover on treenode
+					if(ImGui::TreeNode("Explanations##multicontext_support")){
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("The native GLFW ImGui backend doesn't support multiple contexts, which is needed for running ofxImGui in multi-window ofApps.\nThere are two compilation options to enable support for it.");
+						ImGui::Bullet(); ImGui::TextWrapped("OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP   = 0 | 1 (default: 0)\n  - Asks ofxImGui to intercept GLFW calls rather then ImGui directly.\n  - This enables multi-context support only for ofWindows, but not for viewport (standalone) windows.\n  - As a side effect, this also causes OpenFrameworks' GLFW callbacks to be called a bit earlier too.");
+						ImGui::Bullet(); ImGui::TextWrapped("OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP = 0 | 1 (default: 1)\n  - Applies some changes to imgui_impl_glfw to manage a window->context map and set the right context prior to calling API calls.\n  - This enables support for multiple contexts");
+						ImGui::Bullet(); ImGui::TextWrapped("None, one or both can be enabled simultanously.");
+
+						ImGui::PopStyleColor();
+						ImGui::TreePop();
+					}
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP   = %i", OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP);
+					ImGui::TextWrapped("OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP = %i", OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP);
+
+					ImGui::Dummy({10,10});
+					ImGui::Bullet();
+#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+					ImGui::TextWrapped("You have full multicontext support.");
+#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+					ImGui::TextWrapped("You have multicontext support within your OpenFrameworks windows, but not in standalone viewport windows.");
+#else
+					ImGui::TextWrapped("You have no multicontext support; you can only use ofxImGui within one of your OpenFrameworks applications.");
+#endif
+
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("ofxImGui Multicontext fix");
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetColorU32(ImGuiCol_ChildBg)); // Disable hover on treenode
+					if(ImGui::TreeNode("Explanations##ofximgui_multicontext_support")){
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("0 = XXX.");
+						ImGui::PopStyleColor();
+						ImGui::TreePop();
+					}
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+					ImGui::TextWrapped("The openFrameworks listeners (on GLFW Windows) are replaced by those of ofxImGui, which then forwards them to OpenFrameworks and ImGui by adding multi-context support.");
+
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("ofxImGui engines handling GLFW windows :");
 					if(ImGui::BeginTable("Bound engines table", 2)){
 						ImGui::TableSetupColumn("GlfwWindow*");
 						ImGui::TableSetupColumn("EngineGlfw*");
@@ -1065,46 +1116,86 @@ namespace ofxImGui
 						ImGui::EndTable();
 					}
 	#else
-					ImGui::Bullet(); ImGui::TextWrapped("ofxImGui doesn't handle any events. ImGui replaces the OpenFrameworks ones while ensuring to call the OF ones afterwards.");
+					ImGui::TextWrapped("ofxImGui doesn't handle any GLFW events.\nImGui replaces the OpenFrameworks ones while ensuring to call the OF ones afterwards.");
 	#endif
 
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("GLFW Backend modification");
-					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
-					ImGui::TextWrapped("ofxImGui uses a modified ImGui GLFW backend by default so that it can use multiple imgui contexts (one per ofAppBaseWindow).\nIf there are multiple contexts, the native GLFW backend needs to be able to switch context on GLFW callbacks.");
-					ImGui::TextWrapped("For this to work, we use a modified GLFW backend so that it supports multiple contexts with pop-out windows.");
-					ImGui::TextWrapped("If you don't need ofxImGui in multiple windows, you may toggle this off by setting the OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP macro define to 0.");
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetColorU32(ImGuiCol_ChildBg)); // Disable hover on treenode
+					if(ImGui::TreeNode("Explanations##impl_glfw_multicontext_support")){
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("If there are multiple contexts, the native GLFW backend needs to be able to switch context on GLFW callbacks.");
+						ImGui::TextWrapped("For this to work (including viewport support), we use a modified GLFW backend so that it supports multiple contexts with pop-out windows.");
+						ImGui::TextWrapped("If you don't need ofxImGui in multiple windows, you may toggle this off by setting the OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP macro define to 0.");
+						ImGui::PopStyleColor();
+						ImGui::TreePop();
+					}
 					ImGui::PopStyleColor();
-					ImGui::TextWrapped("OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP = %i", OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP);
 
 					ImGui::Dummy({10,10});
 	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
 					ImGui::TextWrapped("You are using a modified imgui_backend_glfw so that you can use multiple ofAppBaseWindows together with viewports enabled.");
 
 					ImGui::Dummy({10,10});
-					ImGui::TextWrapped("Viewport windows handled by ofxImGui for the native imgui_backend_glfw:");
-					if(ImGui::BeginTable("Bound engines table", 2)){
-						ImGui::TableSetupColumn("GlfwWindow*");
-						ImGui::TableSetupColumn("ImGuiContext*");
-						ImGui::TableHeadersRow();
-						for(auto* engineEntry = ImGui_ImplGlfw_ScopedContext::Contexts.getFirst(); engineEntry != nullptr; engineEntry=engineEntry->getNext()){
-							ImGui::TableNextRow();
-							ImGui::TableNextColumn();
-							ImGui::Text("%p", engineEntry->key);
-							ImGui::TableNextColumn();
-							ImGui::Text("%p", engineEntry->data);
-							if(ImGui::IsItemHovered()){
-								ImGui::SameLine();
-								ImGui::BeginTooltip();
-								ImGui::Text("%s", context->imguiContext==engineEntry->data?"Current context":"Other instance's context");
-								ImGui::EndTooltip();
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetColorU32(ImGuiCol_ChildBg)); // Disable hover on treenode
+					if(ImGui::TreeNode("Viewport windows handled by ofxImGui for the native imgui_backend_glfw:")){
+						if(ImGui::BeginTable("Bound Engines Table", 2)){
+							ImGui::TableSetupColumn("GlfwWindow*");
+							ImGui::TableSetupColumn("ImGuiContext*");
+							ImGui::TableHeadersRow();
+							for(auto* engineEntry = ImGui_ImplGlfw_ScopedContext::Contexts.getFirst(); engineEntry != nullptr; engineEntry=engineEntry->getNext()){
+								ImGui::TableNextRow();
+								ImGui::TableNextColumn();
+								ImGui::Text("%p", engineEntry->key);
+								ImGui::TableNextColumn();
+								ImGui::Text("%p", engineEntry->data);
+								if(ImGui::IsItemHovered()){
+									ImGui::SameLine();
+									ImGui::BeginTooltip();
+									ImGui::Text("%s", context->imguiContext==engineEntry->data?"Current context":"Other instance's context");
+									ImGui::EndTooltip();
+								}
 							}
+							ImGui::EndTable();
 						}
-						ImGui::EndTable();
+						ImGui::TreePop();
 					}
+					ImGui::PopStyleColor();
 	#else // if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 0
 					ImGui::TextWrapped("You are using an unmodified imgui_backend_glfw : you can't use multiple ofAppBaseWindows together with viewports enabled.");
 	#endif
+					ImGui::Dummy({10,10});
+					ImGui::SeparatorText("GLFW event propagation");
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetColorU32(ImGuiCol_ChildBg)); // Disable hover on treenode
+					if(ImGui::TreeNode("Explanations##glfw_event_propagation")){
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
+						ImGui::TextWrapped("Depending on how you configure ofxImGui, the event propagation chain is bound differently.\nIn some rare cases, this might interfere with the events you're listening to.");
+						ImGui::TreePop();
+						ImGui::PopStyleColor();
+					}
+					ImGui::PopStyleColor();
+
+					ImGui::Dummy({10,10});
+					ImGui::TextWrapped("Here's how you are currently bound :");
+	#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 0
+					ImGui::Bullet(); ImGui::TextWrapped("GLFW --> OpenFrameworks --> ofxImGui --> ImGui");
+					ImGui::Bullet(); ImGui::TextWrapped("ImGui input is bound to ofEvents and directly send to ImGuiIO, bypassing the need for imgui_impl_glfw callbacks (custom backend implementation).\nEvent conversion is needed and might loose some non-crucial UX event data.");
+	#else
+		#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1 && OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+					ImGui::Bullet(); ImGui::TextWrapped("Primary viewports (ofAppBaseWindows) :\nGLFW --> ofxImGui --> ImGui --> OpenFrameworks");
+					ImGui::Bullet(); ImGui::TextWrapped("Secondary viewports (pop-out windows):\nGLFW --> ImGui");
+		#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+					ImGui::Bullet(); ImGui::TextWrapped("Primary viewports (ofAppBaseWindows) :\nGLFW --> ImGui --> OpenFrameworks");
+					ImGui::Bullet(); ImGui::TextWrapped("Secondary viewports (pop-out windows):\nGLFW --> ImGui");
+		#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+					ImGui::Bullet(); ImGui::TextWrapped("Primary viewports (ofAppBaseWindows) :\nGLFW --> ofxImGui --> ( ImGui + OpenFrameworks )");
+					ImGui::Bullet(); ImGui::TextWrapped("Secondary viewports (pop-out windows):\nGLFW --> ImGui");
+		#else
+					ImGui::Bullet(); ImGui::TextWrapped("GLFW --> ImGui --> OpenFrameworks");
+		#endif
+					ImGui::Bullet(); ImGui::TextWrapped("ImGui input is parsed from glfw events by the native imgui_impl_glfw callbacks.");
+	#endif // End Callbacks overview
+
 #endif // Backends switch
 					} // Backend Specific Information collapsable
 
