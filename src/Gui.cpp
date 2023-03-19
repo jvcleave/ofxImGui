@@ -640,7 +640,7 @@ namespace ofxImGui
 					ImGui::Bullet(); ImGui::TextWrapped("Your GLFW version (%i.%i.%i) is quite old, you could update it to get a smoother user interface experience.\nRefer to Developers.md.", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_MINOR);
 	#endif
 	#ifdef TARGET_LINUX
-					ImGui::Bullet(); ImGui::TextWrapped("On Linux, moving pop-out windows (viewports enabled) with the mouse is quite shaky!");
+					ImGui::Bullet(); ImGui::TextWrapped("On Linux, moving pop-out windows (viewports enabled) with the mouse is quite shaky!\nThis also happens in the standalone imgui glfw opengl example so it's an ImGui bug.");
 	#endif
 					// OSX pre-3.3.0 GLFW Warning
 	#if defined(TARGET_OSX) && OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR == 11 && ( OF_VERSION_PATCH == 2 || OF_VERSION_PATCH == 0 )
@@ -656,14 +656,14 @@ namespace ofxImGui
 					ImGui::SeparatorText("Native Openframeworks Backend");
 					ImGui::TextWrapped("You are using the fallback Openframeworks backend.");
 					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,200,200,200));
-					ImGui::TextWrapped("This backend interfaces the minimum required interactions to use ImGui with ofEvents, so interactions are a little less user-friendly.\n Meanwhile, it's also less likely to break on future ImGui releases, which ensures a more-stable-over-time fallback for the fully featured GLFW backend.");
+					ImGui::TextWrapped("This backend interfaces the minimum required interactions to use ImGui with ofEvents, so interactions are a little less user-friendly and some advanced ImGui features are missing.\nMeanwhile, it's also less likely to break on future ImGui releases, which ensures a more-stable-over-time fallback for the fully featured GLFW backend.");
 					ImGui::PopStyleColor();
 
 					ImGui::Dummy({10,10});
 					//ImGui::SeparatorText("Backend Usage Tips");
 					ImGui::Text("Limitations compared to the GLFW backend:");
 					ImGui::Bullet(); ImGui::TextWrapped("You cannot use viewport features (pop-out windows) and all ImGui windows are constrained to fit in your ofAppWindow.\nThis \"custom backend feature\" will be quite hard to port and maintain.");
-					ImGui::Bullet(); ImGui::TextWrapped("The (native) mouse cursor will always be a simple pointer, unless you use a custom software-rendered cursor.\nAlternatively you can enable the ImGui a software renderd mouse (and ensure to disable the native oF mouse cursor).");
+					ImGui::Bullet(); ImGui::TextWrapped("The (native) mouse cursor will always be a simple pointer, unless you use ImGui's software-rendered cursor (and ensure to disable the native oF mouse cursor).");
 					ImGui::Bullet(); ImGui::TextWrapped("There's no gamepad support (useful for mouseless gui navigation in some situations, keyboard navigation should still work).\n(it could be implemented by binding an optional ofxAddon)");
 					ImGui::Bullet(); ImGui::TextWrapped("There's no touchscreen support.\n(but it's probably easy to implement in EngineOpenFrameworks.cpp)");
 					ImGui::Bullet(); ImGui::TextWrapped("Text input and keyboard shortcuts are more limited due to how OF forwards user input.");
@@ -671,28 +671,40 @@ namespace ofxImGui
 
 					ImGui::Dummy({10,10});
 					ImGui::Text("Other hints:");
+	#ifdef TARGET_GLFW_WINDOW
+					ImGui::Bullet(); ImGui::TextWrapped("Your ofApp uses a GLFW windows, you could switch to the GFW backend.");
+	#else
 					ImGui::Bullet(); ImGui::TextWrapped("If your ofApp can use GLFW windows, you could switch to the GFW backend.");
+	#endif
 #else
 					ImGui::Bullet(); ImGui::TextWrapped("There's no custom information for your backend.");
 #endif // End backend switch
 
 					// Runtime checks (prevent imgui config mistakes)
 					ImGui::Dummy({10,10});
-					ImGui::SeparatorText("Runtime Checks:");
+					ImGui::SeparatorText("Runtime Checks");
 					// Viewports support check
-					// Todo: chek veracity of the check
 					if(ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable){
 #if defined(OFXIMGUI_BACKEND_GLFW)
-	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 0
+	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 0 && OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 0
 						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,128,20,200));
 						ImGui::Bullet(); ImGui::TextWrapped("Warning: Viewports are enabled, but not OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP.\nViewport windows will only work in one of your ofApp windows (if using multiple windows).");
 						ImGui::PopStyleColor();
+	#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 0
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,128,20,200));
+						ImGui::Bullet(); ImGui::TextWrapped("Warning: Viewports are enabled, but not OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP.\nViewport windows will only work in one of your ofApp windows (if using multiple windows).");
+						ImGui::PopStyleColor();
+						if(imguiContexts.size() > 1){
+							ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,20,20,200));
+							ImGui::Bullet(); ImGui::TextWrapped("You are using multiple ofAppBaseWindows !");
+							ImGui::PopStyleColor();
+						}
 	#else
 						ImGui::Bullet(); ImGui::TextWrapped("You requested to enable viewports which are supported. :) ");
 	#endif
 #else
 						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,20,20,200));
-						ImGui::Bullet(); ImGui::TextWrapped("You requested to enable viewports but it's not implemented in the backend you're using.");
+						ImGui::Bullet(); ImGui::TextWrapped("You requested to enable viewports but it's not implemented in the backend that you're using (%s).", OFXIMGUI_LOADED_BACKEND);
 						ImGui::PopStyleColor();
 #endif
 //#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 0
@@ -702,18 +714,65 @@ namespace ofxImGui
 					}
 					// Slaves initialisation settings limitation
 					if(context->slaveCount > 1){
-						ImGui::Bullet(); ImGui::TextWrapped("Your ofApp creates multiple ofxImGui instances.\nWhile not recommended, sometimes you can't do otherwise. Just note that in such scenarios, only the first call to `gui.setup()` has full control over initialisation settings, the next ones will setup as slaves (if they use the same ofAppBaseWindow), limiting the control over some initialisation settings.");
+						ImGui::Dummy({10,10});
+						ImGui::Bullet(); ImGui::TextWrapped("Notice: Your ofApp creates multiple ofxImGui instances.\nJust note that in such scenarios, only the first call to `gui.setup()` has full control over initialisation settings, the next ones will setup as slaves (if they use the same ofAppBaseWindow), limiting the control over some initialisation settings.");
 					}
 					// ofApps with multiple ofAppBaseWindows
 					if(imguiContexts.size() > 1){
-#if defined(OFXIMGUI_BACKEND_GLFW) && (OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 0 || OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP==0)
-						ImGui::Bullet(); ImGui::TextWrapped("Your ofApp runs ofxImGui in multiple windows, this is not supported in your configuration.");
+						ImGui::Dummy({10,10});
+						ImGui::Bullet(); ImGui::TextWrapped("Notice: Your ofApp runs ofxImGui in multiple ofAppBaseWindows.\nWhile it's not recommended to use a gui in both windows for GPU applications, sometimes you can't do otherwise.");
+#if defined(OFXIMGUI_BACKEND_GLFW)
+	#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1 || OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+						ImGui::Bullet(); ImGui::TextWrapped("Running ofxImGui in multiple ofWindows is supported in your configuration.");
+	#else
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,128,20,200));
+						ImGui::Bullet(); ImGui::TextWrapped("Running ofxImGui in multiple ofWindows is not supported in your configuration.");
+						ImGui::PopStyleColor();
+						ImGui::Bullet(); ImGui::TextWrapped("Enable either `OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP=1` or `OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP=1`.");
+	#endif
+#elif defined(OFXIMGUI_BACKEND_OPENFRAMEWORKS)
+						ImGui::Bullet(); ImGui::TextWrapped("Running ofxImGui in multiple ofWindows is supported in your configuration.");
 #else
-						ImGui::Bullet(); ImGui::TextWrapped("Your ofApp runs ofxImGui in multiple windows, this should be supported in your configuration.");
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,128,20,200));
+						ImGui::Bullet(); ImGui::TextWrapped("Support for running ofxImGui in multiple ofWindows is unknown for this backend.");
+						ImGui::PopStyleColor();
 #endif
 					}
+					// Input Checks
+					ImGui::Dummy({10,10});
+#ifdef OFXIMGUI_BACKEND_OPENFRAMEWORKS
+					ImGui::Bullet(); ImGui::TextWrapped("Your OF event handling is untouched by ofxImGui.");
+#elif defined(OFXIMGUI_BACKEND_GLFW)
+	#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 0
+					ImGui::Bullet(); ImGui::TextWrapped("Custom event bindings to ImGui IO:\nimgui_impl_glfw callbacks are not used to fetch user input, which might behave a little differently then the native imgui platform backend.");
+	#else
+					ImGui::Bullet(); ImGui::TextWrapped("ImGui input is parsed from glfw events by the native imgui_impl_glfw callbacks. Your user experience will be at its best !");
+	#endif
+#endif // End Event handling
 
-					ImGui::EndTabItem();
+					// Event Handling Checks
+					ImGui::Dummy({10,10});
+#ifdef OFXIMGUI_BACKEND_OPENFRAMEWORKS
+					ImGui::Bullet(); ImGui::TextWrapped("Your OF event handling is untouched by ofxImGui.");
+#elif defined(OFXIMGUI_BACKEND_GLFW)
+	#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 0
+					ImGui::Bullet(); ImGui::TextWrapped("Event Propagation: GLFW --> OpenFrameworks --> ofxImGui --> ImGui");
+					ImGui::Bullet(); ImGui::TextWrapped("ofxImGui tries to do its best at converting ofEvents to glfwEvents, but this is experimental. ofxImGui might loose some non-crucial UX event data.");
+	#else
+		#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1 && OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+					ImGui::Bullet(); ImGui::TextWrapped("Event Propagation: GLFW --> ofxImGui --> ImGui --> OpenFrameworks");
+					ImGui::Bullet(); ImGui::TextWrapped("While both work together, you could gain some computing power by disabling OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP.");
+		#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
+					ImGui::Bullet(); ImGui::TextWrapped("Event Propagation: GLFW --> ImGui --> OpenFrameworks");
+		#elif OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP == 1
+					ImGui::Bullet(); ImGui::TextWrapped("Event Propagation: GLFW --> ofxImGui --> ( ImGui + OpenFrameworks )");
+		#else
+					ImGui::Bullet(); ImGui::TextWrapped("Event Propagation: GLFW --> ImGui --> OpenFrameworks");
+		#endif
+	#endif
+#endif // End Event handling
+
+					ImGui::EndTabItem(); // End doctor tab
 				}
 
 				// STATE tab
