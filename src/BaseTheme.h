@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ImGui.h"
+
 namespace ofxImGui
 {
 	class BaseTheme

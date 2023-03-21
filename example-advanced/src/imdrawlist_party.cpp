@@ -21,9 +21,9 @@
 // 0.20 - added mouse buttons, added math operators
 
 #include <math.h>
-#include "imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS // Access to math operators
 #include "imgui_internal.h"
+#include "imgui.h"
 
 // Function signature:
 //  void FX(ImDrawList* d, ImVec2 a, ImVec2 b, ImVec2 sz, ImVec4 mouse, float t);

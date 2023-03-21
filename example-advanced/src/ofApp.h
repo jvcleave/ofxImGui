@@ -1,7 +1,12 @@
 #pragma once
 
 #include "ofMain.h"
+
+//#define IMGUI_DEFINE_MATH_OPERATORS
+//#include "imgui_internal.h"
+
 #include "ofxImGui.h"
+#include "ImHelpers.h"
 #include "RandomTheme.h"
 
 void FxTestBed(bool*); // Forward declared
