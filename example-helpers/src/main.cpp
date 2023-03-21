@@ -26,7 +26,7 @@ int main() {
     //    settings.setGLVersion(4,1); // Uncomment if your GPU supports it
 #endif
 #endif
-    settings.title = "ofxImGui Example Debug";
+    settings.title = "ofxImGui example-helpers";
     settings.setSize(windowWidth, windowHeight);
 
     auto window1 = ofCreateWindow(settings);
