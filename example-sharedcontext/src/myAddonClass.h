@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "ofxImGui.h"
+#include "ImHelpers.h"
 
 class myAddonClass : public ofBaseApp
 {
