@@ -76,7 +76,7 @@ namespace ofxImGui
 	{
 		auto window = ofGetCurrentWindow();
 		IM_ASSERT( window && window != nullptr && "You must call setup() from within an active ofAppBaseWindow, or provide a pointer to it." );
-		return setup( window, theme, autoDraw_, customFlags_, _restoreGuiState, _showImGuiMouseCursor);
+		return setup( window, theme_, autoDraw_, customFlags_, _restoreGuiState, _showImGuiMouseCursor);
 	}
 
 	//--------------------------------------------------------------
