@@ -115,7 +115,13 @@ struct ofxImGuiContext {
 
 namespace ofxImGui
 {
-	enum SetupState : unsigned char;
+	enum SetupState : unsigned char {
+		Error = 0, // Keep to 0 so that it evaluates to false ?
+		Slave = 1 << 1,
+		Master = 1 << 2,
+		// Success flag
+		Success = Slave | Master, // Use like: if(mState & Success)
+	};
 	std::ostream& operator<<(std::ostream& os, const SetupState& _state);
 
 	class Gui

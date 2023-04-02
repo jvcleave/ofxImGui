@@ -41,13 +41,6 @@
 
 namespace ofxImGui
 {
-	enum SetupState : unsigned char {
-		Error = 0, // Keep to 0 so that it evaluates to false ?
-		Slave = 1 << 1,
-		Master = 1 << 2,
-		// Success flag
-		Success = Slave | Master, // Use like: if(mState & Success)
-	};
 	std::ostream& operator<<(std::ostream& os, const SetupState& _state)
 	{
 		os << std::bitset<sizeof(SetupState)*8>(_state).to_string() << " (" << ((unsigned int)_state) << ")";
@@ -517,11 +510,11 @@ namespace ofxImGui
             return;
         }
 
-        // Let context open in shared mode.
+		// Let context open in shared mode. (automatically called in the native render function)
 		if( context->isShared()==true ){
 #ifdef OFXIMGUI_DEBUG
 			if( !context->isRenderingFrame ){
-                ofLogWarning("Gui::end()") << "The Gui already rendered, or forgot to call Gui::Begin() ! Please ensure you render the gui after other instances have rendered.";
+				ofLogWarning("Gui::end()") << "The Gui already rendered, or you forgot to call Gui::Begin() ! Please ensure you render the gui after other instances have rendered.";
             }
 #endif
             return;
