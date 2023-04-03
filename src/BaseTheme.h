@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ImGui.h"
+#include "imgui.h"
 
 namespace ofxImGui
 {
