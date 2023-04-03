@@ -10,11 +10,12 @@
 # How to find it : Omar publishes a version commit, for example "Version 1.89.3" which is the non-docking version
 # Right after that, in the docking branch, there's a commit "Merge branch 'master' into docking ".
 # That's the one you wish. The docs/CHANGELOG.txt should NOT state "In Progress" (ie: "VERSION 1.89.3 (In Progress)"")
-#VERSION_SHA=d822c65 # 1.89.2
-#VERSION_SHA=1921967 # 1.89.3
-#VERSION_SHA=9e30fb0 # 1.89.4
-VERSION_SHA=6b3435a # 1.89.5 WIP - Fixes 2ndary viewport modifier keys including Copy&Paste (see commit 91577c7f51)
-#VERSION_SHA=??????? # 1.89.5
+VERSION_1_89_2=d822c65 # 1.89.2
+VERSION_1_89_3=1921967 # 1.89.3
+VERSION_1_89_4=9e30fb0 # 1.89.4
+VERSION_1_89_5_WIP=6b3435a # 1.89.5 WIP - Fixes 2ndary viewport modifier keys including Copy&Paste (see commit 91577c7f51)
+#VERSION_1_89_5=??????? # 1.89.5
+VERSION_SHA=1_89_5_WIP
 # ------------------
 
 echo "\nFinding ImGui..."
