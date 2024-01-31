@@ -10,6 +10,8 @@
 # How to find it : Omar publishes a version commit, for example "Version 1.89.3" which is the non-docking version
 # Right after that, in the docking branch, there's a commit "Merge branch 'master' into docking ".
 # That's the one you wish. The docs/CHANGELOG.txt should NOT state "In Progress" (ie: "VERSION 1.89.3 (In Progress)"")
+# Update 2024 : Docking branch versions are now tagged, just grab the commit you with from https://github.com/ocornut/imgui/tags
+
 VERSION_1_89_2=d822c65 # 1.89.2
 VERSION_1_89_3=1921967 # 1.89.3
 VERSION_1_89_4=9e30fb0 # 1.89.4
@@ -20,6 +22,10 @@ VERSION_1_90_0=ce0d0ac8 # 1.90.0
 VERSION_1_90_1=2dc85e6e # 1.90.1
 VERSION_SHA=$VERSION_1_90_1
 # ------------------
+
+echo "\nHello,"
+echo "This script automatically updates ImGui within ofxImGui from a manually selected (fixed) version."
+echo "Using commit $VERSION_SHA. [edit this script to change the version]"
 
 echo "\nFinding ImGui..."
 
@@ -171,4 +177,4 @@ fi;
 
 # Done !
 echo "\nDone !"
-echo "ImGui has been updated, don't forget to check the breaking changes !"
+echo "ImGui has been updated, don't forget to check the breaking changes and verify if the examples work!\n"
