@@ -131,9 +131,9 @@ namespace ofxImGui
 static ImTextureID GetImTextureID(const ofTexture& texture)
 {
 #ifdef TARGET_OPENGLES
-	if (false) // TODO !
+	if (false) // GLES only has 2d textures ? (to be verified)
 #else
-	if (texture.getTextureData().textureTarget == GL_TEXTURE_RECTANGLE)
+	if (texture.getTextureData().textureTarget != GL_TEXTURE_2D)
 #endif
 	{
 		

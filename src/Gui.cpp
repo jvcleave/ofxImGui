@@ -383,6 +383,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::setTheme(BaseTheme* theme_)
 	{
+		// Handle ownership of the previous theme (we do take ownership)
 		if (theme)
 		{
 			delete theme;
@@ -480,7 +481,7 @@ namespace ofxImGui
 				// Notify misuse if shared context is off
 				static bool userWasWarned = false;
 				if(!userWasWarned){
-					ofLogWarning("Gui::begin()") << "The frame already began, and the context is not shared, you're probably not orchestrating begin/end calls correctly !";
+					ofLogWarning("Gui::begin()") << "The frame already began, and the context is not shared, you're probably not orchestrating begin/end calls correctly, or you forgot to call gui.draw() in manual draw mode !";
 					userWasWarned = true;
 				}
 			}
@@ -517,6 +518,7 @@ namespace ofxImGui
 				ofLogWarning("Gui::end()") << "The Gui already rendered, or you forgot to call Gui::Begin() ! Please ensure you render the gui after other instances have rendered.";
             }
 #endif
+            // Todo: if user doesn't gui.draw() (autodraw=0), ImGui::EndFrame() is not called, causing a "forgot to BeginFrame()" assert
             return;
         }
 

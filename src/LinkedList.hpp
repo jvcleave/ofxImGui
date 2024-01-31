@@ -56,8 +56,8 @@ class LinkedList {
 		using DATA_REF = typename std::conditional<std::is_pointer<T_DATA>::value, T_DATA, T_DATA&>::type;
 
 		// Disable copy
-		LinkedList<T_KEY,T_DATA>( const LinkedList<T_KEY,T_DATA>& ) = delete;
-		LinkedList<T_KEY,T_DATA>& operator=(const LinkedList<T_KEY, T_DATA>&) = delete;
+		LinkedList( const LinkedList& ) = delete;
+		LinkedList& operator=(const LinkedList&) = delete;
 
 		void add(T_KEY* _key, DATA_REF _data){
 			LinkedListItem<T_KEY, T_DATA>* last = first;
