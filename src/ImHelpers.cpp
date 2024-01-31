@@ -895,13 +895,15 @@ void ofxImGui::AddImage(const ofTexture& texture, const glm::vec2& size)
 
 #endif
 
-static auto vector_getter = [](void* vec, int idx, const char** out_text)
-{
-	auto& vector = *static_cast<std::vector<std::string>*>(vec);
-	if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
-	*out_text = vector.at(idx).c_str();
-	return true;
-};
+static auto vector_getter = [](void* vec, int idx) { return ((const char**)vec)[idx]; };
+// Below: the original function (broken since 1.90) which includes a type check, so the new (above) might crash if the offset doesn't exist.
+//static auto vector_getter = [](void* vec, int idx, const char** out_text)
+//{
+//	auto& vector = *static_cast<std::vector<std::string>*>(vec);
+//	if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+//	return (const char**) vector.at(idx).c_str();
+//	//return true;
+//};
 
 bool ofxImGui::VectorCombo(const char* label, int* currIndex, std::vector<std::string>& values)
 {
