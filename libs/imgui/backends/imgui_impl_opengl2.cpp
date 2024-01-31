@@ -39,22 +39,25 @@
 //  2016-09-05: OpenGL: Fixed save and restore of current scissor rectangle.
 
 #include "imgui.h"
+#ifndef IMGUI_DISABLE
 #include "imgui_impl_opengl2.h"
-#if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
-#include <stddef.h>     // intptr_t
-#else
 #include <stdint.h>     // intptr_t
+
+// Clang/GCC warnings with -Weverything
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-macros"                      // warning: macro is not used
+#pragma clang diagnostic ignored "-Wnonportable-system-include-path"
 #endif
 
  // --- BEGIN CUSTOM MODIFICATION
 #include "ofxImGuiConstants.h"
 #if defined(OFXIMGUI_RENDERER_GLES)
 #include "gles1CompatibilityHacks.h"
-#else
 // --- END CUSTOM MODIFICATION
 
 // Include OpenGL header (without an OpenGL loader) requires a bit of fiddling
-#if defined(_WIN32) && !defined(APIENTRY) // CUSTOM OFXIMGUI MODIFIED LINE
+#elif defined(_WIN32) && !defined(APIENTRY) // CUSTOM OFXIMGUI MODIFIED LINE
 #define APIENTRY __stdcall                  // It is customary to use APIENTRY for OpenGL function pointer declarations on all platforms.  Additionally, the Windows OpenGL header needs APIENTRY.
 #endif
 #if defined(_WIN32) && !defined(WINGDIAPI)
@@ -66,7 +69,6 @@
 #else
 #include <GL/gl.h>
 #endif
-#endif // CUSTOM OFXIMGUI ADDED LINE
 
 struct ImGui_ImplOpenGL2_Data
 {
@@ -114,6 +116,7 @@ void    ImGui_ImplOpenGL2_Shutdown()
     ImGui_ImplOpenGL2_DestroyDeviceObjects();
     io.BackendRendererName = nullptr;
     io.BackendRendererUserData = nullptr;
+    io.BackendFlags &= ~ImGuiBackendFlags_RendererHasViewports;
     IM_DELETE(bd);
 }
 
@@ -305,6 +308,7 @@ void    ImGui_ImplOpenGL2_DestroyDeviceObjects()
     ImGui_ImplOpenGL2_DestroyFontsTexture();
 }
 
+
 //--------------------------------------------------------------------------------------------------------
 // MULTI-VIEWPORT / PLATFORM INTERFACE SUPPORT
 // This is an _advanced_ and _optional_ feature, allowing the backend to create and handle multiple viewports simultaneously.
@@ -332,3 +336,11 @@ static void ImGui_ImplOpenGL2_ShutdownPlatformInterface()
 {
     ImGui::DestroyPlatformWindows();
 }
+
+//-----------------------------------------------------------------------------
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
+#endif // #ifndef IMGUI_DISABLE
