@@ -18,7 +18,7 @@ VERSION_1_89_8=f8704cd0 # 1.89.8
 VERSION_1_89_9=1d8e48c1 # 1.89.9
 VERSION_1_90_0=ce0d0ac8 # 1.90.0
 VERSION_1_90_1=2dc85e6e # 1.90.1
-VERSION_SHA=$VERSION_1_89_9
+VERSION_SHA=$VERSION_1_90_1
 # ------------------
 
 echo "\nFinding ImGui..."
