@@ -14,8 +14,11 @@ VERSION_1_89_2=d822c65 # 1.89.2
 VERSION_1_89_3=1921967 # 1.89.3
 VERSION_1_89_4=9e30fb0 # 1.89.4
 VERSION_1_89_5_WIP=6b3435a # 1.89.5 WIP - Fixes 2ndary viewport modifier keys including Copy&Paste (see commit 91577c7f51)
-#VERSION_1_89_5=??????? # 1.89.5
-VERSION_SHA=1_89_5_WIP
+VERSION_1_89_8=f8704cd0 # 1.89.8
+VERSION_1_89_9=1d8e48c1 # 1.89.9
+VERSION_1_90_0=ce0d0ac8 # 1.90.0
+VERSION_1_90_1=2dc85e6e # 1.90.1
+VERSION_SHA=$VERSION_1_89_9
 # ------------------
 
 echo "\nFinding ImGui..."
