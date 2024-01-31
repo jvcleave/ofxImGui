@@ -185,14 +185,26 @@ constexpr float ofColorScale(1.0f/255.0f);
 #define IM_VEC2_CLASS_EXTRA_OF_9 \
     constexpr ImVec2(const ofVec2f& f) : x(f.x), y(f.y) {}   \
     operator ofVec2f() const { return ofVec2f(x, y); }       \
-    constexpr ImVec2(const glm::vec2& f) : x(f.x), y(f.y) {} \
     constexpr ImVec2(const ofVec3f& f) : x(f.x), y(f.y) {}   \
 
 // OF >= 0.10 has ofVec2 = glm::vec2 --> bind aliases
 #if OF_VERSION_MINOR >= 10
 #define IM_VEC2_CLASS_EXTRA_OF_10 \
     operator glm::vec2() const { return glm::vec2(x, y); }   \
-    constexpr ImVec2(const glm::vec3& f) : x(f.x), y(f.y) {}
+    constexpr ImVec2(const glm::vec3& f) : x(f.x), y(f.y) {} \
+    constexpr ImVec2(const glm::vec2& f) : x(f.x), y(f.y) {} \
+    ImVec2& operator+=(const glm::vec2& rhs){ this->x += rhs.x; this->x += rhs.x; return *this; } \
+    ImVec2& operator-=(const glm::vec2& rhs){ this->x -= rhs.x; this->x -= rhs.x; return *this; } \
+    ImVec2& operator*=(const glm::vec2& rhs){ this->x *= rhs.x; this->x *= rhs.x; return *this; } \
+    ImVec2& operator/=(const glm::vec2& rhs){ this->x /= rhs.x; this->x /= rhs.x; return *this; } \
+    ImVec2& operator+=(const glm::vec3& rhs){ this->x += rhs.x; this->x += rhs.x; return *this; } \
+    ImVec2& operator-=(const glm::vec3& rhs){ this->x -= rhs.x; this->x -= rhs.x; return *this; } \
+    ImVec2& operator*=(const glm::vec3& rhs){ this->x *= rhs.x; this->x *= rhs.x; return *this; } \
+    ImVec2& operator/=(const glm::vec3& rhs){ this->x /= rhs.x; this->x /= rhs.x; return *this; } \
+    ImVec2& operator+=(const glm::vec4& rhs){ this->x += rhs.x; this->x += rhs.x; return *this; } \
+    ImVec2& operator-=(const glm::vec4& rhs){ this->x -= rhs.x; this->x -= rhs.x; return *this; } \
+    ImVec2& operator*=(const glm::vec4& rhs){ this->x *= rhs.x; this->x *= rhs.x; return *this; } \
+    ImVec2& operator/=(const glm::vec4& rhs){ this->x /= rhs.x; this->x /= rhs.x; return *this; }
 #else
 #define IM_VEC2_CLASS_EXTRA_OF_10 // empty
 #endif
