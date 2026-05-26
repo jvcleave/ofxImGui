@@ -31,21 +31,22 @@ void ofApp::draw() {
 
 ## 3. Manual draw
 
-Pass `autoDraw = false` if you need to control exactly when ImGui renders relative to your own draw calls:
+Pass `autoDraw = false` when you need to control exactly when ImGui renders relative to your own draw calls — for example to draw editing handles on top of ImGui windows:
 
 ```cpp
 gui.setup(nullptr, false);
 
 void ofApp::draw() {
+    drawScene();             // rendered below ImGui
     gui.begin();
     // ... ImGui calls ...
     gui.end();
-
-    ofDrawSomethingBelowGui();
     gui.draw();              // render ImGui here
-    ofDrawSomethingAboveGui();
+    drawHandles();           // rendered above ImGui
 }
 ```
+
+> **Note:** In autoDraw mode ImGui renders at `OF_EVENT_ORDER_AFTER_APP`, i.e. *after* `ofApp::draw()` returns. Anything drawn in `draw()` ends up below ImGui. Use manual draw whenever your OF scene content needs to appear on top of ImGui windows.
 
 ## 4. Frame lifecycle
 
