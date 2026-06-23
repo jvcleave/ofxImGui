@@ -184,11 +184,8 @@
 //---- Use FreeType to build and rasterize the font atlas (instead of stb_truetype which is embedded by default in Dear ImGui)
 // Requires FreeType headers to be available in the include path. Requires program to be compiled with 'misc/freetype/imgui_freetype.cpp' (in this repository) + the FreeType library (not provided).
 // On Windows you may use vcpkg with 'vcpkg install freetype --triplet=x64-windows' + 'vcpkg integrate install'.
-//#define IMGUI_ENABLE_FREETYPE
-
-//---- Use stb_truetype to build and rasterize the font atlas (default)
-// The only purpose of this define is if you want force compilation of the stb_truetype backend ALONG with the FreeType backend.
-//#define IMGUI_ENABLE_STB_TRUETYPE
+#define IMGUI_ENABLE_FREETYPE
+#define IMGUI_ENABLE_STB_TRUETYPE
 
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
