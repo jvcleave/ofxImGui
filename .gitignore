@@ -615,3 +615,9 @@ MigrationBackup/
 # Personal workflow ignores
 *.orig
 libs_disabled/*
+
+**/obj/
+
+dll/
+
+addons.lnk
