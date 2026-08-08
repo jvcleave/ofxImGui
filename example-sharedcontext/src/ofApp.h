@@ -15,7 +15,7 @@ class ofApp : public ofBaseApp{
 
         // instance 1 (ofApp)
         ofxImGui::Gui ofAppGui;
-        ImVec4 ofAppColor = ofColor(114, 144, 154);
+        ofFloatColor ofAppColor = ofColor(114, 144, 154);
         void drawImGui();
 
         // instance 2 (class/addon build for shared contexts)

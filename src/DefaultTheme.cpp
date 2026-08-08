@@ -1,15 +1,16 @@
 #include "DefaultTheme.h"
 
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include "ofColor.h"
 #include "imgui.h"
 
 // from imgui_internals.h
-static inline ImVec4 ImLerp(const ImVec4& a, const ImVec4& b, float t){
-    return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t);
-}
-// Note: IMGUI_DEFINE_MATH_OPERATORS defines this, always upto-date.
-//static inline ImVec4 operator*(const ImVec4& lhs, const ImVec4& rhs)            { return ImVec4(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w); }
+static inline ImVec4 ImLerp(const ImVec4& a, const ImVec4& b, float t)          { return ImVec4(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t); }
+// imgui.h provides this operator when IMGUI_DEFINE_MATH_OPERATORS is set
+// (it then defines IMGUI_DEFINE_MATH_OPERATORS_IMPLEMENTED). Only provide our
+// own copy if imgui.h didn't, otherwise g++ flags it as a redefinition.
+#ifndef IMGUI_DEFINE_MATH_OPERATORS_IMPLEMENTED
+static inline ImVec4 operator*(const ImVec4& lhs, const ImVec4& rhs)            { return ImVec4(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w); }
+#endif
 
 namespace ofxImGui
 {

@@ -2,6 +2,9 @@
 # ofxImGui patterns
 #########################
 
+# Clone created by libs/UpdateImGui.sh (vendor files live under libs/imgui/)
+libs/imgui_git/
+
 # Imgui save files
 *.ini
 
@@ -612,3 +615,9 @@ MigrationBackup/
 # Personal workflow ignores
 *.orig
 libs_disabled/*
+
+**/obj/
+
+dll/
+
+addons.lnk

@@ -68,7 +68,7 @@ struct ofxImGuiContext {
 		ofxImGuiContext( const ofxImGuiContext& ) = delete;
 		ofxImGuiContext& operator=( const ofxImGuiContext& ) = delete;
 
-		// Allow move contructor & move assign
+		// Allow move constructor & move assign
 		explicit ofxImGuiContext(ofxImGuiContext&& other) noexcept : imguiContext{other.imguiContext}{
 			other.imguiContext = nullptr;
 			//other. = false;
@@ -117,13 +117,16 @@ struct ofxImGuiContext {
 
 namespace ofxImGui
 {
-	enum SetupState : unsigned char {
-		Error = 0, // Keep to 0 so that it evaluates to false ?
-		Slave = 1 << 1,
-		Master = 1 << 2,
-		// Success flag
-		Success = Slave | Master, // Use like: if(mState & Success)
-	};
+    // Note: values are written as plain integers rather than bit-shift expressions (1<<1 etc.)
+    // because older compilers (e.g. GCC on Raspberry Pi / armv7) reject non-trivial
+    // constant expressions as enum initialisers in some language modes.
+    enum SetupState : unsigned char {
+        Error   = 0, // 0b000  - evaluates to false; setup did not succeed
+        Slave   = 2, // 0b010  (1 << 1) - joined an existing context as a slave
+        Master  = 4, // 0b100  (1 << 2) - created and owns the context
+        Success = 6, // 0b110  (Slave | Master) - use like: if(state & Success)
+    };
+
 	std::ostream& operator<<(std::ostream& os, const SetupState& _state);
 
 	class Gui
@@ -197,7 +200,7 @@ namespace ofxImGui
 
     private:
         void render();
-        static void initialiseForWindow();
+		//static void initialiseForWindow();
 
 //#if defined (OFXIMGUI_FORCE_OF_BACKEND)
 //        EngineOpenFrameworks engine;
