@@ -63,6 +63,7 @@
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
 #include "ofVectorMath.h"
 #include "ofColor.h"
+#include "ofUtils.h"
 
 #if OF_VERSION_MINOR >= 10
 #define IM_VEC2_CLASS_EXTRA                            \
