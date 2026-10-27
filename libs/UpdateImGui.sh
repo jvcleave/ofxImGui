@@ -28,7 +28,8 @@ VERSION_1_91_9b=4806a19 # 1.91.5
 VERSION_1_92_0=adfa536 # 1.92.0
 VERSION_1_92_1=44aa9a4 # 1.92.1
 VERSION_1_92_5=3912b3d # 1.92.5
-VERSION_SHA=$VERSION_1_92_5
+VERSION_1_92_7=b1bcb12a624af7509894c8e77dd47416997777fa # 1.92.7-docking (tag peel)
+VERSION_SHA=$VERSION_1_92_7
 # ------------------
 
 echo "\nHello,"
@@ -120,6 +121,12 @@ if [ `uname -s` = "Darwin" ] ; then
 		# Todo: Brew might not be installed. Ask user to install gnu-sed and abort.
 	fi;
 fi;
+
+echo "\nApplying OpenGL 2 GLES guard..."
+# The OpenGL 2 backend uses desktop-only GL (glPushAttrib, GL_CLAMP...): compile it out on GLES targets
+for f in ./imgui/backends/imgui_impl_opengl2.h ./imgui/backends/imgui_impl_opengl2.cpp; do
+	perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if !defined(TARGET_OPENGLES) \/\/ CUSTOM OFXIMGUI ADDED LINE: no OpenGL 2 on GLES (iOS, Android, Emscripten, Raspberry Pi)\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ !TARGET_OPENGLES, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$f"
+done
 
 echo "\nApplying GLFW multi context patch with obj-c ARC support..."
 # Option 1 : Patch file ?

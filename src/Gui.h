@@ -68,7 +68,7 @@ struct ofxImGuiContext {
 		ofxImGuiContext( const ofxImGuiContext& ) = delete;
 		ofxImGuiContext& operator=( const ofxImGuiContext& ) = delete;
 
-		// Allow move contructor & move assign
+		// Allow move constructor & move assign
 		explicit ofxImGuiContext(ofxImGuiContext&& other) noexcept : imguiContext{other.imguiContext}{
 			other.imguiContext = nullptr;
 			//other. = false;
@@ -117,13 +117,16 @@ struct ofxImGuiContext {
 
 namespace ofxImGui
 {
-	enum SetupState : unsigned char {
-		Error = 0, // Keep to 0 so that it evaluates to false ?
-		Slave = 1 << 1,
-		Master = 1 << 2,
-		// Success flag
-		Success = Slave | Master, // Use like: if(mState & Success)
-	};
+    // Note: values are written as plain integers rather than bit-shift expressions (1<<1 etc.)
+    // because older compilers (e.g. GCC on Raspberry Pi / armv7) reject non-trivial
+    // constant expressions as enum initialisers in some language modes.
+    enum SetupState : unsigned char {
+        Error   = 0, // 0b000  - evaluates to false; setup did not succeed
+        Slave   = 2, // 0b010  (1 << 1) - joined an existing context as a slave
+        Master  = 4, // 0b100  (1 << 2) - created and owns the context
+        Success = 6, // 0b110  (Slave | Master) - use like: if(state & Success)
+    };
+
 	std::ostream& operator<<(std::ostream& os, const SetupState& _state);
 
 	class Gui
@@ -163,6 +166,10 @@ namespace ofxImGui
 		// setTheme takes ownership of passed instance
 		void setTheme(BaseTheme* theme);
 
+		// Scale fonts and sizes by the screen's content scale (HiDPI / 4K) in setup(). On by default,
+		// call before setup(). Turn it off when the app sizes its own fonts for the display.
+		void setAutoContentScale(bool enabled);
+
 		// Prefer storing your own textures and forwarding textureids !
 		// Provided for legacy compatibility and ensure textures are in the correct format
 		GLuint loadImage(ofImage& image);
@@ -197,7 +204,7 @@ namespace ofxImGui
 
     private:
         void render();
-        static void initialiseForWindow();
+		//static void initialiseForWindow();
 
 //#if defined (OFXIMGUI_FORCE_OF_BACKEND)
 //        EngineOpenFrameworks engine;
@@ -223,6 +230,7 @@ namespace ofxImGui
         // If you're dealing with dynamic libraries, you might need to pass this over to another ImGui instance.
 		ofxImGuiContext* context = nullptr; // Short-hand value, same as stored in the map, faster access
 		bool isContextOwned = false; // Copy of context, set when it needs destruction
+		bool autoContentScale = true; // setAutoContentScale()
 
 		//static LinkedList<ofAppBaseWindow*, ofxImGuiContext> imguiContexts; // Window/MasterContext map
 		static std::unordered_map<ofAppBaseWindow*, ofxImGuiContext> imguiContexts; // Window/MasterContext map

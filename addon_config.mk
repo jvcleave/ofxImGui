@@ -98,3 +98,11 @@ ios:
 	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_glfw.h
 	ADDON_SOURCES_EXCLUDE += src/EngineGLFW.cpp
 	ADDON_SOURCES_EXCLUDE += src/EngineGLFW.h
+
+emscripten:
+	# ofxImGuiConstants.h auto-detects __EMSCRIPTEN__ and sets:
+	#   OFXIMGUI_BACKEND_GLFW      — uses emscripten-glfw3 (no extra exclusions needed)
+	#   IMGUI_IMPL_OPENGL_ES3      — GLES3 / WebGL2 renderer
+	#   OFXIMGUI_RENDERER_GLES_3
+	# ImGui multi-viewports are disabled automatically under TARGET_OPENGLES.
+	# No source exclusions needed: emscripten ships a GLFW3 compatibility layer.

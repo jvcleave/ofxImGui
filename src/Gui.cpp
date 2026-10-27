@@ -42,6 +42,10 @@ void appendCharToPressedChars(const char theChar, char (&lastPressedChars)[OFXIM
         i++;
     }
 }
+#endif // OFXIMGUI_DEBUG
+
+#ifdef OFXIMGUI_BACKEND_GLFW
+#include <GLFW/glfw3.h>
 #endif
 
 //#ifdef OFXIMGUI_BACKEND_GLFW
@@ -114,7 +118,7 @@ namespace ofxImGui
 		if(_ofWindow==nullptr){
 			ofLogError("Gui::setup()") << "The provided ofAppBaseWindow pointer is null, cannot continue setup !";
 			return SetupState::Error;
-        }
+		}
 
         // Initial docking viewport
         dockingViewport = ofRectangle(0, 0, _ofWindow->getWidth(), _ofWindow->getHeight());
@@ -253,7 +257,38 @@ namespace ofxImGui
 		}
 #endif
 
+		// Apply OS content scale for HiDPI / 4K displays (GLFW backend only).
+		// FontGlobalScale upscales the already-rasterised atlas; for sharper results
+		// rebuild fonts at (size * scale) instead. ScaleAllSizes keeps padding/rounding
+		// proportional. Both are no-ops when xscale == 1 (non-HiDPI displays).
+		// Skipped when the framebuffer is larger than the window (macOS Retina): there the
+		// window is measured in points and DisplayFramebufferScale already renders at the
+		// display's resolution, so scaling again would double everything.
+#ifdef OFXIMGUI_BACKEND_GLFW
+		if (autoContentScale) {
+			GLFWwindow* glfwWin = (GLFWwindow*)_ofWindow->getWindowContext();
+			if (glfwWin) {
+				float xs = 1.f, ys = 1.f;
+				glfwGetWindowContentScale(glfwWin, &xs, &ys);
+				int windowWidth = 0, windowHeight = 0, framebufferWidth = 0, framebufferHeight = 0;
+				glfwGetWindowSize(glfwWin, &windowWidth, &windowHeight);
+				glfwGetFramebufferSize(glfwWin, &framebufferWidth, &framebufferHeight);
+				bool framebufferScales = windowWidth > 0 && framebufferWidth > windowWidth;
+				if (xs > 1.f && !framebufferScales) {
+					io.FontGlobalScale = xs;
+					ImGui::GetStyle().ScaleAllSizes(xs);
+				}
+			}
+		}
+#endif
+
 		return SetupState::Master;
+	}
+
+	//--------------------------------------------------------------
+	void Gui::setAutoContentScale(bool enabled)
+	{
+		autoContentScale = enabled;
 	}
 
 	//--------------------------------------------------------------
@@ -409,7 +444,10 @@ namespace ofxImGui
 
 		ImGui::SetCurrentContext(context->imguiContext);
 		ImGuiIO& io = ImGui::GetIO();
-        std::string filePath = ofFilePath::getAbsolutePath(fontPath);
+
+		// Pass in a good path, this addon is used in different versions of OF
+		// Especially the raspberry seems to be a version behind. Master Branch / Release 
+		std::string filePath = fontPath; //ofFilePath::getAbsolutePath(fontPath);
 
         ImFont* font = io.Fonts->AddFontFromFileTTF(filePath.c_str(), fontSize, _fontConfig, _glyphRanges);
 
