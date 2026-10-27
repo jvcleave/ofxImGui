@@ -114,7 +114,7 @@ extern "C" {
 #define GLAPI extern
 #endif
 /* glcorearb.h is for use with OpenGL core profile implementations.
-** It should should be placed in the same directory as gl.h and
+** It should be placed in the same directory as gl.h and
 ** included as <GL/glcorearb.h>.
 **
 ** glcorearb.h includes only APIs in the latest OpenGL core profile
@@ -303,6 +303,7 @@ typedef khronos_uint16_t GLushort;
 #define GL_LINK_STATUS                    0x8B82
 #define GL_INFO_LOG_LENGTH                0x8B84
 #define GL_CURRENT_PROGRAM                0x8B8D
+#define GL_LOWER_LEFT                     0x8CA1
 #define GL_UPPER_LEFT                     0x8CA2
 typedef void (APIENTRYP PFNGLBLENDEQUATIONSEPARATEPROC) (GLenum modeRGB, GLenum modeAlpha);
 typedef void (APIENTRYP PFNGLATTACHSHADERPROC) (GLuint program, GLuint shader);
@@ -836,6 +837,7 @@ static int parse_version(void)
 }
 
 static void load_procs(GL3WGetProcAddressProc proc);
+static void clear_procs();
 
 int imgl3wInit(void)
 {
@@ -855,6 +857,7 @@ int imgl3wInit2(GL3WGetProcAddressProc proc)
 void imgl3wShutdown(void)
 {
     close_libgl();
+    clear_procs();
 }
 
 int imgl3wIsSupported(int major, int minor)
@@ -941,6 +944,13 @@ static void load_procs(GL3WGetProcAddressProc proc)
     size_t i;
     for (i = 0; i < GL3W_ARRAY_SIZE(proc_names); i++)
         imgl3wProcs.ptr[i] = proc(proc_names[i]);
+}
+
+static void clear_procs()
+{
+    size_t i;
+    for (i = 0; i < GL3W_ARRAY_SIZE(proc_names); i++)
+        imgl3wProcs.ptr[i] = nullptr;
 }
 
 #ifdef __cplusplus

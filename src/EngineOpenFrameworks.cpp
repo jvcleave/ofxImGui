@@ -136,12 +136,11 @@ namespace ofxImGui
 	{
 		// Need to set context here too ?
 
-		// Ensure GL is in a compatible state
-#if IMGUI_VERSION_NUM <= 19210 && IMGUI_VERSION_NUM >= 19200
-		// Note: required for ofApps that use ofTexture which can set/leave this to a different value.
+		// Ensure GL is in a compatible state — OF / ofTexture can leave non-default unpack state.
+#ifndef TARGET_OPENGLES
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 #endif
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		// Draw !
 		if (ofIsGLProgrammableRenderer()){

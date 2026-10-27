@@ -15,6 +15,12 @@
 #pragma once
 
 #include "ofConstants.h"
+// Must be defined before imgui.h processes ImVec2 so courtesy operators (+=, *= float, etc.) are emitted on the first include.
+// Headers that include "imgui.h" directly (not via ofxImGui.h) leave IMGUI_DEFINE_MATH_OPERATORS set
+// without IMGUI_DEFINE_MATH_OPERATORS_IMPLEMENTED, which breaks imgui_internal.h and code like ImLightRig (ImVec2 *= float).
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
 #include "ofxImGuiConstants.h"
 
 // Auto-enable math operators, to prevent headaches with ImVecX/ofVecX type conversions.
@@ -178,11 +184,8 @@
 //---- Use FreeType to build and rasterize the font atlas (instead of stb_truetype which is embedded by default in Dear ImGui)
 // Requires FreeType headers to be available in the include path. Requires program to be compiled with 'misc/freetype/imgui_freetype.cpp' (in this repository) + the FreeType library (not provided).
 // On Windows you may use vcpkg with 'vcpkg install freetype --triplet=x64-windows' + 'vcpkg integrate install'.
-//#define IMGUI_ENABLE_FREETYPE
-
-//---- Use stb_truetype to build and rasterize the font atlas (default)
-// The only purpose of this define is if you want force compilation of the stb_truetype backend ALONG with the FreeType backend.
-//#define IMGUI_ENABLE_STB_TRUETYPE
+#define IMGUI_ENABLE_FREETYPE
+#define IMGUI_ENABLE_STB_TRUETYPE
 
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
@@ -226,10 +229,10 @@ constexpr float ofColorScale = 1.0f/255.0f;
 #define IM_VEC4_CLASS_EXTRA_OF_9 \
     constexpr ImVec4(const ofVec4f& f) : x(f.x), y(f.y), z(f.z), w(f.w) {}                                                                       \
     operator ofVec4f() const { return ofVec4f(x,y,z,w); }                                                                                        \
-    constexpr ImVec4(const glm::vec4& f) : x(f.x), y(f.y), z(f.z), w(f.w) {}                                                                     \
     constexpr ImVec4(const ofColor& color, float alpha) : x(color.r*ofColorScale), y(color.g*ofColorScale), z(color.b*ofColorScale), w(alpha) {} \
     constexpr ImVec4(const ofColor& f) : x(f.r*ofColorScale), y(f.g*ofColorScale), z(f.b*ofColorScale), w(f.a*ofColorScale) {}                   \
-    operator ofColor() const { return ofColor((int) (x*255.0f+0.5f), (int) (y*255.0f+0.5f), (int) (z*255.0f+0.5f), (int) (w*255.0f+0.5f)); }     \
+    explicit operator ofColor() const { return ofColor((int) (x*255.0f+0.5f), (int) (y*255.0f+0.5f), (int) (z*255.0f+0.5f), (int) (w*255.0f+0.5f)); } \
+    constexpr ImVec4(const glm::vec4& f) : x(f.x), y(f.y), z(f.z), w(f.w) {}                                                                     \
     constexpr ImVec4(const ofFloatColor& color, float alpha) : x(color.r), y(color.g), z(color.b), w(alpha) {}                                   \
     constexpr ImVec4(const ofFloatColor& f) : x(f.r), y(f.g), z(f.b), w(f.a) {}                                                                  \
     operator ofFloatColor() const { return ofFloatColor(x, y, z, w); }
@@ -286,3 +289,16 @@ namespace ImGui
 
 // Note: maybe other variables need to be stitched too ?
 //#define IMGUI_BACKEND_GLFW_CUSTOM_NEWFRAME() { bd->Window = (GLFWwindow*)io.BackendPlatformUserData; }
+
+//---- Dear ImGui Test Engine (optional; addon: addons/ofxImGuiTestSuite + ocornut/imgui_test_engine)
+// Define OFX_IMGUI_ENABLE_TEST_ENGINE in the *project* for all TUs that compile Dear ImGui (config.make /
+// MSVC preprocessor definitions). Vendor sources under addons/ofxImGuiTestSuite/libs/imgui_test_engine .
+#if defined(OFX_IMGUI_ENABLE_TEST_ENGINE)
+#ifndef IMGUI_TEST_ENGINE_ENABLE_COROUTINE_STDTHREAD_IMPL
+#define IMGUI_TEST_ENGINE_ENABLE_COROUTINE_STDTHREAD_IMPL 1
+#endif
+#ifndef IMGUI_TEST_ENGINE_ENABLE_CAPTURE
+#define IMGUI_TEST_ENGINE_ENABLE_CAPTURE 0
+#endif
+#include "imgui_te_imconfig.h"
+#endif

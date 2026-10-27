@@ -409,7 +409,7 @@ class ofApp : public ofBaseApp {
                             gamepadZonePos+ImVec2(.1f,.1f)*gamepadZoneSize,
                         };
                         drawlist->AddConvexPolyFilled(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_FrameBg));
-                        drawlist->AddPolyline(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_Text), true, 0.5f);
+                        drawlist->AddPolyline(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_Text), 0.5f, ImDrawFlags_Closed);
 
                         // Move Pad
                         ImVec2 padPos = gamepadZonePos+ImVec2(.3f,0.5f)*gamepadZoneSize;

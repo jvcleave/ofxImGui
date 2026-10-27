@@ -1,0 +1,85 @@
+name: build-examples
+
+on:
+  push:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Builds the examples against openFrameworks master with _build_examples.sh.
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      OF: ${{ github.workspace }}/of
+    steps:
+      - name: openFrameworks master
+        run: git clone --depth 1 https://github.com/openframeworks/openFrameworks of
+
+      # straight into of/addons so the examples' ../../.. reaches the OF root
+      - uses: actions/checkout@v6
+        with:
+          path: of/addons/ofxImGui
+
+      - name: ofxImGuizmo
+        # its ImGuizmo submodule has an SSH URL
+        run: git -c url."https://github.com/".insteadOf="git@github.com:" clone --depth 1 --recursive --shallow-submodules https://github.com/nariakiiwatani/ofxImGuizmo "$OF/addons/ofxImGuizmo"
+
+      - name: Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update -qq
+          sudo "$OF/scripts/linux/ubuntu/install_dependencies.sh" -y > deps.log 2>&1 || { tail -30 deps.log; exit 1; }
+          "$OF/scripts/linux/download_libs.sh"
+
+      - name: Libraries (macOS)
+        if: runner.os == 'macOS'
+        run: "$OF/scripts/osx/download_libs.sh"
+
+      - name: openFrameworks core
+        run: make -C "$OF/libs/openFrameworksCompiled/project" Debug -j"$(getconf _NPROCESSORS_ONLN)"
+
+      - name: Build the examples
+        run: "$OF/addons/ofxImGui/_build_examples.sh Debug"
+
+  # GLES / WebGL2: the OpenGL 2 backend must compile out (TARGET_OPENGLES)
+  emscripten:
+    runs-on: ubuntu-24.04
+    env:
+      OF: ${{ github.workspace }}/of
+    steps:
+      - name: openFrameworks master
+        run: git clone --depth 1 https://github.com/openframeworks/openFrameworks of
+
+      - uses: actions/checkout@v6
+        with:
+          path: of/addons/ofxImGui
+
+      - name: Libraries
+        run: "$OF/scripts/emscripten/download_libs.sh"
+
+      - name: openFrameworks core and examples
+        run: |
+          docker run --rm -v "$OF:/of" -e OF_ROOT=/of \
+            -e EXAMPLES="example-simple example-demo example-advanced example-fonts example-helpers example-Conway example-pixeleditor" \
+            emscripten/emsdk:6.0.11 bash -c '
+              set -e
+              sed -i "s/PLATFORM_OPTIMIZATION_CFLAGS_DEBUG = .*/PLATFORM_OPTIMIZATION_CFLAGS_DEBUG = -g0/" /of/libs/openFrameworksCompiled/project/emscripten/config.emscripten.default.mk
+              emmake make -C /of/libs/openFrameworksCompiled/project Debug -j"$(nproc)"
+              emmake /of/addons/ofxImGui/_build_examples.sh Debug'

@@ -28,7 +28,9 @@ VERSION_1_91_9b=4806a19 # 1.91.5
 VERSION_1_92_0=adfa536 # 1.92.0
 VERSION_1_92_1=44aa9a4 # 1.92.1
 VERSION_1_92_5=3912b3d # 1.92.5
-VERSION_SHA=$VERSION_1_92_5
+VERSION_1_92_7=b1bcb12a624af7509894c8e77dd47416997777fa # 1.92.7-docking (tag peel)
+VERSION_1_93_0=b916186e66aa3c02b72c6ca17455516512ed8049 # 1.93.0-docking (tag peel)
+VERSION_SHA=$VERSION_1_93_0
 # ------------------
 
 echo "\nHello,"
@@ -104,6 +106,11 @@ mkdir -p ./imgui/extras
 cp ./imgui_git/misc/cpp/imgui_stdlib.cpp ./imgui/extras/imgui_stdlib.cpp
 cp ./imgui_git/misc/cpp/imgui_stdlib.h ./imgui/extras/imgui_stdlib.h
 
+# FreeType font loader (IMGUI_ENABLE_FREETYPE)
+mkdir -p ./imgui/misc/freetype
+cp ./imgui_git/misc/freetype/imgui_freetype.cpp ./imgui/misc/freetype/imgui_freetype.cpp
+cp ./imgui_git/misc/freetype/imgui_freetype.h   ./imgui/misc/freetype/imgui_freetype.h
+
 # Remove git repo // cleanup
 #echo "Cleaning up git repo..."
 #rm -rf ./imgui_git
@@ -121,14 +128,22 @@ if [ `uname -s` = "Darwin" ] ; then
 	fi;
 fi;
 
+echo "\nApplying OpenGL 2 GLES guard..."
+# The OpenGL 2 backend uses desktop-only GL (glPushAttrib, GL_CLAMP...): compile it out on GLES targets
+for f in ./imgui/backends/imgui_impl_opengl2.h ./imgui/backends/imgui_impl_opengl2.cpp; do
+	perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if !defined(TARGET_OPENGLES) \/\/ CUSTOM OFXIMGUI ADDED LINE: no OpenGL 2 on GLES (iOS, Android, Emscripten, Raspberry Pi)\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ !TARGET_OPENGLES, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$f"
+done
+
 echo "\nApplying GLFW multi context patch with obj-c ARC support..."
 # Option 1 : Patch file ?
 #git apply --check Glfw_MultiContext_Support.diff
-patch --dry-run -s ./imgui/backends/imgui_impl_glfw.cpp ./Glfw_MultiContext_Support.diff > /dev/null 2>&1
+# -F0: no fuzz, so a diff that no longer matches falls back to the sed patch below
+# (with fuzz, 1.93 put the CreateWindow line into WindowSizeCallback)
+patch -F0 --dry-run -s ./imgui/backends/imgui_impl_glfw.cpp ./Glfw_MultiContext_Support.diff > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	#git apply Glfw_MultiContext_Support.diff
 	echo "Applying a GIT diff as it seems compatible..."
-	patch ./imgui/backends/imgui_impl_glfw.cpp ./Glfw_MultiContext_Support.diff
+	patch -F0 ./imgui/backends/imgui_impl_glfw.cpp ./Glfw_MultiContext_Support.diff
 
 # option 2 : Sed search/replace
 else
@@ -177,11 +192,11 @@ fi;
 echo "\nApplying OpenGL2 patch for compatibility with GLES1..."
 
 # Test the diff file
-patch --dry-run -s ./imgui/backends/imgui_impl_opengl2.cpp ./Glfw_GLES1_Support.diff > /dev/null 2>&1
+patch -F0 --dry-run -s ./imgui/backends/imgui_impl_opengl2.cpp ./Glfw_GLES1_Support.diff > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	#git apply Glfw_MultiContext_Support.diff
 	echo "Applying a GIT diff as it seems compatible..."
-	patch ./imgui/backends/imgui_impl_opengl2.cpp ./Glfw_GLES1_Support.diff
+	patch -F0 ./imgui/backends/imgui_impl_opengl2.cpp ./Glfw_GLES1_Support.diff
 else
 	echo "The Git diff is not compatible anymore, trying to apply a custom GNU sed patch that might be less vulnerable to breaking changes."
 	echo "This has only been tested on OSX."

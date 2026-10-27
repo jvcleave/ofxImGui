@@ -1,6 +1,6 @@
 // This file will set all macro defines for ofxImGui.
 // You can modify it to quickly suit your needs
-// But it's recommended to rather overr-de them using project-scope compiler defines.
+// But it's recommended to rather override them using project-scope compiler defines.
 
 //#pragma once
 
@@ -8,7 +8,7 @@
 
 // Flags that you can set :
 // #define OFXIMGUI_FORCE_OF_BACKEND --> force-use the simpler OF-based backend
-// #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0|1 --> disable imgui glfw backend modification to allow multiple contexts, for using imgui with multiple ofAppBaseWindows
+// #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0|1 --> disable imgui glfw backend modification to allow multiple context for using imgui with multiple ofAppBaseWindows
 // #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 0|1 --> Disable modifications to imgui_impl_glfw, disabling support for using ofxImGui in a multi-windowed-ofApp with viewports enabled.
 
 // Grab ofConstants
@@ -134,7 +134,7 @@
 #ifdef OFXIMGUI_BACKEND_GLFW
 	// Wondering what all these settings are ? The easiest way is to add `gui.drawOfxImGuiDebugWindow()` to your ofApp and follow instructions !
 
-	// Retro-compatibility with Â±2023 develop versions until commit #9bfb15e
+	// Retro-compatibility with ±2023 develop versions until commit #9bfb15e
 	#if INTERCEPT_GLFW_CALLBACKS == 1
 		// Both 3 used to be enabled with this flag
 		#ifndef OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS
@@ -147,7 +147,6 @@
 			#define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 1
 		#endif
 	#endif
-
 	// Enabled by default (glfw event binding is more advanced then the ofevents, imgui works beter like this)
 	#if !defined(OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS) || OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS != 0
 		#define OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS 1

@@ -143,13 +143,13 @@ static ImTextureID GetImTextureID(const ofTexture& texture)
     return (ImTextureID)(uintptr_t)texture.texData.textureID;
 }
 
-static ImTextureID GetImTextureID(const ofBaseHasTexture& hasTexture)
+[[maybe_unused]] static inline ImTextureID GetImTextureID(const ofBaseHasTexture& hasTexture)
 {
     
     return GetImTextureID(hasTexture.getTexture());
 }
 
-static ImTextureID GetImTextureID(GLuint glID)
+[[maybe_unused]] static inline ImTextureID GetImTextureID(GLuint glID)
 {
     return (ImTextureID)(uintptr_t)glID;
 

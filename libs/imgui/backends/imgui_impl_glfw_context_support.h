@@ -76,8 +76,15 @@ inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window){
 // Handle GLFW capabilities hack for OF using in-between GLFW version (non-realease, master branch)
 // Corrects the IMGUI detection to the features that the OF version has.
 // More info in Developers.md
+// Guard with #ifndef so that a system GLFW that already defines these with real
+// values (e.g. MSYS2 GLFW >= 3.3) is not silently overridden, which would cause
+// a redefinition warning and leave imgui unable to use the feature.
+#ifndef GLFW_RESIZE_NESW_CURSOR
 #define GLFW_RESIZE_NESW_CURSOR
+#endif
+#ifndef GLFW_MOUSE_PASSTHROUGH
 #define GLFW_MOUSE_PASSTHROUGH
+#endif
 #ifndef OFXIMGUI_GLFW_NO_VERSION_HACKS
 #if OF_VERSION_MAJOR == 0
 #	if OF_VERSION_MINOR == 11
