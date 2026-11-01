@@ -275,8 +275,13 @@ namespace ofxImGui
 				glfwGetFramebufferSize(glfwWin, &framebufferWidth, &framebufferHeight);
 				bool framebufferScales = windowWidth > 0 && framebufferWidth > windowWidth;
 				if (xs > 1.f && !framebufferScales) {
+					ImGuiStyle& style = ImGui::GetStyle();
+#if IMGUI_VERSION_NUM < 19200
 					io.FontGlobalScale = xs;
-					ImGui::GetStyle().ScaleAllSizes(xs);
+#else
+					style.FontScaleMain = xs;
+#endif
+					style.ScaleAllSizes(xs);
 				}
 			}
 		}
