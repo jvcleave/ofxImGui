@@ -163,6 +163,8 @@ class ofApp : public ofBaseApp {
 
             // Show Compilation information
             if( ImGui::CollapsingHeader("Compilation Info", ImGuiTreeNodeFlags_None) ){
+                // Targets
+                {
 #if defined(IMGUI_IMPL_OPENGL_ES2)
                 ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_ES2");
 #endif
@@ -226,35 +228,52 @@ class ofApp : public ofBaseApp {
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING2)
                 ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GLBINDING2");
 #endif
-            }
+                }
 
-            // Show Platform info
-            {
+                // Show Platform info
+                {
 #if defined(TARGET_LINUX)
-    #if defined(TARGET_RASPBERRY_PI)
-        #if defined(TARGET_RASPBERRY_PI_LEGACY)
-            ImGui::Text("You are on Raspberry Pi using the legacy X11 windows.");
-        #else
-            ImGui::Text("You are on Raspberry Pi using the new GLFW windows.");
-        #endif
-    #else
-        #if defined(TARGET_OPENGLES)
-            ImGui::Text("You are on Linux using OpenGLES.");
-        #else
-            ImGui::Text("You are on Linux using OpenGL.");
-        #endif
-    #endif
+#   if defined(TARGET_RASPBERRY_PI)
+#       if defined(TARGET_RASPBERRY_PI_LEGACY)
+                ImGui::Text("You are on Raspberry Pi using the legacy X11 windows.");
+#       else
+                ImGui::Text("You are on Raspberry Pi using the new GLFW windows.");
+#       endif
+#   else
+#       if defined(TARGET_OPENGLES)
+                ImGui::Text("You are on Linux using OpenGLES.");
+#       else
+                ImGui::Text("You are on Linux using OpenGL.");
+#       endif
+#   endif
 #elif defined(TARGET_OSX)
-            ImGui::Text("You are on OSX, probably using GLFW bindings.");
+                ImGui::Text("You are on OSX, probably using GLFW bindings.");
 #elif defined(TARGET_WIN32)
-            ImGui::Text("You are on Windows, probably using GLFW bindings.");
+                ImGui::Text("You are on Windows, probably using GLFW bindings.");
 #elif defined(TARGET_ANDROID)
-            ImGui::Text("You are on Android.");
+                ImGui::Text("You are on Android.");
 #elif defined(TARGET_IOS)
-            ImGui::Text("You are on iOS.");
+                ImGui::Text("You are on iOS.");
 #elif defined(TARGET_EMSCRIPTEN)
-            ImGui::Text("You are on Emscripten.");
+                ImGui::Text("You are on Emscripten.");
 #endif
+                }
+
+                // Backend info
+                {
+                ImGui::TextUnformatted("Backend: "); ImGui::SameLine();
+#if defined (OFXIMGUI_BACKEND_OPENFRAMEWORKS)
+                ImGui::TextUnformatted("OFXIMGUI_BACKEND_OPENFRAMEWORKS (explicit)");
+#elif defined (OFXIMGUI_BACKEND_VULKAN)
+                ImGui::TextUnformatted("OFXIMGUI_BACKEND_VULKAN");
+#elif defined(OFXIMGUI_BACKEND_OPENGLES)
+                ImGui::TextUnformatted("OFXIMGUI_BACKEND_OPENGLES");
+#elif defined(OFXIMGUI_BACKEND_GLFW)
+                ImGui::TextUnformatted("OFXIMGUI_BACKEND_GLFW");
+#else
+                ImGui::TextUnformatted("OFXIMGUI_BACKEND_OPENFRAMEWORKS (fallback)");
+#endif
+                }
             }
 
             // OpenGL info
@@ -314,10 +333,11 @@ class ofApp : public ofBaseApp {
                                 ImGui::TextColored(ImVec4(255,0,0,255), "Warning !");
                                 ImGui::TextWrapped("Your oF version shipped with a pre-3.3 GLFW version, missing some optional imgui features, mostly related to cursors.");
                                 if( ImGui::IsItemHovered() ){
-                                    ImGui::BeginTooltip();
-                                    ImGui::Dummy(ImVec2(400, 1));
-                                    ImGui::TextWrapped("You can manually update to GLFW 3.4 to get the most out of imgui.\n(imgui will be more aware of where its windows are on screen).\n Do not proceed on BigSur.");
-                                    ImGui::EndTooltip();
+                                    if(ImGui::BeginTooltip()){
+                                        ImGui::Dummy(ImVec2(400, 1));
+                                        ImGui::TextWrapped("You can manually update to GLFW 3.4 to get the most out of imgui.\n(imgui will be more aware of where its windows are on screen).\n Do not proceed on BigSur.");
+                                        ImGui::EndTooltip();
+                                    }
                                 }
                             }
                         }
@@ -325,10 +345,11 @@ class ofApp : public ofBaseApp {
                         else {
                             ImGui::TextWrapped("GLFW 3.3 misses some API calls to work with window positions in viewports and with multiple monitors.");
                             if( ImGui::IsItemHovered() ){
-                                ImGui::BeginTooltip();
-                                ImGui::Dummy(ImVec2(400, 1));
-                                ImGui::TextWrapped("You can update to GLFW 3.4 to have better viewports handling.\n(imgui will be more aware of where its windows are on screen). Do not proceed on BigSur.");
-                                ImGui::EndTooltip();
+                                if(ImGui::BeginTooltip()){
+                                    ImGui::Dummy(ImVec2(400, 1));
+                                    ImGui::TextWrapped("You can update to GLFW 3.4 to have better viewports handling.\n(imgui will be more aware of where its windows are on screen). Do not proceed on BigSur.");
+                                    ImGui::EndTooltip();
+                                }
                             }
                         }
                     }
