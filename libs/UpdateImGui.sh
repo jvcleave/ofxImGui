@@ -99,11 +99,17 @@ mv ./imgui_git/docs/BACKENDS.md		./imgui/docs/BACKENDS.md
 mv ./imgui_git/docs/CHANGELOG.txt	./imgui/docs/CHANGELOG.txt
 mv ./imgui_git/docs/README.md		./imgui/docs/README.md
 
-#copy extras
+# Copy extras
 echo "Copying extras..."
 mkdir -p ./imgui/extras
 cp ./imgui_git/misc/cpp/imgui_stdlib.cpp ./imgui/extras/imgui_stdlib.cpp
 cp ./imgui_git/misc/cpp/imgui_stdlib.h ./imgui/extras/imgui_stdlib.h
+
+# Copy misc
+echo "Copying misc..."
+mkdir -p ./imgui/misc/freetpye/
+cp ./imgui_git/misc/freetype/imgui_freetype.cpp ./imgui/misc/freetpye/imgui_freetype.cpp
+cp ./imgui_git/misc/freetype/imgui_freetype.h   ./imgui/misc/freetype/imgui_freetype.h
 
 # Remove git repo // cleanup
 #echo "Cleaning up git repo..."
