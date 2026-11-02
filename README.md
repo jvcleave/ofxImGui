@@ -180,6 +180,8 @@ Also: information for using ofxImGui within ofxAddons and for ofxImGui developer
 
 #### ofxImGui extensions
 
+There's a growing community providing some Openframeworks + ImGui extensions :
+
 - [moebiussurfing/ofxSurfingImGui](https://github.com/moebiussurfing/ofxSurfingImGui/): An extension to this addon which facilitates advanced integration with ofApps while also making the UI more user-friendly. It embeds a presets system, and embeds many 3rd party ui widgets.
 - [nariakiiwatani/ofxImGuizmo](https://github.com/nariakiiwatani/ofxImGuizmo): The ImGuizmo extension shipped as an ofxAddon, for displaying a 3d point handle.
 - [daandelange/ofxImGuiAddonWidgets](https://github.com/daandelange/ofxImGuiAddonWidgets): A collection of widgets for various OpenFrameworks addons that don't officially support ofxImGui.
@@ -187,9 +189,17 @@ Also: information for using ofxImGui within ofxAddons and for ofxImGui developer
 - [funatsufumiya/ofxImGuiAuto](https://github.com/funatsufumiya/ofxImGuiAuto): A GUI helper focused on parameters load+save.
 - [Artificiel/ofxImGuiLib](https://gitlab.artificiel.org/ofxaddons/ofxImGuiLib/): A set of personal GUI helpers.
 - [Artificiel/ofxImGuiTextEditor](https://gitlab.artificiel.org/ofxaddons/ofxImGuiTextEditor): A syntax highlighting text editor based on [BalazsJako/ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit).
+- [ofxyz/ofxImGuiTextEdit](https://github.com/ofxyz/ofxImGuiTextEdit) : openFrameworks ImGui textEdit.
 - [Daandelange/ofxSimpleApp](https://github.com/Daandelange/ofxSimpleApp): A general purpose application layout for kick-starting your projects.
 - [sebleedelisle/ofxLaser:ofxLaserUI](https://github.com/sebleedelisle/ofxLaser/blob/main/src/interface/ofxLaserUI.cpp) : Alternative interface for interfacing with ofApp & alternative helpers / gui-builder for ofParameters.
 - [ofxyz/ofxImPlot](https://github.com/ofxyz/ofxImPlot) : ImPlot library for ofxImGui.
+- [ofxyz/ofxImGuiTestSuite](https://github.com/ofxyz/ofxImGuiTestSuite) : Gui testing framework for ofxImGui apps.
+- [ofxyz/ofxImGuiStyle](https://github.com/ofxyz/ofxImGuiStyle) : Centralizes shared ImGui styling for openFrameworks apps.
+- [ofxyz/ofxImGuiMarkdown](https://github.com/ofxyz/ofxImGuiMarkdown) : Markdown Preview for ImGui in OpenFrameworks.
+- [ofxyz/ofxImGuiTextEdit](https://github.com/ofxyz/ofxImGuiTextEdit) : text editor.
+- [ofxyz/ofxImGuiClay](https://github.com/ofxyz/ofxImGuiClay) : Clay flex layout inside ImGui.
+- [ffunatsu/ofxImGuiAuto](https://github.com/ffunatsu/ofxImGuiAuto) : Automatic parameters generator.
+- [danoli3/ofxImAnim](https://github.com/danoli3/ofxImAnim) : ImAnim for animated UI / Buttons / Breathing.
 
 #### ofxAddons providing native ofxImGui integration
 
@@ -202,8 +212,7 @@ Also: information for using ofxImGui within ofxAddons and for ofxImGui developer
 
 ## Credits
 
-ofxImGui was initiated in 2015 by @jvcleave. Today, he's maintainging it together with @prisonerjohn
- and @daandelange, with the help of [many contributors](https://github.com/jvcleave/ofxImGui/graphs/contributors).
+ofxImGui was initiated in 2015 by @jvcleave. Today, he's maintainging it together with @prisonerjohn and @daandelange, with the help of [many contributors](https://github.com/jvcleave/ofxImGui/graphs/contributors).
 
 ## License
 

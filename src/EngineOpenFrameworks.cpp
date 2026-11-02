@@ -60,7 +60,12 @@ namespace ofxImGui
 		io.BackendPlatformName = "imgui_impl_ofximgui_native_of";
 		io.BackendRendererName = "imgui_impl_opengl3";
 
-	   // OpenGL setup
+		// Add font texture support - todo !
+#if IMGUI_VERSION_NUM >= 19200
+		//io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
+#endif // IMGUI_VERSION_NUM
+
+		// OpenGL setup
 		if (ofIsGLProgrammableRenderer()){
 			// Todo: Maybe better to replace with const getGLVersionFromOF(); ?
 			// To be tested on multiple platforms.
