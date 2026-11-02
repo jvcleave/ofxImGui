@@ -62,3 +62,8 @@ For pure ImGui addons (many more), see example-advanced.
 ## example-conway
 
 Playful example implementing the Conway Way Of Life while demonstratring how to use ofxImGui::Canvas and ofxImGui::viewport.
+
+## example-pixeleditor
+
+Simple custom pixel editor featuring the `ImGuiDrawList` usage with `Canvas` and `Viewport`.
+
