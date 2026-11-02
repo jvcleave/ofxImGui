@@ -25,7 +25,7 @@ namespace ofxImGui
 	std::string EngineOpenFrameworks::g_ClipboardText = "";
 
 	//--------------------------------------------------------------
-	void EngineOpenFrameworks::setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw)
+	void EngineOpenFrameworks::setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw, bool autoContentScale)
 	{
 		// Store a reference to the current imgui context for event handling
 		//imguiContext = ImGui::GetCurrentContext();

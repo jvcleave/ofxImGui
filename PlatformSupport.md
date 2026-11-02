@@ -99,10 +99,11 @@ ImGui restrictions by GLFW version. [Source](https://github.com/ocornut/imgui/bl
 | 3.2       | No gamepads support + all below |
 | pre-3.3.0 | No resizing cursors, no deny cursor, window hovered, window alpha, multi-monitor-dpi + all below |
 | 3.3.0     | No monitor workarea, no mouse pass-trough + all below |
-| 3.3.8     | GetPlatform, new cursors, mouse passthrough |
+| 3.3.8     | No getplatform, no new cursors, no mouse passthrough |
 | 3.4       | None |
+| 3.5.1     | None |
 
-oF 0.12.0 now bundles GLFW 3.3.8 which is OK with latest ImGui, but you can always update it to 3.4.
+oF 0.12.0 now bundles GLFW 3.3.8 which is OK with latest ImGui, but you can always update it to 3.4 or 3.5.1.
 See [Configure.md](./Configure#update-glfw) for updating GLFW.
 
 - - - -

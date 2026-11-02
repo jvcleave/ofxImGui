@@ -53,7 +53,7 @@ namespace ofxImGui
 		}
 
 		// BaseEngine required
-		void setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw) override;
+		void setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw, bool autoContentScale=true) override;
 		void exit() override;
 
         void newFrame() override;

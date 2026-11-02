@@ -33,7 +33,7 @@ namespace ofxImGui
 		BaseEngine( const BaseEngine& ) = delete;
 		BaseEngine& operator=( const BaseEngine& ) = delete;
 
-		virtual void setup(ofAppBaseWindow* _window, ImGuiContext* imguiContext, bool autoDraw) = 0;
+		virtual void setup(ofAppBaseWindow* _window, ImGuiContext* imguiContext, bool autoDraw, bool autoContentScale=true) = 0;
 		//void setup(ofAppBaseWindow* _window, bool autoDraw); // for retro-compatibility, can be removed in next major release
 		virtual void exit() = 0;
 

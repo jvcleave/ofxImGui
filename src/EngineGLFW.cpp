@@ -24,7 +24,7 @@ namespace ofxImGui
 	GLuint EngineGLFW::g_FontTexture = 0;
 
 	//--------------------------------------------------------------
-	void EngineGLFW::setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw)
+	void EngineGLFW::setup(ofAppBaseWindow* _window, ImGuiContext* _imguiContext, bool autoDraw, bool autoContentScale)
 	{
         if (isSetup){
 #ifdef OFXIMGUI_DEBUG
@@ -109,6 +109,33 @@ namespace ofxImGui
             ImGui_ImplOpenGL2_CreateDeviceObjects();
 			#endif
         }
+
+        // Apply OS content scale for HiDPI / 4K displays (GLFW backend only).
+        // FontGlobalScale upscales the already-rasterised atlas; for sharper results
+        // rebuild fonts at (size * scale) instead. ScaleAllSizes keeps padding/rounding
+        // proportional. Both are no-ops when xscale == 1 (non-HiDPI displays).
+        // Skipped when the framebuffer is larger than the window (macOS Retina): there the
+        // window is measured in points and DisplayFramebufferScale already renders at the
+        // display's resolution, so scaling again would double everything.
+#ifdef OFXIMGUI_BACKEND_GLFW
+		if (autoContentScale) {
+			float xs = 1.f, ys = 1.f;
+			glfwGetWindowContentScale(curWin, &xs, &ys);
+			int windowWidth = 0, windowHeight = 0, framebufferWidth = 0, framebufferHeight = 0;
+			glfwGetWindowSize(curWin, &windowWidth, &windowHeight);
+			glfwGetFramebufferSize(curWin, &framebufferWidth, &framebufferHeight);
+			bool framebufferScales = windowWidth > 0 && framebufferWidth > windowWidth;
+			if (xs > 1.f && !framebufferScales) {
+				ImGuiStyle& style = ImGui::GetStyle();
+#if IMGUI_VERSION_NUM < 19200
+				io.FontGlobalScale = xs;
+#else
+				style.FontScaleMain = xs;
+#endif
+				style.ScaleAllSizes(xs);
+			}
+		}
+#endif
 
 		isSetup = true;
 
