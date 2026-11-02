@@ -107,8 +107,8 @@ cp ./imgui_git/misc/cpp/imgui_stdlib.h ./imgui/extras/imgui_stdlib.h
 
 # Copy misc
 echo "Copying misc..."
-mkdir -p ./imgui/misc/freetpye/
-cp ./imgui_git/misc/freetype/imgui_freetype.cpp ./imgui/misc/freetpye/imgui_freetype.cpp
+mkdir -p ./imgui/misc/freetype/
+cp ./imgui_git/misc/freetype/imgui_freetype.cpp ./imgui/misc/freetype/imgui_freetype.cpp
 cp ./imgui_git/misc/freetype/imgui_freetype.h   ./imgui/misc/freetype/imgui_freetype.h
 
 # Remove git repo // cleanup
