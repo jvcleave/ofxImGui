@@ -134,7 +134,7 @@
 #ifdef OFXIMGUI_BACKEND_GLFW
 	// Wondering what all these settings are ? The easiest way is to add `gui.drawOfxImGuiDebugWindow()` to your ofApp and follow instructions !
 
-	// Retro-compatibility with ±2023 develop versions until commit #9bfb15e
+	// Retro-compatibility with ~2023 develop versions until commit #9bfb15e
 	#if INTERCEPT_GLFW_CALLBACKS == 1
 		// Both 3 used to be enabled with this flag
 		#ifndef OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS

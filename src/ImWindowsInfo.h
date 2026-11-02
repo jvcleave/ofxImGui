@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ofMain.h"
-//#include "ofxImGui.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 
@@ -20,6 +18,7 @@ namespace ImGuiEx {
     };
 
     // Returns a list of active windows
+    [[ maybe_unused ]]
     static std::vector<WindowInformation> getWindowsInformation() {
         ImGuiContext& g = *GImGui;
 

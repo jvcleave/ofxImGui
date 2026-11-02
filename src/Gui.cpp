@@ -9,25 +9,31 @@
 //#include "imgui.h"
 //#include "backends/imgui_impl_glfw.h"
 
-// For apps that compile without GLFW
+#ifdef OFXIMGUI_BACKEND_GLFW
+#include <GLFW/glfw3.h> // tmp while glfw3 code used in non-debug builds
+#endif
+
+// Includes required for debug builds
 #ifdef OFXIMGUI_DEBUG
-//	#ifndef GLFW_VERSION_MAJOR
-//		#define GLFW_VERSION_MAJOR 0
-//	#endif
-//	#ifndef GLFW_VERSION_MINOR
-//		#define GLFW_VERSION_MINOR 0
-//	#endif
-//	#ifndef GLFW_VERSION_REVISION
-//		#define GLFW_VERSION_REVISION 0
-//	#endif
+
+#include "ofGraphics.h"
+#include "ofGLUtils.h"
+
+// Window info helper
+#include "ImWindowsInfo.h"
 
 // Some includes to debug GLFW
 #ifdef OFXIMGUI_BACKEND_GLFW
 		//#include "backends/imgui_impl_glfw.h"
-		#include <GLFW/glfw3.h> // For getting macro-defined versions
+		//#include <GLFW/glfw3.h> // For getting macro-defined versions (tmp disabled!)
 		#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
 			#include "backends/imgui_impl_glfw_context_support.h"
 		#endif
+
+		// Only GLFW > 3.3 has gamepad/joystick functions
+#	if GLFW_VERSION_MAJOR > 3 || (GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 3)
+#		define OFXIMGUI_GLFW_HAS_GAMEPAD_SUPPORT
+#	endif
 #endif
 
 // KeyPress input debug helper
@@ -43,10 +49,6 @@ void appendCharToPressedChars(const char theChar, char (&lastPressedChars)[OFXIM
     }
 }
 #endif // OFXIMGUI_DEBUG
-
-#ifdef OFXIMGUI_BACKEND_GLFW
-#include <GLFW/glfw3.h>
-#endif
 
 //#ifdef OFXIMGUI_BACKEND_GLFW
 //#if OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1
@@ -764,6 +766,7 @@ namespace ofxImGui
 	void Gui::drawOfxImGuiDebugWindow(bool* open) const {
 		// Only provide this functions with debug flags on
 #ifdef OFXIMGUI_DEBUG
+		ImGui::SetNextWindowSize(ImVec2(400, 600), ImGuiCond_FirstUseEver);
 		if( ImGui::Begin("ofxImGui Debug Window", open) ){
 
 			if(ImGui::BeginTabBar("DebugTabs")){
@@ -797,13 +800,19 @@ namespace ofxImGui
 					ImGui::Text("Tips:");
 					// Event binding
 	#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 1
-					ImGui::Bullet(); ImGui::TextWrapped("The GLFW backend has to replace the openFrameworks GLFWWindow events so that ofxImGui can intercept them, forwarding them afterwards.\nThis introduces a tiny extra delay and it 'alters' of-internals (without interfering with them).\nAlternatively you may set `OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS` to rather listen to oF events, but some information is lost and the user experience will be reduced. ");
+					ImGui::Bullet(); ImGui::TextWrapped("The GLFW backend replaced the openFrameworks' GLFWWindow events so that ofxImGui can intercept them, forwarding them afterwards.\nThis introduces a tiny extra delay and it 'alters' of-registered window events (without interfering with them), but it allows to receive all GLFW events.\nAlternatively you may set `OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS` to rather listen to oF events, but some information is lost and the user experience will be reduced. ");
 	#else
-					ImGui::Bullet(); ImGui::TextWrapped("You are using `OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS` which binds events to openFrameworks rather then GLFW.\nSome input information is lost and the user experience will be reduced. ");
+					ImGui::Bullet(); ImGui::TextWrapped("You are NOT using `OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS`: imgui events are bound to openFrameworks rather than GLFW.\nSome input/event information is lost and the user experience will be reduced. ");
 	#endif
 					// Outdated GLFW ?
-	#if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR <= 3 && GLFW_VERSION_MINOR <= 3
-					ImGui::Bullet(); ImGui::TextWrapped("Your GLFW version (%i.%i.%i) is quite old, you could update it to get a smoother user interface experience.\nRefer to Developers.md.", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_MINOR);
+	#if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR == 3 && GLFW_VERSION_REVISION <= 3
+					ImGui::Bullet(); ImGui::TextWrapped("Your GLFW version (%i.%i.%i) is quite old, you could update it to to get a smoother user interface experience.\nRefer to Developers.md.", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, OF_VERSION_PATCH);
+	#endif
+	#if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR == 3 && GLFW_VERSION_REVISION <= 0
+					ImGui::Bullet(); ImGui::TextWrapped("Updating to v3.3.1+ will improve window and monitor area awareness.");
+	#endif
+	#if GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR < 4
+					ImGui::Bullet(); ImGui::TextWrapped("Updating to v3.4+ will improve mouse and cursor interactions.");
 	#endif
 	#ifdef TARGET_LINUX
 					ImGui::Bullet(); ImGui::TextWrapped("On Linux, moving pop-out windows (viewports enabled) with the mouse is quite shaky!\nThis also happens in the standalone imgui glfw opengl example so it's an ImGui bug.");
@@ -907,7 +916,7 @@ namespace ofxImGui
 					// Input Checks
 					ImGui::Dummy({10,10});
 #ifdef OFXIMGUI_BACKEND_OPENFRAMEWORKS
-					ImGui::Bullet(); ImGui::TextWrapped("Your OF event handling is untouched by ofxImGui.");
+					ImGui::Bullet(); ImGui::TextWrapped("Input goes from your window manager to OpenFrameworks to ImGui (slightly lossy).");
 #elif defined(OFXIMGUI_BACKEND_GLFW)
 	#if OFXIMGUI_GLFW_EVENTS_REPLACE_OF_CALLBACKS == 0
 					ImGui::Bullet(); ImGui::TextWrapped("Custom event bindings to ImGui IO:\nimgui_impl_glfw callbacks are not used to fetch user input, which might behave a little differently then the native imgui platform backend.");
@@ -1026,6 +1035,68 @@ namespace ofxImGui
 					ImGui::TextWrapped("Slaves count relate to attached gui instances, be they master or slave.");
 					ImGui::PopStyleColor();
 
+					// ImGui windows space visualiser
+					ImGui::SeparatorText("ImGui window space");
+					auto io = ImGui::GetIO();
+					auto drawlist = ImGui::GetWindowDrawList();
+					ImGui::Text("%d active imgui windows (%d visible)", io.MetricsActiveWindows, io.MetricsRenderWindows);
+
+                    if(drawlist){
+                        // Get coordinates
+                        ImVec2 windowsZonePos = ImGui::GetCursorScreenPos();
+                        ImVec2 windowsZone = {ImGui::GetContentRegionAvail().x, 50};
+                        ImVec2 ofScreenSize = ImVec2(ofGetScreenWidth(), ofGetScreenHeight());
+                        windowsZone.y = windowsZone.x*(ofScreenSize.y/ofScreenSize.x);// Fit height proportionally to screen
+                        ImVec2 drawScale = windowsZone / ofScreenSize;
+                        ImVec2 ofWindowPos = ofGetCurrentWindow()->getWindowPosition();
+                        ImVec2 ofWindowSize( ofGetWindowWidth(), ofGetWindowHeight() );
+                        ImVec2 bestWindowPos = ofWindowPos;
+
+                        // Main screen
+                        static char mainwindowTitle[100];
+                        std::sprintf(mainwindowTitle, "Main display (%.0f x %.0f)", ofWindowSize.x, ofWindowSize.y);
+                        drawlist->AddRect(windowsZonePos, windowsZonePos+windowsZone, IM_COL32(255,0,0,255));
+                        drawlist->AddText(windowsZonePos+ImVec2(2,1), IM_COL32(255,0,0,255), mainwindowTitle);
+                        //ofGetWindowRect();
+
+                        // of Window
+                        static char ofWindowTitle[100];
+                        std::sprintf(ofWindowTitle, "oF window (%.0f x %.0f)", ofWindowSize.x, ofWindowSize.y);
+                        drawlist->AddRect(windowsZonePos+ImVec2(ofWindowPos.x, ofWindowPos.y)*drawScale, windowsZonePos+(ImVec2(ofWindowPos.x, ofWindowPos.y)+ofWindowSize)*drawScale, IM_COL32(0,255,0,255));
+                        drawlist->AddText(windowsZonePos+ImVec2(ofWindowPos.x, ofWindowPos.y)*drawScale+ImVec2(2,1+ImGui::GetFontSize()), IM_COL32(0,255,0,255), ofWindowTitle );
+
+                        // Glfw window
+#ifdef OFXIMGUI_BACKEND_GLFW
+                        // Try get window position from native GLFW, as the of version doesn't always support this.
+                        ofAppBaseWindow* windowPtr = ofGetWindowPtr();
+                        if(ofAppGLFWWindow* glfwWindow = dynamic_cast< ofAppGLFWWindow* >(windowPtr) ){
+                            int glfwWinX = 0, glfwWinY = 0, glfwH = 0, glfwW = 0;
+
+                            glfwGetWindowPos(glfwWindow->getGLFWWindow(), &glfwWinX, &glfwWinY);
+                            glfwGetWindowSize(glfwWindow->getGLFWWindow(), &glfwW, &glfwH);
+                            if( bestWindowPos.x==0 && bestWindowPos.y==0 ) bestWindowPos = ImVec2(glfwWinX, glfwWinY);
+
+                            // glfw Window
+                            char glfwWindowTitle[100];
+                            sprintf(glfwWindowTitle, "glfw window (%.0i x %.0i)", glfwW, glfwH);
+
+                            drawlist->AddRect(windowsZonePos+ImVec2(glfwWinX, glfwWinY)*drawScale, windowsZonePos+(ImVec2(glfwWinX+glfwW, glfwWinY+glfwH))*drawScale, IM_COL32(0,255,0,255));
+                            drawlist->AddText(windowsZonePos+ImVec2(glfwWinX, glfwWinY)*drawScale+ImVec2(2,1), IM_COL32(0,255,0,255), glfwWindowTitle );
+                        }
+#endif
+
+                        // ImGui windows
+                        std::vector<ImGuiEx::WindowInformation> windows = ImGuiEx::getWindowsInformation();
+                        ImVec2 windowOffset = (io.ConfigFlags&ImGuiConfigFlags_ViewportsEnable) ? ImVec2(0,0) : bestWindowPos;
+                        for(auto win : windows){
+                            drawlist->AddRect(windowsZonePos+(windowOffset+ImVec2(win.x, win.y))*drawScale, windowsZonePos+(windowOffset+ImVec2(win.x, win.y)+ImVec2(win.width,win.height))*drawScale, IM_COL32(0,0,255,255));
+                            drawlist->AddText(windowsZonePos+(windowOffset+ImVec2(win.x, win.y))*drawScale+ImVec2(2,1), IM_COL32(0,0,255,255), win.name.c_str() );
+                        }
+
+                        // Dummy to take up space
+                        ImGui::Dummy(windowsZone);
+                    }
+
 					ImGui::EndTabItem();
 				}
 
@@ -1075,12 +1146,90 @@ namespace ofxImGui
 #else
 					ImGui::Text("OF TARGET_OPENGLES : NO");
 #endif
+                    ImGui::Text("Screen = %i, %i", ofGetScreenWidth(), ofGetScreenHeight());
+                    auto viewport = ofGetCurrentViewport();
+                    ImGui::Text("Window = %F, %F", ofGetCurrentWindow()->getWindowSize().x, ofGetCurrentWindow()->getWindowSize().y );
+                    ImGui::Text("Viewport = [%f, %f] [%f x %f]", viewport.position.x, viewport.position.y, viewport.getWidth(), viewport.getHeight());
+
+                    // extended complation flags
+                    ImGui::Dummy({10,6});
+                    if(ImGui::TreeNode("Extended info")){
+                        // Targets
+                        {
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_ES2");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_ES3)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_ES3");
+#endif
+#if defined(TARGET_OPENGLES)
+                        ImGui::TextUnformatted("TARGET_OPENGLES");
+#endif
+#if defined(TARGET_OPENGL) // 404 ?
+                        ImGui::TextUnformatted("TARGET_OPENGL");
+#endif
+#if defined(TARGET_PROGRAMMABLE_GL) // 404, Not set by of ?
+                        ImGui::TextUnformatted("TARGET_PROGRAMMABLE_GL");
+#endif
+#if defined(TARGET_GLFW)
+                        ImGui::TextUnformatted("TARGET_GLFW"); // Not explicitly set by of ?
+#endif
+#if defined(TARGET_RASPBERRY_PI)
+                        ImGui::TextUnformatted("TARGET_RASPBERRY_PI");
+#endif
+#if defined(TARGET_RASPBERRY_PI_LEGACY)
+                        ImGui::TextUnformatted("TARGET_RASPBERRY_PI_LEGACY");
+#endif
+#if defined(TARGET_LINUX)
+                        ImGui::TextUnformatted("TARGET_LINUX");
+#endif
+#if defined(TARGET_OSX)
+                        ImGui::TextUnformatted("TARGET_OSX");
+#endif
+#if defined(TARGET_WIN32)
+                        ImGui::TextUnformatted("TARGET_WIN32");
+#endif
+#if defined(TARGET_OF_IOS)
+                        ImGui::TextUnformatted("TARGET_OF_IOS");
+#endif
+#if defined(TARGET_ANDROID)
+                        ImGui::TextUnformatted("TARGET_ANDROID");
+#endif
+#if defined(TARGET_EMSCRIPTEN)
+                        ImGui::TextUnformatted("TARGET_EMSCRIPTEN");
+#endif
+#if defined(OF_TARGET_API_VULKAN)
+                        ImGui::TextUnformatted("OF_TARGET_API_VULKAN");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GLEW");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GLAD");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GLAD2)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GLAD2");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GL3W");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING3)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GLBINDING3");
+#endif
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING2)
+                        ImGui::TextUnformatted("IMGUI_IMPL_OPENGL_LOADER_GLBINDING2");
+#endif
+                        }
+
+                        ImGui::TreePop();
+                    }
+                    ImGui::Dummy({10,10});
+
 					// OpenGL environment
-					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("OpenGL Environment");
 					ImGui::Text( "Vendor            : %s", glGetString(GL_VENDOR) );
 					ImGui::Text( "GPU               : %s", glGetString(GL_RENDERER) );
-					ImGui::Text( "OpenGL version    : %s", glGetString(GL_VERSION) ); // Version + eventual vendor info
+					ImGui::Text( "OpenGL version    : %s (%s)", glGetString(GL_VERSION), ofGetCurrentRenderer()->getType().c_str() ); // Version + eventual vendor info
 
 // Note: Separated versions are only available in OpenGL 3+ (glsl 1.3+) (null on GLSL 1.1 and 1.2 at least) :
 #if defined(GL_MAJOR_VERSION) && defined(GL_MINOR_VERSION)
@@ -1282,7 +1431,26 @@ namespace ofxImGui
 
 					ImGui::SeparatorText(OFXIMGUI_LOADED_BACKEND " Backend Information");
 #if defined(OFXIMGUI_BACKEND_GLFW)
-					ImGui::TextWrapped("GLFW version : %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION );
+					ImGui::TextWrapped( "GLFW version      : %i.%i.%i", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION );
+					// Requested OpenGL version
+					if( ofAppGLFWWindow* glfwWin = dynamic_cast< ofAppGLFWWindow* >(ofGetCurrentWindow().get()) ){
+						ofGLFWWindowSettings GLFWsettings = glfwWin->getSettings();
+						if( auto GLESsettings = dynamic_cast< ofGLESWindowSettings* >( &GLFWsettings ) ){
+							#ifdef TARGET_OPENGLES
+							ImGui::Text("OpenGL ES version : %i  (requested)", GLESsettings->glesVersion );
+							#else
+							ImGui::Text("OpenGL ES version : [unknown]  (requested)");
+							#endif
+						}
+						if( auto GLsettings = dynamic_cast< ofGLWindowSettings* >( &GLFWsettings ) ){
+							#ifndef TARGET_OPENGLES
+							ImGui::Text("OpenGL version    : %i.%i (requested)", GLFWsettings.glVersionMajor, GLFWsettings.glVersionMinor) ;
+							#else
+							ImGui::Text("OpenGL version    : [unknown]  (requested)");
+							#endif
+						}
+					}
+
 
 					ImGui::Dummy({10,10});
 					ImGui::SeparatorText("GLFW Callbacks");
@@ -1445,7 +1613,137 @@ namespace ofxImGui
 		#endif
 					ImGui::Bullet(); ImGui::TextWrapped("ImGui input is parsed from glfw events by the native imgui_impl_glfw callbacks.");
 	#endif // End Callbacks overview
+					ImGui::Dummy({10,10});
 
+					// Gamepad Info
+					ImGui::SeparatorText("GLFW Gamepads");
+					// Only GLFW > 3.3 has gamepad/joystick functions
+#	if GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 3 // same as GLFW_HAS_GAMEPAD_SUPPORT (hardcoded to prevent inclusion of imgui_impl_glfw.h)
+					// Count joysticks
+					int detectedJoysticks = 0;
+					for(int joyNum = GLFW_JOYSTICK_1; joyNum < GLFW_JOYSTICK_LAST; joyNum++){
+						if( glfwJoystickPresent(joyNum) ) detectedJoysticks++;
+					}
+
+                    ImGui::Text("Detected gamepads: %i", detectedJoysticks);
+                    ImGui::Text("Gamepad used for navigation :");
+                    if(detectedJoysticks>0){
+                        ImGui::Indent();
+                        ImGui::TextDisabled("Dear ImGui uses GLFW_JOYSTICK_1 (hardcoded) for navigation.");
+
+                        if(glfwJoystickIsGamepad(GLFW_JOYSTICK_1)){
+                            ImGui::Text("Name : %s", glfwGetGamepadName(GLFW_JOYSTICK_1));
+                            ImGui::Text("GUID : %s", glfwGetJoystickGUID(GLFW_JOYSTICK_1));
+
+                            if(!(ImGui::GetIO().BackendFlags & ImGuiBackendFlags_HasGamepad)){
+                                ImGui::Text("The gamepad is found but gamepad nativation is disabled !");
+                                ImGui::CheckboxFlags("ImGuiBackendFlags_HasGamepad", &ImGui::GetIO().BackendFlags, ImGuiBackendFlags_HasGamepad);
+                            }
+                        }
+                        else if( glfwJoystickPresent(GLFW_JOYSTICK_1) ){
+                            ImGui::Text("The device mapped to GLFW_JOYSTICK_1 has no GLFW gamepad mappings.)");
+                            ImGui::Text("Joystick name : %s", glfwGetJoystickName(GLFW_JOYSTICK_1));
+                            ImGui::Text("Joystick GUID : %s", glfwGetJoystickGUID(GLFW_JOYSTICK_1));
+                        }
+                        else {
+                            ImGui::TextDisabled("No joystick detected as GLFW_JOYSTICK_1.");
+                        }
+                        ImGui::Unindent();
+                    }
+                    else {
+                        ImGui::SameLine();
+                        ImGui::TextDisabled("[ none ]");
+                    }
+                    ImGui::Dummy({10,10});
+
+                    // Mapping helper
+                    if(ImGui::TreeNode("Can't see your device ?")){
+                        ImGui::TextWrapped(
+                            "GLFW supports the SDL mapping format (also used by Steam).\n"
+                            "See example-debug for usage from code.\n"
+                            "For quick testing, find a mapping for your controller and paste it below."
+                        );
+                        if(ImGui::SmallButton("Open the SDL database")){
+                            ofLaunchBrowser("https://github.com/SDL-mirror/SDL/blob/master/src/joystick/SDL_gamecontrollerdb.h");
+                        }
+                        static char userMapping[512] = "030000005e0400008e02000000000000,X360 Controller (custom),a:b0,b:b1,back:b9,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b10,leftshoulder:b4,leftstick:b6,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b7,righttrigger:a5,rightx:a3,righty:a4,start:b8,x:b2,y:b3,platform:Mac OS X,";
+                        ImGui::InputText("##gamepad-mapping-input", &userMapping[0], 512);
+                        ImGui::SameLine();
+                        if(ImGui::Button("Load Mapping")){
+                            glfwUpdateGamepadMappings(&userMapping[0]);
+                        }
+                        ImGui::TreePop();
+                    }
+                    ImGui::Dummy({10,10});
+
+                    // Gamepad inputs
+                    if(ImGui::TreeNode("Joystick & gamepad inputs")){
+                        ImGui::TextWrapped("This section lets you inspect the GLFW side of your gamepad mappings.");
+                        ImGui::Columns(2);
+
+                        // Glfw Polling
+                        static int glwfBtns[15] = {
+                            GLFW_GAMEPAD_BUTTON_A,
+                            GLFW_GAMEPAD_BUTTON_B,
+                            GLFW_GAMEPAD_BUTTON_X,
+                            GLFW_GAMEPAD_BUTTON_Y,
+                            GLFW_GAMEPAD_BUTTON_LEFT_BUMPER,
+                            GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER,
+                            GLFW_GAMEPAD_BUTTON_BACK,
+                            GLFW_GAMEPAD_BUTTON_START,
+                            GLFW_GAMEPAD_BUTTON_GUIDE,
+                            GLFW_GAMEPAD_BUTTON_LEFT_THUMB,
+                            GLFW_GAMEPAD_BUTTON_RIGHT_THUMB,
+                            GLFW_GAMEPAD_BUTTON_DPAD_UP,
+                            GLFW_GAMEPAD_BUTTON_DPAD_RIGHT,
+                            GLFW_GAMEPAD_BUTTON_DPAD_DOWN,
+                            GLFW_GAMEPAD_BUTTON_DPAD_LEFT
+                        };
+                        static const char* glwfBtnNames[15] = {
+                            "BUTTON_A",            //"GLFW_GAMEPAD_BUTTON_A",
+                            "BUTTON_B",            //"GLFW_GAMEPAD_BUTTON_B",
+                            "BUTTON_X",            //"GLFW_GAMEPAD_BUTTON_X",
+                            "BUTTON_Y",            //"GLFW_GAMEPAD_BUTTON_Y",
+                            "BUTTON_LEFT_BUMPER",  //"GLFW_GAMEPAD_BUTTON_LEFT_BUMPER",
+                            "BUTTON_RIGHT_BUMPER", //"GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER",
+                            "BUTTON_BACK",         //"GLFW_GAMEPAD_BUTTON_BACK",
+                            "BUTTON_START",        //"GLFW_GAMEPAD_BUTTON_START",
+                            "BUTTON_GUIDE",        //"GLFW_GAMEPAD_BUTTON_GUIDE",
+                            "BUTTON_LEFT_THUMB",   //"GLFW_GAMEPAD_BUTTON_LEFT_THUMB",
+                            "BUTTON_RIGHT_THUMB",  //"GLFW_GAMEPAD_BUTTON_RIGHT_THUMB",
+                            "BUTTON_DPAD_UP",      //"GLFW_GAMEPAD_BUTTON_DPAD_UP",
+                            "BUTTON_DPAD_RIGHT",   //"GLFW_GAMEPAD_BUTTON_DPAD_RIGHT",
+                            "BUTTON_DPAD_DOWN",    //"GLFW_GAMEPAD_BUTTON_DPAD_DOWN",
+                            "BUTTON_DPAD_LEFT"     //"GLFW_GAMEPAD_BUTTON_DPAD_LEFT"
+                        };
+                        int axes_count = 0, buttons_count = 0;
+                        const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axes_count);
+                        const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttons_count);
+
+                        // List buttons
+                        ImGui::Text("Num Buttons: %i", buttons_count);
+                        if( buttons ) for(int btn : glwfBtns){
+                            if( buttons[btn]==GLFW_PRESS )
+                                ImGui::Text("%s = %i", glwfBtnNames[btn], buttons[btn]);
+                            else
+                                ImGui::TextDisabled("%s = %i", glwfBtnNames[btn], buttons[btn]);
+                        }
+                        ImGui::NextColumn();
+
+                        // List axes
+                        ImGui::Text("Num Axes: %i", axes_count);
+                        if( axes ) for(int axe = 0; axe < axes_count; axe++){
+                            float tmp = axes[axe];
+                            std::string axeName("Axe ");
+                            axeName.append( std::to_string(axe) );
+                            ImGui::SliderFloat(axeName.c_str(), &tmp, -1.f, 1.f, "%.1f");
+                        }
+                        ImGui::Columns(1);
+                        ImGui::TreePop();
+                    }
+#   else
+                    ImGui::TextWrapped("Your GLFW version does not support gamepads or joysticks.");
+#   endif
 #endif // Backends switch
 					} // Backend Specific Information collapsable
 
@@ -1578,6 +1876,135 @@ namespace ofxImGui
 						ImGui::TextWrapped("WARNING!\nThis window is popped-out, please put it back into the main ofWindow to ensure events are correctly tracked !");
 					}
 
+					// Gamepad
+					ImGui::SeparatorText("Gamepad");
+
+					// Gamepad support
+					ImGui::Text("Gamepad navigation is supported if :");
+					#if defined(OFXIMGUI_BACKEND_GLFW) && (GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 3)
+					bool backendSupportsGamePad = true;
+					#else
+					bool backendSupportsGamePad = false;
+					#endif
+					ImGui::Checkbox("The imgui backend supports it. (GLFW 3.3+)", &backendSupportsGamePad);
+					ImGui::CheckboxFlags("ImGuiConfigFlags_NavEnableGamepad", &ImGui::GetIO().ConfigFlags, ImGuiConfigFlags_NavEnableGamepad);
+					ImGui::CheckboxFlags("A gamepad is detected.", &ImGui::GetIO().BackendFlags, ImGuiBackendFlags_HasGamepad);
+					ImGui::TextDisabled("Selecting amongst multiple devices or mapping buttons is not (yet?) supported.");
+
+					// Draw gamepad GUI inputs
+					auto io = ImGui::GetIO();
+					auto drawlist = ImGui::GetWindowDrawList();
+					if(drawlist){
+						float availWidth = ImGui::GetContentRegionAvail().x;
+						ImVec2 gamepadZonePos = ImGui::GetCursorScreenPos() + ImVec2(availWidth*.05f, 10);
+						ImVec2 gamepadZoneSize = { availWidth*.4f, 50 };
+						gamepadZoneSize.y = { gamepadZoneSize.x * .66f };
+
+                        // Bumpers (LB + RB)
+                        ImVec2 triggersPos = gamepadZonePos+ImVec2(.5f,0.0f)*gamepadZoneSize;
+                        drawlist->AddTriangleFilled( triggersPos + ImVec2(-0.35f, 0.1f)*gamepadZoneSize, triggersPos + ImVec2(-0.33f, 0.f)*gamepadZoneSize, triggersPos + ImVec2(-0.09f, 0.02f)*gamepadZoneSize, ImGui::GetColorU32(ImGui::IsKeyDown(ImGuiKey_GamepadL1)?ImGuiCol_ScrollbarGrabActive:ImGuiCol_FrameBg));
+                        drawlist->AddTriangleFilled( triggersPos + ImVec2(+0.35f, 0.1f)*gamepadZoneSize, triggersPos + ImVec2(+0.33f, 0.f)*gamepadZoneSize, triggersPos + ImVec2(+0.09f, 0.02f)*gamepadZoneSize, ImGui::GetColorU32(ImGui::IsKeyDown(ImGuiKey_GamepadR1)?ImGuiCol_ScrollbarGrabActive:ImGuiCol_FrameBg));
+
+                        // Draw gamepad polygon
+                        ImVec2 gamepadPoints[12] = {
+                            gamepadZonePos+ImVec2(.5f,0.f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.9f,.1f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(1.f,.6f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.9f,.9f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.8f,.9f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.7f,.7f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.5f,.6f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.3f,.7f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.2f,.9f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.1f,.9f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(0.f,.6f)*gamepadZoneSize,
+                            gamepadZonePos+ImVec2(.1f,.1f)*gamepadZoneSize,
+                        };
+                        // Fill
+                        drawlist->AddConvexPolyFilled(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_FrameBg));
+                        // Outline
+                        drawlist->AddPolyline(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_Text), true, 0.5f);
+
+                        // Move Pad
+                        ImVec2 padPos = gamepadZonePos+ImVec2(.3f,0.5f)*gamepadZoneSize;
+                        float padSize = gamepadZoneSize.x*.05f;
+                        drawlist->AddCircleFilled(padPos, padSize, ImGui::GetColorU32(ImGuiCol_Text));
+                        if(ImGui::IsKeyDown(ImGuiKey_GamepadDpadUp))    drawlist->AddCircleFilled(padPos+padSize*.6f*ImVec2(0,-1.f), padSize, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive));
+                        if(ImGui::IsKeyDown(ImGuiKey_GamepadDpadDown))  drawlist->AddCircleFilled(padPos+padSize*.6f*ImVec2(0,+1.f), padSize, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive));
+                        if(ImGui::IsKeyDown(ImGuiKey_GamepadDpadLeft))  drawlist->AddCircleFilled(padPos+padSize*.6f*ImVec2(-1.f,0), padSize, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive));
+                        if(ImGui::IsKeyDown(ImGuiKey_GamepadDpadRight)) drawlist->AddCircleFilled(padPos+padSize*.6f*ImVec2(+1.f,0), padSize, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive));
+
+                        // Left Joystick
+                        ImVec2 leftStickPos = gamepadZonePos+ImVec2(.2f,0.3f)*gamepadZoneSize;
+                        float leftStickSize = gamepadZoneSize.x*.05f;
+                        drawlist->AddCircleFilled(leftStickPos, leftStickSize, ImGui::GetColorU32(ImGuiCol_Text));
+                        ImVec2 leftStickDir = ImVec2(ImGui::IsKeyDown(ImGuiKey_GamepadLStickRight)-ImGui::IsKeyDown(ImGuiKey_GamepadLStickLeft), ImGui::IsKeyDown(ImGuiKey_GamepadLStickDown)-ImGui::IsKeyDown(ImGuiKey_GamepadLStickUp));
+                        if( leftStickDir.x != 0 || leftStickDir.y != 0 )
+                            drawlist->AddCircleFilled(leftStickPos+(leftStickSize*leftStickDir*.6f), leftStickSize, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive));
+
+                        // Modifier Buttons
+                        ImVec2 buttonsPos = gamepadZonePos+ImVec2(.75f,0.35f)*gamepadZoneSize;
+                        float buttonsSize = gamepadZoneSize.x*.04f;
+                        //drawlist->AddCircleFilled(buttonsPos, buttonsSize, ImGui::GetColorU32(ImGuiCol_Text));
+                        drawlist->AddCircleFilled(buttonsPos+buttonsSize*2.f*ImVec2(0,+1.f), buttonsSize, ImGui::GetColorU32(ImGui::IsKeyDown(ImGuiKey_GamepadFaceDown)?ImGuiCol_ScrollbarGrabActive:ImGuiCol_Text));
+                        drawlist->AddCircleFilled(buttonsPos+buttonsSize*2.f*ImVec2(-1.f,0), buttonsSize, ImGui::GetColorU32(ImGui::IsKeyDown(ImGuiKey_GamepadFaceLeft)?ImGuiCol_ScrollbarGrabActive:ImGuiCol_Text));
+                        drawlist->AddCircleFilled(buttonsPos+buttonsSize*2.f*ImVec2(0,-1.f), buttonsSize, ImGui::GetColorU32(ImGui::IsKeyDown(ImGuiKey_GamepadFaceUp)?ImGuiCol_ScrollbarGrabActive:ImGuiCol_Text));
+                        drawlist->AddCircleFilled(buttonsPos+buttonsSize*2.f*ImVec2(+1.f,0), buttonsSize, ImGui::GetColorU32(ImGui::IsKeyDown(ImGuiKey_GamepadFaceRight)?ImGuiCol_ScrollbarGrabActive:ImGuiCol_Text));
+
+                        // Vertical spacer
+                        ImGui::Dummy(ImVec2(availWidth, 10));
+
+                        // Dummy above gamepad
+                        ImGui::Dummy(gamepadZoneSize+ImVec2(availWidth*.1f,0));
+                    }
+
+                    // Inputs table
+                    if( ImGui::TreeNode("Gamepad Navigation Input") ){
+                        ImGui::Columns(2);
+                        ImGui::SeparatorText("Left Stick");
+                        ImGui::SliderFloat("Up##LeftStick",    &ImGui::GetKeyData(ImGuiKey_GamepadLStickUp)->AnalogValue,    0.f, 1.f);
+                        ImGui::SliderFloat("Right##LeftStick", &ImGui::GetKeyData(ImGuiKey_GamepadLStickRight)->AnalogValue, 0.f, 1.f);
+                        ImGui::SliderFloat("Down##LeftStick",  &ImGui::GetKeyData(ImGuiKey_GamepadLStickDown)->AnalogValue, 0.f, 1.f);
+                        ImGui::SliderFloat("Left##LeftStick",  &ImGui::GetKeyData(ImGuiKey_GamepadLStickLeft)->AnalogValue, 0.f, 1.f);
+                        ImGui::Spacing();
+
+                        ImGui::SeparatorText("Right Stick");
+                        ImGui::SliderFloat("Up##RightStick",    &ImGui::GetKeyData(ImGuiKey_GamepadRStickUp)->AnalogValue,    0.f, 1.f);
+                        ImGui::SliderFloat("Right##RightStick", &ImGui::GetKeyData(ImGuiKey_GamepadRStickRight)->AnalogValue, 0.f, 1.f);
+                        ImGui::SliderFloat("Down##RightStick",  &ImGui::GetKeyData(ImGuiKey_GamepadRStickDown)->AnalogValue, 0.f, 1.f);
+                        ImGui::SliderFloat("Left###RightStick",  &ImGui::GetKeyData(ImGuiKey_GamepadRStickLeft)->AnalogValue, 0.f, 1.f);
+
+
+                        ImGui::SeparatorText("Analog Bumpers");
+                        ImGui::SliderFloat("L2",  &ImGui::GetKeyData(ImGuiKey_GamepadL2)->AnalogValue, 0.f, 1.f);
+                        ImGui::SliderFloat("R2",  &ImGui::GetKeyData(ImGuiKey_GamepadR2)->AnalogValue, 0.f, 1.f);
+                        ImGui::Spacing();
+
+                        ImGui::NextColumn();
+                        ImGui::SeparatorText("Buttons");
+#define printBTN(NAME, IMGUI_NAVINPUT) { if(ImGui::IsKeyDown(IMGUI_NAVINPUT)){ ImGui::Text(NAME); } else { ImGui::TextDisabled(NAME); } }
+                        printBTN("GamepadStart",       ImGuiKey_GamepadStart);          // Menu (Xbox)      + (Switch)   Start/Options (PS)
+                        printBTN("GamepadBack",        ImGuiKey_GamepadBack);           // View (Xbox)      - (Switch)   Share (PS)
+                        printBTN("GamepadFaceLeft",    ImGuiKey_GamepadFaceLeft);       // X (Xbox)         Y (Switch)   Square (PS)        // Tap: Toggle Menu. Hold: Windowing mode (Focus/Move/Resize windows)
+                        printBTN("GamepadFaceRight",   ImGuiKey_GamepadFaceRight);      // B (Xbox)         A (Switch)   Circle (PS)        // Cancel / Close / Exit
+                        printBTN("GamepadFaceUp",      ImGuiKey_GamepadFaceUp);         // Y (Xbox)         X (Switch)   Triangle (PS)      // Text Input / On-screen Keyboard
+                        printBTN("GamepadFaceDown",    ImGuiKey_GamepadFaceDown);       // A (Xbox)         B (Switch)   Cross (PS)         // Activate / Open / Toggle / Tweak
+                        printBTN("GamepadDpadLeft",    ImGuiKey_GamepadDpadLeft);       // D-pad Left                                       // Move / Tweak / Resize Window (in Windowing mode)
+                        printBTN("GamepadDpadRight",   ImGuiKey_GamepadDpadRight);      // D-pad Right                                      // Move / Tweak / Resize Window (in Windowing mode)
+                        printBTN("GamepadDpadUp",      ImGuiKey_GamepadDpadUp);         // D-pad Up                                         // Move / Tweak / Resize Window (in Windowing mode)
+                        printBTN("GamepadDpadDown",    ImGuiKey_GamepadDpadDown);       // D-pad Down                                       // Move / Tweak / Resize Window (in Windowing mode)
+                        printBTN("ImGuiKey_GamepadL1", ImGuiKey_GamepadL1);             // L Bumper (Xbox)  L (Switch)   L1 (PS)            // Tweak Slower / Focus Previous (in Windowing mode)
+                        printBTN("ImGuiKey_GamepadR1", ImGuiKey_GamepadR1);             // R Bumper (Xbox)  R (Switch)   R1 (PS)            // Tweak Faster / Focus Next (in Windowing mode)
+                        printBTN("ImGuiKey_GamepadL2", ImGuiKey_GamepadL2);             // L Trig. (Xbox)   ZL (Switch)  L2 (PS) [Analog]
+                        printBTN("ImGuiKey_GamepadR2", ImGuiKey_GamepadR2);             // R Trig. (Xbox)   ZR (Switch)  R2 (PS) [Analog]
+                        printBTN("ImGuiKey_GamepadL3", ImGuiKey_GamepadL3);             // L Stick (Xbox)   L3 (Switch)  L3 (PS)
+                        printBTN("ImGuiKey_GamepadR3", ImGuiKey_GamepadR3);             // R Stick (Xbox)   R3 (Switch)  R3 (PS)
+#undef printBTN
+                        ImGui::Spacing();
+                        ImGui::Columns(1);
+                        ImGui::TreePop();
+                    }
+
 					ImGui::EndTabItem();
 				}
 
@@ -1588,7 +2015,8 @@ namespace ofxImGui
 		ImGui::End();
 
 #else // OFXIMGUI_DEBUG
-		ImGui::TextDisabled("Disabled.\nOnly available when `OFXIMGUI_DEBUG` is set.");
+		// Empty call when OFXIMGUI_DEBUG ain't set !
+		return;
 #endif // OFXIMGUI_DEBUG
 	}
 

@@ -109,8 +109,13 @@ inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window){
 
 #else
 // Define classes, compiler should strip all in optimisation steps as it's just dummy code.
+#ifdef OFXIMGUI_BACKEND_GLFW
 class GLFWwindow;
 class ImGuiContext;
+#else
+struct GLFWwindow;
+struct ImGuiContext;
+#endif
 inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window){}
 inline void ImGui_ImplGlfw_RegisterWindowContext(GLFWwindow* window, ImGuiContext* context){}
 struct ImGui_ImplGlfw_ScopedContext {

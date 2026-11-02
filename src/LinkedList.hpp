@@ -30,7 +30,7 @@ struct LinkedListItem {
 		//LinkedListItem(T_KEY* _key, DATA_REF _data, LinkedListItem<T_KEY, T_DATA>* _next = nullptr) :
 		//	next(_next), key(_key), data(std::move(_data)){}
 		LinkedListItem(T_KEY* _key, DATA_REF _data, LinkedListItem<T_KEY, T_DATA>* _next = nullptr) :
-			next(_next), key(_key), data(_data){}
+			key(_key), data(_data), next(_next){}
 
 	private:
 		LinkedListItem<T_KEY, T_DATA>* next = nullptr;
