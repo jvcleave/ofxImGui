@@ -73,7 +73,8 @@ __*__ Uses the native ImGui backend, offering pop-out-windows (viewports), docki
 
 # GLFW version
 
-The GLFW backend is bound to the GLFW version provided by Openframeworks, which is mostly an old version and even contains some issues related to an embedded pre-release version. Except on Linux where GLFW is not embedded within OpenFrameworks and it depends on your distro. 
+The GLFW backend is bound to the GLFW version provided by Openframeworks, which is mostly an old version and even contains some issues related to an embedded pre-release version.  
+Except on **Linux** where GLFW is not embedded within OpenFrameworks and **it depends on your distro**.
 
 If you use the GLFW version embedded by OpenFrameworks, the biggest drawback is that not all cursors are available, making the GUI a little less intuitive.  
 Also, the viewport user experience is way better with an updated GLFW.  
@@ -90,17 +91,25 @@ On OSX, updating GLFW will also show the (cached) window content while resizing 
 | 0.12.0         | 3.3.8        | [Link](https://github.com/openframeworks/apothecary/commit/bdc421bd28e8b433747759154f29a206d7cc9e41) |
 | 0.12.1         | 3.4          | [Link](https://github.com/openframeworks/apothecary/blob/fae96e615875a701d48dc29cf4a3be24bc472a07/apothecary/formulas/glfw.sh#L13) |
 
-ImGui restrictions by GLFW version. [Source](https://github.com/ocornut/imgui/blob/v1.91.0-docking/backends/imgui_impl_glfw.cpp#L118-L145).  
+ImGui restrictions by GLFW version. [Source](https://github.com/ocornut/imgui/blob/v1.93.0-docking/backends/imgui_impl_glfw.cpp#L188-L215).  
 
 | **GLFW**  | **Missing ImGui Features**   | 
 |-----------|------------------------------|
 | 3.1       | Keyboard input bugs, no window focusing, no window ordering + all below |
-| 3.2       | Uses old gamepad API + all below |
+| 3.2       | No gamepads support + all below |
 | pre-3.3.0 | No resizing cursors, no deny cursor, window hovered, window alpha, multi-monitor-dpi + all below |
 | 3.3.0     | No monitor workarea, no mouse pass-trough + all below |
-| 3.3.8     | None |
+| 3.3.8     | GetPlatform, new cursors, mouse passthrough |
 | 3.4       | None |
 
 oF 0.12.0 now bundles GLFW 3.3.8 which is OK with latest ImGui, but you can always update it to 3.4.
 See [Configure.md](./Configure#update-glfw) for updating GLFW.
 
+- - - -
+
+# GLFW gamepad support
+
+You can navigate your GUI and tweak its parameters using a gamepad (or mouse or keyboard).  
+If your gamepad is not detected, you can search for a GLFW gamepad mapping, or an SDL one as they share the same structure, and there's a good community.
+GLFW updates [come with support for more devices](https://github.com/glfw/glfw/blame/master/src/mappings.h), but if you don't want to update it, you can inject a [community-provided mapping](https://github.com/SDL-mirror/SDL/blob/master/src/joystick/SDL_gamecontrollerdb.h).
+See example-debug for more details on using custom mappings. See the ofxImGuiDebugWindow for gamepad detection.
