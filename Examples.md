@@ -58,3 +58,7 @@ How to use one ImGui instance in a **multiwindow ofApp**. GUIs are isolated. Som
 
 Shows how to **use an ofxImGui addon**. Requires [ofxImGuizmo](https://github.com/nariakiiwatani/ofxImGuizmo.git).  
 For pure ImGui addons (many more), see example-advanced.
+
+## example-conway
+
+Playful example implementing the Conway Way Of Life while demonstratring how to use ofxImGui::Canvas and ofxImGui::viewport.

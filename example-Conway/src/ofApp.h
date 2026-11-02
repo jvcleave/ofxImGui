@@ -29,6 +29,8 @@
 // ---------------------------------------------------------------------------
 // Pattern metadata
 // ---------------------------------------------------------------------------
+namespace Conway {
+// Because : `Pattern` collides with MacOSX11.1.sdk/System/Library/Frameworks/ApplicationServices.framework/Frameworks/QD.framework/Headers/Quickdraw.h:144:8
 struct Pattern {
     const char* name;
     const char* category;   // "Spaceship" | "Gun" | "Oscillator" | "Still Life" | "Methuselah"
@@ -38,9 +40,10 @@ struct Pattern {
     const char* funFact;
     std::vector<glm::ivec2> cells;  // relative offsets (centred on bbox centre)
 };
+}
 
 // Declared in ofApp.cpp — accessed globally for the filter combo
-extern const std::vector<Pattern> kPatterns;
+extern const std::vector<Conway::Pattern> kPatterns;
 
 // ---------------------------------------------------------------------------
 class ofApp : public ofBaseApp {

@@ -6,7 +6,7 @@
 // Pattern library
 // ===========================================================================
 // Cells are relative offsets; stamp() centres them on the click point.
-const std::vector<Pattern> kPatterns = {
+const std::vector<Conway::Pattern> kPatterns = {
 // ---------------------------------------------------------------------------
 // SPACESHIPS
 // ---------------------------------------------------------------------------
