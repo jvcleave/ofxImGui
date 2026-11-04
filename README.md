@@ -72,7 +72,12 @@ While interfacing your ofApp with ofxImGui, a good practise is to enable `OFXIMG
 
 ## Usage / Code Samples
 
+> [!TIP]
+> **AI docs**
+> There's an AI powered, user provided [configuration](./configuration.md), [getting started](./getting-started.md) and [helpers](./helpers.md) in the [docs](./docs) folder.
+
 ### Setup
+
 - Add a gui instance to your ofApp : `ofxImGui::Gui gui;`
 - Call `mygui.setup()`, you can pass a few arguments to setup ofxImGui to your needs :  
 - `SetupState Gui::setup(BaseTheme* theme_, bool autoDraw_, ImGuiConfigFlags customFlags_, bool _restoreGuiState, bool _showImGuiMouseCursor )`

@@ -3,9 +3,15 @@
 - - - -
 
 # Platform Compatibility
+
 ofxImGui both implements a custom oF backend (similar to Jvcleave's original implementation) and a "native imgui backend". The custom oF backend is a very simple integration of basic ImGui functionality. It's very well integrated within OF but doesn't feature lots of advanced imgui features. On the opposite, the native GLFW backend provides all ImGui features but has to intercept the Glfw callbacks set by OpenFrameworks then forward them again.
 
-For both backends, MacOs, Windows and Linux have been tested, but some more specific platforms remain to be tested; if you do so, please report back your findings.
+### Deployment Targets
+
+Most common OpenFrameworks targets are supported and regularly tested : MacOs, Windows and Linux.
+Meanwhile, some more specific platforms remain to be tested (Android); if you do so, please report back your findings.
+Rpi is also supported with and without desktop environment, but it's not regularly tested.
+Emscripten has also been reported to work using the official GLFW3 compatibility layer.
 
 *Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. Anyways, it's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with Raspbian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
 
