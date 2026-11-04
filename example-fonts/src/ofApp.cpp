@@ -1,18 +1,25 @@
 #include "ofApp.h"
 
-#include "imgui_stdlib.h" // For string input widgets
-
 // Important !
 // Be sure to include each font file only 1 time from a cpp file. (do not include from a header file)
+#include "imconfig.h" // For getting config defines correctly
 #include "IconsFontAwesome5.h"
 #include "ProggyTiny.cpp"
+#include "imgui_internal.h" // For advanced font utils
 
+#ifdef IMGUI_ENABLE_STB_TRUETYPE
+#include "imgui_stdlib.h" // For string input widgets & STB font loading
+#endif
+
+#ifdef IMGUI_ENABLE_FREETYPE
+#include "imgui_freetype.h" // For freetype font loader utils
+#endif
 
 //--------------------------------------------------------------
 void ofApp::setup()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
-    
+
     // The call to setup() is required BEFORE adding fonts.
     bool autoDraw = true;
     ofxImGui::BaseTheme* theme = nullptr;
@@ -20,7 +27,13 @@ void ofApp::setup()
     bool restoreGuiState = false;
     bool showImGuiMouseCursor = false;
     gui.setup(theme, autoDraw, customFlags, restoreGuiState, showImGuiMouseCursor);
-    
+
+    // Select the global font loader
+#ifdef OFXIMGUI_FONTLOADER_DUAL
+    //ImGui::GetIO().Fonts->SetFontLoader(ImFontAtlasGetFontLoaderForStbTruetype());
+    ImGui::GetIO().Fonts->SetFontLoader(ImGuiFreeType::GetFontLoader());
+#endif
+
     // Add polish characters
     static const ImWchar polishCharRanges[] =
     {
@@ -32,10 +45,29 @@ void ofApp::setup()
     static const ImWchar* myCharRanges = polishCharRanges;
     //myCharRanges = normalCharRanges; // Uncomment to disable polish characters
 
+    // Font loader control (optional, activated with `OFXIMGUI_FONTLOADER_DUAL`)
+    ImFontConfig robotoConfig;
+#ifdef IMGUI_ENABLE_FREETYPE
+    // Set your loader flags here
+    // Let's make Roboto oblique.
+    robotoConfig.FontLoaderFlags = ImGuiFreeTypeLoaderFlags_Oblique;
+    //robotoConfig.FontLoaderFlags |= ImGuiFreeTypeLoaderFlags_Bold;
+    // Individually set to freetype (useful when globally set to STB).
+    // Error ! The FreeType loader can only be set globally for now.
+    // It will assert if uncommented, for now we must set the global font loader to freetype.
+    //robotoConfig->FontLoader = ImGuiFreeType::GetFontLoader();
+#endif
+
+#ifdef IMGUI_ENABLE_STB_TRUETYPE
+    // BUT the STB loader can be set individually. Useful then the global loader is set to FreeType.
+    // Note: Disables the ImGuiFreeTypeLoaderFlags_ set above.
+    // robotoConfig.FontLoader = ImFontAtlasGetFontLoaderForStbTruetype();
+#endif
+
     // Set font and keep a reference of it for using it later
     // Font files are located within the data folder.
-    // Note: Takes ownership. Use for reference only. ImGui handles font ownership (unless explicitly requested by the user)
-    customFont = gui.addFont("Roboto-Medium.ttf", 16.f, nullptr, myCharRanges, false);
+    // Note: ImGui takes ownership. Use for reference only. ImGui handles font ownership (unless explicitly requested by the user)
+    customFont = gui.addFont(ofToDataPath("Roboto-Medium.ttf", true), 16.f, &robotoConfig, myCharRanges, false);
 
     // Add fontawesome fonts
     // Demonstrates merging additional characters into an existing font
@@ -44,8 +76,8 @@ void ofApp::setup()
     useBigFaIcons = true; // Enable to demonstrate making the font bigger (optional)
     ImFontConfig faConfig;
     faConfig.MergeMode = true; // Merge within the previously used ImFont
-    faConfig.GlyphMinAdvanceX = 13.0f; // To make the icon monospaced (optional)
-    float faHeight = faConfig.MergeMode ? 16.f : 20.f; // It's advised to use the same height in merge mode !
+    float faHeight = faConfig.MergeMode ? customFont->LegacySize : 20.f; // It's advised to use the same height in merge mode !
+    faConfig.GlyphMinAdvanceX = faHeight; // To make the icon monospaced (optional)
     // Make the fonts bigger
     if(useBigFaIcons){
         faHeight += 8;
@@ -55,9 +87,10 @@ void ofApp::setup()
             faConfig.GlyphOffset.y = 8/2; // Center icons vertically
         }
     }
+
     // Inject glyphs
     static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-    gui.addFont(FONT_ICON_FILE_NAME_FAR, faHeight, &faConfig, icon_ranges); // FONT_ICON_FILE_NAME_FAR = "fa-regular-400.ttf"
+    gui.addFont(ofToDataPath(FONT_ICON_FILE_NAME_FAR, true), faHeight, &faConfig, icon_ranges); // FONT_ICON_FILE_NAME_FAR = "fa-regular-400.ttf"
 
     // You can also load fonts from memory, optionally compressed
     // It will compile the font within the binary, so you don't have to ship the font file separately. Increases binary size.
@@ -195,7 +228,9 @@ void ofApp::draw(){
     ImGui::Dummy(ImVec2(0,10));
     ImGui::CollapsingHeader("ImGui Font Debugger", ImGuiTreeNodeFlags_Leaf);
     //ImGui::ShowFontSelector("Default font");
-    ImGui::ShowStyleEditor();
+    ImGui::Text("Below you can tweak some font settings.");
+    ImGui::TextWrapped("In 'Font List' > '' you can change the loader (there's a visible difference only when the font is scaled).");
+    ImGui::ShowFontAtlas(ImGui::GetIO().Fonts);
 
     ImGui::End(); // close window
     

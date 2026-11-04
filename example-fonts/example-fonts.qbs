@@ -14,8 +14,7 @@ Project{
         cpp.cxxLanguageVersion: 'c++17'
 
         files: [
-            'src/main.cpp',
-            'src/ofApp.cpp',
+            'src/*.cpp',
             'src/*.h'
         ]
 
@@ -31,7 +30,10 @@ Project{
         of.cFlags: []           // flags passed to the c compiler
         of.cxxFlags: []         // flags passed to the c++ compiler
         of.linkerFlags: []      // flags passed to the linker
-        of.defines: ['OFXIMGUI_DEBUG']          // defines are passed as -D to the compiler
+        of.defines: [ // defines are passed as -D to the compiler
+            'OFXIMGUI_DEBUG',
+            'OFXIMGUI_FONTLOADER_DUAL', // enable both loaders
+        ]
                                 // and can be checked with #ifdef or #if in the code
         of.frameworks: []       // osx only, additional frameworks to link with the project
         of.staticLibraries: []  // static libraries

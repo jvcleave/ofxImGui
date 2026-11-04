@@ -443,6 +443,8 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	bool Gui::rebuildFontsTexture(){
 #if IMGUI_VERSION_NUM >= 19200
+		// Note: could be forced with :
+		// ImFontAtlasBuildClear(ImGui::GetIO().Fonts); // Rebuild fonts
 		return true; // not needed anymore = done !
 #else
 		if(context==nullptr){

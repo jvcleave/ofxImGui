@@ -54,6 +54,15 @@
 	#define OFXIMGUI_COMPILER_MESSAGE(X)
 #endif
 
+// Font Loader
+//#define OFXIMGUI_FONTLOADER_FREETYPE // Alternative freetype fonts loader, with more rendering options (bitmap,monochrome,bold,italic,colors,etc)
+//#define OFXIMGUI_FONTLOADER_STB // Default - STB (not secure for loading non-controlled fonts / hackable)
+//#define OFXIMGUI_FONTLOADER_DUAL // Advanced: Compile with both, use stb (by default)
+// Set defaults / force-define a required fontloader
+#if !defined(OFXIMGUI_FONTLOADER_FREETYPE) && !defined(OFXIMGUI_FONTLOADER_STB) && !defined(OFXIMGUI_FONTLOADER_DUAL)
+#define OFXIMGUI_FONTLOADER_STB
+#endif
+
 // Touch events support ?
 // - - - - - - - - - - - - - - - -
 // Todo: add explicit compiler flag so devices such as Windows/Linux with TouchScreens can use it too ?

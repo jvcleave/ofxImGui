@@ -2,7 +2,6 @@
 
 #include "ofMain.h"
 #include "ofxImGui.h"
-#include "IconsFontAwesome5.h"
 
 class ofApp : public ofBaseApp{
 public:
