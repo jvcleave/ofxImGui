@@ -142,10 +142,17 @@ namespace ofxImGui
 		// Need to set context here too ?
 
 		// Ensure GL is in a compatible state — OF / ofTexture can leave non-default unpack state.
-#ifndef TARGET_OPENGLES
+		// Very version-specific fix, see #138 (keep in case, now the backend does it)
+#if IMGUI_VERSION_NUM <= 19210 && IMGUI_VERSION_NUM >= 19200
+		// Note: required for ofApps that use ofTexture which can set/leave this to a different value.
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
+		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+#elif !defined(TARGET_OPENGLES) && IMGUI_VERSION_NUM > 19210 && IMGUI_VERSION_NUM < 19290
+		// Will be fixed in 1.92.9 ?
+		// See : https://github.com/ocornut/imgui/pull/9473
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+#endif
 
 		// Draw !
 		if (ofIsGLProgrammableRenderer()){
