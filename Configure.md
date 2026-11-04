@@ -16,12 +16,13 @@ An easy way to get started is to call the configuration assistant (see below) an
 
 ## Fonts
 
-Different font scaling settings are provided which makes the GUI very usable on displays with different resolutions.
-See example-fonts for fine-tuning font rendering & using loaders.
+Fonts are automagically build/stacked into an OpenGL texture by ImGui : it grows as new characters are rendered into the GUI.
+Different font scaling settings are provided which makes the GUI very usable & configureable on displays with different resolutions.
+See [example-fonts](./example-fonts) for fine-tuning font rendering & using loaders.
 
 Fonts can be loaded with either one of these compilation flags :
 - `OFXIMGUI_FONTLOADER_FREETYPE` : Advanced loader that uses FreeType (already shipped with OpenFrameworks too). Lets you load fonts with aliasing, bold, italic, monochrome, bitmap, colors, etc.
-- `OFXIMGUI_FONTLOADER_STB` : Default. Simple & lightweight imgui-provided fontloaded Not secure for loading user-provided fonts.
+- `OFXIMGUI_FONTLOADER_STB` : Default. Simple & lightweight imgui-provided fontloader. Not secure for loading user-provided fonts.
 - `OFXIMGUI_FONTLOADER_DUAL` : Compile both; use STB by default.
 
 ## Backends 

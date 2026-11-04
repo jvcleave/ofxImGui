@@ -30,7 +30,9 @@ void ofApp::setup()
 
     // Select the global font loader
 #ifdef OFXIMGUI_FONTLOADER_DUAL
+    // Use STB loader
     //ImGui::GetIO().Fonts->SetFontLoader(ImFontAtlasGetFontLoaderForStbTruetype());
+    // Use FreeType loader
     ImGui::GetIO().Fonts->SetFontLoader(ImGuiFreeType::GetFontLoader());
 #endif
 
@@ -228,8 +230,16 @@ void ofApp::draw(){
     ImGui::Dummy(ImVec2(0,10));
     ImGui::CollapsingHeader("ImGui Font Debugger", ImGuiTreeNodeFlags_Leaf);
     //ImGui::ShowFontSelector("Default font");
-    ImGui::Text("Below you can tweak some font settings.");
-    ImGui::TextWrapped("In 'Font List' > '' you can change the loader (there's a visible difference only when the font is scaled).");
+    ImGui::Text("Below you can tweak & inspect some font settings.");
+    ImGui::Bullet();
+    ImGui::TextWrapped("You can try different font family, its size and scales to find optimal rendering.");
+    ImGui::Bullet();
+    ImGui::TextWrapped(
+        "In 'Font List' > 'Loader' you can change the loader and its flags.\n"
+        " - there's a visible difference only when the font is scaled.\n"
+        " - flags can be set individually or globally."
+    );
+    ImGui::SeparatorText("Font & Scaling");
     ImGui::ShowFontAtlas(ImGui::GetIO().Fonts);
 
     ImGui::End(); // close window
