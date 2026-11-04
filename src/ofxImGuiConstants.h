@@ -11,6 +11,9 @@
 // #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_PRIMARY_VP 0|1 --> disable imgui glfw backend modification to allow multiple context for using imgui with multiple ofAppBaseWindows
 // #define OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP 0|1 --> Disable modifications to imgui_impl_glfw, disabling support for using ofxImGui in a multi-windowed-ofApp with viewports enabled.
 
+// Wondering what all these settings are ?
+// The easiest way is to add `gui.drawOfxImGuiDebugWindow()` to your ofApp and follow the "doctor" instructions !
+
 // Grab ofConstants
 #include "ofConstants.h"
 
