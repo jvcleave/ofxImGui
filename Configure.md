@@ -10,8 +10,8 @@ By setting them explicitly, you can enforce a specific way to meet your needs.
 An easy way to get started is to call the configuration assistant (see below) and interactively explore your options.
 
 > [!TIP]
-> ** Configuration assistant**
-> To have an insight on how your ofxImGui interfaces with ImGui and OpenFrameworks, you can call `gui.drawOfxImGuiDebugWindow();` together with defining `OFXIMGUI_DEBUG`.
+> **Configuration assistant**  
+> To have an insight on how your ofxImGui interfaces with ImGui and OpenFrameworks, you can call `gui.drawOfxImGuiDebugWindow();` together with defining `OFXIMGUI_DEBUG`.  
 > It contains an assistant that provides an oversight of your current configuration. It also provides some explanations and suggestions for gradually improving your configuration (to get the most out of OF+ImGui).
 
 ## Fonts

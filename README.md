@@ -73,7 +73,7 @@ While interfacing your ofApp with ofxImGui, a good practise is to enable `OFXIMG
 ## Usage / Code Samples
 
 > [!TIP]
-> **AI docs**
+> **AI docs**  
 > There's an AI powered, user provided [configuration](./configuration.md), [getting started](./getting-started.md) and [helpers](./helpers.md) in the [docs](./docs) folder.
 
 ### Setup

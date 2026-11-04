@@ -9,7 +9,7 @@ ofxImGui both implements a custom oF backend (similar to Jvcleave's original imp
 ### Deployment Targets
 
 Most common OpenFrameworks targets are supported and regularly tested : MacOs, Windows and Linux.
-Meanwhile, some more specific platforms remain to be tested (Android); if you do so, please report back your findings.
+Meanwhile, some more specific platforms remain to be tested (Android, iOS, etc); if you do so, please report back your findings.
 Rpi is also supported with and without desktop environment, but it's not regularly tested.
 Emscripten has also been reported to work using the official GLFW3 compatibility layer.
 
