@@ -388,9 +388,14 @@ namespace ofxImGui
 		ImGui::SetCurrentContext(context->imguiContext);
 		ImGuiIO& io = ImGui::GetIO();
 
-		// Pass in a good path, this addon is used in different versions of OF
-		// Especially the raspberry seems to be a version behind. Master Branch / Release 
-		std::string filePath = fontPath; //ofFilePath::getAbsolutePath(fontPath);
+		std::string absDataPath = ofFilePath::getAbsolutePath(fontPath, true);
+		// Within data folder (=original ofxImGui AddFont() behaviour, for compatibility)
+		const bool absDataPathExists = ofFile(absDataPath).exists();
+		// We still want to sanitize the path
+		// (as imgui can be difficult with some path notations such as `~/documents/myfont.ttf`)
+		// This addon is used in different versions of OF, non-data paths should remain possible.
+		// Especially the raspberry seems to have different path logics
+		std::string filePath = absDataPathExists?absDataPath:ofFilePath::getAbsolutePath(fontPath, false);
 
         ImFont* font = io.Fonts->AddFontFromFileTTF(filePath.c_str(), fontSize, _fontConfig, _glyphRanges);
 
