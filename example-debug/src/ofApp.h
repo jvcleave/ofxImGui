@@ -144,7 +144,7 @@ class ofApp : public ofBaseApp {
 //            if( dynamic_cast< ofAppGlutWindow* >(window.get()) )
 //                ofLogNotice("Window is Glut");
 //            if( dynamic_cast< ofAppEGLWindow* >(window.get()) )
-//                ofLogNotice("Window is GLFW");
+//                ofLogNotice("Window is EGL");
 //            if( dynamic_cast< ofAppNoWindow* >(window.get()) )
 //                ofLogNotice("Window is GLFW");
 		}

@@ -43,9 +43,8 @@ void ofApp::setup()
         0x0100, 0x01FF, // Polish characters
         0,
     };
-    static const ImWchar* normalCharRanges = ImGui::GetIO().Fonts->GetGlyphRangesDefault();
     static const ImWchar* myCharRanges = polishCharRanges;
-    //myCharRanges = normalCharRanges; // Uncomment to disable polish characters
+    //myCharRanges = ImGui::GetIO().Fonts->GetGlyphRangesDefault(); // Uncomment to disable polish characters & use the normal set
 
     // Font loader control (optional, activated with `OFXIMGUI_FONTLOADER_DUAL`)
     ImFontConfig robotoConfig;

@@ -1,6 +1,8 @@
 // File: 'ProggyTiny.ttf' (35656 bytes)
 // Exported using binary_to_compressed_c.cpp
+[[maybe_unused]]
 static const unsigned int ProggyTiny_compressed_size = 8758;
+[[maybe_unused]]
 static const unsigned int ProggyTiny_compressed_data[8760/4] =
 {
     0x0000bc57, 0x00000000, 0x488b0000, 0x00000400, 0x00010037, 0x000c0000, 0x00030080, 0x2f534f40, 0x73eb8732, 0x01000010, 0x2c158248, 0x616d634e, 
