@@ -28,7 +28,6 @@
 #pragma once
 #include "imgui.h"      // IMGUI_IMPL_API
 #ifndef IMGUI_DISABLE
-#if !defined(TARGET_OPENGLES) // CUSTOM OFXIMGUI ADDED LINE: no OpenGL 2 on GLES (iOS, Android, Emscripten, Raspberry Pi)
 
 // Follow "Getting Started" link and check examples/ folder to learn about using backends!
 IMGUI_IMPL_API bool     ImGui_ImplOpenGL2_Init();
@@ -43,5 +42,4 @@ IMGUI_IMPL_API void     ImGui_ImplOpenGL2_DestroyDeviceObjects();
 // (Advanced) Use e.g. if you need to precisely control the timing of texture updates (e.g. for staged rendering), by setting ImDrawData::Textures = nullptr to handle this manually.
 IMGUI_IMPL_API void     ImGui_ImplOpenGL2_UpdateTexture(ImTextureData* tex);
 
-#endif // !TARGET_OPENGLES, CUSTOM OFXIMGUI ADDED LINE
 #endif // #ifndef IMGUI_DISABLE

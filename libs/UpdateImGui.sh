@@ -129,11 +129,15 @@ if [ `uname -s` = "Darwin" ] ; then
 	fi;
 fi;
 
-echo "\nApplying OpenGL 2 GLES guard..."
-# The OpenGL 2 backend uses desktop-only GL (glPushAttrib, GL_CLAMP...): compile it out on GLES targets
-for f in ./imgui/backends/imgui_impl_opengl2.h ./imgui/backends/imgui_impl_opengl2.cpp; do
-	perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if !defined(TARGET_OPENGLES) \/\/ CUSTOM OFXIMGUI ADDED LINE: no OpenGL 2 on GLES (iOS, Android, Emscripten, Raspberry Pi)\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ !TARGET_OPENGLES, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$f"
-done
+# Disabled because old rpis run gles1. The opengl2 backend can be run on gles1 with the injected gles1CompatibilityHacks.
+# If this breaks : the `TARGET_OPENGLES` condition needs to be changed.	
+if false ; then
+	echo "\nApplying OpenGL 2 GLES guard..."
+	# The OpenGL 2 backend uses desktop-only GL (glPushAttrib, GL_CLAMP...): compile it out on GLES targets
+	for f in ./imgui/backends/imgui_impl_opengl2.h ./imgui/backends/imgui_impl_opengl2.cpp; do
+		perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if !defined(TARGET_OPENGLES) \/\/ CUSTOM OFXIMGUI ADDED LINE: no OpenGL 2 on GLES (iOS, Android, Emscripten, Raspberry Pi)\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ !TARGET_OPENGLES, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$f"
+	done
+fi;
 
 echo "\nApplying GLFW multi context patch with obj-c ARC support..."
 # Option 1 : Patch file ?
