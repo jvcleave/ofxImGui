@@ -12,6 +12,19 @@ Git [commit tags](https://github.com/jvcleave/ofxImGui/tags) :
 
 - - - -
 
+# ofxImGui 1.93.x (develop)
+
+- Feature: Allow non-data paths for font loading (fixes rpi paths).
+- Feature: FreeType font loader for more precise control on text rendering (opt-in).
+- Feature: Autoscaling GUI on HiDPI displays (GLFW only).
+- Feature: New AI generated docs.
+- Feature: Better game pad support in debug window and explain mappings.
+- Feature: Canvas and Viewport widgets.
+- Examples: Emscripten examples added.
+- Fix: Rpi & GLES compilation.
+
+- - - -
+
 # ofxImGui 1.92.x (develop)
 
 - Feature: New compiler flag to disable glfw version hacks `OFXIMGUI_GLFW_NO_VERSION_HACKS`.
