@@ -20,6 +20,8 @@ Git [commit tags](https://github.com/jvcleave/ofxImGui/tags) :
 - Feature: New AI generated docs.
 - Feature: Better game pad support in debug window and explain mappings.
 - Feature: Canvas and Viewport widgets.
+- Feature: ImGuiTestSuite support for automated GUI tests (undocumented yet).
+- Feature: CI builds for continuous testing.
 - Examples: Emscripten examples added.
 - Fix: Rpi & GLES compilation.
 
