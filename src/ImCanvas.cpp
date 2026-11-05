@@ -44,7 +44,7 @@ void DrawList::drawRect(float x, float y, float w, float h) {
     ImVec2 a = toScreen(x,     y    );
     ImVec2 b = toScreen(x + w, y + h);
     if (fill_) dl_->AddRectFilled(a, b, col());
-    else       dl_->AddRect(a, b, col(), 0.f, 0, lineWidth_);
+    else       dl_->AddRect(a, b, col(), 0.f, lineWidth_);
 }
 
 void DrawList::drawRect(const ofRectangle& r) {
@@ -56,7 +56,7 @@ void DrawList::drawRectRounded(float x, float y, float w, float h, float radius)
     ImVec2 a = toScreen(x,     y    );
     ImVec2 b = toScreen(x + w, y + h);
     if (fill_) dl_->AddRectFilled(a, b, col(), radius);
-    else       dl_->AddRect(a, b, col(), radius, 0, lineWidth_);
+    else       dl_->AddRect(a, b, col(), radius, lineWidth_);
 }
 
 void DrawList::drawCircle(float x, float y, float radius) {
@@ -135,9 +135,8 @@ void DrawList::drawPath(const ofPath& p, glm::vec2 translate, float scale) {
         if (fill_)
             dl_->PathFillConvex(col());
         else
-            dl_->PathStroke(col(),
-                            subPathClosed ? ImDrawFlags_Closed : ImDrawFlags_None,
-                            lineWidth_);
+            dl_->PathStroke(col(), lineWidth_,
+                            subPathClosed ? ImDrawFlags_Closed : ImDrawFlags_None);
         subPathOpen   = false;
         subPathClosed = false;
     };
@@ -198,7 +197,7 @@ void DrawList::endShape(bool close) {
         dl_->AddConvexPolyFilled(path_.data(), static_cast<int>(path_.size()), col());
     else
         dl_->AddPolyline(path_.data(), static_cast<int>(path_.size()), col(),
-                         close ? ImDrawFlags_Closed : ImDrawFlags_None, lineWidth_);
+                         lineWidth_, close ? ImDrawFlags_Closed : ImDrawFlags_None);
     path_.clear();
 }
 
@@ -221,7 +220,7 @@ bool Canvas::begin(const char* id, ImVec2 size, bool drawBorder) {
     drawList->PushClipRect(pos_, clipMax, true);
 
     if (drawBorder)
-        drawList->AddRect(pos_, clipMax, IM_COL32(110, 110, 110, 200), 2.f, 0, 1.f);
+        drawList->AddRect(pos_, clipMax, IM_COL32(110, 110, 110, 200), 2.f, 1.f);
 
     dl_    = DrawList(drawList, pos_);
     begun_ = true;

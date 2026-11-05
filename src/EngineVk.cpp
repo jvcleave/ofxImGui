@@ -209,7 +209,7 @@ namespace ofxImGui
 
 		dc.setUniform( "modelViewProjectionMatrix", ortho_projection );
 
-		for ( int n = 0; n < draw_data->CmdListsCount; n++ ){
+		for ( int n = 0; n < draw_data->CmdLists.Size; n++ ){
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 
 			dc.allocAndSetAttribute( 0, (void*)cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof( ImDrawVert ), alloc );
