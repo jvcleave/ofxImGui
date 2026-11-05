@@ -1468,8 +1468,8 @@ static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
         glfwMakeContextCurrent(vd->Window);
         glfwSwapInterval(0);
     }
-	ImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext()); // CUSTOM OFXIMGUI ADDED LINE
     bd->LastMouseCursor = nullptr; // Invalidate so that cursor is set again
+	ImGui_ImplGlfw_RegisterWindowContext(vd->Window, ImGui::GetCurrentContext()); // CUSTOM OFXIMGUI ADDED LINE
 }
 
 static void ImGui_ImplGlfw_DestroyWindow(ImGuiViewport* viewport)
