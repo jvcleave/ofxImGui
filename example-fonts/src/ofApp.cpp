@@ -7,9 +7,9 @@
 #include "ProggyTiny.cpp"
 #include "imgui_internal.h" // For advanced font utils
 
-#ifdef IMGUI_ENABLE_STB_TRUETYPE
+//#ifdef IMGUI_ENABLE_STB_TRUETYPE
 #include "imgui_stdlib.h" // For string input widgets & STB font loading
-#endif
+//#endif
 
 #ifdef IMGUI_ENABLE_FREETYPE
 #include "imgui_freetype.h" // For freetype font loader utils
