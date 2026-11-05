@@ -24,6 +24,7 @@ Git [commit tags](https://github.com/jvcleave/ofxImGui/tags) :
 - Feature: CI builds for continuous testing.
 - Examples: Emscripten examples added.
 - Fix: Rpi & GLES compilation.
+- **Newly introduced ImGui Features** : ImDraw API improved (anti-aliasing, stroke caps, etc.)
 
 - - - -
 
