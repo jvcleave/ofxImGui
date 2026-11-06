@@ -14,7 +14,7 @@
 #if defined(OFXIMGUI_BACKEND_GLFW) && (OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP == 1)
 
 #include "backends/imgui_impl_glfw.h"
-
+#include "GLFW/glfw3.h" // for macros, not to be redefined
 #include "LinkedList.hpp"
 
 // Fwd declarations
@@ -79,35 +79,36 @@ inline void ImGui_ImplGlfw_RemoveWindowContext(GLFWwindow* window){
 // Guard with #ifndef so that a system GLFW that already defines these with real
 // values (e.g. MSYS2 GLFW >= 3.3) is not silently overridden, which would cause
 // a redefinition warning and leave imgui unable to use the feature.
-#ifndef GLFW_RESIZE_NESW_CURSOR
-#define GLFW_RESIZE_NESW_CURSOR
-#endif
-#ifndef GLFW_MOUSE_PASSTHROUGH
-#define GLFW_MOUSE_PASSTHROUGH
-#endif
 #ifndef OFXIMGUI_GLFW_NO_VERSION_HACKS
-#if OF_VERSION_MAJOR == 0
-#	if OF_VERSION_MINOR == 11
-#		if OF_VERSION_PATCH == 0 // 0.11.0 has GLFW pre-3.3.0
-#			define OFXIMGUI_VERSION_GLFW_3300 3301
-#		elif OF_VERSION_PATCH == 1 // 0.11.1 has GLFW 3.3.0
-#		elif OF_VERSION_PATCH == 2 // 0.11.2 has GLFW pre-3.3.0
-#			define OFXIMGUI_VERSION_GLFW_3300 3301
-#		endif
-#	elif OF_VERSION_MINOR == 12
-#		if OF_VERSION_PATCH == 0 // 0.12.0 has GLFW 3.3.8
-#		elif OF_VERSION_PATCH == 1 // 0.12.0 has GLFW 3.4
-#		endif
-#	endif
-#endif
-#endif
+#   if OF_VERSION_MAJOR == 0
+#   	if OF_VERSION_MINOR == 11
+//			Note: pre-3.3 has no GLFW_HAS_MONITOR_WORK_AREA support so we increment the version
+#   		if OF_VERSION_PATCH == 0 // 0.11.0 has GLFW pre-3.3.0
+#   			define OFXIMGUI_VERSION_GLFW_3300 3301
+#   		elif OF_VERSION_PATCH == 1 // 0.11.1 has GLFW 3.3.0
+#   		elif OF_VERSION_PATCH == 2 // 0.11.2 has GLFW pre-3.3.0
+#   			define OFXIMGUI_VERSION_GLFW_3300 3301
+#   		endif
 
-// Default value
-#ifndef OFXIMGUI_VERSION_GLFW_3300
-#	define OFXIMGUI_VERSION_GLFW_3300 3300
-#endif
+#		elif OF_VERSION_MINOR == 12
+#			if OF_VERSION_PATCH == 0 // 0.12.0 has GLFW 3.3.8
+#			elif OF_VERSION_PATCH == 1 // 0.12.0 has GLFW 3.4
+#			endif
+#		endif
+#	endif // version checks
 
-#else
+	// Apply 3.3.x hacks (partial feature support)
+#	if GLFW_CONTEXT_VERSION_MAJOR == 3 && GLFW_CONTEXT_VERSION_MINOR == 3
+#		ifndef GLFW_RESIZE_NESW_CURSOR
+#			define GLFW_RESIZE_NESW_CURSOR
+#		endif
+#		ifndef GLFW_MOUSE_PASSTHROUGH
+#			define GLFW_MOUSE_PASSTHROUGH
+#		endif
+#	endif // 3.3.x hacks
+#endif // !OFXIMGUI_GLFW_NO_VERSION_HACKS
+
+#else // !OFXIMGUI_BACKEND_GLFW || OFXIMGUI_GLFW_FIX_MULTICONTEXT_SECONDARY_VP=1
 // Define classes, compiler should strip all in optimisation steps as it's just dummy code.
 #ifdef OFXIMGUI_BACKEND_GLFW
 class GLFWwindow;
@@ -121,4 +122,9 @@ inline void ImGui_ImplGlfw_RegisterWindowContext(GLFWwindow* window, ImGuiContex
 struct ImGui_ImplGlfw_ScopedContext {
 		ImGui_ImplGlfw_ScopedContext(GLFWwindow* window){}
 };
+#endif
+
+// Default value (has to be defined for our glwf3 backend modifications)
+#ifndef OFXIMGUI_VERSION_GLFW_3300
+#	define OFXIMGUI_VERSION_GLFW_3300 3300
 #endif

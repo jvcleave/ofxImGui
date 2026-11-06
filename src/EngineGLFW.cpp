@@ -117,7 +117,6 @@ namespace ofxImGui
         // Skipped when the framebuffer is larger than the window (macOS Retina): there the
         // window is measured in points and DisplayFramebufferScale already renders at the
         // display's resolution, so scaling again would double everything.
-#ifdef OFXIMGUI_BACKEND_GLFW
 		if (autoContentScale) {
 			float xs = 1.f, ys = 1.f;
 			glfwGetWindowContentScale(curWin, &xs, &ys);
@@ -135,7 +134,6 @@ namespace ofxImGui
 				style.ScaleAllSizes(xs);
 			}
 		}
-#endif
 
 		isSetup = true;
 

@@ -130,7 +130,7 @@ if [ `uname -s` = "Darwin" ] ; then
 fi;
 
 # Disabled because old rpis run gles1. The opengl2 backend can be run on gles1 with the injected gles1CompatibilityHacks.
-# If this breaks : the `TARGET_OPENGLES` condition needs to be changed.	
+# If disabling this broke gles2/3 builds : the `TARGET_OPENGLES` condition needs to be changed below.	
 if false ; then
 	echo "\nApplying OpenGL 2 GLES guard..."
 	# The OpenGL 2 backend uses desktop-only GL (glPushAttrib, GL_CLAMP...): compile it out on GLES targets
