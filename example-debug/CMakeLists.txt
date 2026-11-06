@@ -11,18 +11,6 @@ cmake_minimum_required(VERSION 3.22)
 # Use a different OF path
 # set(OF_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../of_0.12.1_git_cmake")
 
-# Bring osx 10.15 support (not oficially supported by OF)
-if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_EQUAL "10.15")
-    message(STATUS "Targeting macOS 10.15 - Applying fixes !")
-	add_compile_definitions(JSON_HAS_CPP_17 JSON_HAS_CPP_14 JSON_HAS_CPP_11) # fix json compilation with incomplete c++20 (c++2a)
-	set(MAC_OS_MIN_VERSION 10.15)
-	set(MAC_OS_CPP_VER -std=c++2a)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
-	set(CMAKE_OBJCXX_STANDARD 20)
-	set(MAC_OS_SDK 10.15)
-	set(CMAKE_CXX_STANDARD 20)
-endif()
-
 # Enable debug functions
 add_compile_definitions(OFXIMGUI_DEBUG)
 
@@ -38,6 +26,18 @@ get_filename_component(OF_APP_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 project(${OF_APP_NAME} LANGUAGES C CXX)
 
 include("${OF_ROOT}/libs/openFrameworksCompiled/project/CMake/openFrameworks.cmake")
+
+# Bring osx 10.15 support (not oficially supported by OF)
+if(APPLE AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "12" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "13")
+    message(STATUS "Targeting macOS 10.15 - Applying fixes !")
+	add_compile_definitions(JSON_HAS_CPP_17 JSON_HAS_CPP_14 JSON_HAS_CPP_11) # fix json compilation with incomplete c++20 (c++2a)
+	set(MAC_OS_MIN_VERSION 10.15)
+	set(MAC_OS_CPP_VER -std=c++2a)
+	set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
+	set(CMAKE_OBJCXX_STANDARD 20)
+	set(MAC_OS_SDK 10.15)
+	set(CMAKE_CXX_STANDARD 20)
+endif()
 
 # app version and build number (macOS / iOS / tvOS Info.plist), like APP_VERSION /
 # APP_BUILD in a config.make; the version defaults to project(... VERSION), then 1.0
