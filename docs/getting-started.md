@@ -99,3 +99,13 @@ gui.iniFileName = ofToDataPath("my_layout.ini");
 ## 8. HiDPI / high-resolution displays
 
 Content scale is detected and applied automatically via `glfwGetWindowContentScale` on the GLFW backend. `io.FontGlobalScale` and `ImGui::GetStyle()` are scaled on setup. For sharper text, load fonts at `fontSize * scale` using `addFont()` and set them as default.
+
+### Drawing the GUI at a lower resolution (optional)
+
+By default the GUI is rendered straight into your (high-resolution) framebuffer. This is the simplest option and usually the cheapest, since it needs no extra pass.
+
+If your content is expensive to render at full resolution, or the GPU is weak (e.g. a Raspberry Pi driving a large display), you can instead render the GUI into a smaller `ofFbo` and draw that scaled up over your content. Content stays sharp while the UI is drawn at low resolution. Trade-offs:
+
+- It adds a second render target and one extra full-screen draw, so on capable GPUs it is *more* work than rendering directly, not less. Only use it if the GUI itself is what's slow.
+- The GUI becomes blurrier, and mouse/touch positions must be mapped from window space to the smaller buffer (and `io.DisplaySize` / `DisplayFramebufferScale` set to match).
+- Experimental: this is a technique suggested in the [#145](https://github.com/jvcleave/ofxImGui/pull/145) discussion and is not built into ofxImGui or covered by an example yet.
