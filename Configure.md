@@ -28,7 +28,7 @@ Fonts can be loaded with either one of these compilation flags :
 > [!NOTE]
 > **Embedded fonts still need a font loader.**  
 > ImGui's built-in default font (and any font you embed as a byte array, as in [example-fonts](./example-fonts)) is *file-free*: it needs no font file or data folder access at runtime, so it suits headless or sandboxed targets. It is not *loader-free*: the glyphs are still rasterised into the font atlas by a loader (STB or FreeType), so one of the flags above is always compiled in. STB is the default and the lightest choice; FreeType is only needed for its extra rendering options.  
-> See ImGui's [FONTS.md](libs/imgui/docs/FONTS.md) and [FreeType README](https://github.com/ocornut/imgui/blob/master/misc/freetype/README.md) for the loader flags.
+> See ImGui's [FONTS.md](https://github.com/ocornut/imgui/blob/master/docs/FONTS.md) and [FreeType README](https://github.com/ocornut/imgui/blob/master/misc/freetype/README.md) for the loader flags.
 
 ## Backends 
 
