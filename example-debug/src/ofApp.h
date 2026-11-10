@@ -160,6 +160,10 @@ class ofApp : public ofBaseApp {
             ofDrawBitmapStringHighlight( ofToString("Render order test :"), 10, 20);
             ofDrawBitmapStringHighlight( ofToString(" - I'm below the GUI"), 10, 40);
 
+            #ifndef OFXIMGUI_DEBUG
+            ofDrawBitmapStringHighlight("You need to define OFXIMGUI_DEBUG to compile the inspector !", 10, 80);
+            #endif
+
             // End our ImGui Frame.
             // Also Renders if using autoDraw AND non-slave mode
             gui.end();

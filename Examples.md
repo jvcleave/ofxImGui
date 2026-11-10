@@ -25,7 +25,7 @@ Shows advanced use of imgui within OF, below are some covered topics :
 ## example-demo    
 
 Shows the imgui demo window, very useful for **discovering all the available widgets** and their respective ImGui API code to implement them. To be explored together with the ImGui demo's source code.  
-An easier alternative is to use an online web-assembly-precompiled ImGui-Demo explorer like [pthom/imgui_manual_online](https://pthom.github.io/imgui_manual_online/).
+An easier alternative is to use an online web-assembly-precompiled ImGui-Demo explorer like [pthom/imgui_explorer](https://pthom.github.io/imgui_explorer/) or the [full examples explorer](https://imgui-bundle.pages.dev/explorer/).
 
 ## example-fonts
 

@@ -1192,7 +1192,7 @@ namespace ofxImGui
                         // Fill
                         drawlist->AddConvexPolyFilled(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_FrameBg));
                         // Outline
-                        drawlist->AddPolyline(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_Text), true, 0.5f);
+                        drawlist->AddPolyline(&gamepadPoints[0], 12, ImGui::GetColorU32(ImGuiCol_Text), 0.5f, ImDrawFlags_Closed | ImDrawFlags_StrokeCenterBiased);
 
                         // Move Pad
                         ImVec2 padPos = gamepadZonePos+ImVec2(.3f,0.5f)*gamepadZoneSize;

@@ -141,17 +141,16 @@ namespace ofxImGui
 	{
 		// Need to set context here too ?
 
-		// Ensure GL is in a compatible state — OF / ofTexture can leave non-default unpack state.
-		// Very version-specific fix, see #138 (keep in case, now the backend does it)
-#if IMGUI_VERSION_NUM <= 19210 && IMGUI_VERSION_NUM >= 19200
-		// Note: required for ofApps that use ofTexture which can set/leave this to a different value.
+		// 1.92.0 and 1.92.1 upload without setting unpack state.
+		// 1.92.2 does this inside UpdateTexture. 1.92.9 also restores the previous values.
+		// Very version-specific fix, see #136 and #145 (keep in case, now the backend does it)
+#if IMGUI_VERSION_NUM >= 19200 && IMGUI_VERSION_NUM <= 19210
+#   ifdef GL_UNPACK_ROW_LENGTH // required on some rpis (gles2)
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-		glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-#elif !defined(TARGET_OPENGLES) && IMGUI_VERSION_NUM > 19210 && IMGUI_VERSION_NUM < 19290
-		// Will be fixed in 1.92.9 ?
-		// See : https://github.com/ocornut/imgui/pull/9473
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#   endif
+#   ifdef GL_UNPACK_ALIGNMENT
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+#   endif
 #endif
 
 		// Draw !
