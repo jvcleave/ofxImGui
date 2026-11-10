@@ -6,6 +6,15 @@
 
 ofxImGui both implements a custom oF backend (similar to Jvcleave's original implementation) and a "native imgui backend". The custom oF backend is a very simple integration of basic ImGui functionality. It's very well integrated within OF but doesn't feature lots of advanced imgui features. On the opposite, the native GLFW backend provides all ImGui features but has to intercept the Glfw callbacks set by OpenFrameworks then forward them again.
 
+### Compiler support
+
+Typical OpenFrameworks build systems are supported :
+
+- Makefiles
+- Qt-Creator (_abandoned by of_v0.12.0 but still works_)
+- Cmake
+- XCode
+
 ### Deployment Targets
 
 Most common OpenFrameworks targets are supported and regularly tested : MacOs, Windows and Linux.

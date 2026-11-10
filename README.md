@@ -25,10 +25,10 @@ ImGui's API is also quite nice : with very few code, you obtain a functional bas
 ofxImGui should run on the [latest openFrameworks release and it's OS/IDE requirements](https://openframeworks.cc/download/).  
 These are typically:
 
- - MacOs (Xcode + QtCreator + Makefiles)
+ - MacOs (Xcode + QtCreator + Makefiles + Cmake)
  - Windows (Visual + VSCode)
- - Raspberry Pi (Makefiles)
- - Linux Desktop (QtCreator + Makefiles)
+ - Raspberry Pi (Makefiles + Cmake)
+ - Linux Desktop (QtCreator + Makefiles + Cmake)
 
  For more precise platform compatibility information, please refer to [PlatformSupport.md](./PlatformSupport.md).
 

@@ -2,6 +2,8 @@
 
 Here's an overview of the bundled examples.
 
+Some example IDE files may need to be regenerated using the ProjectGenerator, specially for older openFrameworks versions. Be aware that some project configuration flags can be stripped in this process; you need to manually restore them.
+
 ## example-simple
 
 A very **minimal example** of how to use imgui within OpenFrameworks.

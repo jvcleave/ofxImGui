@@ -22,6 +22,7 @@ Git [commit tags](https://github.com/jvcleave/ofxImGui/tags) :
 - Feature: Canvas and Viewport widgets.
 - Feature: ImGuiTestSuite support for automated GUI tests (undocumented yet).
 - Feature: CI builds for continuous testing.
+- Feature: Compiles with the new Cmake build system (of_v0.12.1-master for now).
 - Examples: Emscripten examples added.
 - Fix: Rpi & GLES compilation.
 - **Newly introduced ImGui Features** : ImDraw API improved (anti-aliasing, stroke caps, etc.). Breaks previous rendering result.
