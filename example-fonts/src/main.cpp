@@ -4,7 +4,7 @@
 int main()
 {
 
-#if defined(TARGET_OPENGLES)
+#if defined(TARGET_OPENGLES) || defined(TARGET_EMSCRIPTEN) || defined(__EMSCRIPTEN__)
     ofGLESWindowSettings settings;
     settings.setGLESVersion(2);
 #else

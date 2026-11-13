@@ -62,6 +62,7 @@
 
 #include "imgui.h"
 #ifndef IMGUI_DISABLE
+#if !defined(OFXIMGUI_RENDERER_GLES_2) // CUSTOM OFXIMGUI ADDED LINE
 #include "imgui_impl_opengl2.h"
 #include <stdint.h>     // intptr_t
 
@@ -444,4 +445,5 @@ static void ImGui_ImplOpenGL2_ShutdownMultiViewportSupport()
 #pragma clang diagnostic pop
 #endif
 
+#endif // !OFXIMGUI_RENDERER_GLES_2, CUSTOM OFXIMGUI ADDED LINE
 #endif // #ifndef IMGUI_DISABLE

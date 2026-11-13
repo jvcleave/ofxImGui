@@ -69,7 +69,7 @@ linux:
 
 linuxarmv6l:
 	#ADDON_CFLAGS += -DOFXIMGUI_DEBUG
-	ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES2
+	#ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES2
 	#ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES3
 	#ADDON_CFLAGS += -DUSE_PI_LEGACY
 	#ADDON_LDFLAGS += -lGL
@@ -89,9 +89,9 @@ android/armeabi-v7a:
 
 ios:
 	# osx/iOS only, any framework that should be included in the project
-	ADDON_CFLAGS += -DIMGUI_IMPL_OPENGL_ES2
-#	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_opengl2.cpp
-#	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_opengl2.h
+	# GLES 2 by default. GLES 3: define OF_GLES_VERSION=3 in the project
+	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_opengl2.cpp
+	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_opengl2.h
 #	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_opengl3.cpp
 #	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_opengl3.h
 	ADDON_SOURCES_EXCLUDE += libs/imgui/backends/imgui_impl_glfw.cpp
