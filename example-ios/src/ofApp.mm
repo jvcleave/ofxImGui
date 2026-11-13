@@ -102,9 +102,9 @@ void ofApp::draw(){
         ImGui::ShowDemoWindow(&show_test_window);
     }
     
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+    bool pressed = ImGui::ImageButton("imagebutton", (ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton("pixelsbutton", (ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton("texturesource", (ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
     
     
 

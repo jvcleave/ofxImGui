@@ -12,7 +12,7 @@
 //#include <GLES2/gl2.h>
 
 // Linux GLES (rpi & desktop)
-#ifdef TARGET_LINUX_ARM // TARGET_RASPBERRY_PI
+#if defined(TARGET_LINUX_ARM) && defined(TARGET_OPENGLES) // TARGET_RASPBERRY_PI, real GLES builds only (not desktop GL + GLEW)
 	// includes from ofConstants.h / Linux ARM
 	#include "GLES/gl.h"
 	#include "GLES/glext.h"
@@ -29,6 +29,8 @@
 	#import <OpenGLES/ES1/glext.h>
 	#import <OpenGLES/ES2/gl.h>
 	#import <OpenGLES/ES2/glext.h>
+// Emscripten: GL ES headers come from ofConstants.h
+#elif defined(__EMSCRIPTEN__) || defined(TARGET_EMSCRIPTEN)
 // Other = Unsupported
 #else
 	#pragma error "IMGUI_IMPL_OPENGL_ES2 is defined but your platform doesn't support it (yet?). Compilation will fail."
