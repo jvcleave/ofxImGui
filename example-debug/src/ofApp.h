@@ -120,6 +120,7 @@ class ofApp : public ofBaseApp {
 //            if( dynamic_cast< ofGLESWindowSettings * >(window.get()->renderer()->getWindowContext()) )
 //                ofLogNotice("Window is GLES");
 //#ifdef TARGET_OPENGLES
+#ifndef TARGET_EMSCRIPTEN // ofAppGLFWWindow is not available on emscripten
             if( auto glfwWin = dynamic_cast< ofAppGLFWWindow* >(window.get()) ){
                 ofLogNotice("Window is GLFW");
                 auto GLFWsettings = glfwWin->getSettings();
@@ -141,6 +142,7 @@ class ofApp : public ofBaseApp {
                 glfwUpdateGamepadMappings("030000005e0400008e02000000000000,X360 Controller (custom),a:b0,b:b1,back:b9,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b10,leftshoulder:b4,leftstick:b6,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b7,righttrigger:a5,rightx:a3,righty:a4,start:b8,x:b2,y:b3,platform:Mac OS X,");
 #endif
             }
+#endif // TARGET_EMSCRIPTEN
 //            if( dynamic_cast< ofAppGlutWindow* >(window.get()) )
 //                ofLogNotice("Window is Glut");
 //            if( dynamic_cast< ofAppEGLWindow* >(window.get()) )

@@ -91,7 +91,7 @@
 #define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
 //#include "ofConstants.h"
 
-#ifdef TARGET_EMSCRIPTEN
+#if defined(TARGET_EMSCRIPTEN) && !(defined(OF_WEBGL_VERSION) && (OF_WEBGL_VERSION + 0) == 1)
 #define OFXIMGUI_RENDERER_GLES
 #define OFXIMGUI_RENDERER_GLES_3
 #define IMGUI_IMPL_OPENGL_ES3
@@ -99,10 +99,15 @@
 
 //#ifdef OF_TARGET_OPENGLES
 #ifdef OFXIMGUI_RENDERER_GLES
+	// guarded: addon_config.mk may already pass these on the command line
 	#ifdef OFXIMGUI_RENDERER_GLES_3
-		#define IMGUI_IMPL_OPENGL_ES3
+		#ifndef IMGUI_IMPL_OPENGL_ES3
+			#define IMGUI_IMPL_OPENGL_ES3
+		#endif
 	#else
-		#define IMGUI_IMPL_OPENGL_ES2
+		#ifndef IMGUI_IMPL_OPENGL_ES2
+			#define IMGUI_IMPL_OPENGL_ES2
+		#endif
 	#endif
 #else
 	// Ensure thye are not accidentally set
@@ -110,10 +115,12 @@
 	#undef IMGUI_IMPL_OPENGL_ES2
 #endif
 
-#ifdef TARGET_RASPBERRY_PI
+#if defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES)
 //#include <GLES/gl.h>
 //#include "gles1CompatibilityHacks.h"
+#ifndef IMGUI_IMPL_OPENGL_ES2
 #define IMGUI_IMPL_OPENGL_ES2 // todo : define according to TARGET-GLES if GLES3 is also an option ?
+#endif
 #endif
 
 // We don't need this, skips compiling useless functionality

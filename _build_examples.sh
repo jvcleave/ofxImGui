@@ -43,6 +43,10 @@ for name in "${names[@]}"; do
 	fi
 	echo "====== $name ($PLATFORM $TARGET) ======"
 	cp "$OF_ROOT/scripts/templates/$PLATFORM/Makefile" "$OF_ROOT/scripts/templates/$PLATFORM/config.make" "$example_dir/"
+	if [[ ${OF_WEBGL_VERSION:-} == 1 ]]; then
+		# WebGL 1 build (GLES 2): OF links with FULL_ES2, ofxImGui picks the GLES 2 backend
+		echo "PROJECT_DEFINES += OF_WEBGL_VERSION=1" >> "$example_dir/config.make"
+	fi
 	if make -C "$example_dir" "${MAKE_ARGS[@]}" "$TARGET"; then
 		PASS+=("$name")
 	else
