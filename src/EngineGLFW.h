@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ofConstants.h"
-#include "GLFW/glfw3.h"
 #if !defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
+#include "GLFW/glfw3.h"
 
 #include "BaseEngine.h"
 

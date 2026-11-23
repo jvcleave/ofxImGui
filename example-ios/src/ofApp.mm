@@ -60,6 +60,9 @@ void ofApp::draw(){
     
     // 1. Show a simple window
     {
+        // if you want to make the text bigger, change the scale here
+        ImGui::SetWindowFontScale(2.);
+
         inputTextButton.draw();
         
         ImGui::Text(inputTextButton.text.c_str());
@@ -84,7 +87,7 @@ void ofApp::draw(){
     if (show_another_window)
     {
         //note: ofVec2f and ImVec2f are interchangeable
-        ImGui::SetNextWindowSize(ofVec2f(200,100), ImGuiSetCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ofVec2f(200,100), ImGuiCond_FirstUseEver);
         ImGui::Begin("Another Window", &show_another_window);
         ImGui::Text("Hello");
         ImGui::End();
@@ -93,8 +96,8 @@ void ofApp::draw(){
     // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
     if (show_test_window)
     {
-        ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::ShowTestWindow(&show_test_window);
+        ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiCond_FirstUseEver);
+        ImGui::ShowDemoWindow(&show_test_window);
     }
     
     bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
