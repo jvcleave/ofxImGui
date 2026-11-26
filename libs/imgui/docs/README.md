@@ -55,8 +55,8 @@ if (ImGui::Button("Save"))
 ImGui::InputText("string", buf, IM_COUNTOF(buf));
 ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 ```
-<img width="412" height="236" alt="sample code output (dark)" src="https://github.com/user-attachments/assets/32b838df-6378-498b-84a8-9a79ee6264a7" />
-<img width="412" height="236" alt="sample code output (light)" src="https://github.com/user-attachments/assets/f075e2b0-98de-4be8-acb4-99ba0c9966cd" />
+<img width="640" height="326" alt="sample code output (dark)" src="https://raw.githubusercontent.com/wiki/ocornut/imgui/web/v193/capture_readme_styles_0000.png" />
+<img width="640" height="326" alt="sample code output (light)" src="https://raw.githubusercontent.com/wiki/ocornut/imgui/web/v193/capture_readme_styles_0001.png" />
 
 ```cpp
 // Create a window called "My First Tool", with a menu bar.
@@ -113,7 +113,7 @@ Calling the `ImGui::ShowDemoWindow()` function will create a demo window showcas
 - [imgui_explorer](https://pthom.github.io/imgui_explorer): Web version of the demo w/ source code browser, courtesy of [@pthom](https://github.com/pthom).
 
 You should be able to build the examples from sources. If you don't, let us know! If you want to have a quick look at some Dear ImGui features, you can download Windows binaries of the demo app here:
-- [imgui-demo-binaries-20260225.zip](https://www.dearimgui.com/binaries/imgui-demo-binaries-20260225.zip) (Windows, 1.92.6, built 2026/02/25, master) or [older binaries](https://www.dearimgui.com/binaries).
+- [imgui-demo-binaries-20261015-win32.zip](https://www.dearimgui.com/binaries/imgui-demo-binaries-20261015-win32.zip) (Win32, 1.93.0, built 2026/10/15, master) or [older binaries](https://www.dearimgui.com/binaries).
 
 ### Gallery
 

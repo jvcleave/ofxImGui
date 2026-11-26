@@ -54,6 +54,8 @@ common:
 	# they can be specified here
 	# ADDON_SOURCES =
 	ADDON_SOURCES_EXCLUDE = src/EngineVk.cpp
+	ADDON_SOURCES_EXCLUDE += libs/imgui_git/%
+	ADDON_INCLUDES_EXCLUDE = libs/imgui_git/%
 	
 	# some addons need resources to be copied to the bin/data folder of the project
 	# specify here any files that need to be copied, you can use wildcards like * and ?

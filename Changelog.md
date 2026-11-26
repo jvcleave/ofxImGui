@@ -25,6 +25,7 @@ Git [commit tags](https://github.com/jvcleave/ofxImGui/tags) :
 - Feature: Compiles with the new Cmake build system (of_v0.12.1-master for now).
 - Examples: Emscripten examples added.
 - Fix: Rpi & GLES compilation.
+- Update: ImGui 1.93.1 (docking). Clipboard hooks use `ImGuiPlatformIO`; `libs/UpdateImGui.sh` re-applies the backend guards and removes its clone.
 - **Newly introduced ImGui Features** : ImDraw API improved (anti-aliasing, stroke caps, etc.). Breaks previous rendering result.
 
 - - - -

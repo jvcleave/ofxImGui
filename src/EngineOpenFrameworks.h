@@ -106,9 +106,9 @@ namespace ofxImGui
 
         // todo: gamepad support ? io.AddKeyEvent()/io.AddKeyAnalogEvent()
 
-        // Clipboard handling
-        static const char* getClipboardString(void * userData);
-        static void setClipboardString(void * userData, const char * text);
+        // Clipboard handling (ImGui 1.91+ stores these on ImGuiPlatformIO)
+        static const char* getClipboardString(ImGuiContext * ctx);
+        static void setClipboardString(ImGuiContext * ctx, const char * text);
         static std::string g_ClipboardText; // Is this still useful ? Maybe ofWin->setClipboardString needs a reference that stays alive ?
 
         // Helpers
