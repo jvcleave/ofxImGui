@@ -118,6 +118,7 @@
 
 #include "imgui.h"
 #ifndef IMGUI_DISABLE
+#if defined(OFXIMGUI_BACKEND_GLFW) // CUSTOM OFXIMGUI ADDED LINE
 #include "imgui_impl_glfw.h"
 #include "backends/imgui_impl_glfw_context_support.h" // CUSTOM OFXIMGUI ADDED LINE
 
@@ -1773,4 +1774,5 @@ static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wPara
 #pragma clang diagnostic pop
 #endif
 
+#endif // OFXIMGUI_BACKEND_GLFW, CUSTOM OFXIMGUI ADDED LINE
 #endif // #ifndef IMGUI_DISABLE

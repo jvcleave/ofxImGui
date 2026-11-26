@@ -22,6 +22,8 @@ Meanwhile, some more specific platforms remain to be tested (Android, iOS, etc);
 Rpi is also supported with and without desktop environment, but it's not regularly tested.
 Emscripten has also been reported to work using the official GLFW3 compatibility layer.
 
+*Notes on iOS support: tested on the iOS simulator (GLES 2 and GLES 3) with an Xcode project made by the openFrameworks projectGenerator (`projectGenerator -p ios -a ofxImGui ...`), which links the libraries' xcframeworks. Building an iOS app through openFrameworks' CMake path (`-DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator`) fails to link when the old single-architecture `libs/*/lib/ios/*.a` files (freeimage, freetype, pugixml, tess2, uriparser, curl) are still present: CMake links them next to the xcframeworks, and they are built for a device, not for the simulator. Use the projectGenerator project, or remove those files after updating the libraries.*
+
 *Notes on Rpi support: Some combinations of Rpi and oF versions won't provide all GLSL versions. Anyways, it's recommended to use the full KMS driver rather then the Legacy Broadcom one (very low FPS), but they both work. Tested with Raspbian Stretch. Also, if you start your application with a minimal desktop environment (using `startx ./bin/ofApp`), the imgui viewport features do not work correctly.* 
 
 - - - -

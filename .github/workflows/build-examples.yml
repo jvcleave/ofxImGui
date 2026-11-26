@@ -60,9 +60,28 @@ jobs:
 
   # GLES / WebGL2: the OpenGL 2 backend must compile out (TARGET_OPENGLES)
   emscripten:
+    name: emscripten ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: wasm32 WebGL2
+            bits: 32
+            webgl: 2
+          - name: wasm64 WebGL2
+            bits: 64
+            webgl: 2
+            experimental: true
+          - name: wasm32 WebGL1 (GLES 2)
+            bits: 32
+            webgl: 1
+            # example-helpers needs ofFbo multisample/blit, which WebGL 1 doesn't have
+            examples: example-simple example-demo example-advanced example-fonts example-Conway example-pixeleditor
+    continue-on-error: ${{ matrix.experimental == true }}
     runs-on: ubuntu-24.04
     env:
       OF: ${{ github.workspace }}/of
+      BITS: ${{ matrix.bits }}
     steps:
       - name: openFrameworks master
         run: git clone --depth 1 https://github.com/openframeworks/openFrameworks of
@@ -72,12 +91,13 @@ jobs:
           path: of/addons/ofxImGui
 
       - name: Libraries
-        run: "$OF/scripts/emscripten/download_libs.sh"
+        run: BITS=${{ matrix.bits }} "$OF/scripts/emscripten/download_libs.sh"
 
       - name: openFrameworks core and examples
         run: |
-          docker run --rm -v "$OF:/of" -e OF_ROOT=/of \
-            -e EXAMPLES="example-simple example-demo example-advanced example-fonts example-helpers example-Conway example-pixeleditor" \
+          [ "${{ matrix.bits }}" = 64 ] && export EMSCRIPTEN_MEMORY64=1
+          docker run --rm -v "$OF:/of" -e OF_ROOT=/of -e OF_WEBGL_VERSION=${{ matrix.webgl }} -e EMSCRIPTEN_MEMORY64 \
+            -e EXAMPLES="${{ matrix.examples || 'example-simple example-demo example-advanced example-fonts example-helpers example-Conway example-pixeleditor' }}" \
             emscripten/emsdk:6.0.11 bash -c '
               set -e
               sed -i "s/PLATFORM_OPTIMIZATION_CFLAGS_DEBUG = .*/PLATFORM_OPTIMIZATION_CFLAGS_DEBUG = -g0/" /of/libs/openFrameworksCompiled/project/emscripten/config.emscripten.default.mk

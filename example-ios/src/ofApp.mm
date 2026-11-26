@@ -102,14 +102,26 @@ void ofApp::draw(){
         ImGui::ShowDemoWindow(&show_test_window);
     }
     
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+    bool pressed = ImGui::ImageButton("imagebutton", (ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton("pixelsbutton", (ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton("texturesource", (ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
     
     
 
     
     //required to call this at end
+    if([[NSProcessInfo processInfo].arguments containsObject:@"-stress"]){
+        ImGui::Begin("Stress 80k vertices");
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        ImVec2 o = ImGui::GetCursorScreenPos();
+        for(int i = 0; i < 20000; i++){
+            float x = o.x + (i % 200) * 3.0f, y = o.y + (i / 200) * 3.0f;
+            dl->AddRectFilled(ImVec2(x, y), ImVec2(x + 2, y + 2), IM_COL32(255, 128, 0, 255));
+        }
+        ImGui::Dummy(ImVec2(600, 300));
+        ImGui::Text("vertices in this list: %d, sizeof(ImDrawIdx)=%d", dl->VtxBuffer.Size, (int)sizeof(ImDrawIdx));
+        ImGui::End();
+    }
     gui.end();
     
     if(textureSource.isAllocated())
