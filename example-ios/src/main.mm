@@ -1,5 +1,10 @@
 #include "ofApp.h"
 
+// OF_GLES_VERSION=1|2|3 in the project defines to override (ofxImGui follows it)
+#ifndef OF_GLES_VERSION
+#define OF_GLES_VERSION OFXIOS_RENDERER_ES2
+#endif
+
 int main() {
     
     //  here are the most commonly used iOS window settings.
@@ -11,7 +16,7 @@ int main() {
     settings.numOfAntiAliasingSamples = 0; // number of samples used for anti-aliasing.
     settings.enableHardwareOrientation = true; // enables native view orientation.
     settings.enableHardwareOrientationAnimation = false; // enables native orientation changes to be animated.
-    settings.glesVersion = OFXIOS_RENDERER_ES2; // type of renderer to use, ES1, ES2, ES3
+    settings.glesVersion = OF_GLES_VERSION; // type of renderer to use, ES1, ES2, ES3 - default ES2
 	settings.windowControllerType = GL_KIT;
     settings.windowMode = OF_FULLSCREEN;
     //settings.width = 1024;

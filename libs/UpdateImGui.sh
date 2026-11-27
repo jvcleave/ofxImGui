@@ -30,7 +30,8 @@ VERSION_1_92_1=44aa9a4 # 1.92.1
 VERSION_1_92_5=3912b3d # 1.92.5
 VERSION_1_92_7=b1bcb12a624af7509894c8e77dd47416997777fa # 1.92.7-docking (tag peel)
 VERSION_1_93_0=b916186e66aa3c02b72c6ca17455516512ed8049 # 1.93.0-docking (tag peel)
-VERSION_SHA=$VERSION_1_93_0
+VERSION_1_93_1=144727fad6ded3055d388dadc4072c9c25ee1891 # 1.93.1-docking (merge of master 'Version 1.93.1' into docking)
+VERSION_SHA=$VERSION_1_93_1
 # ------------------
 
 echo "\nHello,"
@@ -113,8 +114,9 @@ cp ./imgui_git/misc/freetype/imgui_freetype.cpp ./imgui/misc/freetype/imgui_free
 cp ./imgui_git/misc/freetype/imgui_freetype.h   ./imgui/misc/freetype/imgui_freetype.h
 
 # Remove git repo // cleanup
-#echo "Cleaning up git repo..."
-#rm -rf ./imgui_git
+# (the clone must not stay in libs/: openFrameworks scans the addon's libs folder and would compile/include it)
+echo "Cleaning up git repo..."
+rm -rf ./imgui_git
 
 # Apply patches
 echo "\nApplying patches..."
@@ -129,15 +131,21 @@ if [ `uname -s` = "Darwin" ] ; then
 	fi;
 fi;
 
-# Disabled because old rpis run gles1. The opengl2 backend can be run on gles1 with the injected gles1CompatibilityHacks.
-# If disabling this broke gles2/3 builds : the `TARGET_OPENGLES` condition needs to be changed below.	
-if false ; then
-	echo "\nApplying OpenGL 2 GLES guard..."
-	# The OpenGL 2 backend uses desktop-only GL (glPushAttrib, GL_CLAMP...): compile it out on GLES targets
-	for f in ./imgui/backends/imgui_impl_opengl2.h ./imgui/backends/imgui_impl_opengl2.cpp; do
-		perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if !defined(TARGET_OPENGLES) \/\/ CUSTOM OFXIMGUI ADDED LINE: no OpenGL 2 on GLES (iOS, Android, Emscripten, Raspberry Pi)\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ !TARGET_OPENGLES, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$f"
-	done
-fi;
+echo "\nApplying backend guards..."
+# Wraps a backend in `#if <condition>` unless it already is (safe to run on already patched files)
+# usage: add_backend_guard <file> <condition> <end comment>
+add_backend_guard() {
+	if grep -q "$2 // CUSTOM OFXIMGUI ADDED LINE" "$1"; then
+		echo "Guard already in $1"
+	else
+		GUARD_COND="$2" GUARD_END="$3" perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if $ENV{GUARD_COND} \/\/ CUSTOM OFXIMGUI ADDED LINE\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ $ENV{GUARD_END}, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$1"
+		grep -q "$2 // CUSTOM OFXIMGUI ADDED LINE" "$1" || echo "WARNING: could not add the guard to $1, add it by hand"
+	fi
+}
+# GLFW backend: only compiled when ofxImGui selects it (not on iOS/Android)
+add_backend_guard ./imgui/backends/imgui_impl_glfw.cpp "defined(OFXIMGUI_BACKEND_GLFW)" "OFXIMGUI_BACKEND_GLFW"
+# OpenGL 2 backend: desktop-only GL, compiled out when ofxImGui selects GLES 2
+add_backend_guard ./imgui/backends/imgui_impl_opengl2.cpp "!defined(OFXIMGUI_RENDERER_GLES_2)" "!OFXIMGUI_RENDERER_GLES_2"
 
 echo "\nApplying GLFW multi context patch with obj-c ARC support..."
 # Option 1 : Patch file ?

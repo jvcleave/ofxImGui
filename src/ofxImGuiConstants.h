@@ -69,17 +69,29 @@
 // Touch events support ?
 // - - - - - - - - - - - - - - - -
 // Todo: add explicit compiler flag so devices such as Windows/Linux with TouchScreens can use it too ?
-#if defined(TARGET_OF_IOS) || defined(TARGET_OF_ANDROID)
+#if defined(TARGET_OF_IOS) || defined(TARGET_OF_ANDROID) || defined(TARGET_ANDROID)
 	#define OFXIMGUI_TOUCH_EVENTS
 	#define OFXIMGUI_FORCE_OF_BACKEND // Note: force it bcoz there will probably never be GLFW support on mobile devices ?
 #endif
 
 #if defined(__EMSCRIPTEN__) || defined(TARGET_EMSCRIPTEN) || defined(TARGET_OPENGLES)
+	// No GLFW on iOS / Android (they use the OF backend, see OFXIMGUI_FORCE_OF_BACKEND above):
+	// defining it makes GuiDebugWindow.cpp include <GLFW/glfw3.h>, which doesn't exist there.
+	#if !defined(TARGET_OF_IOS) && !defined(TARGET_ANDROID)
     #define OFXIMGUI_BACKEND_GLFW
+	#endif
 	#define OFXIMGUI_RENDERER_GLES_2
-	#define IMGUI_IMPL_OPENGL_ES3
-    #define OFXIMGUI_RENDERER_GLES_3
-#elif defined(TARGET_RASPBERRY_PI) || defined(TARGET_OF_IOS)
+	#if ((defined(TARGET_OF_IOS) || defined(TARGET_ANDROID)) && !defined(OFXIMGUI_RENDERER_GLES_3) && !(defined(OF_GLES_VERSION) && (OF_GLES_VERSION + 0) == 3)) \
+		|| ((defined(__EMSCRIPTEN__) || defined(TARGET_EMSCRIPTEN)) && !defined(OFXIMGUI_RENDERER_GLES_3) && defined(OF_WEBGL_VERSION) && (OF_WEBGL_VERSION + 0) == 1)
+		// iOS/Android: GLES 2 by default, GLES 3 with OF_GLES_VERSION=3 in the project defines (or OFXIMGUI_RENDERER_GLES_3)
+		// Emscripten: GLES 3 (WebGL 2) by default, GLES 2 (WebGL 1) with OF_WEBGL_VERSION=1
+		#define OFXIMGUI_RENDERER_GLES
+	#else
+		#define IMGUI_IMPL_OPENGL_ES3
+		#define OFXIMGUI_RENDERER_GLES_3
+	#endif
+// Pi: only GLES when OF is built with TARGET_OPENGLES (desktop GL + GLEW clashes with <GLES/gl.h>)
+#elif defined(TARGET_OF_IOS) || (defined(TARGET_RASPBERRY_PI) && defined(TARGET_OPENGLES))
 	#define OFXIMGUI_RENDERER_GLES
 #endif
 

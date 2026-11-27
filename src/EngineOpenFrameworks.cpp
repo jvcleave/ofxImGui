@@ -46,15 +46,8 @@ namespace ofxImGui
 		io.DeltaTime = 1.0f / 60.0f; // start with non-null time
 		io.WantCaptureMouse = true;
 
-#ifdef IMGUI_DISABLE_OBSOLETE_FUNCTIONS // todo: should be an ImGui Version check !
-		// Here we disable the code below to let users compile a project without throwing ofxImGui related warnings
-		// Devs note: this functionality still needs to be updated before it depreciates !
-		#pragma message "Notice: you are compiling with IMGUI_DISABLE_OBSOLETE_FUNCTIONS enabled, clipboard functions have been disabled (for EngineOpenFrameworks only)."
-#else
-		// Clipboard management
-		io.SetClipboardTextFn = &EngineOpenFrameworks::setClipboardString;
-		io.GetClipboardTextFn = &EngineOpenFrameworks::getClipboardString;
-#endif
+		ImGui::GetPlatformIO().Platform_SetClipboardTextFn = &EngineOpenFrameworks::setClipboardString;
+		ImGui::GetPlatformIO().Platform_GetClipboardTextFn = &EngineOpenFrameworks::getClipboardString;
 
 		// Backend name
 		io.BackendPlatformName = "imgui_impl_ofximgui_native_of";
@@ -408,14 +401,14 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	const char* EngineOpenFrameworks::getClipboardString(void * userData)
+	const char* EngineOpenFrameworks::getClipboardString(ImGuiContext *)
 	{
 		g_ClipboardText = ofGetWindowPtr()->getClipboardString();
 		return g_ClipboardText.c_str();
 	}
 
 	//--------------------------------------------------------------
-	void EngineOpenFrameworks::setClipboardString(void * userData, const char * text)
+	void EngineOpenFrameworks::setClipboardString(ImGuiContext *, const char * text)
 	{
 		g_ClipboardText = ofToString(text);
 		ofGetWindowPtr()->setClipboardString(g_ClipboardText);

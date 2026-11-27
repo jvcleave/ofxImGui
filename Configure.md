@@ -43,6 +43,25 @@ If your projects needs to force a specific GL configuration, you can set some na
  - `IMGUI_IMPL_OPENGL_ES3` --> Use GLES3.
  - `[none of the previous ones]` --> Use OpenGL.
 
+### GLES version on iOS, Android and Emscripten
+
+ofxImGui follows the GLES version openFrameworks is built with:
+ - iOS and Android: GLES 2 by default, GLES 3 when the project defines `OF_GLES_VERSION=3` (the same value goes in `ofiOSWindowSettings::glesVersion`, see `example-ios/src/main.mm`).
+ - Emscripten: GLES 3 (WebGL 2) by default, GLES 2 (WebGL 1) when the project defines `OF_WEBGL_VERSION=1`.
+
+### 32-bit draw indices on iOS and Android
+
+openFrameworks defines `ofIndexType` (from `TESSindex`) as a 16-bit integer on iOS and Android, and ofxImGui used it as ImGui's `ImDrawIdx`. A 16-bit index can only address 65,536 vertices.  
+The ImGui GLES backend cannot use `ImDrawCmd::VtxOffset` (`glDrawElementsBaseVertex` doesn't exist in GLES), so ImGui cannot split a large draw list into several 16-bit ranges. As soon as one window's draw list needs more than 65,535 vertices (a busy window with lots of text, plots or custom shapes), ImGui aborts with :
+
+````
+Assertion failed: (draw_list->_VtxCurrentIdx < (1 << 16) && "Too many vertices in ImDrawList using 16-bit indices. Read comment above")
+````
+
+`src/imconfig.h` therefore sets `ImDrawIdx` to `unsigned int` on iOS and Android. The backend already picks `GL_UNSIGNED_INT` from `sizeof(ImDrawIdx)`. Index buffers become twice as large. Drawing 32-bit indices is core in GLES 3, and needs the `OES_element_index_uint` extension on GLES 2.
+
+To reproduce it, run `example-ios` with the launch argument `-stress` (it draws 20,000 rectangles, about 80,000 vertices, in one window). Without the 32-bit setting it aborts with the assertion above, with it the window renders.
+
 ### Platform Backend
 
 By default, ofxImGui uses the official ImGui GLFW backend when using `ofAppGLFWWindow`, this ensures full compatibility with any ImGui feature, and is interfaced directly with GLFW.

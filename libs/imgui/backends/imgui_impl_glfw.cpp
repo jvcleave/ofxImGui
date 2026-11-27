@@ -118,6 +118,7 @@
 
 #include "imgui.h"
 #ifndef IMGUI_DISABLE
+#if defined(OFXIMGUI_BACKEND_GLFW) // CUSTOM OFXIMGUI ADDED LINE
 #include "imgui_impl_glfw.h"
 #include "backends/imgui_impl_glfw_context_support.h" // CUSTOM OFXIMGUI ADDED LINE
 
@@ -741,7 +742,7 @@ void ImGui_ImplGlfw_SetCallbacksChainForAllWindows(bool chain_for_all_windows)
 #if EMSCRIPTEN_USE_PORT_CONTRIB_GLFW3 >= 34020240817
 void ImGui_ImplGlfw_EmscriptenOpenURL(const char* url) { if (url) emscripten::glfw3::OpenURL(url); }
 #else
-EM_JS(void, ImGui_ImplGlfw_EmscriptenOpenURL, (const char* url), { url = url ? UTF8ToString(url) : null; if (url) window.open(url, '_blank'); });
+EM_JS(void, ImGui_ImplGlfw_EmscriptenOpenURL, (const char* url), { url = url ? UTF8ToString(url) : null; if (url) window.open(url, '_blank', 'noopener'); });
 #endif
 #endif
 
@@ -849,11 +850,13 @@ static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, Glfw
 
     // Windows: register a WndProc hook so we can intercept some messages.
 #ifdef _WIN32
-    HWND hwnd = (HWND)main_viewport->PlatformHandleRaw;
-    ::SetPropA(hwnd, "IMGUI_BACKEND_DATA", bd);
-    bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
-    IM_ASSERT(bd->PrevWndProc != nullptr);
-    ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+    if (HWND hwnd = (HWND)main_viewport->PlatformHandleRaw)
+    {
+        ::SetPropA(hwnd, "IMGUI_BACKEND_DATA", bd);
+        bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
+        IM_ASSERT(bd->PrevWndProc != nullptr);
+        ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+    }
 #endif
 
 #if GLFW_HAS_X11
@@ -934,9 +937,12 @@ void ImGui_ImplGlfw_Shutdown()
     // Windows: restore our WndProc hook
 #ifdef _WIN32
     ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-    ::SetPropA((HWND)main_viewport->PlatformHandleRaw, "IMGUI_BACKEND_DATA", nullptr);
-    ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)bd->PrevWndProc);
-    bd->PrevWndProc = nullptr;
+    if (HWND hwnd = (HWND)main_viewport->PlatformHandleRaw)
+    {
+        ::SetPropA(hwnd, "IMGUI_BACKEND_DATA", nullptr);
+        ::SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)bd->PrevWndProc);
+        bd->PrevWndProc = nullptr;
+    }
 #endif
 
 #if GLFW_HAS_X11
@@ -1773,4 +1779,5 @@ static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wPara
 #pragma clang diagnostic pop
 #endif
 
+#endif // OFXIMGUI_BACKEND_GLFW, CUSTOM OFXIMGUI ADDED LINE
 #endif // #ifndef IMGUI_DISABLE
