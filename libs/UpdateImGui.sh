@@ -132,10 +132,20 @@ if [ `uname -s` = "Darwin" ] ; then
 fi;
 
 echo "\nApplying backend guards..."
+# Wraps a backend in `#if <condition>` unless it already is (safe to run on already patched files)
+# usage: add_backend_guard <file> <condition> <end comment>
+add_backend_guard() {
+	if grep -q "$2 // CUSTOM OFXIMGUI ADDED LINE" "$1"; then
+		echo "Guard already in $1"
+	else
+		GUARD_COND="$2" GUARD_END="$3" perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if $ENV{GUARD_COND} \/\/ CUSTOM OFXIMGUI ADDED LINE\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ $ENV{GUARD_END}, CUSTOM OFXIMGUI ADDED LINE\n$1/m' "$1"
+		grep -q "$2 // CUSTOM OFXIMGUI ADDED LINE" "$1" || echo "WARNING: could not add the guard to $1, add it by hand"
+	fi
+}
 # GLFW backend: only compiled when ofxImGui selects it (not on iOS/Android)
-perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if defined(OFXIMGUI_BACKEND_GLFW) \/\/ CUSTOM OFXIMGUI ADDED LINE\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ OFXIMGUI_BACKEND_GLFW, CUSTOM OFXIMGUI ADDED LINE\n$1/m' ./imgui/backends/imgui_impl_glfw.cpp
+add_backend_guard ./imgui/backends/imgui_impl_glfw.cpp "defined(OFXIMGUI_BACKEND_GLFW)" "OFXIMGUI_BACKEND_GLFW"
 # OpenGL 2 backend: desktop-only GL, compiled out when ofxImGui selects GLES 2
-perl -0pi -e 's/^#ifndef IMGUI_DISABLE\n/#ifndef IMGUI_DISABLE\n#if !defined(OFXIMGUI_RENDERER_GLES_2) \/\/ CUSTOM OFXIMGUI ADDED LINE\n/m; s/^(#endif \/\/ #ifndef IMGUI_DISABLE)/#endif \/\/ !OFXIMGUI_RENDERER_GLES_2, CUSTOM OFXIMGUI ADDED LINE\n$1/m' ./imgui/backends/imgui_impl_opengl2.cpp
+add_backend_guard ./imgui/backends/imgui_impl_opengl2.cpp "!defined(OFXIMGUI_RENDERER_GLES_2)" "!OFXIMGUI_RENDERER_GLES_2"
 
 echo "\nApplying GLFW multi context patch with obj-c ARC support..."
 # Option 1 : Patch file ?
